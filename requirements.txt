@@ -1,0 +1,5 @@
+# Smart Agriculture Edge AI v0.1 runs on the Python standard library only.
+# There are no third-party runtime dependencies.
+#
+# Development / testing:
+pytest>=7.0
