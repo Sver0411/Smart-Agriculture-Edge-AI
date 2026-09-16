@@ -1,7 +1,11 @@
 """SQLite persistence for the cloud server.
 
-Only the tables v0.1 needs are created: sensor history, gateway heartbeats,
-controller commands / results, alerts and a generic log table.
+Tables kept by v0.2: sensor history, gateway heartbeats, controller commands /
+results, alerts, a generic log table and the ``processed_message`` dedup table
+(see :mod:`server.dedup`).
+
+Every row also stores the ``message_id`` of the upload that produced it, so any
+record can be traced back to the exact message that created it.
 """
 
 from __future__ import annotations
@@ -12,6 +16,7 @@ import time
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS sensor_data (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    message_id     TEXT,
     gateway_id     TEXT    NOT NULL,
     sensor_node_id TEXT    NOT NULL,
     timestamp      REAL    NOT NULL,
@@ -24,40 +29,46 @@ CREATE TABLE IF NOT EXISTS sensor_data (
 );
 
 CREATE TABLE IF NOT EXISTS gateway_heartbeat (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    gateway_id TEXT    NOT NULL,
-    peer_id    TEXT,
-    timestamp  REAL    NOT NULL,
-    status     TEXT    NOT NULL,
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    message_id  TEXT,
+    gateway_id  TEXT    NOT NULL,
+    peer_id     TEXT,
+    timestamp   REAL    NOT NULL,
+    status      TEXT    NOT NULL,
     peer_status TEXT,
-    created_at REAL    NOT NULL
+    created_at  REAL    NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS controller_command (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    message_id    TEXT,
     gateway_id    TEXT    NOT NULL,
     controller_id TEXT    NOT NULL,
     command_id    TEXT    NOT NULL,
     command_type  TEXT    NOT NULL,
     duration      REAL,
+    generation    INTEGER,
     timestamp     REAL    NOT NULL,
     created_at    REAL    NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS controller_result (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    message_id    TEXT,
     gateway_id    TEXT    NOT NULL,
     controller_id TEXT,
     command_id    TEXT    NOT NULL,
     command_type  TEXT,
     status        TEXT    NOT NULL,
     reason        TEXT,
+    generation    INTEGER,
     timestamp     REAL    NOT NULL,
     created_at    REAL    NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS alert (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    message_id     TEXT,
     gateway_id     TEXT    NOT NULL,
     sensor_node_id TEXT,
     alert_type     TEXT    NOT NULL,
@@ -113,15 +124,17 @@ class Database:
         sensor_node_id: str,
         record: dict,
         health_state: str = "HEALTHY",
+        message_id: str | None = None,
     ) -> int:
         cur = self.conn.execute(
             """
             INSERT INTO sensor_data (
-                gateway_id, sensor_node_id, timestamp, temperature, humidity,
+                message_id, gateway_id, sensor_node_id, timestamp, temperature, humidity,
                 soil_moisture, light, health_state, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
+                message_id,
                 gateway_id,
                 sensor_node_id,
                 float(record.get("timestamp", time.time())),
@@ -143,14 +156,23 @@ class Database:
         status: str = "ONLINE",
         peer_id: str | None = None,
         peer_status: str | None = None,
+        message_id: str | None = None,
     ) -> int:
         cur = self.conn.execute(
             """
             INSERT INTO gateway_heartbeat (
-                gateway_id, peer_id, timestamp, status, peer_status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?)
+                message_id, gateway_id, peer_id, timestamp, status, peer_status, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            (gateway_id, peer_id, float(timestamp), status, peer_status, time.time()),
+            (
+                message_id,
+                gateway_id,
+                peer_id,
+                float(timestamp),
+                status,
+                peer_status,
+                time.time(),
+            ),
         )
         self.conn.commit()
         return int(cur.lastrowid)
@@ -163,20 +185,24 @@ class Database:
         command_type: str,
         duration,
         timestamp: float,
+        generation: int | None = None,
+        message_id: str | None = None,
     ) -> int:
         cur = self.conn.execute(
             """
             INSERT INTO controller_command (
-                gateway_id, controller_id, command_id, command_type, duration,
-                timestamp, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                message_id, gateway_id, controller_id, command_id, command_type, duration,
+                generation, timestamp, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
+                message_id,
                 gateway_id,
                 controller_id,
                 command_id,
                 command_type,
                 duration,
+                generation,
                 float(timestamp),
                 time.time(),
             ),
@@ -193,21 +219,25 @@ class Database:
         controller_id: str | None = None,
         command_type: str | None = None,
         reason: str | None = None,
+        generation: int | None = None,
+        message_id: str | None = None,
     ) -> int:
         cur = self.conn.execute(
             """
             INSERT INTO controller_result (
-                gateway_id, controller_id, command_id, command_type, status,
-                reason, timestamp, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                message_id, gateway_id, controller_id, command_id, command_type, status,
+                reason, generation, timestamp, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
+                message_id,
                 gateway_id,
                 controller_id,
                 command_id,
                 command_type,
                 status,
                 reason,
+                generation,
                 float(timestamp),
                 time.time(),
             ),
@@ -222,14 +252,15 @@ class Database:
         alert_type: str,
         message: str = "",
         sensor_node_id: str | None = None,
+        message_id: str | None = None,
     ) -> int:
         cur = self.conn.execute(
             """
             INSERT INTO alert (
-                gateway_id, sensor_node_id, alert_type, message, timestamp, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?)
+                message_id, gateway_id, sensor_node_id, alert_type, message, timestamp, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            (gateway_id, sensor_node_id, alert_type, message, float(timestamp), time.time()),
+            (message_id, gateway_id, sensor_node_id, alert_type, message, float(timestamp), time.time()),
         )
         self.conn.commit()
         return int(cur.lastrowid)
@@ -253,6 +284,7 @@ class Database:
             "controller_result",
             "alert",
             "log",
+            "processed_message",
         }
         if table not in allowed:
             raise ValueError(f"unknown table: {table!r}")

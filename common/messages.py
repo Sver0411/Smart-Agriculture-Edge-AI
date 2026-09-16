@@ -30,6 +30,11 @@ __all__ = [
     "HEARTBEAT",
     "ALERT",
     "SERVER_POLICY",
+    "NODE_REGISTER",
+    "NODE_REGISTER_ACK",
+    "NODE_STATUS",
+    "ACK",
+    "ACKED_TYPES",
     "MESSAGE_TYPES",
     "REQUIRED_FIELDS",
     "Message",
@@ -46,6 +51,10 @@ CONTROL_RESULT = "CONTROL_RESULT"
 HEARTBEAT = "HEARTBEAT"
 ALERT = "ALERT"
 SERVER_POLICY = "SERVER_POLICY"
+NODE_REGISTER = "NODE_REGISTER"
+NODE_REGISTER_ACK = "NODE_REGISTER_ACK"
+NODE_STATUS = "NODE_STATUS"
+ACK = "ACK"
 
 MESSAGE_TYPES = (
     SENSOR_DATA,
@@ -54,7 +63,14 @@ MESSAGE_TYPES = (
     HEARTBEAT,
     ALERT,
     SERVER_POLICY,
+    NODE_REGISTER,
+    NODE_REGISTER_ACK,
+    NODE_STATUS,
+    ACK,
 )
+
+# Messages that must be acknowledged so the sender can retry them.
+ACKED_TYPES = ("CONTROL_COMMAND", "NODE_REGISTER", "SERVER_POLICY")
 
 REQUIRED_FIELDS = ("type", "source", "target", "timestamp", "message_id", "payload")
 
@@ -146,6 +162,15 @@ class Message:
     def reply(self, type: str, payload: dict) -> "Message":
         """Build a message that answers this one (source/target swapped)."""
         return Message(type=type, source=self.target, target=self.source, payload=payload)
+
+    def ack(self, source: str | None = None) -> "Message":
+        """Build the ACK that acknowledges this specific message."""
+        return Message(
+            type=ACK,
+            source=source or self.target,
+            target=self.source,
+            payload={"ack_message_id": self.message_id},
+        )
 
 
 # --------------------------------------------------------------------------

@@ -1,15 +1,17 @@
-"""Cloud server for Smart Agriculture Edge AI v0.1.
+"""Cloud server for Smart Agriculture Edge AI v0.2.
 
-The server is deliberately small.  It accepts one TCP connection per gateway
-and then only does four things:
+The server is deliberately small, and deliberately *not* on the control path.
+It accepts one TCP connection per gateway and then only does five things:
 
-* store everything the gateways upload (sensor history, heartbeats,
-  control commands / results, alerts),
-* push a simple ``SERVER_POLICY`` down to every connected gateway,
+* store everything the gateways upload (sensor history, heartbeats, control
+  commands / results, alerts) while ignoring duplicates,
+* push a versioned ``SERVER_POLICY`` down to every connected gateway,
 * print what it stored,
-* keep the SQLite file up to date.
+* keep the SQLite file up to date,
+* collect a few counters for the demo summary.
 
-It never talks to a sensor or a controller directly.
+It never talks to a sensor or a controller directly, and the farm keeps working
+while it is down - the gateways simply queue what they cannot upload.
 """
 
 from __future__ import annotations
@@ -24,6 +26,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 from common import config  # noqa: E402
 from common.log import node_log  # noqa: E402
 from common.messages import (  # noqa: E402
+    ACK,
     ALERT,
     CONTROL_COMMAND,
     CONTROL_RESULT,
@@ -35,7 +38,9 @@ from common.messages import (  # noqa: E402
     read_message,
     send_message,
 )
+from common.reliability import Counters  # noqa: E402
 from server.database import Database  # noqa: E402
+from server.dedup import Deduplicator  # noqa: E402
 
 NODE_ID = "SERVER"
 
@@ -49,12 +54,16 @@ class Server:
         port: int = config.SERVER_PORT,
         db_path: str = config.DEFAULT_DB_PATH,
         policy_interval: float = config.SERVER_POLICY_INTERVAL,
+        policy_version: int = config.INITIAL_POLICY_VERSION,
     ):
         self.host = host
         self.port = port
         self.db = Database(db_path)
         self.policy_interval = policy_interval
+        self.policy_version = policy_version
         self.clients: dict[str, asyncio.StreamWriter] = {}
+        self.metrics = Counters()
+        self.dedup: Deduplicator | None = None
 
         self._server: asyncio.AbstractServer | None = None
         self._tasks: list[asyncio.Task] = []
@@ -64,6 +73,7 @@ class Server:
 
     async def start(self) -> None:
         self.db.init_schema()
+        self.dedup = Deduplicator(self.db.conn)
         self._server = await asyncio.start_server(self._handle_gateway, self.host, self.port)
         self._tasks.append(asyncio.create_task(self._policy_loop(), name="server-policy"))
         node_log(NODE_ID, f"listening on {self.host}:{self.port} (sqlite: {self.db.path})")
@@ -128,8 +138,15 @@ class Server:
     # -- storage -----------------------------------------------------------
 
     def _store(self, message: Message) -> None:
+        # Gateways upload "at least once".  Replays and retries carry the same
+        # message_id, so anything we have already processed is dropped here.
+        if not self.dedup.is_new(message.message_id):
+            node_log(NODE_ID, f"duplicate {message.type} ignored (message_id={message.message_id})")
+            return
+
         gateway_id = message.source
         payload = message.payload
+        message_id = message.message_id
 
         if message.type == SENSOR_DATA:
             record = payload.get("record", {})
@@ -138,7 +155,9 @@ class Server:
                 sensor_node_id=record.get("sensor_node_id", "?"),
                 record=record,
                 health_state=record.get("health_state", "HEALTHY"),
+                message_id=message_id,
             )
+            self.metrics.inc("sensor_messages")
             node_log(
                 NODE_ID,
                 "sensor data stored "
@@ -151,11 +170,14 @@ class Server:
             self.db.insert_controller_command(
                 gateway_id=gateway_id,
                 controller_id=payload.get("controller_id", message.target),
-                command_id=payload.get("command_id", message.message_id),
+                command_id=payload.get("command_id", message_id),
                 command_type=payload.get("type", "UNKNOWN"),
                 duration=payload.get("duration"),
                 timestamp=message.timestamp,
+                generation=payload.get("gateway_generation"),
+                message_id=message_id,
             )
+            self.metrics.inc("control_commands")
 
         elif message.type == CONTROL_RESULT:
             self.db.insert_controller_result(
@@ -166,7 +188,10 @@ class Server:
                 controller_id=payload.get("controller_id"),
                 command_type=payload.get("command_type"),
                 reason=payload.get("reason"),
+                generation=payload.get("generation"),
+                message_id=message_id,
             )
+            self.metrics.inc("control_results")
             node_log(
                 NODE_ID,
                 f"control result stored ({payload.get('command_type')} -> {payload.get('status')}"
@@ -181,7 +206,9 @@ class Server:
                 status=payload.get("status", "ONLINE"),
                 peer_id=payload.get("peer_id"),
                 peer_status=payload.get("peer_status"),
+                message_id=message_id,
             )
+            self.metrics.inc("heartbeats")
 
         elif message.type == ALERT:
             self.db.insert_alert(
@@ -190,11 +217,16 @@ class Server:
                 alert_type=payload.get("alert_type", "UNKNOWN"),
                 message=payload.get("message", ""),
                 sensor_node_id=payload.get("sensor_node_id"),
+                message_id=message_id,
             )
+            self.metrics.inc("alerts")
             node_log(
                 NODE_ID,
-                f"alert stored ({payload.get('sensor_node_id')}: {payload.get('message')})",
+                f"alert stored ({payload.get('alert_type')}: {payload.get('message')})",
             )
+
+        elif message.type == ACK:
+            self.metrics.inc("acks_received")
 
         elif message.type == SERVER_POLICY:  # pragma: no cover - gateways never send this
             node_log(NODE_ID, "ignoring SERVER_POLICY sent by a gateway")
@@ -214,13 +246,20 @@ class Server:
     async def _broadcast_policy(self) -> None:
         if not self.clients:
             return
-        policy = Message(type=SERVER_POLICY, source=NODE_ID, target="*", payload=dict(config.SERVER_POLICY))
+        policy = Message(
+            type=SERVER_POLICY,
+            source=NODE_ID,
+            target="*",
+            payload={"policy_version": self.policy_version, **config.DEFAULT_POLICY},
+        )
         for gateway_id, writer in list(self.clients.items()):
             try:
                 await send_message(writer, policy)
             except (ConnectionResetError, BrokenPipeError, RuntimeError):
                 self.clients.pop(gateway_id, None)
-        node_log(NODE_ID, f"SERVER_POLICY pushed to {', '.join(sorted(self.clients)) or 'no gateway'}")
+        self.policy_version += 1
+        node_log(NODE_ID, f"SERVER_POLICY v{policy.payload['policy_version']} pushed to "
+                          f"{', '.join(sorted(self.clients)) or 'no gateway'}")
 
 
 # --------------------------------------------------------------------------

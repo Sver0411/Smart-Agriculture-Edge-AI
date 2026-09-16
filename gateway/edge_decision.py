@@ -70,15 +70,27 @@ class EdgeDecider:
     thresholds in place.
     """
 
-    def __init__(self, policy: dict | None = None):
+    def __init__(self, policy: dict | None = None, policy_version: int = 0):
         self.policy = {**config.DEFAULT_POLICY, **(policy or {})}
+        self.policy_version = policy_version
 
-    def update_policy(self, policy: dict) -> dict:
-        """Apply the keys we know about; ignore anything else."""
+    def update_policy(self, payload: dict) -> tuple[bool, dict]:
+        """Apply a policy push; return ``(applied, policy)``.
+
+        A policy whose ``policy_version`` is not newer than the version we
+        already hold is ignored - it is a replay or an out-of-order delivery.
+        """
+        version = payload.get("policy_version")
+        if version is not None:
+            version = int(version)
+            if version <= self.policy_version:
+                return False, dict(self.policy)
+            self.policy_version = version
+
         for key in POLICY_KEYS:
-            if key in policy:
-                self.policy[key] = policy[key]
-        return dict(self.policy)
+            if key in payload:
+                self.policy[key] = payload[key]
+        return True, dict(self.policy)
 
     def decide(self, sensor_data: dict) -> dict | None:
         return edge_decision(sensor_data, self.policy)
