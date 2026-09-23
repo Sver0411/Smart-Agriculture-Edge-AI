@@ -2,9 +2,9 @@
 
 Two small pieces:
 
-* :class:`AckTracker` - remembers the critical messages we put on the wire
-  (``CONTROL_COMMAND``, ``NODE_REGISTER``) and works out when one of them has to
-  be retransmitted or finally declared undeliverable.
+* :class:`AckTracker` - used by the gateway for ``CONTROL_COMMAND`` delivery.
+  Nodes retry ``NODE_REGISTER`` in their own registration loops. A
+  ``SERVER_POLICY`` receipt ACK is not tracked for retry by the server.
 * :class:`Counters` - a tiny metric holder used by the demo summary.
 
 There is no queue broker here on purpose: delivery is "at least once" with an

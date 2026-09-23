@@ -5,10 +5,18 @@ import pytest
 from common.messages import (
     CONTROL_COMMAND,
     HEARTBEAT,
+    NODE_REGISTER,
+    RETRY_TRACKED_TYPES,
     SENSOR_DATA,
+    SERVER_POLICY,
     Message,
     MessageError,
 )
+
+
+def test_retry_tracked_types_exclude_receipt_only_server_policy():
+    assert RETRY_TRACKED_TYPES == (CONTROL_COMMAND, NODE_REGISTER)
+    assert SERVER_POLICY not in RETRY_TRACKED_TYPES
 
 
 def test_message_json_roundtrip_keeps_every_field():

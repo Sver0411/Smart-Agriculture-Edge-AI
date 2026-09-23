@@ -74,8 +74,6 @@ ACK_TIMEOUT = 2.0
 MAX_RETRIES = 3
 RETRY_SCAN_INTERVAL = 0.2
 
-ACKED_MESSAGE_TYPES = ("CONTROL_COMMAND", "NODE_REGISTER")
-
 # --------------------------------------------------------------------------
 # Gateway / node states
 # --------------------------------------------------------------------------

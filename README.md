@@ -152,7 +152,9 @@ ACK                收到确认（与 CONTROL_RESULT 分开）    ← 新增
 node_id | node_type | owner_gateway | status | last_seen | generation
 ```
 
-启动时网关会预注册自己 Zone 的 B / C（`OFFLINE`）。B / C 连上后主动发 `NODE_REGISTER`，网关回 `NODE_REGISTER_ACK`，其中带 **owner 和当前 generation**。控制器把这两个值记在 Safety Guard 里 —— 它因此知道「谁有权命令我」以及「哪个 epoch 才算新」。
+启动时网关会预注册自己 Zone 的 B / C（`OFFLINE`）。B / C 连上后主动发 `NODE_REGISTER`，网关回 `NODE_REGISTER_ACK`，其中带 **owner 和当前 generation**。控制器把这两个值记在 Safety Guard 里 —— 它因此知道「谁有权命令我」以及「哪个 epoch 才算新」。v0.2.1 起，传感器也持续读取网关推送的 `NODE_STATUS`，只接受当前连接网关发来的非旧 generation 更新。
+
+传感器独立发送 `NODE_STATUS` 保活，不受采样间隔影响。注册表 `last_seen` 只记录网关收到节点消息的本机 wall-clock 时间；节点信封中的 `timestamp` 不参与在线超时判断。
 
 ### 2. 消息可靠性：ACK + 重试，与执行结果分离
 
@@ -164,10 +166,12 @@ A1 <--CONTROL_RESULT--- C1      “我执行了 / 我拒绝了，原因是 …�
 
 这两件事必须分开。如果只有一条回复，「命令丢了」和「命令被拒绝了」无法区分，网关就只能盲目重发——而盲目重发意味着水泵可能被启动两次。
 
-- 关键消息（`CONTROL_COMMAND`、`NODE_REGISTER`）进入 `AckTracker`
+- `CONTROL_COMMAND` 由网关 `AckTracker` 跟踪；`NODE_REGISTER` 由节点的注册重试循环处理
 - `ACK_TIMEOUT = 2s` 未收到 ACK → 重发，最多 `MAX_RETRIES = 3` 次
 - 重试耗尽 → 记 `COMMAND_DELIVERY_FAILED` 计数并上报告警（不静默丢失）
 - 投递语义是 **at-least-once**，配合下面的幂等接收端才安全
+
+`SERVER_POLICY` 的 ACK 仅表示收到。Server 不基于这个 ACK 重试策略；`RETRY_TRACKED_TYPES` 只列有实际重试路径的 `CONTROL_COMMAND` 和 `NODE_REGISTER`。
 
 重传队列里带一个 `(message, is_retry)` 标记：一次重传**不能**被当成一条新命令，否则它会重置自己的重试预算，永远重试下去。
 
@@ -336,6 +340,7 @@ A1 与 A2 各自维护 generation。
 
 - 排队是**持久化**的（每个网关一个 SQLite 文件 `gateway_queue_A1.db`），进程重启也不丢
 - 回放按 `queue_id` 升序，**最老的先发**
+- v0.2.1 会连续读取每批最多 100 条，直到队列真正为空；中途断线时只删除已成功发送的条目，余下条目保留原 `message_id`
 - 回放保留原始 `message_id`，所以服务器去重依然有效
 - 排队期间**边缘决策与执行完全不中断** —— 这是「边缘自治」真正的含义
 
@@ -532,7 +537,7 @@ pip install -r requirements.txt
 python -m pytest -q
 ```
 
-**84 个测试**，全部通过（约 28 秒）。覆盖：
+**92 个测试**，全部通过（约 29 秒）；其中 v0.2 基线为 84 个。覆盖：
 
 ```text
 协议层        消息序列化 / 反序列化 / 协议校验 / ACK 构造
@@ -582,7 +587,7 @@ Smart-Agriculture-Edge-AI/
 │   ├── messages.py          # 统一消息协议（10 种类型）
 │   ├── reliability.py       # AckTracker / Counters               ← v0.2
 │   └── config.py            # 全局配置
-├── tests/                   # 84 个测试
+├── tests/                   # 92 个测试
 ├── .github/workflows/tests.yml
 ├── demo.py                  # 一键启动全部节点 + 故障注入
 ├── README.md
@@ -604,7 +609,8 @@ RAFT / Paxos / etcd 等共识算法（用心跳 + epoch 代替）
 epoch / generation 的持久化（重启后回到 1，见上文「已知边界」）
 自动故障切回（恢复的网关停在 STANDBY，见上文说明）
 跨机房 / 多网关（>2）的归属协商
-传感器节点的反向通道（B 只发不收，读不到 NODE_STATUS 推送）
+SERVER_POLICY 按 ACK 重试（当前 ACK 仅确认收到）
+Gateway→Server 上传的应用层持久化 ACK（离线队列在 TCP 发送成功后删除；Server 崩溃窗口仍需单独评估）
 真实低功耗测试 / 硬件 PCB / OTA
 ```
 
@@ -620,7 +626,8 @@ epoch / generation 的持久化（重启后回到 1，见上文「已知边界�
 v0.1  端到端链路 + 统一协议 + Safety Guard + 心跳检测          ✅
 v0.2  节点注册 / 归属与 epoch / 故障接管 / ACK 与重试 /
       幂等执行 / 断网排队与回放 / 服务器去重 / 故障注入与场景    ✅
-v0.3  B1 ESP32-S3 + SHT30 固件集成；真机网络/failover 验收见 results/v0.3
+v0.2.1  队列完整回放 / 传感器反向通道 / 独立保活 / 接收时间判活
+v0.3  Software Integration & Experimental Foundation；历史 B1 记录保留在 results/v0.3
 ```
 
 ---

@@ -109,6 +109,7 @@ class Gateway:
         self.ownership = OwnershipManager(gateway_id, self.peer_id, self.registry)
         self.tracker = AckTracker()
         self.offline_queue = OfflineQueue(queue_path or ":memory:")
+        self._flush_lock = asyncio.Lock()
         self.metrics = Counters()
 
         # Connected B / C nodes, keyed by node id.
@@ -272,7 +273,6 @@ class Gateway:
             node_type=node_type,
             owner_gateway=self.gateway_id,
             generation=self.ownership.generation,
-            timestamp=time.time(),
             status=config.ONLINE,
         )
         self.connections[node_id] = writer
@@ -298,7 +298,7 @@ class Gateway:
         )
 
     def _on_peer_heartbeat(self, message: Message) -> None:
-        self.peer_last_seen = message.timestamp or time.time()
+        self.peer_last_seen = time.time()
         role = self.ownership.observe_peer(
             config.ONLINE, message.payload.get("generation")
         )
@@ -463,20 +463,27 @@ class Gateway:
         )
 
     async def _flush_offline_queue(self) -> None:
-        if self.server_writer is None or self.offline_queue.count() == 0:
-            return
-        pending = self.offline_queue.count()
-        node_log(self.gateway_id, f"flushing offline queue ({pending} messages, oldest first)")
-        for queue_id, message in self.offline_queue.peek(limit=100):
-            try:
-                await send_message(self.server_writer, message)
-            except (ConnectionResetError, BrokenPipeError, RuntimeError):
-                self.server_writer = None
-                node_log(self.gateway_id, "server link broken during replay, stopping flush")
+        async with self._flush_lock:
+            writer = self.server_writer
+            if writer is None or self.offline_queue.count() == 0:
                 return
-            self.offline_queue.delete(queue_id)
-            self.metrics.inc("queue_replayed")
-        node_log(self.gateway_id, "offline queue empty")
+            pending = self.offline_queue.count()
+            node_log(self.gateway_id, f"flushing offline queue ({pending} messages, oldest first)")
+            while self.server_writer is writer:
+                batch = self.offline_queue.peek(limit=100)
+                if not batch:
+                    node_log(self.gateway_id, "offline queue empty")
+                    return
+                for queue_id, message in batch:
+                    try:
+                        await send_message(writer, message)
+                    except (ConnectionResetError, BrokenPipeError, RuntimeError, OSError):
+                        if self.server_writer is writer:
+                            self.server_writer = None
+                        node_log(self.gateway_id, "server link broken during replay, stopping flush")
+                        return
+                    self.offline_queue.delete(queue_id)
+                    self.metrics.inc("queue_replayed")
 
     # -- Task 3: receive server policy -------------------------------------
 
@@ -496,15 +503,17 @@ class Gateway:
             self.server_writer = writer
             node_log(self.gateway_id, f"connected to server {self.server_host}:{self.server_port}")
             try:
-                while True:
-                    message = await read_message(reader)
-                    if message is None:
-                        break
-                    if message.type == SERVER_POLICY:
-                        await send_message(writer, message.ack(self.gateway_id))
-                        self._apply_policy(message)
-                    else:
-                        node_log(self.gateway_id, f"unexpected {message.type} from server")
+                await self._flush_offline_queue()
+                if self.server_writer is writer:
+                    while True:
+                        message = await read_message(reader)
+                        if message is None:
+                            break
+                        if message.type == SERVER_POLICY:
+                            await send_message(writer, message.ack(self.gateway_id))
+                            self._apply_policy(message)
+                        else:
+                            node_log(self.gateway_id, f"unexpected {message.type} from server")
             except (OSError, MessageError) as exc:
                 node_log(self.gateway_id, f"server link error: {exc}")
             finally:
