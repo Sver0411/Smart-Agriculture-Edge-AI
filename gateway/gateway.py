@@ -25,6 +25,7 @@ import argparse
 import asyncio
 import pathlib
 import random
+import math
 import sys
 import time
 
@@ -241,14 +242,14 @@ class Gateway:
                     continue
 
                 if message.type == NODE_STATUS and source != self.peer_id:
-                    self.registry.touch(source, message.timestamp)
+                    self.registry.touch(source)
                     continue
 
                 if message.type in (SENSOR_DATA, ALERT):
-                    self.registry.touch(source, message.timestamp)
+                    self.registry.touch(source)
                     await self.sensor_queue.put(message)
                 elif message.type == CONTROL_RESULT:
-                    self.registry.touch(source, message.timestamp)
+                    self.registry.touch(source)
                     await self.result_queue.put(message)
                 else:
                     node_log(self.gateway_id, f"unexpected {message.type} from {source}")
@@ -271,7 +272,7 @@ class Gateway:
             node_type=node_type,
             owner_gateway=self.gateway_id,
             generation=self.ownership.generation,
-            timestamp=message.timestamp,
+            timestamp=time.time(),
             status=config.ONLINE,
         )
         self.connections[node_id] = writer
@@ -318,15 +319,41 @@ class Gateway:
 
     async def _process_sensor_message(self, message: Message) -> None:
         payload = message.payload
-        record = dict(payload.get("data", {}))
+        data = payload.get("data", {})
+        if not isinstance(data, dict):
+            node_log(self.gateway_id, f"invalid sensor payload from {message.source}")
+            return
+        record = dict(data)
+        health = payload.get("health", {})
         health_state = payload.get("health_state", "HEALTHY")
-        record.setdefault("timestamp", message.timestamp)
+        usable = payload.get("usable_for_control", health_state != "FAULT")
+        if not isinstance(usable, bool):
+            usable = False
+        if health_state == "FAULT":
+            usable = False
+        if isinstance(health, dict) and any(
+            isinstance(channel, dict) and channel.get("state") == "FAULT"
+            for channel in health.values()
+        ):
+            usable = False
+        for field in ("temperature", "humidity", "soil_moisture", "light"):
+            if field in record and (isinstance(record[field], bool) or
+                                    not isinstance(record[field], (int, float)) or
+                                    not math.isfinite(record[field])):
+                usable = False
+        physical = payload.get("node_mode") == "physical"
+        received_at = time.time()
+        record["timestamp"] = received_at if physical else message.timestamp
+        record["received_at"] = received_at
+        for key in ("node_mode", "boot_id", "sample_seq", "device_monotonic_ms", "timestamp_source", "sampling", "health", "physical_read_ok", "test_injected"):
+            if key in payload:
+                record[key] = payload[key]
+        record["usable_for_control"] = usable
 
         node_log(self.gateway_id, f"received {message.type} from {message.source}")
         self.metrics.inc("sensor_messages")
 
-        if message.type == ALERT or health_state != "HEALTHY":
-            # Bad data must never reach the control decision.
+        if message.type == ALERT:
             reasons = payload.get("reasons") or []
             node_log(
                 self.gateway_id,
@@ -342,7 +369,7 @@ class Gateway:
                         "alert_type": "SENSOR_FAULT",
                         "sensor_node_id": message.source,
                         "health_state": health_state,
-                        "message": "; ".join(reasons) or "sensor reported FAULT",
+                        "message": "; ".join(reasons) or payload.get("message", "sensor alert"),
                     },
                 )
             )
@@ -359,6 +386,15 @@ class Gateway:
         await self.upload_queue.put(
             Message(type=SENSOR_DATA, source=self.gateway_id, target="SERVER", payload={"record": record})
         )
+
+        if not usable:
+            node_log(self.gateway_id, f"sensor {message.source} unusable for control -> decision skipped")
+            self.metrics.inc("sensor_control_skipped")
+            return
+        if not any(field in record for field in ("soil_moisture", "temperature")):
+            node_log(self.gateway_id, f"sensor {message.source}: insufficient sensor fields")
+            self.metrics.inc("insufficient_sensor_fields")
+            return
 
         # Edge autonomy: this decision does not need the cloud server.
         # The actuator belongs to the *sensor's* zone, so a gateway that has

@@ -1,4 +1,4 @@
-# Smart Agriculture Edge AI v0.2
+# Smart Agriculture Edge AI v0.3 — Physical B1 integration
 
 一个最小可运行的**智慧农业边缘 AI 系统**：多节点架构（云端服务器 / 边缘网关 / 传感器节点 / 控制器节点）的完整链路原型。
 
@@ -13,11 +13,28 @@ v0.1 证明这条链路能跑起来；**v0.2 的主题是工程加固** —— �
 故障可验证        故障注入 + 4 个可复现场景 + 指标汇总
 ```
 
-**当前版本全部为软件模拟**，不连接任何真实硬件。所有节点都在本机通过 `asyncio` TCP 通信。
+v0.3 引入第一个真实节点：B1 固件运行在 ESP32-S3 上，读取 SHT30 的温度和湿度，通过 Wi-Fi/TCP 与现有 Python A1/A2 网关通信。Server、A1/A2、B2、C1/C2 仍是 Python 软件节点。`python3 demo.py` 保持纯模拟兼容模式；真实 B1 固件见 [firmware/b1/README.md](firmware/b1/README.md)。
+
+固件集成了 [SensorTrust C11 core](third_party/sensor_trust/SOURCE.md) 和 [AdaptiveSense C detector/scheduler](third_party/adaptive_sense/SOURCE.md)，来源提交及许可证都已记录。v0.2 的 Python `sensor_trust.py` / `adaptive_sense.py` 是模拟测试用的简化占位实现；它们不是这次固件所用算法。v0.3 使用加速的实验室采样间隔，不代表部署间隔，也没有测量能耗。
 
 ---
 
 ## 系统架构
+
+真实 B1 模式：
+
+```text
+                       Server (Python)
+                             │
+                ┌────────────┴────────────┐
+           A1 (Python)                A2 (Python)
+                └──────── Wi-Fi/TCP ──────┘
+                             │
+                    B1 (ESP32-S3 + SHT30)
+                    B2 / C1 / C2: Python simulator
+```
+
+下面是保留的 v0.2 纯模拟架构图，用于 `demo.py` 与回归测试：
 
 ```text
                               ┌──────────────────────────┐
@@ -74,7 +91,8 @@ B 与 C 是**并列**节点，C 不挂在 B 后面：
 | --- | --- | --- |
 | `Server` | 云端服务器 | 接收 A1 / A2 上传；`message_id` 去重；SQLite 保存传感器历史 / 网关心跳 / 控制命令与结果 / 告警；周期性下发带 `policy_version` 的 `SERVER_POLICY` |
 | `Gateway A1 / A2` | 边缘网关 | 节点注册与归属管理；边缘决策；向 C 下发命令并等待 ACK（超时重试）；处理 `CONTROL_RESULT`；与对端心跳、超时接管；服务器不可用时本地排队 |
-| `Sensor Node B1 / B2` | 传感器节点 | 模拟生成 `temperature` / `humidity` / `soil_moisture` / `light`；SensorTrust 基础可信检查；AdaptiveSense 动态采样周期；网关故障时切到备用网关 |
+| `Sensor Node B1` | 真实或兼容模拟传感器 | 真实模式只读取 SHT30 温湿度；独立 SensorTrust channel context 与 AdaptiveSense 调度；A1/A2 注册及重连。纯模拟 demo 仍使用四字段 SensorSimulator |
+| `Sensor Node B2` | 模拟传感器 | 继续生成四字段数据，供 demo/CI 使用 |
 | `Controller Node C1 / C2` | 控制器节点 | 收到命令立刻回 ACK；Safety Guard 校验（类型 / TTL / epoch / owner / 幂等 / duration / cooldown）；执行或拒绝；回传 `CONTROL_RESULT` |
 
 每个网关内部拆成 **7 个互不阻塞的 `asyncio` 任务**：
@@ -602,7 +620,7 @@ epoch / generation 的持久化（重启后回到 1，见上文「已知边界�
 v0.1  端到端链路 + 统一协议 + Safety Guard + 心跳检测          ✅
 v0.2  节点注册 / 归属与 epoch / 故障接管 / ACK 与重试 /
       幂等执行 / 断网排队与回放 / 服务器去重 / 故障注入与场景    ✅
-v0.3  （未开始，等 v0.2 验收后另行设计）
+v0.3  B1 ESP32-S3 + SHT30 固件集成；真机网络/failover 验收见 results/v0.3
 ```
 
 ---

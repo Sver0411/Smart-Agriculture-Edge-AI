@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import sqlite3
 import time
+import json
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS sensor_data (
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS sensor_data (
     soil_moisture  REAL,
     light          REAL,
     health_state   TEXT    NOT NULL,
+    metadata_json  TEXT,
     created_at     REAL    NOT NULL
 );
 
@@ -107,6 +109,9 @@ class Database:
     def init_schema(self) -> "Database":
         self.connect()
         self.conn.executescript(SCHEMA)
+        columns = {row[1] for row in self.conn.execute("PRAGMA table_info(sensor_data)")}
+        if "metadata_json" not in columns:
+            self.conn.execute("ALTER TABLE sensor_data ADD COLUMN metadata_json TEXT")
         self.conn.commit()
         return self
 
@@ -130,8 +135,8 @@ class Database:
             """
             INSERT INTO sensor_data (
                 message_id, gateway_id, sensor_node_id, timestamp, temperature, humidity,
-                soil_moisture, light, health_state, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                soil_moisture, light, health_state, metadata_json, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 message_id,
@@ -143,6 +148,11 @@ class Database:
                 record.get("soil_moisture"),
                 record.get("light"),
                 health_state,
+                json.dumps({key: record[key] for key in (
+                    "node_mode", "boot_id", "sample_seq", "device_monotonic_ms",
+                    "sampling", "health", "usable_for_control", "received_at",
+                    "physical_read_ok", "test_injected", "timestamp_source",
+                ) if key in record}),
                 time.time(),
             ),
         )
