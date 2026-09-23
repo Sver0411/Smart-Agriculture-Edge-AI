@@ -1,0 +1,3 @@
+event,gateway,generation,monotonic_ms,address,sda,scl,ok
+WIFI_UNCONFIGURED,,,,,,,
+SHT30_PROBE,,,,68,8,9,True

@@ -1,0 +1,107 @@
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x2b (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2810,len:0x1564
+load:0x403c8700,len:0x4
+load:0x403c8704,len:0xd24
+load:0x403cb700,len:0x2ed4
+entry 0x403c8928
+I (27) boot: ESP-IDF v5.4.4 2nd stage bootloader
+I (27) boot: compile time Sep 23 2026 23:00:43
+I (27) boot: Multicore bootloader
+I (27) boot: chip revision: v0.2
+I (30) boot: efuse block revision: v1.3
+I (34) boot.esp32s3: Boot SPI Speed : 80MHz
+I (37) boot.esp32s3: SPI Mode       : DIO
+I (41) boot.esp32s3: SPI Flash Size : 2MB
+I (45) boot: Enabling RNG early entropy source...
+I (49) boot: Partition Table:
+I (52) boot: ## Label            Usage          Type ST Offset   Length
+I (58) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (65) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (71) boot:  2 factory          factory app      00 00 00010000 00100000
+I (78) boot: End of partition table
+I (81) esp_image: segment 0: paddr=00010020 vaddr=3c020020 size=0b7b0h ( 47024) map
+I (97) esp_image: segment 1: paddr=0001b7d8 vaddr=3fc94100 size=02fc4h ( 12228) load
+I (100) esp_image: segment 2: paddr=0001e7a4 vaddr=40374000 size=01874h (  6260) load
+I (105) esp_image: segment 3: paddr=00020020 vaddr=42000020 size=1d2bch (119484) map
+I (132) esp_image: segment 4: paddr=0003d2e4 vaddr=40375874 size=0e800h ( 59392) load
+I (145) esp_image: segment 5: paddr=0004baec vaddr=50000000 size=0001ch (    28) load
+I (152) boot: Loaded app from partition at offset 0x10000
+I (152) boot: Disabling RNG early entropy source...
+I (163) cpu_start: Multicore app
+I (171) cpu_start: GPIO 44 and 43 are used as console UART I/O pins
+I (172) cpu_start: Pro cpu start user code
+I (172) cpu_start: cpu freq: 160000000 Hz
+I (174) app_init: Application information:
+I (178) app_init: Project name:     smart_agriculture_b1
+I (183) app_init: App version:      v0.2-1-g562304c
+I (187) app_init: Compile time:     Sep 23 2026 23:07:51
+I (192) app_init: ELF file SHA256:  44c546459...
+I (197) app_init: ESP-IDF:          v5.4.4
+I (200) efuse_init: Min chip rev:     v0.0
+I (204) efuse_init: Max chip rev:     v0.99
+I (208) efuse_init: Chip rev:         v0.2
+I (212) heap_init: Initializing. RAM available for dynamic allocation:
+I (218) heap_init: At 3FC99430 len 000502E0 (320 KiB): RAM
+I (223) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM
+I (229) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM
+I (234) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM
+I (240) spi_flash: detected chip: generic
+I (243) spi_flash: flash io: dio
+W (246) spi_flash: Detected size(16384k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+W (258) i2c: This driver is an old driver, please migrate your application code to adapt `driver/i2c_master.h`
+I (268) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+I (274) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+I (281) main_task: Started on CPU0
+I (291) main_task: Calling app_main()
+B1_BEGIN {"boot_id":"eee0ba35","queue_capacity":16,"heap_after_boot":366384,"psram_runtime_bytes":0}
+B1_NET {"event":"WIFI_UNCONFIGURED"}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":0,"sensor_messages":0,"alerts":0,"local_queue_drops":0,"gateway_failovers":0}
+B1_NET {"event":"SHT30_PROBE","address":68,"sda":8,"scl":9,"ok":true}
+I (331) main_task: Returned from app_main()
+B1_SAMPLE {"seq":1,"monotonic_ms":96,"read_ok":true,"temperature":26.845,"humidity":55.186,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.000,"mode":"STABLE","next_interval_ms":2000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":2,"monotonic_ms":2131,"read_ok":true,"temperature":26.845,"humidity":55.186,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.000,"mode":"STABLE","next_interval_ms":2000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":3,"monotonic_ms":4171,"read_ok":true,"temperature":26.832,"humidity":55.172,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.089,"mode":"STABLE","next_interval_ms":4000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":4,"monotonic_ms":8211,"read_ok":true,"temperature":26.832,"humidity":55.242,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.081,"mode":"STABLE","next_interval_ms":4000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":4,"sensor_messages":0,"alerts":0,"local_queue_drops":0,"gateway_failovers":0}
+B1_SAMPLE {"seq":5,"monotonic_ms":12251,"read_ok":true,"temperature":26.832,"humidity":55.293,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.123,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":6,"monotonic_ms":17291,"read_ok":true,"temperature":26.845,"humidity":55.293,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.102,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":6,"sensor_messages":0,"alerts":0,"local_queue_drops":0,"gateway_failovers":0}
+B1_SAMPLE {"seq":7,"monotonic_ms":22331,"read_ok":true,"temperature":26.845,"humidity":55.343,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.145,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":8,"monotonic_ms":27371,"read_ok":true,"temperature":26.861,"humidity":55.406,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.194,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":8,"sensor_messages":0,"alerts":0,"local_queue_drops":0,"gateway_failovers":0}
+B1_SAMPLE {"seq":9,"monotonic_ms":32411,"read_ok":true,"temperature":26.861,"humidity":55.247,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.102,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":10,"monotonic_ms":37451,"read_ok":true,"temperature":26.861,"humidity":55.309,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.082,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":10,"sensor_messages":0,"alerts":0,"local_queue_drops":0,"gateway_failovers":0}
+B1_SAMPLE {"seq":11,"monotonic_ms":42491,"read_ok":true,"temperature":26.861,"humidity":55.476,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.243,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":12,"monotonic_ms":47531,"read_ok":true,"temperature":26.845,"humidity":55.425,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.131,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":12,"sensor_messages":0,"alerts":0,"local_queue_drops":0,"gateway_failovers":0}
+B1_SAMPLE {"seq":13,"monotonic_ms":52571,"read_ok":true,"temperature":26.832,"humidity":55.293,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.133,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":14,"monotonic_ms":57611,"read_ok":true,"temperature":26.845,"humidity":55.210,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.152,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":14,"sensor_messages":0,"alerts":0,"local_queue_drops":0,"gateway_failovers":0}
+B1_SAMPLE {"seq":15,"monotonic_ms":62651,"read_ok":true,"temperature":26.832,"humidity":55.401,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.117,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":16,"monotonic_ms":67691,"read_ok":true,"temperature":26.818,"humidity":55.277,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.171,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":16,"sensor_messages":0,"alerts":0,"local_queue_drops":0,"gateway_failovers":0}
+B1_SAMPLE {"seq":17,"monotonic_ms":72731,"read_ok":true,"temperature":26.832,"humidity":55.305,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.066,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":18,"monotonic_ms":77771,"read_ok":true,"temperature":26.845,"humidity":55.293,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.073,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":18,"sensor_messages":0,"alerts":0,"local_queue_drops":2,"gateway_failovers":0}
+B1_SAMPLE {"seq":19,"monotonic_ms":82811,"read_ok":true,"temperature":26.832,"humidity":55.401,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.114,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":20,"monotonic_ms":87851,"read_ok":true,"temperature":26.832,"humidity":55.364,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.056,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":20,"sensor_messages":0,"alerts":0,"local_queue_drops":4,"gateway_failovers":0}
+B1_SAMPLE {"seq":21,"monotonic_ms":92891,"read_ok":true,"temperature":26.789,"humidity":55.334,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.316,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":22,"monotonic_ms":97931,"read_ok":true,"temperature":26.818,"humidity":55.361,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.119,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":22,"sensor_messages":0,"alerts":0,"local_queue_drops":6,"gateway_failovers":0}
+B1_SAMPLE {"seq":23,"monotonic_ms":102971,"read_ok":true,"temperature":26.789,"humidity":55.346,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.241,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":24,"monotonic_ms":108011,"read_ok":true,"temperature":26.789,"humidity":55.320,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.192,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":24,"sensor_messages":0,"alerts":0,"local_queue_drops":8,"gateway_failovers":0}
+B1_SAMPLE {"seq":25,"monotonic_ms":113051,"read_ok":true,"temperature":26.832,"humidity":55.293,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.134,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":26,"monotonic_ms":118091,"read_ok":true,"temperature":26.818,"humidity":55.181,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.184,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":26,"sensor_messages":0,"alerts":0,"local_queue_drops":10,"gateway_failovers":0}
+B1_SAMPLE {"seq":27,"monotonic_ms":123131,"read_ok":true,"temperature":26.818,"humidity":55.169,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.162,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":28,"monotonic_ms":128171,"read_ok":true,"temperature":26.832,"humidity":55.183,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.112,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_STATS {"wifi_connects":0,"gateway_connects":0,"registration_attempts":0,"registration_success":0,"sensor_samples":28,"sensor_messages":0,"alerts":0,"local_queue_drops":12,"gateway_failovers":0}
+B1_SAMPLE {"seq":29,"monotonic_ms":133211,"read_ok":true,"temperature":26.818,"humidity":55.218,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.046,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}
+B1_SAMPLE {"seq":30,"monotonic_ms":138251,"read_ok":true,"temperature":26.832,"humidity":55.364,"injected":false,"temp_health":"HEALTHY","temp_flags":0,"hum_health":"HEALTHY","hum_flags":0,"usable":true,"score":0.147,"mode":"STABLE","next_interval_ms":5000,"reason":"STABLE","min_free_heap":350908}

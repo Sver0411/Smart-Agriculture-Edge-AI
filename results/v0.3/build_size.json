@@ -1,0 +1,10 @@
+{
+  "app_binary_bytes": 244528,
+  "flash_code_bytes": 119482,
+  "flash_data_bytes": 47024,
+  "diram_used_bytes": 70559,
+  "diram_total_bytes": 341760,
+  "iram_used_bytes": 16383,
+  "iram_total_bytes": 16384,
+  "source": "idf.py size, ESP-IDF v5.4.4, measurement commit 562304c"
+}
