@@ -13,11 +13,9 @@ things, in a loop:
 Both B and C are direct children of their gateway; the sensor node never talks
 to a controller.
 
-Unlike the controller, the sensor is **send-only**: nothing ever flows back to
-it except the ``NODE_REGISTER_ACK`` it waits for, so it does not run an inbound
-reader.  It learns its owner and epoch from that ACK and refuses a gateway whose
-epoch is older than the one it already holds.  A gateway that dies is noticed on
-the write path (the socket errors out) and it then walks its candidate list.
+After registration the node samples, reads gateway ownership updates and sends
+keepalives in independent tasks.  This lets a slow sampling schedule coexist
+with node liveness and promptly detects a closed gateway socket.
 """
 
 from __future__ import annotations
@@ -36,8 +34,10 @@ from common.messages import (  # noqa: E402
     ALERT,
     NODE_REGISTER,
     NODE_REGISTER_ACK,
+    NODE_STATUS,
     SENSOR_DATA,
     Message,
+    MessageError,
     close_writer,
     read_message,
     send_message,
@@ -100,6 +100,7 @@ class SensorNode:
         simulator: SensorSimulator | None = None,
         slow_interval: float = config.SAMPLE_INTERVAL_SLOW,
         fast_interval: float = config.SAMPLE_INTERVAL_FAST,
+        keepalive_interval: float = config.NODE_STATUS_INTERVAL,
         history_size: int = 8,
     ):
         if node_id not in config.GATEWAY_OF_SENSOR:
@@ -117,6 +118,7 @@ class SensorNode:
         self.simulator = simulator or SensorSimulator(node_id)
         self.slow_interval = slow_interval
         self.fast_interval = fast_interval
+        self.keepalive_interval = keepalive_interval
         self.history_size = history_size
         self.metrics = Counters()
 
@@ -157,13 +159,24 @@ class SensorNode:
     async def _session(self, reader, writer, gateway_id: str) -> None:
         self.gateway_id = gateway_id
         node_log(self.node_id, f"connected to gateway {gateway_id} ({self.gateway_host})")
+        tasks: list[asyncio.Task] = []
         try:
             if not await self._register(reader, writer, gateway_id):
                 return
-            await self._sample_loop(reader, writer)
-        except (ConnectionResetError, BrokenPipeError, OSError):
+            tasks = [
+                asyncio.create_task(self._sample_loop(reader, writer)),
+                asyncio.create_task(self._inbound_loop(reader, gateway_id)),
+                asyncio.create_task(self._keepalive(writer, gateway_id)),
+            ]
+            done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+            for task in done:
+                task.result()
+        except (ConnectionResetError, BrokenPipeError, OSError, RuntimeError, MessageError, ValueError):
             node_log(self.node_id, f"connection to {gateway_id} lost, re-registering elsewhere")
         finally:
+            for task in tasks:
+                task.cancel()
+            await asyncio.gather(*tasks, return_exceptions=True)
             await close_writer(writer)
 
     async def _register(self, reader, writer, gateway_id: str) -> bool:
@@ -191,7 +204,12 @@ class SensorNode:
                 continue
 
             owner = reply.payload.get("owner_gateway", gateway_id)
-            generation = int(reply.payload.get("generation", config.INITIAL_GENERATION))
+            generation = reply.payload.get("generation")
+            if (reply.source != gateway_id or reply.target != self.node_id or
+                    owner != gateway_id or reply.payload.get("accepted") is not True or
+                    isinstance(generation, bool) or not isinstance(generation, int)):
+                node_log(self.node_id, f"invalid NODE_REGISTER_ACK from {gateway_id}")
+                return False
             if generation < self.generation:
                 node_log(
                     self.node_id,
@@ -204,6 +222,53 @@ class SensorNode:
             node_log(self.node_id, f"registered with {owner} (generation={generation})")
             return True
         return False
+
+    async def _inbound_loop(self, reader, gateway_id: str) -> None:
+        while not self._stopping:
+            message = await read_message(reader)
+            if message is None:
+                return
+            if message.type == NODE_STATUS:
+                self._adopt_ownership(message, gateway_id)
+            else:
+                node_log(self.node_id, f"ignored unexpected {message.type}")
+
+    def _adopt_ownership(self, message: Message, gateway_id: str) -> bool:
+        """Accept only a non-stale status from the gateway on this socket."""
+        owner = message.payload.get("owner_gateway")
+        generation = message.payload.get("generation")
+        if (message.source != gateway_id or message.target != self.node_id or
+                owner != gateway_id or
+                message.payload.get("node_id", self.node_id) != self.node_id or
+                message.payload.get("status") != config.ONLINE or
+                isinstance(generation, bool) or not isinstance(generation, int)):
+            node_log(self.node_id, f"ignored invalid NODE_STATUS from {message.source}")
+            return False
+        if generation < self.generation:
+            node_log(self.node_id, f"ignored stale NODE_STATUS generation={generation} < current={self.generation}")
+            return False
+        self.owner_gateway = owner
+        self.generation = generation
+        node_log(self.node_id, f"owner_gateway={owner} generation={generation}")
+        return True
+
+    async def _keepalive(self, writer, gateway_id: str) -> None:
+        while not self._stopping:
+            await asyncio.sleep(self.keepalive_interval)
+            await send_message(
+                writer,
+                Message(
+                    type=NODE_STATUS,
+                    source=self.node_id,
+                    target=gateway_id,
+                    payload={
+                        "node_id": self.node_id,
+                        "status": config.ONLINE,
+                        "owner_gateway": self.owner_gateway,
+                        "generation": self.generation,
+                    },
+                ),
+            )
 
     # -- sampling ----------------------------------------------------------
 

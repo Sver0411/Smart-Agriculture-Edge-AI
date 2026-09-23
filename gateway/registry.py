@@ -4,6 +4,9 @@ There is no external database and no consensus cluster: each gateway keeps an
 in-memory table of the nodes it knows about.  The interesting field is
 ``owner_gateway`` together with ``generation`` - they decide which gateway is
 allowed to drive a node right now.
+
+``last_seen`` is the gateway's local wall-clock time when it received a node
+message. Client-provided envelope timestamps never define node liveness.
 """
 
 from __future__ import annotations
@@ -28,7 +31,7 @@ class NodeEntry:
     node_type: str
     owner_gateway: str
     status: str = config.OFFLINE
-    last_seen: float = field(default_factory=time.time)
+    last_seen: float = field(default_factory=time.time)  # gateway receive wall time
     generation: int = config.INITIAL_GENERATION
 
     def as_dict(self) -> dict:

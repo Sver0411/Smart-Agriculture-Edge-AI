@@ -34,7 +34,7 @@ __all__ = [
     "NODE_REGISTER_ACK",
     "NODE_STATUS",
     "ACK",
-    "ACKED_TYPES",
+    "RETRY_TRACKED_TYPES",
     "MESSAGE_TYPES",
     "REQUIRED_FIELDS",
     "Message",
@@ -69,8 +69,10 @@ MESSAGE_TYPES = (
     ACK,
 )
 
-# Messages that must be acknowledged so the sender can retry them.
-ACKED_TYPES = ("CONTROL_COMMAND", "NODE_REGISTER", "SERVER_POLICY")
+# Messages with an implemented retry path: gateway AckTracker for commands,
+# node registration retry loop for NODE_REGISTER. SERVER_POLICY receives a
+# receipt ACK, but the server does not track that ACK or retry the policy.
+RETRY_TRACKED_TYPES = (CONTROL_COMMAND, NODE_REGISTER)
 
 REQUIRED_FIELDS = ("type", "source", "target", "timestamp", "message_id", "payload")
 

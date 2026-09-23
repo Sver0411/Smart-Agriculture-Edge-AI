@@ -192,6 +192,8 @@ def test_a_dead_gateway_loses_its_nodes_to_the_peer(tmp_path):
 
         await asyncio.sleep(1.2)
         assert a1.registry.get("C1").owner_gateway == "A1"
+        assert sensor.owner_gateway == "A1"
+        assert sensor.generation == config.INITIAL_GENERATION
 
         # A1 dies. B1 / C1 fall back to A2 on their own, and the watchdog in A2
         # then declares A1 dead and takes over formally (new epoch).
@@ -201,13 +203,54 @@ def test_a_dead_gateway_loses_its_nodes_to_the_peer(tmp_path):
         a2_generation = a2.ownership.generation
         owner_of_c1 = a2.registry.get("C1").owner_gateway
         c1_generation = a2.registry.get("C1").generation
+        b1_generation = a2.registry.get("B1").generation
+        sensor_owner = sensor.owner_gateway
+        sensor_generation = sensor.generation
         await harness.stop()
-        return a2_generation, owner_of_c1, c1_generation
+        return a2_generation, owner_of_c1, c1_generation, b1_generation, sensor_owner, sensor_generation
 
-    generation, owner, c1_generation = asyncio.run(scenario())
+    generation, owner, c1_generation, b1_generation, sensor_owner, sensor_generation = asyncio.run(scenario())
     assert owner == "A2"
     assert generation > config.INITIAL_GENERATION, "the epoch must move on failover"
     assert c1_generation == generation, "the taken-over node carries the new epoch"
+    assert b1_generation == sensor_generation == generation
+    assert sensor_owner == "A2"
+
+
+def test_sensor_receives_generation_bump_after_registering_a2_at_old_epoch(tmp_path):
+    """Exercise the exact gap between fallback registration and formal takeover."""
+    async def scenario():
+        harness = Harness(tmp_path)
+        await harness.server.start()
+        a1 = await harness.add_gateway("A1")
+        a2 = await harness.add_gateway("A2", heartbeat_timeout=100.0)
+        sensor = SensorNode("B1", slow_interval=0.4, fast_interval=0.4,
+                            keepalive_interval=0.1)
+        harness.add_node(sensor)
+        try:
+            for _ in range(50):
+                if sensor.owner_gateway == "A1":
+                    break
+                await asyncio.sleep(0.05)
+            assert (sensor.owner_gateway, sensor.generation) == ("A1", 1)
+            await a1.stop()
+            for _ in range(60):
+                if sensor.owner_gateway == "A2":
+                    break
+                await asyncio.sleep(0.05)
+            assert (sensor.owner_gateway, sensor.generation) == ("A2", 1)
+            assert a2.registry.get("B1").generation == 1
+            assert a2._takeover() == 2
+            for _ in range(50):
+                if sensor.generation == 2:
+                    break
+                await asyncio.sleep(0.05)
+            assert a2.registry.get("B1").generation == sensor.generation == 2
+            assert sensor.owner_gateway == "A2"
+        finally:
+            await harness.stop()
+
+    asyncio.run(scenario())
 
 
 def test_a_deposed_gateway_can_no_longer_move_the_actuator(tmp_path):

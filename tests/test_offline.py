@@ -6,8 +6,12 @@ same upload twice when the queue is replayed.
 """
 
 import pytest
+import asyncio
+import socket
 
 from common.messages import SENSOR_DATA, Message
+from gateway.gateway import Gateway
+from server.server import Server
 from gateway.offline_queue import OfflineQueue
 from server.database import Database
 from server.dedup import Deduplicator
@@ -108,6 +112,102 @@ def test_bump_retry_is_counted_per_message(queue):
 def test_len_matches_count(queue):
     queue.enqueue(upload())
     assert len(queue) == queue.count() == 1
+
+
+def test_gateway_drains_all_250_queued_messages_in_order(tmp_path, monkeypatch, capsys):
+    gateway = Gateway("A1", queue_path=str(tmp_path / "gateway.db"))
+    expected = [f"queued-{i:03}" for i in range(250)]
+    for message_id in expected:
+        gateway.offline_queue.enqueue(upload(message_id=message_id))
+    delivered = []
+
+    async def fake_send(writer, message):
+        delivered.append(message.message_id)
+
+    monkeypatch.setattr("gateway.gateway.send_message", fake_send)
+    gateway.server_writer = object()
+    try:
+        asyncio.run(gateway._flush_offline_queue())
+        assert delivered == expected
+        assert gateway.offline_queue.count() == 0
+        assert gateway.offline_queue.replayed == 250
+        assert gateway.metrics.get("queue_replayed") == 250
+        assert "offline queue empty" in capsys.readouterr().out
+    finally:
+        gateway.offline_queue.close()
+
+
+def test_gateway_replay_failure_keeps_all_unsent_messages(tmp_path, monkeypatch, capsys):
+    path = str(tmp_path / "gateway.db")
+    gateway = Gateway("A1", queue_path=path)
+    expected = [f"queued-{i:03}" for i in range(250)]
+    for message_id in expected:
+        gateway.offline_queue.enqueue(upload(message_id=message_id))
+    delivered = []
+
+    async def fail_after_130(writer, message):
+        if len(delivered) == 130:
+            raise BrokenPipeError("simulated server disconnect")
+        delivered.append(message.message_id)
+
+    monkeypatch.setattr("gateway.gateway.send_message", fail_after_130)
+    gateway.server_writer = object()
+    try:
+        asyncio.run(gateway._flush_offline_queue())
+        assert delivered == expected[:130]
+        assert gateway.offline_queue.count() == 120
+        assert gateway.offline_queue.replayed == 130
+        assert [message.message_id for _, message in gateway.offline_queue.peek(limit=250)] == expected[130:]
+        assert "offline queue empty" not in capsys.readouterr().out
+
+        async def send_rest(writer, message):
+            delivered.append(message.message_id)
+
+        monkeypatch.setattr("gateway.gateway.send_message", send_rest)
+        gateway.server_writer = object()
+        asyncio.run(gateway._flush_offline_queue())
+        assert delivered == expected
+        assert gateway.offline_queue.count() == 0
+        assert gateway.offline_queue.replayed == 250
+        assert "offline queue empty" in capsys.readouterr().out
+    finally:
+        gateway.offline_queue.close()
+
+
+def test_server_reconnect_drains_250_without_a_new_upload(tmp_path):
+    """The server connection itself must trigger replay; no sensor task runs."""
+    def free_port():
+        with socket.socket() as sock:
+            sock.bind(("127.0.0.1", 0))
+            return sock.getsockname()[1]
+
+    async def scenario():
+        port = free_port()
+        server = Server(port=port, db_path=str(tmp_path / "server.db"))
+        gateway = Gateway("A1", server_port=port,
+                          queue_path=str(tmp_path / "gateway.db"))
+        expected = [f"reconnect-{i:03}" for i in range(250)]
+        for message_id in expected:
+            gateway.offline_queue.enqueue(upload(message_id=message_id))
+        await server.start()
+        task = asyncio.create_task(gateway.task_server_policy())
+        try:
+            for _ in range(200):
+                if server.db.count("sensor_data") == 250 and gateway.offline_queue.count() == 0:
+                    break
+                await asyncio.sleep(0.025)
+            assert gateway.offline_queue.count() == 0
+            assert gateway.metrics.get("queue_replayed") == 250
+            ids = [row[0] for row in server.db.conn.execute(
+                "SELECT message_id FROM sensor_data ORDER BY id")]
+            assert ids == expected
+        finally:
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+            gateway.offline_queue.close()
+            await server.stop()
+
+    asyncio.run(scenario())
 
 
 def test_an_in_memory_queue_works_without_a_path():
