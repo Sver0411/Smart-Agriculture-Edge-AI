@@ -16,7 +16,9 @@ class SequenceGuard:
     def __init__(self):self.latest={}
     def accept(self, message):
         if message.sequence is None:return True
-        key=(message.source,message.payload.get('boot_id','legacy'))
+        boot=message.payload.get('boot_id','legacy')
+        if not isinstance(boot,str) or not boot:return False
+        key=(message.source,boot)
         previous=self.latest.get(key,-1)
         if message.sequence<=previous:return False
         self.latest[key]=message.sequence

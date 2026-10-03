@@ -1,0 +1,19 @@
+{
+  "normal": "Do both zones complete B -> A -> C -> A -> Server?",
+  "full-control-loop": "Do all seven software roles participate in the complete control loop?",
+  "packet-loss": "Does a dropped control frame retry and execute once?",
+  "ack-loss": "Does a lost receipt ACK retry without a second actuator execution?",
+  "duplicate-command": "Does a duplicated logical command execute once?",
+  "delayed-result": "Can an unknown execution outcome be resolved by a late result?",
+  "lost-result": "Does missing CONTROL_RESULT remain explicitly UNKNOWN without blind reexecution?",
+  "reordered-messages": "Is old telemetry retained for audit but excluded from fresh control?",
+  "sensor-fault": "Does a broken B1 channel block C1 while the other zone continues?",
+  "gateway-failover": "Does A2 take over and synchronize sensor/controller generation?",
+  "gateway-recovery": "Does recovered A1 enter STANDBY?",
+  "stale-generation": "Does a command from a deposed epoch remain rejected?",
+  "server-offline": "Does edge control continue and history replay after cloud recovery?",
+  "queue-replay": "Do 250 queued messages replay without any new telemetry trigger?",
+  "policy-replay": "Does an older policy leave current thresholds unchanged?",
+  "split-brain": "Does a controller reject a non-owner at the same epoch?",
+  "expired-command": "Does an expired command leave the actuator untouched?"
+}

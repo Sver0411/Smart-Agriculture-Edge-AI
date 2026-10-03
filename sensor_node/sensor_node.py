@@ -12,6 +12,8 @@ import random
 import sys
 import time
 import uuid
+from collections import Counter
+import math
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
@@ -108,6 +110,8 @@ class SensorNode:
         self.keepalive_interval = keepalive_interval
         self.history_size = history_size
         self.metrics = Counters()
+        self.interval_counts = Counter()
+        self.sample_sequence = 0
 
         self.boot_id = uuid.uuid4().hex[:12]
         self.trust = SensorTrust()
@@ -265,13 +269,15 @@ class SensorNode:
     async def _sample_loop(self, reader, writer) -> None:
         while not self._stopping:
             reading = self.simulator.sample()
+            self.sample_sequence += 1
+            if not isinstance(reading,dict):reading = {}
             self.history.append(reading)
             del self.history[: -self.history_size]
 
             node_log(
                 self.node_id,
-                f"sample #{self.simulator.samples} soil moisture = {reading['soil_moisture']}% "
-                f"(temp={reading['temperature']}C, hum={reading['humidity']}%, light={reading['light']})",
+                f"sample #{self.sample_sequence} soil moisture = {reading.get('soil_moisture')}% "
+                f"(temp={reading.get('temperature')}C, hum={reading.get('humidity')}%, light={reading.get('light')})",
             )
 
             trust = self.trust.update(reading, timestamp=time.monotonic())
@@ -279,14 +285,15 @@ class SensorNode:
             state = trust["state"]
             self.metrics.inc("sensor_samples")
             self.metrics.inc({"HEALTHY":"trusted_samples", "DEGRADED":"degraded_samples", "FAULT":"fault_samples"}[state])
-            payload = {"data": reading, "health_state": state,
-                       "boot_id":self.boot_id, "sample_seq":self.simulator.samples,
+            wire_reading = {k:(v if type(v) in (int,float) and math.isfinite(v) else None) for k,v in reading.items()}
+            payload = {"data": wire_reading, "health_state": state,
+                       "boot_id":self.boot_id, "sample_seq":self.sample_sequence,
                        "health_score": trust["health_score"], "fault_flags": trust["fault_flags"],
                        "health": trust["channels"], "sampling":schedule, "usable_for_control": trust["usable_for_control"]}
             if schedule["upload_requested"]:
                 await send_message(writer, Message(type=SENSOR_DATA, source=self.node_id,
                     target=self.owner_gateway or self.gateway_id, payload=payload,
-                    sequence=self.simulator.samples, generation=self.generation, protocol_version=1))
+                    sequence=self.sample_sequence, generation=self.generation, protocol_version=1))
                 self.metrics.inc("sensor_messages")
             if state != HEALTHY or not trust["usable_for_control"]:
                 await send_message(writer, Message(type=ALERT, source=self.node_id,
@@ -296,6 +303,7 @@ class SensorNode:
                              "message":"sensor evidence is not safe for automatic control"}))
 
             interval = schedule["interval_s"]
+            self.interval_counts[interval] += 1
             node_log(self.node_id, f"next sampling interval = {interval:g}s")
             await asyncio.sleep(interval)
 
@@ -313,6 +321,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--id", required=True, choices=sorted(config.GATEWAY_OF_SENSOR))
     parser.add_argument("--gateway", default=None, choices=sorted(config.GATEWAY_PORTS), help="primary gateway id")
     parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--startup-delay", type=float, default=0, help="software experiment process startup delay")
     parser.add_argument("--port", type=int, default=None)
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--sample-interval", type=float, default=None, help="accelerated software sampling base interval")
@@ -338,6 +347,8 @@ async def _run(args: argparse.Namespace) -> None:
         node.primary_gateway = args.gateway
         node.gateway_id = args.gateway
 
+    if args.startup_delay < 0:raise ValueError("startup delay must be nonnegative")
+    await asyncio.sleep(args.startup_delay)
     await node.run()
 
 

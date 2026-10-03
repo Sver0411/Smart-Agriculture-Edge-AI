@@ -1,16 +1,6 @@
-"""AdaptiveSense - adaptive sampling interval for v0.1.
+"""Trust-aware AdaptiveSense adapter, with legacy relative-change helpers.
 
-Same idea as :mod:`sensor_node.sensor_trust`: only the interface matters.
-
-    interval = next_sample_interval(history)
-
-Rule used by v0.1::
-
-    reading barely changed  ->  5 s between samples (save energy)
-    reading changed a lot   ->  2 s between samples (watch it closely)
-
-No state machine, no power model - this only proves that the sampling period
-can react to the environment.
+Runtime scheduling uses the upstream normalized detector and state machine.
 """
 
 from __future__ import annotations

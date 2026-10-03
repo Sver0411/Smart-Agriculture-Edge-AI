@@ -1,14 +1,6 @@
-"""Edge AI decision interface.
+"""Pluggable edge decision API; rule is the compatibility/default baseline.
 
-v0.1 does **not** train a real model.  What matters here is that the interface
-is already the final one::
-
-    decision = edge_decision(sensor_data)
-
-``decision`` is either ``None`` (nothing to do) or a command description such
-as ``{"type": "IRRIGATION", "duration": 10}``.  The gateway only ever calls
-this function, so the rule based body can later be replaced by a logistic
-regression, a decision tree or a TinyML model without touching the gateway.
+Small exported models are synthetic software references, not deployment models.
 """
 
 from __future__ import annotations

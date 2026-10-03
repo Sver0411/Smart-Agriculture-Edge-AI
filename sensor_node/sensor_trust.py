@@ -1,14 +1,6 @@
-"""SensorTrust - basic sensor data trust check for v0.1.
+"""SensorTrust five-fault Python reference and legacy stateless validators.
 
-Only the interface is defined here::
-
-    state = check_sensor_health(data)
-
-The full SensorTrust project is *not* integrated yet.  v0.1 answers a single
-question: "can this reading be trusted enough to drive a control decision?"
-
-    HEALTHY -> yes, pass it on to the edge decision
-    FAULT   -> no, report an alert instead
+Health is heuristic evidence; availability gates control independently of score.
 """
 
 from __future__ import annotations

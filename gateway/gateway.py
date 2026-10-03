@@ -651,7 +651,11 @@ class Gateway:
         while True:
             message = await self.result_queue.get()
             payload = dict(message.payload)
-            outcome = self.outcomes.result(payload.get("command_id"))
+            command_id = payload.get("command_id")
+            if not isinstance(command_id,str) or not command_id:
+                self.metrics.inc("malformed_results")
+                continue
+            outcome = self.outcomes.result(command_id)
             if outcome == "late":self.metrics.inc("late_results")
             node_log(
                 self.gateway_id,
@@ -814,6 +818,7 @@ class Gateway:
 
             for message in self.tracker.exhausted(now):
                 self.tracker.discard(message.message_id)
+                self.outcomes.pending.pop(message.payload.get("command_id"),None)
                 self.metrics.inc("delivery_failures")
                 node_log(
                     self.gateway_id,

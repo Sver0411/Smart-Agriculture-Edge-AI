@@ -18,6 +18,20 @@ def validate_settings(cfg):
     for section in ("system", "node", "policy", "experiment"):
         if not isinstance(cfg.get(section), dict):
             raise ValueError(f"missing configuration section {section}")
+    def finite(obj):
+        if isinstance(obj,float) and not math.isfinite(obj):raise ValueError("configuration contains nonfinite value")
+        if isinstance(obj,dict):
+            for value in obj.values():finite(value)
+        if isinstance(obj,list):
+            for value in obj:finite(value)
+    finite(cfg)
+    system=cfg["system"]
+    for key in ("HEARTBEAT_INTERVAL","HEARTBEAT_TIMEOUT","NODE_TIMEOUT","NODE_STATUS_INTERVAL","ACK_TIMEOUT","COMMAND_TTL"):
+        positive(system[key],key)
+    if system["NODE_STATUS_INTERVAL"] >= system["NODE_TIMEOUT"]:raise ValueError("node keepalive must be shorter than timeout")
+    for port in [system["SERVER_PORT"],*system["GATEWAY_PORTS"].values()]:
+        if type(port) is not int or not 1<=port<=65535:raise ValueError("invalid network port")
+    if set(system["GATEWAY_PORTS"])!={"A1","A2"}:raise ValueError("complete gateway topology required")
     n = cfg["node"]
     for name, c in n["trust_channels"].items():
         for key, value in c.items():
@@ -26,7 +40,7 @@ def validate_settings(cfg):
         if c["min_value"] >= c["max_value"] or c["stuck_epsilon"] < 0 or c["spike_threshold"] < 0 or c["drift_threshold"] <= 0:
             raise ValueError(f"invalid trust bounds {name}")
         for key in ("stuck_window", "drift_window"):
-            if type(c[key]) is not int or not 2 <= c[key] <= 128:
+            if type(c[key]) is not int or not 2 <= c[key] <= 64:
                 raise ValueError(f"invalid {key}")
         if type(c["missing_limit"]) is not int or c["missing_limit"] < 1:
             raise ValueError("invalid missing_limit")
