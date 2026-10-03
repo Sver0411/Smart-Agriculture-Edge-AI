@@ -14,7 +14,7 @@ class ModelEngine:
         m=self.model
         if m.get("engine")!=self.name or m.get("feature_version")!=FEATURE_VERSION or m.get("features")!=list(FEATURE_NAMES) or m.get("labels")!=list(LABELS):
             raise ValueError("incompatible model feature/label schema")
-        if m.get("provenance",{}).get("dataset_kind")!="synthetic-software-validation":
+        if m.get("provenance",{}).get("dataset_kind") not in ("synthetic-software-validation","user-provided-unvalidated"):
             raise ValueError("model requires explicit dataset provenance")
         def finite(obj):
             if isinstance(obj,dict): return all(finite(v) for v in obj.values())

@@ -374,7 +374,8 @@ class Gateway:
         self.metrics.inc("sensor_messages")
 
         if message.type == ALERT:
-            reasons = payload.get("reasons") or []
+            raw_reasons = payload.get("reasons", [])
+            reasons = raw_reasons if isinstance(raw_reasons,list) and all(isinstance(r,str) for r in raw_reasons) else ["malformed sensor fault evidence"]
             node_log(
                 self.gateway_id,
                 f"sensor {message.source} health = {health_state} -> control decision skipped"

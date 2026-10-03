@@ -12,13 +12,17 @@ from ai.features import FEATURE_NAMES,FEATURE_VERSION
 from ai.engines import create_engine
 from ai.engines.base import LABELS
 
-def train(seed=42,output="ai/artifacts",count=1200):
+def train(seed=42,output="ai/artifacts",count=1200,rows=None):
     import numpy as np
     from sklearn.linear_model import LogisticRegression
     from sklearn.neural_network import MLPClassifier
     from sklearn.tree import DecisionTreeClassifier
     from sklearn.preprocessing import StandardScaler
-    rows=generate(seed,count);cut=int(count*0.8)
+    dataset_kind="synthetic-software-validation" if rows is None else "user-provided-unvalidated"
+    rows=generate(seed,count) if rows is None else list(rows)
+    count=len(rows)
+    if count<20 or any(len(x)!=4 or y not in (0,1,2) for x,y in rows):raise ValueError("dataset requires at least 20 four-feature labeled rows")
+    cut=int(count*0.8)
     X=np.array([x for x,y in rows]);y=np.array([y for x,y in rows])
     scaler=StandardScaler().fit(X[:cut]);Z=scaler.transform(X)
     models={'logistic':LogisticRegression(max_iter=500,random_state=seed),
@@ -31,7 +35,7 @@ def train(seed=42,output="ai/artifacts",count=1200):
         inputs=X if name=='tree' else Z
         model.fit(inputs[:cut],y[:cut])
         artifact={'engine':name,'feature_version':FEATURE_VERSION,'features':list(FEATURE_NAMES),'labels':list(LABELS),
-                  'provenance':{'dataset_kind':'synthetic-software-validation','seed':seed,'rows':count,'train_rows':cut,
+                  'provenance':{'dataset_kind':dataset_kind,'seed':seed,'rows':count,'train_rows':cut,
                                 'test_rows':count-cut,'dataset_sha256':digest,'purpose':'policy imitation and pipeline validation'},
                   'mean':scaler.mean_.tolist(),'scale':scaler.scale_.tolist()}
         if name=='logistic':artifact.update(weights=model.coef_.tolist(),bias=model.intercept_.tolist())

@@ -83,3 +83,23 @@ def test_rejected_upload_does_not_poison_dedup(tmp_path):
     s._store(bad);s._store(bad)
     assert s.db.count('sensor_data')==1 and s.dedup.ignored==1
     s.db.close()
+
+
+def test_deeply_nested_json_is_a_protocol_error():
+    import json
+    data=command().to_dict();nested=0
+    for _ in range(700):nested=[nested]
+    data['payload']={'nested':nested}
+    with pytest.raises(MessageError):Message.from_json(json.dumps(data))
+
+
+def test_malformed_alert_does_not_stop_following_sensor_processing():
+    from common.messages import ALERT
+    from gateway.gateway import Gateway
+    async def run():
+        g=Gateway('A1');g._seed_registry()
+        await g._process_sensor_message(Message(type=ALERT,source='B1',target='A1',payload={'reasons':[123]}))
+        assert (await g.upload_queue.get()).type==ALERT
+        await g._process_sensor_message(Message(type=SENSOR_DATA,source='B1',target='A1',payload={'data':{'soil_moisture':10,'temperature':25}}))
+        assert not g.command_queue.empty()
+    asyncio.run(run())

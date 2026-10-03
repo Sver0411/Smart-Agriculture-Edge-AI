@@ -174,9 +174,11 @@ class Message:
     def from_json(cls, raw: str) -> "Message":
         try:
             data = json.loads(raw)
+            return cls.from_dict(data)
+        except MessageError:
+            raise
         except (ValueError, RecursionError) as exc:
             raise MessageError(f"malformed JSON message: {exc}") from exc
-        return cls.from_dict(data)
 
     @classmethod
     def from_line(cls, raw: str) -> "Message":
