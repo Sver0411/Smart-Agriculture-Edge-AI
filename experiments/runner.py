@@ -191,7 +191,8 @@ async def run_scenario(name,output,seed=42,duration=None):
     write_json(results/'summary.json',summary)
     revision=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
     write_json(out/'manifest.json',{'schema_version':1,'scenario':name,'seed':seed,'input_mode':'software-simulation','verification':'host-tested',
-        'revision':revision,'working_tree_dirty':bool(subprocess.check_output(['git','status','--porcelain'],text=True)),
+        'revision':revision,'working_tree_dirty':any(not line[3:].startswith('results/software-v0.3/') for line in subprocess.check_output(['git','status','--porcelain'],text=True).splitlines()),
+        'dirty_scope':'source files; generated results/software-v0.3 evidence excluded',
         'config_sha256':config_hash(cfg),'raw_sha256':hashlib.sha256((raw/'events.jsonl').read_bytes()).hexdigest(),'status':summary['status']})
     (results/'report.md').write_text(f"# {name}: {summary['status']}\n\n{CATALOG[name]}\n\n"+'\n'.join(f"- {'PASS' if a['passed'] else 'FAIL'}: {a['description']}" for a in assertions)+'\n')
     return summary

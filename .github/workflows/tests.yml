@@ -2,25 +2,37 @@ name: tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, v0.3-software-integration]
+    paths-ignore: ['docs/**', 'README.md', 'results/**']
   pull_request:
   workflow_dispatch:
 
 jobs:
-  pytest:
+  software:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-
+          python-version: '3.12'
       - name: Install test dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run tests
-        run: python -m pytest -q
+        run: pip install -r requirements.txt
+      - name: Unit, integration and host reference tests
+        run: python -m pytest tests/ -q
+      - name: Complete topology software scenarios
+        run: python -m experiments.runner --all --output "$RUNNER_TEMP/smart-agriculture/software"
+      - name: Checkout independent EdgeFaultLab at reviewed revision
+        uses: actions/checkout@v4
+        with:
+          repository: Sver0411/EdgeFaultLab
+          ref: c7248239f456cc877114ca1e67c5949fb4a7b958
+          path: .external/edgefaultlab
+      - name: External fault scenarios
+        run: python -m experiments.edgefaultlab --edgefaultlab-root .external/edgefaultlab --output "$RUNNER_TEMP/smart-agriculture/edgefaultlab"
+      - name: Preserve experiment evidence including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: software-experiment-evidence
+          path: ${{ runner.temp }}/smart-agriculture
+          if-no-files-found: warn

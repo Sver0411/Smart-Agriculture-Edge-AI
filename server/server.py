@@ -138,15 +138,19 @@ class Server:
     # -- storage -----------------------------------------------------------
 
     def _store(self, message: Message) -> None:
+        before=(self.dedup.processed,self.dedup.ignored)
         try:
             if message.type == SENSOR_DATA:
                 record=message.payload.get("record")
                 if not isinstance(record,dict):raise ValueError("record must be object")
+                node_id=record.get("sensor_node_id","?")
+                if not isinstance(node_id,str):raise ValueError("invalid sensor_node_id")
                 from common.protocol import number
                 if not number(record.get("timestamp",message.timestamp)):raise ValueError("invalid record timestamp")
             with self.db.transaction():
                 self._store_validated(message)
         except (ValueError, TypeError, OverflowError) as exc:
+            self.dedup.processed,self.dedup.ignored=before
             self.metrics.inc("invalid_uploads")
             node_log(NODE_ID,f"upload rejected: {exc}")
 

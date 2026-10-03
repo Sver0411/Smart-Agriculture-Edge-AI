@@ -13,3 +13,5 @@ firmware/b1/sdkconfig
 firmware/b1/sdkconfig.old
 firmware/b1/sdkconfig.local
 results/experimental/
+
+.external/
