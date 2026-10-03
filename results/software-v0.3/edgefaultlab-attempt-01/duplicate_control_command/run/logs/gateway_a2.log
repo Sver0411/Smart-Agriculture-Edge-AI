@@ -1,0 +1,235 @@
+01:29:56 [A2] gateway started on 127.0.0.1:51253 (sensor=B2, controller=C2, peer=A1, generation=1, role=ACTIVE)
+01:29:56 [A2] connected to server 127.0.0.1:51248
+01:29:56 [A2] peer link established with A1
+01:29:56 [A2] heartbeat -> A1
+01:29:56 [A2] B1 registered (SENSOR, owner=A2, generation=1)
+01:29:56 [A2] received SENSOR_DATA from B1
+01:29:56 [A2] role=ACTIVE - local control disabled
+01:29:56 [A2] server unavailable, SENSOR_DATA queued locally (depth=1)
+01:29:56 [A2] A1 is online
+01:29:56 [A2] heartbeat -> A1
+01:29:56 [A2] B2 registered (SENSOR, owner=A2, generation=1)
+01:29:56 [A2] received SENSOR_DATA from B2
+01:29:56 [A2] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:29:56 [A2] server unavailable, SENSOR_DATA queued locally (depth=2)
+01:29:56 [A2] C2 not connected, IRRIGATION command 32388a1c25d6 not delivered
+01:29:56 [A2] heartbeat -> A1
+01:29:56 [A2] received SENSOR_DATA from B1
+01:29:56 [A2] server unavailable, SENSOR_DATA queued locally (depth=3)
+01:29:56 [A2] heartbeat -> A1
+01:29:56 [A2] received SENSOR_DATA from B2
+01:29:56 [A2] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:29:56 [A2] server unavailable, SENSOR_DATA queued locally (depth=4)
+01:29:56 [A2] C2 not connected, IRRIGATION command 11e88b669cf1 not delivered
+01:29:56 [A2] heartbeat -> A1
+01:29:56 [A2] heartbeat -> A1
+01:29:57 [A2] heartbeat -> A1
+01:29:57 [A2] received SENSOR_DATA from B1
+01:29:57 [A2] server unavailable, SENSOR_DATA queued locally (depth=5)
+01:29:57 [A2] heartbeat -> A1
+01:29:57 [A2] heartbeat -> A1
+01:29:57 [A2] heartbeat -> A1
+01:29:57 [A2] received SENSOR_DATA from B2
+01:29:57 [A2] edge decision = IRRIGATION (soil_moisture 21.8 < 25.0)
+01:29:57 [A2] server unavailable, SENSOR_DATA queued locally (depth=6)
+01:29:57 [A2] C2 not connected, IRRIGATION command aa1ed4fb37c9 not delivered
+01:29:57 [A2] received SENSOR_DATA from B1
+01:29:57 [A2] server unavailable, SENSOR_DATA queued locally (depth=7)
+01:29:57 [A2] heartbeat -> A1
+01:29:57 [A2] heartbeat -> A1
+01:29:57 [A2] heartbeat -> A1
+01:29:57 [A2] heartbeat -> A1
+01:29:57 [A2] received SENSOR_DATA from B1
+01:29:57 [A2] server unavailable, SENSOR_DATA queued locally (depth=8)
+01:29:57 [A2] heartbeat -> A1
+01:29:57 [A2] heartbeat -> A1
+01:29:58 [A2] received SENSOR_DATA from B2
+01:29:58 [A2] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:29:58 [A2] server unavailable, SENSOR_DATA queued locally (depth=9)
+01:29:58 [A2] C2 not connected, IRRIGATION command 10bbba38c4c6 not delivered
+01:29:58 [A2] heartbeat -> A1
+01:29:58 [A2] heartbeat -> A1
+01:29:58 [A2] received SENSOR_DATA from B1
+01:29:58 [A2] server unavailable, SENSOR_DATA queued locally (depth=10)
+01:29:58 [A2] heartbeat -> A1
+01:29:58 [A2] heartbeat -> A1
+01:29:58 [A2] connected to server 127.0.0.1:51248
+01:29:58 [A2] flushing offline queue (10 messages, oldest first)
+01:29:58 [A2] offline queue empty
+01:29:58 [A2] heartbeat -> A1
+01:29:58 [A2] heartbeat -> A1
+01:29:58 [A2] received SENSOR_DATA from B2
+01:29:58 [A2] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:29:58 [A2] SENSOR_DATA uploaded to server
+01:29:58 [A2] C2 not connected, IRRIGATION command e559cacea95e not delivered
+01:29:58 [A2] received SENSOR_DATA from B1
+01:29:58 [A2] SENSOR_DATA uploaded to server
+01:29:58 [A2] heartbeat -> A1
+01:29:58 [A2] heartbeat -> A1
+01:29:58 [A2] heartbeat -> A1
+01:29:58 [A2] heartbeat -> A1
+01:29:59 [A2] heartbeat -> A1
+01:29:59 [A2] heartbeat -> A1
+01:29:59 [A2] received SENSOR_DATA from B1
+01:29:59 [A2] SENSOR_DATA uploaded to server
+01:29:59 [A2] heartbeat -> A1
+01:29:59 [A2] heartbeat -> A1
+01:29:59 [A2] heartbeat -> A1
+01:29:59 [A2] heartbeat -> A1
+01:29:59 [A2] received SENSOR_DATA from B2
+01:29:59 [A2] edge decision = IRRIGATION (soil_moisture 22.3 < 25.0)
+01:29:59 [A2] SENSOR_DATA uploaded to server
+01:29:59 [A2] C2 not connected, IRRIGATION command d29905d0817c not delivered
+01:29:59 [A2] received SENSOR_DATA from B1
+01:29:59 [A2] SENSOR_DATA uploaded to server
+01:29:59 [A2] heartbeat -> A1
+01:29:59 [A2] heartbeat -> A1
+01:29:59 [A2] received SENSOR_DATA from B2
+01:29:59 [A2] edge decision = IRRIGATION (soil_moisture 22.2 < 25.0)
+01:29:59 [A2] SENSOR_DATA uploaded to server
+01:29:59 [A2] C2 not connected, IRRIGATION command 3cddbfeac3dd not delivered
+01:29:59 [A2] heartbeat -> A1
+01:29:59 [A2] heartbeat -> A1
+01:30:00 [A2] heartbeat -> A1
+01:30:00 [A2] heartbeat -> A1
+01:30:00 [A2] heartbeat -> A1
+01:30:00 [A2] heartbeat -> A1
+01:30:00 [A2] received SENSOR_DATA from B2
+01:30:00 [A2] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:30:00 [A2] SENSOR_DATA uploaded to server
+01:30:00 [A2] C2 not connected, IRRIGATION command 58da0b89ba0b not delivered
+01:30:00 [A2] received SENSOR_DATA from B1
+01:30:00 [A2] SENSOR_DATA uploaded to server
+01:30:00 [A2] heartbeat -> A1
+01:30:00 [A2] heartbeat -> A1
+01:30:00 [A2] heartbeat -> A1
+01:30:00 [A2] heartbeat -> A1
+01:30:00 [A2] received SENSOR_DATA from B2
+01:30:00 [A2] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:30:00 [A2] SENSOR_DATA uploaded to server
+01:30:00 [A2] C2 not connected, IRRIGATION command 88c4fbced358 not delivered
+01:30:00 [A2] received SENSOR_DATA from B1
+01:30:00 [A2] SENSOR_DATA uploaded to server
+01:30:00 [A2] heartbeat -> A1
+01:30:00 [A2] heartbeat -> A1
+01:30:01 [A2] heartbeat -> A1
+01:30:01 [A2] heartbeat -> A1
+01:30:01 [A2] received SENSOR_DATA from B1
+01:30:01 [A2] SENSOR_DATA uploaded to server
+01:30:01 [A2] heartbeat -> A1
+01:30:01 [A2] heartbeat -> A1
+01:30:01 [A2] heartbeat -> A1
+01:30:01 [A2] heartbeat -> A1
+01:30:01 [A2] heartbeat -> A1
+01:30:01 [A2] heartbeat -> A1
+01:30:01 [A2] received SENSOR_DATA from B1
+01:30:01 [A2] SENSOR_DATA uploaded to server
+01:30:01 [A2] heartbeat -> A1
+01:30:01 [A2] heartbeat -> A1
+01:30:02 [A2] heartbeat -> A1
+01:30:02 [A2] heartbeat -> A1
+01:30:02 [A2] heartbeat -> A1
+01:30:02 [A2] heartbeat -> A1
+01:30:02 [A2] heartbeat -> A1
+01:30:02 [A2] heartbeat -> A1
+01:30:02 [A2] heartbeat -> A1
+01:30:02 [A2] heartbeat -> A1
+01:30:02 [A2] heartbeat -> A1
+01:30:03 [A2] heartbeat -> A1
+01:30:03 [A2] heartbeat -> A1
+01:30:03 [A2] heartbeat -> A1
+01:30:03 [A2] received SENSOR_DATA from B2
+01:30:03 [A2] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:30:03 [A2] SENSOR_DATA uploaded to server
+01:30:03 [A2] C2 not connected, IRRIGATION command 555cdf0aec08 not delivered
+01:30:03 [A2] received SENSOR_DATA from B1
+01:30:03 [A2] SENSOR_DATA uploaded to server
+01:30:03 [A2] heartbeat -> A1
+01:30:03 [A2] heartbeat -> A1
+01:30:03 [A2] heartbeat -> A1
+01:30:03 [A2] heartbeat -> A1
+01:30:03 [A2] heartbeat -> A1
+01:30:03 [A2] heartbeat -> A1
+01:30:03 [A2] heartbeat -> A1
+01:30:04 [A2] heartbeat -> A1
+01:30:04 [A2] received SENSOR_DATA from B2
+01:30:04 [A2] edge decision = IRRIGATION (soil_moisture 21.6 < 25.0)
+01:30:04 [A2] SENSOR_DATA uploaded to server
+01:30:04 [A2] C2 not connected, IRRIGATION command 2102129824c0 not delivered
+01:30:04 [A2] heartbeat -> A1
+01:30:04 [A2] heartbeat -> A1
+01:30:04 [A2] heartbeat -> A1
+01:30:04 [A2] heartbeat -> A1
+01:30:04 [A2] received SENSOR_DATA from B1
+01:30:04 [A2] SENSOR_DATA uploaded to server
+01:30:04 [A2] heartbeat -> A1
+01:30:04 [A2] heartbeat -> A1
+01:30:04 [A2] heartbeat -> A1
+01:30:04 [A2] heartbeat -> A1
+01:30:04 [A2] received SENSOR_DATA from B2
+01:30:04 [A2] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:30:04 [A2] SENSOR_DATA uploaded to server
+01:30:04 [A2] C2 not connected, IRRIGATION command e915460f4c5c not delivered
+01:30:04 [A2] received SENSOR_DATA from B1
+01:30:04 [A2] SENSOR_DATA uploaded to server
+01:30:04 [A2] heartbeat -> A1
+01:30:05 [A2] heartbeat -> A1
+01:30:05 [A2] heartbeat -> A1
+01:30:05 [A2] heartbeat -> A1
+01:30:05 [A2] heartbeat -> A1
+01:30:05 [A2] heartbeat -> A1
+01:30:05 [A2] heartbeat -> A1
+01:30:05 [A2] heartbeat -> A1
+01:30:05 [A2] received SENSOR_DATA from B1
+01:30:05 [A2] SENSOR_DATA uploaded to server
+01:30:05 [A2] heartbeat -> A1
+01:30:05 [A2] heartbeat -> A1
+01:30:05 [A2] heartbeat -> A1
+01:30:06 [A2] heartbeat -> A1
+01:30:06 [A2] heartbeat -> A1
+01:30:06 [A2] heartbeat -> A1
+01:30:06 [A2] heartbeat -> A1
+01:30:06 [A2] heartbeat -> A1
+01:30:06 [A2] heartbeat -> A1
+01:30:06 [A2] heartbeat -> A1
+01:30:06 [A2] received SENSOR_DATA from B2
+01:30:06 [A2] edge decision = IRRIGATION (soil_moisture 21.6 < 25.0)
+01:30:06 [A2] SENSOR_DATA uploaded to server
+01:30:06 [A2] C2 not connected, IRRIGATION command 2e6fcd83628e not delivered
+01:30:06 [A2] heartbeat -> A1
+01:30:06 [A2] heartbeat -> A1
+01:30:06 [A2] received SENSOR_DATA from B1
+01:30:06 [A2] SENSOR_DATA uploaded to server
+01:30:06 [A2] heartbeat -> A1
+01:30:07 [A2] heartbeat -> A1
+01:30:07 [A2] received SENSOR_DATA from B2
+01:30:07 [A2] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:30:07 [A2] SENSOR_DATA uploaded to server
+01:30:07 [A2] C2 not connected, IRRIGATION command d5e0f9e2a0d0 not delivered
+01:30:07 [A2] heartbeat -> A1
+01:30:07 [A2] heartbeat -> A1
+01:30:07 [A2] heartbeat -> A1
+01:30:07 [A2] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:30:07 [A2] edge autonomy intact: policy is advisory, control stays local
+01:30:07 [A2] heartbeat -> A1
+01:30:07 [A2] heartbeat -> A1
+01:30:07 [A2] heartbeat -> A1
+01:30:07 [A2] received SENSOR_DATA from B2
+01:30:07 [A2] edge decision = IRRIGATION (soil_moisture 21.8 < 25.0)
+01:30:07 [A2] SENSOR_DATA uploaded to server
+01:30:07 [A2] C2 not connected, IRRIGATION command 1aff0c43f494 not delivered
+01:30:07 [A2] received SENSOR_DATA from B1
+01:30:07 [A2] SENSOR_DATA uploaded to server
+01:30:07 [A2] heartbeat -> A1
+01:30:07 [A2] heartbeat -> A1
+01:30:08 [A2] heartbeat -> A1
+01:30:08 [A2] heartbeat -> A1
+01:30:08 [A2] received SENSOR_DATA from B2
+01:30:08 [A2] edge decision = IRRIGATION (soil_moisture 21.8 < 25.0)
+01:30:08 [A2] SENSOR_DATA uploaded to server
+01:30:08 [A2] C2 not connected, IRRIGATION command 95bd7803b4aa not delivered
+01:30:08 [A2] received SENSOR_DATA from B1
+01:30:08 [A2] SENSOR_DATA uploaded to server
+01:30:08 [A2] heartbeat -> A1
+01:30:08 [A2] B1 disconnected
+01:30:08 [A2] B2 disconnected

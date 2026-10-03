@@ -1,0 +1,12 @@
+{
+  "config_sha256": "35b8d7cf8bb33e7cb524679f4b84508526ca21402def0bf4739fc686ac40de7e",
+  "input_mode": "software-simulation",
+  "raw_sha256": "38293791ed0250d34070c74476ce96fb91fbf88d6018df871c68cefbda504d1b",
+  "revision": "6a078015c29436361a6d4739d72eceae86ddcebd",
+  "scenario": "server-offline",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "PASS",
+  "verification": "host-tested",
+  "working_tree_dirty": true
+}

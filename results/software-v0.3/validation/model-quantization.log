@@ -1,0 +1,18 @@
+{
+  "logistic": {
+    "sample_count": 240,
+    "fp32_int8_disagreements": 2,
+    "synthetic_policy_agreement": 230,
+    "serialized_json_bytes": 1243,
+    "device_latency": null,
+    "integer_kernel_parity": null
+  },
+  "mlp": {
+    "sample_count": 240,
+    "fp32_int8_disagreements": 0,
+    "synthetic_policy_agreement": 240,
+    "serialized_json_bytes": 2507,
+    "device_latency": null,
+    "integer_kernel_parity": null
+  }
+}

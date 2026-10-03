@@ -1,0 +1,58 @@
+01:31:48 [A1] gateway started on 127.0.0.1:51593 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+01:31:48 [A1] connected to server 127.0.0.1:51590
+01:31:48 [A1] peer link established with A2
+01:31:48 [A1] heartbeat -> A2
+01:31:48 [A1] A2 is online
+01:31:48 [A1] heartbeat -> A2
+01:31:48 [A1] heartbeat -> A2
+01:31:49 [A1] heartbeat -> A2
+01:31:49 [A1] heartbeat -> A2
+01:31:49 [A1] C1 registered (CONTROLLER, owner=A1, generation=1)
+01:31:49 [A1] heartbeat -> A2
+01:31:49 [A1] B1 registered (SENSOR, owner=A1, generation=1)
+01:31:49 [A1] received SENSOR_DATA from B1
+01:31:49 [A1] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:31:49 [A1] SENSOR_DATA uploaded to server
+01:31:49 [A1] command sent to C1 (IRRIGATION 10s, command_id=439bf94c3e50, generation=1)
+01:31:49 [A1] CONTROL_COMMAND uploaded to server
+01:31:49 [A1] ACK received (message_id=439bf94c3e50)
+01:31:49 [A1] heartbeat -> A2
+01:31:49 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:31:49 [A1] CONTROL_RESULT uploaded to server
+01:31:49 [A1] heartbeat -> A2
+01:31:49 [A1] received SENSOR_DATA from B1
+01:31:49 [A1] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+01:31:49 [A1] SENSOR_DATA uploaded to server
+01:31:49 [A1] command sent to C1 (IRRIGATION 10s, command_id=3d88ba6ada46, generation=1)
+01:31:49 [A1] CONTROL_COMMAND uploaded to server
+01:31:49 [A1] ACK received (message_id=3d88ba6ada46)
+01:31:49 [A1] heartbeat -> A2
+01:31:49 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:31:49 [A1] CONTROL_RESULT uploaded to server
+01:31:49 [A1] heartbeat -> A2
+01:31:49 [A1] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:31:49 [A1] edge autonomy intact: policy is advisory, control stays local
+01:31:49 [A1] heartbeat -> A2
+01:31:49 [A1] heartbeat -> A2
+01:31:49 [A1] received SENSOR_DATA from B1
+01:31:49 [A1] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:31:49 [A1] SENSOR_DATA uploaded to server
+01:31:49 [A1] command sent to C1 (IRRIGATION 10s, command_id=7c18298ceabc, generation=1)
+01:31:49 [A1] CONTROL_COMMAND uploaded to server
+01:31:49 [A1] ACK received (message_id=7c18298ceabc)
+01:31:49 [A1] heartbeat -> A2
+01:31:49 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:31:49 [A1] CONTROL_RESULT uploaded to server
+01:31:50 [A1] heartbeat -> A2
+01:31:50 [A1] heartbeat -> A2
+01:31:50 [A1] heartbeat -> A2
+01:31:50 [A1] received SENSOR_DATA from B1
+01:31:50 [A1] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+01:31:50 [A1] SENSOR_DATA uploaded to server
+01:31:50 [A1] command sent to C1 (IRRIGATION 10s, command_id=db788f4c31e5, generation=1)
+01:31:50 [A1] CONTROL_COMMAND uploaded to server
+01:31:50 [A1] ACK received (message_id=db788f4c31e5)
+01:31:50 [A1] heartbeat -> A2
+01:31:50 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:31:50 [A1] CONTROL_RESULT uploaded to server
+01:31:50 [A1] heartbeat -> A2

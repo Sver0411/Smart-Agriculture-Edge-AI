@@ -1,0 +1,14 @@
+{
+  "release": "v0.3 Software Integration & Experimental Foundation",
+  "date": "2026-10-04",
+  "new_software": {
+    "SensorTrust": "host-tested; shared C reference fixture",
+    "AdaptiveSense": "host-tested; software scenarios",
+    "DecisionEngine": "host-tested; synthetic training/export parity",
+    "Reliability": "host-tested; fault scenarios",
+    "ExperimentFramework": "host-tested; software experimentally evaluated"
+  },
+  "hardware_tested_in_this_release": false,
+  "firmware_built_in_this_release": false,
+  "device_resource_metrics": null
+}

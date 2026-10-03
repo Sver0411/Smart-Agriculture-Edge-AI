@@ -1,0 +1,205 @@
+
+==================================== ERRORS ====================================
+_________________ ERROR collecting tests/test_failover_e2e.py __________________
+.venv/lib/python3.14/site-packages/_pytest/python.py:508: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:596: in import_path
+    importlib.import_module(module_name)
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1342: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:188: in exec_module
+    exec(co, module.__dict__)
+tests/test_failover_e2e.py:26: in <module>
+    from gateway.gateway import Gateway
+E     File "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/gateway/gateway.py", line 546
+E       self._apply_policy(message)
+E       ^^^^
+E   IndentationError: expected an indented block after 'try' statement on line 545
+_____________ ERROR collecting tests/test_gateway_receive_time.py ______________
+.venv/lib/python3.14/site-packages/_pytest/python.py:508: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:596: in import_path
+    importlib.import_module(module_name)
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1342: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:188: in exec_module
+    exec(co, module.__dict__)
+tests/test_gateway_receive_time.py:9: in <module>
+    from gateway.gateway import Gateway
+E     File "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/gateway/gateway.py", line 546
+E       self._apply_policy(message)
+E       ^^^^
+E   IndentationError: expected an indented block after 'try' statement on line 545
+___________________ ERROR collecting tests/test_heartbeat.py ___________________
+.venv/lib/python3.14/site-packages/_pytest/python.py:508: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:596: in import_path
+    importlib.import_module(module_name)
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1342: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:188: in exec_module
+    exec(co, module.__dict__)
+tests/test_heartbeat.py:4: in <module>
+    from gateway.gateway import Gateway
+E     File "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/gateway/gateway.py", line 546
+E       self._apply_policy(message)
+E       ^^^^
+E   IndentationError: expected an indented block after 'try' statement on line 545
+__________________ ERROR collecting tests/test_integration.py __________________
+.venv/lib/python3.14/site-packages/_pytest/python.py:508: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:596: in import_path
+    importlib.import_module(module_name)
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1342: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:188: in exec_module
+    exec(co, module.__dict__)
+tests/test_integration.py:10: in <module>
+    from gateway.gateway import Gateway
+E     File "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/gateway/gateway.py", line 546
+E       self._apply_policy(message)
+E       ^^^^
+E   IndentationError: expected an indented block after 'try' statement on line 545
+____________________ ERROR collecting tests/test_offline.py ____________________
+.venv/lib/python3.14/site-packages/_pytest/python.py:508: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:596: in import_path
+    importlib.import_module(module_name)
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1342: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:188: in exec_module
+    exec(co, module.__dict__)
+tests/test_offline.py:13: in <module>
+    from gateway.gateway import Gateway
+E     File "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/gateway/gateway.py", line 546
+E       self._apply_policy(message)
+E       ^^^^
+E   IndentationError: expected an indented block after 'try' statement on line 545
+_____________ ERROR collecting tests/test_physical_b1_protocol.py ______________
+.venv/lib/python3.14/site-packages/_pytest/python.py:508: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:596: in import_path
+    importlib.import_module(module_name)
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1342: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:188: in exec_module
+    exec(co, module.__dict__)
+tests/test_physical_b1_protocol.py:7: in <module>
+    from gateway.gateway import Gateway
+E     File "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/gateway/gateway.py", line 546
+E       self._apply_policy(message)
+E       ^^^^
+E   IndentationError: expected an indented block after 'try' statement on line 545
+________________ ERROR collecting tests/test_sensor_session.py _________________
+.venv/lib/python3.14/site-packages/_pytest/python.py:508: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:596: in import_path
+    importlib.import_module(module_name)
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1342: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:188: in exec_module
+    exec(co, module.__dict__)
+tests/test_sensor_session.py:7: in <module>
+    from gateway.gateway import Gateway
+E     File "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/gateway/gateway.py", line 546
+E       self._apply_policy(message)
+E       ^^^^
+E   IndentationError: expected an indented block after 'try' statement on line 545
+____________ ERROR collecting tests/test_sensor_trust_reference.py _____________
+.venv/lib/python3.14/site-packages/_pytest/python.py:508: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:596: in import_path
+    importlib.import_module(module_name)
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1406: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1342: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:188: in exec_module
+    exec(co, module.__dict__)
+tests/test_sensor_trust_reference.py:7: in <module>
+    from gateway.gateway import Gateway
+E     File "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/gateway/gateway.py", line 546
+E       self._apply_policy(message)
+E       ^^^^
+E   IndentationError: expected an indented block after 'try' statement on line 545
+=========================== short test summary info ============================
+ERROR tests/test_failover_e2e.py
+ERROR tests/test_gateway_receive_time.py
+ERROR tests/test_heartbeat.py
+ERROR tests/test_integration.py
+ERROR tests/test_offline.py
+ERROR tests/test_physical_b1_protocol.py
+ERROR tests/test_sensor_session.py
+ERROR tests/test_sensor_trust_reference.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
+8 errors in 0.86s

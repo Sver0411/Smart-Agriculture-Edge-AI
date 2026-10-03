@@ -1,0 +1,123 @@
+01:29:32 [B1] connected to gateway A1 (127.0.0.1)
+01:29:32 [B1] NODE_REGISTER sent to A1 (attempt 1)
+01:29:32 [B1] registered with A1 (generation=1)
+01:29:32 [B1] sample #1 soil moisture = 21.9% (temp=25.2C, hum=56.2%, light=733.6)
+01:29:32 [B1] next sampling interval = 0.2s
+01:29:32 [B1] sample #2 soil moisture = 22.1% (temp=25.5C, hum=57.6%, light=634.4)
+01:29:32 [B1] next sampling interval = 0.2s
+01:29:33 [B1] sample #3 soil moisture = 22.0% (temp=25.4C, hum=53.9%, light=635.7)
+01:29:33 [B1] next sampling interval = 0.2s
+01:29:33 [B1] sample #4 soil moisture = 22.0% (temp=24.8C, hum=51.4%, light=646.5)
+01:29:33 [B1] next sampling interval = 0.2s
+01:29:33 [B1] sample #5 soil moisture = 22.1% (temp=24.5C, hum=52.2%, light=528.1)
+01:29:33 [B1] next sampling interval = 0.2s
+01:29:33 [B1] sample #6 soil moisture = 22.1% (temp=24.8C, hum=53.7%, light=445.4)
+01:29:33 [B1] next sampling interval = 0.2s
+01:29:33 [B1] sample #7 soil moisture = 21.9% (temp=25.4C, hum=52.4%, light=348.6)
+01:29:33 [B1] next sampling interval = 0.2s
+01:29:34 [B1] sample #8 soil moisture = 22.0% (temp=25.8C, hum=53.3%, light=403.7)
+01:29:34 [B1] next sampling interval = 0.2s
+01:29:34 [B1] connected to gateway A2 (127.0.0.1)
+01:29:34 [B1] NODE_REGISTER sent to A2 (attempt 1)
+01:29:34 [B1] registered with A2 (generation=1)
+01:29:34 [B1] sample #9 soil moisture = 22.0% (temp=25.8C, hum=57.0%, light=416.2)
+01:29:34 [B1] next sampling interval = 0.2s
+01:29:34 [B1] sample #10 soil moisture = 22.1% (temp=26.2C, hum=58.0%, light=434.8)
+01:29:34 [B1] next sampling interval = 0.2s
+01:29:34 [B1] sample #11 soil moisture = 22.0% (temp=26.5C, hum=54.4%, light=384.2)
+01:29:34 [B1] next sampling interval = 0.2s
+01:29:34 [B1] owner_gateway=A2 generation=2
+01:29:34 [B1] sample #12 soil moisture = 21.9% (temp=26.0C, hum=52.2%, light=331.0)
+01:29:34 [B1] next sampling interval = 0.2s
+01:29:34 [B1] sample #13 soil moisture = 21.9% (temp=26.1C, hum=51.1%, light=261.2)
+01:29:34 [B1] next sampling interval = 0.2s
+01:29:35 [B1] sample #14 soil moisture = 21.9% (temp=25.8C, hum=54.6%, light=287.4)
+01:29:35 [B1] next sampling interval = 0.2s
+01:29:35 [B1] sample #15 soil moisture = 21.8% (temp=25.5C, hum=56.5%, light=258.5)
+01:29:35 [B1] next sampling interval = 0.2s
+01:29:35 [B1] sample #16 soil moisture = 21.8% (temp=26.0C, hum=57.6%, light=302.8)
+01:29:35 [B1] next sampling interval = 0.2s
+01:29:35 [B1] sample #17 soil moisture = 21.7% (temp=26.5C, hum=59.8%, light=190.5)
+01:29:35 [B1] next sampling interval = 0.2s
+01:29:36 [B1] sample #18 soil moisture = 21.6% (temp=26.2C, hum=57.9%, light=296.8)
+01:29:36 [B1] next sampling interval = 0.2s
+01:29:36 [B1] sample #19 soil moisture = 21.7% (temp=26.7C, hum=56.5%, light=271.8)
+01:29:36 [B1] next sampling interval = 0.2s
+01:29:36 [B1] sample #20 soil moisture = 21.6% (temp=27.2C, hum=56.1%, light=210.9)
+01:29:36 [B1] next sampling interval = 0.2s
+01:29:36 [B1] sample #21 soil moisture = 21.7% (temp=27.3C, hum=54.2%, light=306.4)
+01:29:36 [B1] next sampling interval = 0.2s
+01:29:36 [B1] sample #22 soil moisture = 21.8% (temp=27.1C, hum=52.0%, light=308.7)
+01:29:36 [B1] next sampling interval = 0.2s
+01:29:37 [B1] sample #23 soil moisture = 21.7% (temp=26.6C, hum=48.4%, light=339.3)
+01:29:37 [B1] next sampling interval = 0.2s
+01:29:37 [B1] sample #24 soil moisture = 21.6% (temp=27.0C, hum=47.7%, light=310.9)
+01:29:37 [B1] next sampling interval = 0.2s
+01:29:37 [B1] sample #25 soil moisture = 21.7% (temp=27.6C, hum=48.0%, light=397.5)
+01:29:37 [B1] next sampling interval = 0.2s
+01:29:37 [B1] sample #26 soil moisture = 21.7% (temp=27.0C, hum=49.7%, light=406.3)
+01:29:37 [B1] next sampling interval = 0.2s
+01:29:37 [B1] sample #27 soil moisture = 21.6% (temp=26.7C, hum=50.9%, light=390.7)
+01:29:37 [B1] next sampling interval = 0.2s
+01:29:38 [B1] sample #28 soil moisture = 21.7% (temp=26.7C, hum=54.5%, light=333.9)
+01:29:38 [B1] next sampling interval = 0.2s
+01:29:38 [B1] sample #29 soil moisture = 21.9% (temp=26.7C, hum=51.9%, light=422.8)
+01:29:38 [B1] next sampling interval = 0.2s
+01:29:38 [B1] sample #30 soil moisture = 21.9% (temp=26.4C, hum=53.0%, light=339.5)
+01:29:38 [B1] next sampling interval = 0.2s
+01:29:38 [B1] sample #31 soil moisture = 22.0% (temp=26.7C, hum=53.4%, light=346.8)
+01:29:38 [B1] next sampling interval = 0.2s
+01:29:38 [B1] sample #32 soil moisture = 21.8% (temp=26.1C, hum=51.9%, light=449.8)
+01:29:38 [B1] next sampling interval = 0.2s
+01:29:39 [B1] sample #33 soil moisture = 21.8% (temp=26.6C, hum=54.6%, light=343.7)
+01:29:39 [B1] next sampling interval = 0.2s
+01:29:39 [B1] sample #34 soil moisture = 21.7% (temp=27.1C, hum=58.2%, light=340.3)
+01:29:39 [B1] next sampling interval = 0.2s
+01:29:39 [B1] sample #35 soil moisture = 21.7% (temp=26.5C, hum=60.3%, light=251.1)
+01:29:39 [B1] next sampling interval = 0.2s
+01:29:39 [B1] sample #36 soil moisture = 21.7% (temp=26.5C, hum=60.7%, light=340.5)
+01:29:39 [B1] next sampling interval = 0.2s
+01:29:39 [B1] sample #37 soil moisture = 21.7% (temp=26.4C, hum=58.4%, light=395.7)
+01:29:39 [B1] next sampling interval = 0.2s
+01:29:40 [B1] sample #38 soil moisture = 21.8% (temp=26.1C, hum=56.8%, light=431.7)
+01:29:40 [B1] next sampling interval = 0.2s
+01:29:40 [B1] sample #39 soil moisture = 21.7% (temp=26.0C, hum=57.0%, light=365.6)
+01:29:40 [B1] next sampling interval = 0.2s
+01:29:40 [B1] sample #40 soil moisture = 21.6% (temp=25.8C, hum=57.7%, light=298.4)
+01:29:40 [B1] next sampling interval = 0.2s
+01:29:40 [B1] sample #41 soil moisture = 21.6% (temp=25.3C, hum=58.7%, light=395.7)
+01:29:40 [B1] next sampling interval = 0.2s
+01:29:40 [B1] sample #42 soil moisture = 21.5% (temp=25.7C, hum=55.3%, light=436.3)
+01:29:40 [B1] next sampling interval = 0.2s
+01:29:41 [B1] sample #43 soil moisture = 21.6% (temp=25.4C, hum=52.4%, light=453.4)
+01:29:41 [B1] next sampling interval = 0.2s
+01:29:41 [B1] sample #44 soil moisture = 21.7% (temp=25.3C, hum=54.6%, light=379.1)
+01:29:41 [B1] next sampling interval = 0.2s
+01:29:41 [B1] sample #45 soil moisture = 21.7% (temp=24.8C, hum=54.1%, light=371.1)
+01:29:41 [B1] next sampling interval = 0.2s
+01:29:41 [B1] sample #46 soil moisture = 21.8% (temp=25.1C, hum=55.5%, light=274.8)
+01:29:41 [B1] next sampling interval = 0.2s
+01:29:41 [B1] sample #47 soil moisture = 21.9% (temp=25.0C, hum=54.2%, light=214.4)
+01:29:41 [B1] next sampling interval = 0.2s
+01:29:42 [B1] sample #48 soil moisture = 21.9% (temp=24.6C, hum=53.8%, light=161.3)
+01:29:42 [B1] next sampling interval = 0.2s
+01:29:42 [B1] sample #49 soil moisture = 21.9% (temp=24.3C, hum=57.2%, light=248.0)
+01:29:42 [B1] next sampling interval = 0.2s
+01:29:42 [B1] sample #50 soil moisture = 22.0% (temp=24.4C, hum=53.6%, light=328.7)
+01:29:42 [B1] next sampling interval = 0.2s
+01:29:42 [B1] sample #51 soil moisture = 22.1% (temp=25.0C, hum=57.0%, light=248.6)
+01:29:42 [B1] next sampling interval = 0.2s
+01:29:42 [B1] sample #52 soil moisture = 22.1% (temp=24.9C, hum=54.7%, light=142.6)
+01:29:42 [B1] next sampling interval = 0.2s
+01:29:43 [B1] sample #53 soil moisture = 22.0% (temp=24.8C, hum=58.6%, light=210.8)
+01:29:43 [B1] next sampling interval = 0.2s
+01:29:43 [B1] sample #54 soil moisture = 22.2% (temp=24.7C, hum=58.0%, light=329.7)
+01:29:43 [B1] next sampling interval = 0.2s
+01:29:43 [B1] sample #55 soil moisture = 22.1% (temp=24.8C, hum=59.7%, light=280.9)
+01:29:43 [B1] next sampling interval = 0.2s
+01:29:43 [B1] sample #56 soil moisture = 22.1% (temp=25.4C, hum=60.3%, light=340.4)
+01:29:43 [B1] next sampling interval = 0.2s
+01:29:43 [B1] sample #57 soil moisture = 22.1% (temp=24.8C, hum=61.0%, light=425.1)
+01:29:43 [B1] next sampling interval = 0.2s
+01:29:44 [B1] sample #58 soil moisture = 22.0% (temp=24.4C, hum=64.7%, light=349.7)
+01:29:44 [B1] next sampling interval = 0.2s

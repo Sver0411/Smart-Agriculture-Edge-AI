@@ -1,0 +1,12 @@
+{
+  "config_sha256": "10753198917e29b639f916c52e15911f83a9fe9427e63fef75db548f3efdfdc0",
+  "input_mode": "software-simulation",
+  "raw_sha256": "6b1c8ab5551624e1b525451ed986e44c0ae3d6965fee16ed7350a44b10a055fc",
+  "revision": "6a078015c29436361a6d4739d72eceae86ddcebd",
+  "scenario": "stale-generation",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "PASS",
+  "verification": "host-tested",
+  "working_tree_dirty": true
+}

@@ -1,0 +1,12 @@
+{
+  "config_sha256": "dd096bdcbe18ea51f76b71510d292dc096dcb604cd8faaad591798c99f72acb5",
+  "input_mode": "software-simulation",
+  "raw_sha256": "faf96cd95edd1b50c0e9e0bb9c1ed0800e824f8337ea72b2e44521bfd4e6e094",
+  "revision": "6a078015c29436361a6d4739d72eceae86ddcebd",
+  "scenario": "gateway-failover",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "PASS",
+  "verification": "host-tested",
+  "working_tree_dirty": true
+}

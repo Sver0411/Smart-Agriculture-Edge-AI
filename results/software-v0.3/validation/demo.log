@@ -1,0 +1,136 @@
+
+================================================================================
+ Smart Agriculture Edge AI  -  v0.2 demo (Engineering Hardening)
+================================================================================
+                              cloud server (:9100)
+                                      |
+                       +--------------+--------------+
+                       |                             |
+                  gateway A1 <-- heartbeat --> gateway A2
+                 (:9201)                       (:9202)
+                       |                             |
+                 +-----+-----+                 +-----+-----+
+                 |           |                 |           |
+               B1 (soil)   C1 (pump)         B2 (soil)   C2 (pump)
+
+ loop :  B -> A -> C -> A -> Server      (B and C are siblings)
+================================================================================
+
+01:42:29 [SERVER] listening on 127.0.0.1:9100 (sqlite: /tmp/sa-v03-demo.db)
+01:42:29 [A1] gateway started on 127.0.0.1:9201 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+01:42:29 [A2] gateway started on 127.0.0.1:9202 (sensor=B2, controller=C2, peer=A1, generation=1, role=ACTIVE)
+01:42:29 [A1] connected to server 127.0.0.1:9100
+01:42:29 [A2] connected to server 127.0.0.1:9100
+01:42:29 [A2] peer link established with A1
+01:42:29 [A2] heartbeat -> A1
+01:42:29 [SERVER] gateway A2 connected
+01:42:29 [DEMO] running for 5s ...
+01:42:29 [B1] connected to gateway A1 (127.0.0.1)
+01:42:29 [B1] NODE_REGISTER sent to A1 (attempt 1)
+01:42:29 [B2] connected to gateway A2 (127.0.0.1)
+01:42:29 [B2] NODE_REGISTER sent to A2 (attempt 1)
+01:42:29 [C1] connected to gateway A1 (127.0.0.1)
+01:42:29 [C1] NODE_REGISTER sent to A1 (attempt 1)
+01:42:29 [C2] connected to gateway A2 (127.0.0.1)
+01:42:29 [C2] NODE_REGISTER sent to A2 (attempt 1)
+01:42:29 [A1] B1 registered (SENSOR, owner=A1, generation=1)
+01:42:29 [A2] B2 registered (SENSOR, owner=A2, generation=1)
+01:42:29 [A1] C1 registered (CONTROLLER, owner=A1, generation=1)
+01:42:29 [A2] C2 registered (CONTROLLER, owner=A2, generation=1)
+01:42:29 [B1] registered with A1 (generation=1)
+01:42:29 [B2] registered with A2 (generation=1)
+01:42:29 [B1] sample #1 soil moisture = 21.6% (temp=24.9C, hum=60.5%, light=791.8)
+01:42:29 [B1] next sampling interval = 5s
+01:42:29 [B2] sample #1 soil moisture = 40.9% (temp=34.0C, hum=57.1%, light=919.7)
+01:42:29 [B2] next sampling interval = 5s
+01:42:29 [C1] registered with A1 (generation=1)
+01:42:29 [C2] registered with A2 (generation=1)
+01:42:29 [A1] received SENSOR_DATA from B1
+01:42:29 [A1] edge decision = IRRIGATION (soil_moisture 21.6 < 25.0)
+01:42:29 [A2] received SENSOR_DATA from B2
+01:42:29 [A2] edge decision = VENTILATION (temperature 34.0 > 32.0)
+01:42:29 [A1] SENSOR_DATA uploaded to server
+01:42:29 [A1] command sent to C1 (IRRIGATION 10s, command_id=f595ac245b60, generation=1)
+01:42:29 [A2] SENSOR_DATA uploaded to server
+01:42:29 [A2] command sent to C2 (VENTILATION 5s, command_id=6a9e5e45063e, generation=1)
+01:42:29 [A1] CONTROL_COMMAND uploaded to server
+01:42:29 [A2] CONTROL_COMMAND uploaded to server
+01:42:29 [SERVER] gateway A1 connected
+01:42:29 [SERVER] sensor data stored (B1 soil=21.6% temp=24.9C)
+01:42:29 [C1] IRRIGATION command received (command_id=f595ac245b60, duration=10s, generation=1)
+01:42:29 [C1] ACK sent (command_id=f595ac245b60)
+01:42:29 [C1] safety check passed
+01:42:29 [SERVER] sensor data stored (B2 soil=40.9% temp=34.0C)
+01:42:29 [C2] VENTILATION command received (command_id=6a9e5e45063e, duration=5s, generation=1)
+01:42:29 [C2] ACK sent (command_id=6a9e5e45063e)
+01:42:29 [C2] safety check passed
+01:42:29 [A1] ACK received (message_id=f595ac245b60)
+01:42:29 [A2] ACK received (message_id=6a9e5e45063e)
+01:42:30 [SERVER] SERVER_POLICY v1 pushed to A1, A2
+01:42:30 [A2] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:42:30 [A2] edge autonomy intact: policy is advisory, control stays local
+01:42:30 [A1] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:42:30 [A1] edge autonomy intact: policy is advisory, control stays local
+01:42:30 [C2] ventilation executed
+01:42:30 [C2] CONTROL_RESULT sent to A2
+01:42:30 [A2] controller result received (VENTILATION -> EXECUTED)
+01:42:30 [A2] CONTROL_RESULT uploaded to server
+01:42:30 [SERVER] control result stored (VENTILATION -> EXECUTED)
+01:42:31 [C1] irrigation executed
+01:42:31 [C1] CONTROL_RESULT sent to A1
+01:42:31 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:42:31 [A1] CONTROL_RESULT uploaded to server
+01:42:31 [SERVER] control result stored (IRRIGATION -> EXECUTED)
+01:42:32 [A1] peer link established with A2
+01:42:32 [A1] A2 is online
+01:42:32 [A1] heartbeat -> A2
+01:42:32 [A2] A1 is online
+01:42:32 [A2] heartbeat -> A1
+01:42:34 [DEMO] stopping nodes ...
+01:42:34 [A1] B1 disconnected
+01:42:34 [A2] B2 disconnected
+01:42:34 [A1] C1 disconnected
+01:42:34 [A2] C2 disconnected
+01:42:35 [SERVER] gateway A1 disconnected
+01:42:35 [SERVER] gateway A2 disconnected
+
+==============================================================
+ demo summary - metrics
+==============================================================
+ sensor messages           : 2
+ control commands          : 2
+ executed                  : 2
+ rejected                  : 0
+ duplicates                : 0
+ retries                   : 0
+ delivery failures         : 0
+ failovers                 : 0
+ offline queued            : 0
+ queue replayed            : 0
+ server duplicates ignored : 0
+==============================================================
+
+==============================================================
+ demo summary - sqlite
+==============================================================
+ sensor_data rows        : 2
+ controller_command rows : 2
+ controller_result rows  : 2
+ gateway_heartbeat rows  : 3
+ alert rows              : 0
+ processed_message rows  : 11
+ sqlite file             : /tmp/sa-v03-demo.db
+==============================================================
+
+ gateway state
+ ------------------------------
+ A1: role=ACTIVE  health=ONLINE  generation=1 peer=ONLINE
+    B1: owner=A1 generation=1 status=ONLINE
+    B2: owner=A2 generation=1 status=OFFLINE
+    C1: owner=A1 generation=1 status=ONLINE
+    C2: owner=A2 generation=1 status=OFFLINE
+ A2: role=ACTIVE  health=ONLINE  generation=1 peer=ONLINE
+    B1: owner=A1 generation=1 status=OFFLINE
+    B2: owner=A2 generation=1 status=ONLINE
+    C1: owner=A1 generation=1 status=OFFLINE
+    C2: owner=A2 generation=1 status=ONLINE

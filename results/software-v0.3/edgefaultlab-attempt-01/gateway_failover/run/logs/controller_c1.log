@@ -1,0 +1,80 @@
+01:29:32 [C1] connected to gateway A1 (127.0.0.1)
+01:29:32 [C1] NODE_REGISTER sent to A1 (attempt 1)
+01:29:32 [C1] registered with A1 (generation=1)
+01:29:32 [C1] IRRIGATION command received (command_id=97f82f7d0f34, duration=10s, generation=1)
+01:29:32 [C1] ACK sent (command_id=97f82f7d0f34)
+01:29:32 [C1] safety check passed
+01:29:32 [C1] irrigation executed
+01:29:32 [C1] CONTROL_RESULT sent to A1
+01:29:33 [C1] IRRIGATION command received (command_id=d119b27e4bc6, duration=10s, generation=1)
+01:29:33 [C1] ACK sent (command_id=d119b27e4bc6)
+01:29:33 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:33 [C1] CONTROL_RESULT sent to A1
+01:29:33 [C1] IRRIGATION command received (command_id=cf3161e66d11, duration=10s, generation=1)
+01:29:33 [C1] ACK sent (command_id=cf3161e66d11)
+01:29:33 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:33 [C1] CONTROL_RESULT sent to A1
+01:29:34 [C1] IRRIGATION command received (command_id=fc88da758982, duration=10s, generation=1)
+01:29:34 [C1] ACK sent (command_id=fc88da758982)
+01:29:34 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:34 [C1] CONTROL_RESULT sent to A1
+01:29:34 [C1] connected to gateway A2 (127.0.0.1)
+01:29:34 [C1] NODE_REGISTER sent to A2 (attempt 1)
+01:29:34 [C1] registered with A2 (generation=1)
+01:29:34 [C1] IRRIGATION command received (command_id=ba717b019ee9, duration=10s, generation=1)
+01:29:34 [C1] ACK sent (command_id=ba717b019ee9)
+01:29:34 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:34 [C1] CONTROL_RESULT sent to A2
+01:29:34 [C1] owner_gateway = A2 (generation=2)
+01:29:34 [C1] IRRIGATION command received (command_id=c91b3be05b16, duration=10s, generation=2)
+01:29:34 [C1] ACK sent (command_id=c91b3be05b16)
+01:29:34 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:34 [C1] CONTROL_RESULT sent to A2
+01:29:35 [C1] IRRIGATION command received (command_id=92d568efa2b1, duration=10s, generation=2)
+01:29:35 [C1] ACK sent (command_id=92d568efa2b1)
+01:29:35 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:35 [C1] CONTROL_RESULT sent to A2
+01:29:35 [C1] IRRIGATION command received (command_id=86a984cd5b7f, duration=10s, generation=2)
+01:29:35 [C1] ACK sent (command_id=86a984cd5b7f)
+01:29:35 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:35 [C1] CONTROL_RESULT sent to A2
+01:29:36 [C1] IRRIGATION command received (command_id=b2df56717c68, duration=10s, generation=2)
+01:29:36 [C1] ACK sent (command_id=b2df56717c68)
+01:29:36 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:36 [C1] CONTROL_RESULT sent to A2
+01:29:37 [C1] IRRIGATION command received (command_id=d1fe988463be, duration=10s, generation=2)
+01:29:37 [C1] ACK sent (command_id=d1fe988463be)
+01:29:37 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:37 [C1] CONTROL_RESULT sent to A2
+01:29:37 [C1] IRRIGATION command received (command_id=9dd58b2fb96a, duration=10s, generation=2)
+01:29:37 [C1] ACK sent (command_id=9dd58b2fb96a)
+01:29:37 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:37 [C1] CONTROL_RESULT sent to A2
+01:29:38 [C1] IRRIGATION command received (command_id=da11ea24129b, duration=10s, generation=2)
+01:29:38 [C1] ACK sent (command_id=da11ea24129b)
+01:29:38 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:38 [C1] CONTROL_RESULT sent to A2
+01:29:39 [C1] IRRIGATION command received (command_id=9602fc9dba31, duration=10s, generation=2)
+01:29:39 [C1] ACK sent (command_id=9602fc9dba31)
+01:29:39 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:39 [C1] CONTROL_RESULT sent to A2
+01:29:40 [C1] IRRIGATION command received (command_id=0fceb8e14d0d, duration=10s, generation=2)
+01:29:40 [C1] ACK sent (command_id=0fceb8e14d0d)
+01:29:40 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:40 [C1] CONTROL_RESULT sent to A2
+01:29:41 [C1] IRRIGATION command received (command_id=f4a6b84bf903, duration=10s, generation=2)
+01:29:41 [C1] ACK sent (command_id=f4a6b84bf903)
+01:29:41 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:41 [C1] CONTROL_RESULT sent to A2
+01:29:41 [C1] IRRIGATION command received (command_id=115836b27295, duration=10s, generation=2)
+01:29:41 [C1] ACK sent (command_id=115836b27295)
+01:29:41 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:41 [C1] CONTROL_RESULT sent to A2
+01:29:43 [C1] IRRIGATION command received (command_id=e64ce89c0bec, duration=10s, generation=2)
+01:29:43 [C1] ACK sent (command_id=e64ce89c0bec)
+01:29:43 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:43 [C1] CONTROL_RESULT sent to A2
+01:29:43 [C1] IRRIGATION command received (command_id=58bc7e4adf35, duration=10s, generation=2)
+01:29:43 [C1] ACK sent (command_id=58bc7e4adf35)
+01:29:43 [C1] IRRIGATION command rejected: COOLDOWN
+01:29:43 [C1] CONTROL_RESULT sent to A2

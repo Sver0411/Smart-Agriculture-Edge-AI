@@ -1,0 +1,275 @@
+01:32:00 [A1] gateway started on 127.0.0.1:51695 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+01:32:00 [A1] connected to server 127.0.0.1:51692
+01:32:00 [A1] peer link established with A2
+01:32:00 [A1] heartbeat -> A2
+01:32:00 [A1] A2 is online
+01:32:00 [A1] heartbeat -> A2
+01:32:00 [A1] heartbeat -> A2
+01:32:00 [A1] heartbeat -> A2
+01:32:01 [A1] heartbeat -> A2
+01:32:01 [A1] C1 registered (CONTROLLER, owner=A1, generation=1)
+01:32:01 [A1] B1 registered (SENSOR, owner=A1, generation=1)
+01:32:01 [A1] received SENSOR_DATA from B1
+01:32:01 [A1] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:32:01 [A1] SENSOR_DATA uploaded to server
+01:32:01 [A1] command sent to C1 (IRRIGATION 10s, command_id=9a49240aaee6, generation=1)
+01:32:01 [A1] CONTROL_COMMAND uploaded to server
+01:32:01 [A1] ACK received (message_id=9a49240aaee6)
+01:32:01 [A1] heartbeat -> A2
+01:32:01 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:01 [A1] CONTROL_RESULT uploaded to server
+01:32:01 [A1] heartbeat -> A2
+01:32:01 [A1] received SENSOR_DATA from B1
+01:32:01 [A1] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+01:32:01 [A1] SENSOR_DATA uploaded to server
+01:32:01 [A1] command sent to C1 (IRRIGATION 10s, command_id=e976e9e75577, generation=1)
+01:32:01 [A1] CONTROL_COMMAND uploaded to server
+01:32:01 [A1] ACK received (message_id=e976e9e75577)
+01:32:01 [A1] heartbeat -> A2
+01:32:01 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:01 [A1] CONTROL_RESULT uploaded to server
+01:32:01 [A1] heartbeat -> A2
+01:32:01 [A1] heartbeat -> A2
+01:32:01 [A1] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:32:01 [A1] edge autonomy intact: policy is advisory, control stays local
+01:32:01 [A1] heartbeat -> A2
+01:32:01 [A1] received SENSOR_DATA from B1
+01:32:01 [A1] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:32:01 [A1] SENSOR_DATA uploaded to server
+01:32:01 [A1] command sent to C1 (IRRIGATION 10s, command_id=53e33d9fd343, generation=1)
+01:32:01 [A1] CONTROL_COMMAND uploaded to server
+01:32:01 [A1] ACK received (message_id=53e33d9fd343)
+01:32:01 [A1] heartbeat -> A2
+01:32:01 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:01 [A1] CONTROL_RESULT uploaded to server
+01:32:01 [A1] heartbeat -> A2
+01:32:02 [A1] heartbeat -> A2
+01:32:02 [A1] heartbeat -> A2
+01:32:02 [A1] received SENSOR_DATA from B1
+01:32:02 [A1] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+01:32:02 [A1] SENSOR_DATA uploaded to server
+01:32:02 [A1] command sent to C1 (IRRIGATION 10s, command_id=71f9cfa2cbe3, generation=1)
+01:32:02 [A1] CONTROL_COMMAND uploaded to server
+01:32:02 [A1] ACK received (message_id=71f9cfa2cbe3)
+01:32:02 [A1] heartbeat -> A2
+01:32:02 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:02 [A1] CONTROL_RESULT uploaded to server
+01:32:02 [A1] heartbeat -> A2
+01:32:02 [A1] heartbeat -> A2
+01:32:02 [A1] heartbeat -> A2
+01:32:02 [A1] received SENSOR_DATA from B1
+01:32:02 [A1] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:32:02 [A1] server unavailable, SENSOR_DATA queued locally (depth=1)
+01:32:02 [A1] command sent to C1 (IRRIGATION 10s, command_id=0ffdd9cdfec4, generation=1)
+01:32:02 [A1] server unavailable, CONTROL_COMMAND queued locally (depth=2)
+01:32:02 [A1] ACK received (message_id=0ffdd9cdfec4)
+01:32:02 [A1] heartbeat -> A2
+01:32:02 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:02 [A1] server unavailable, CONTROL_RESULT queued locally (depth=3)
+01:32:02 [A1] heartbeat -> A2
+01:32:02 [A1] heartbeat -> A2
+01:32:02 [A1] heartbeat -> A2
+01:32:03 [A1] received SENSOR_DATA from B1
+01:32:03 [A1] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+01:32:03 [A1] server unavailable, SENSOR_DATA queued locally (depth=4)
+01:32:03 [A1] command sent to C1 (IRRIGATION 10s, command_id=bad3b7cf38db, generation=1)
+01:32:03 [A1] server unavailable, CONTROL_COMMAND queued locally (depth=5)
+01:32:03 [A1] ACK received (message_id=bad3b7cf38db)
+01:32:03 [A1] heartbeat -> A2
+01:32:03 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:03 [A1] server unavailable, CONTROL_RESULT queued locally (depth=6)
+01:32:03 [A1] heartbeat -> A2
+01:32:03 [A1] heartbeat -> A2
+01:32:03 [A1] heartbeat -> A2
+01:32:03 [A1] received SENSOR_DATA from B1
+01:32:03 [A1] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:32:03 [A1] server unavailable, SENSOR_DATA queued locally (depth=7)
+01:32:03 [A1] command sent to C1 (IRRIGATION 10s, command_id=000f3d46841b, generation=1)
+01:32:03 [A1] server unavailable, CONTROL_COMMAND queued locally (depth=8)
+01:32:03 [A1] ACK received (message_id=000f3d46841b)
+01:32:03 [A1] heartbeat -> A2
+01:32:03 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:03 [A1] server unavailable, CONTROL_RESULT queued locally (depth=9)
+01:32:03 [A1] heartbeat -> A2
+01:32:03 [A1] heartbeat -> A2
+01:32:03 [A1] heartbeat -> A2
+01:32:03 [A1] heartbeat -> A2
+01:32:03 [A1] heartbeat -> A2
+01:32:04 [A1] received SENSOR_DATA from B1
+01:32:04 [A1] edge decision = IRRIGATION (soil_moisture 21.8 < 25.0)
+01:32:04 [A1] server unavailable, SENSOR_DATA queued locally (depth=10)
+01:32:04 [A1] command sent to C1 (IRRIGATION 10s, command_id=fd351ca0d9c4, generation=1)
+01:32:04 [A1] server unavailable, CONTROL_COMMAND queued locally (depth=11)
+01:32:04 [A1] ACK received (message_id=fd351ca0d9c4)
+01:32:04 [A1] heartbeat -> A2
+01:32:04 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:04 [A1] server unavailable, CONTROL_RESULT queued locally (depth=12)
+01:32:04 [A1] heartbeat -> A2
+01:32:04 [A1] heartbeat -> A2
+01:32:04 [A1] heartbeat -> A2
+01:32:04 [A1] received SENSOR_DATA from B1
+01:32:04 [A1] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:32:04 [A1] server unavailable, SENSOR_DATA queued locally (depth=13)
+01:32:04 [A1] command sent to C1 (IRRIGATION 10s, command_id=37bd5898d347, generation=1)
+01:32:04 [A1] server unavailable, CONTROL_COMMAND queued locally (depth=14)
+01:32:04 [A1] ACK received (message_id=37bd5898d347)
+01:32:04 [A1] heartbeat -> A2
+01:32:04 [A1] connected to server 127.0.0.1:51692
+01:32:04 [A1] flushing offline queue (14 messages, oldest first)
+01:32:04 [A1] offline queue empty
+01:32:04 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:04 [A1] CONTROL_RESULT uploaded to server
+01:32:04 [A1] heartbeat -> A2
+01:32:04 [A1] heartbeat -> A2
+01:32:04 [A1] heartbeat -> A2
+01:32:04 [A1] heartbeat -> A2
+01:32:04 [A1] heartbeat -> A2
+01:32:05 [A1] heartbeat -> A2
+01:32:05 [A1] heartbeat -> A2
+01:32:05 [A1] received SENSOR_DATA from B1
+01:32:05 [A1] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:32:05 [A1] SENSOR_DATA uploaded to server
+01:32:05 [A1] command sent to C1 (IRRIGATION 10s, command_id=5bf7ac9ad80d, generation=1)
+01:32:05 [A1] CONTROL_COMMAND uploaded to server
+01:32:05 [A1] ACK received (message_id=5bf7ac9ad80d)
+01:32:05 [A1] heartbeat -> A2
+01:32:05 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:05 [A1] CONTROL_RESULT uploaded to server
+01:32:05 [A1] heartbeat -> A2
+01:32:05 [A1] heartbeat -> A2
+01:32:05 [A1] heartbeat -> A2
+01:32:05 [A1] received SENSOR_DATA from B1
+01:32:05 [A1] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:32:05 [A1] SENSOR_DATA uploaded to server
+01:32:05 [A1] command sent to C1 (IRRIGATION 10s, command_id=de1ed9f0532a, generation=1)
+01:32:05 [A1] CONTROL_COMMAND uploaded to server
+01:32:05 [A1] ACK received (message_id=de1ed9f0532a)
+01:32:05 [A1] heartbeat -> A2
+01:32:05 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:05 [A1] CONTROL_RESULT uploaded to server
+01:32:05 [A1] heartbeat -> A2
+01:32:05 [A1] heartbeat -> A2
+01:32:05 [A1] heartbeat -> A2
+01:32:06 [A1] received SENSOR_DATA from B1
+01:32:06 [A1] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:32:06 [A1] SENSOR_DATA uploaded to server
+01:32:06 [A1] command sent to C1 (IRRIGATION 10s, command_id=933117b825aa, generation=1)
+01:32:06 [A1] CONTROL_COMMAND uploaded to server
+01:32:06 [A1] ACK received (message_id=933117b825aa)
+01:32:06 [A1] heartbeat -> A2
+01:32:06 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:06 [A1] CONTROL_RESULT uploaded to server
+01:32:06 [A1] heartbeat -> A2
+01:32:06 [A1] heartbeat -> A2
+01:32:06 [A1] heartbeat -> A2
+01:32:06 [A1] heartbeat -> A2
+01:32:06 [A1] heartbeat -> A2
+01:32:06 [A1] received SENSOR_DATA from B1
+01:32:06 [A1] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:32:06 [A1] SENSOR_DATA uploaded to server
+01:32:06 [A1] command sent to C1 (IRRIGATION 10s, command_id=7362b6c58614, generation=1)
+01:32:06 [A1] CONTROL_COMMAND uploaded to server
+01:32:06 [A1] ACK received (message_id=7362b6c58614)
+01:32:06 [A1] heartbeat -> A2
+01:32:06 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:06 [A1] CONTROL_RESULT uploaded to server
+01:32:06 [A1] heartbeat -> A2
+01:32:06 [A1] heartbeat -> A2
+01:32:07 [A1] heartbeat -> A2
+01:32:07 [A1] heartbeat -> A2
+01:32:07 [A1] heartbeat -> A2
+01:32:07 [A1] heartbeat -> A2
+01:32:07 [A1] heartbeat -> A2
+01:32:07 [A1] heartbeat -> A2
+01:32:07 [A1] heartbeat -> A2
+01:32:07 [A1] heartbeat -> A2
+01:32:07 [A1] heartbeat -> A2
+01:32:07 [A1] heartbeat -> A2
+01:32:08 [A1] heartbeat -> A2
+01:32:08 [A1] received SENSOR_DATA from B1
+01:32:08 [A1] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:32:08 [A1] SENSOR_DATA uploaded to server
+01:32:08 [A1] command sent to C1 (IRRIGATION 10s, command_id=9f2a965c2ccb, generation=1)
+01:32:08 [A1] CONTROL_COMMAND uploaded to server
+01:32:08 [A1] ACK received (message_id=9f2a965c2ccb)
+01:32:08 [A1] heartbeat -> A2
+01:32:08 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:08 [A1] CONTROL_RESULT uploaded to server
+01:32:08 [A1] heartbeat -> A2
+01:32:08 [A1] heartbeat -> A2
+01:32:08 [A1] heartbeat -> A2
+01:32:08 [A1] heartbeat -> A2
+01:32:08 [A1] heartbeat -> A2
+01:32:08 [A1] heartbeat -> A2
+01:32:08 [A1] heartbeat -> A2
+01:32:08 [A1] heartbeat -> A2
+01:32:09 [A1] heartbeat -> A2
+01:32:09 [A1] heartbeat -> A2
+01:32:09 [A1] heartbeat -> A2
+01:32:09 [A1] received SENSOR_DATA from B1
+01:32:09 [A1] edge decision = IRRIGATION (soil_moisture 21.6 < 25.0)
+01:32:09 [A1] SENSOR_DATA uploaded to server
+01:32:09 [A1] command sent to C1 (IRRIGATION 10s, command_id=e055ae85f829, generation=1)
+01:32:09 [A1] CONTROL_COMMAND uploaded to server
+01:32:09 [A1] ACK received (message_id=e055ae85f829)
+01:32:09 [A1] heartbeat -> A2
+01:32:09 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:09 [A1] CONTROL_RESULT uploaded to server
+01:32:09 [A1] heartbeat -> A2
+01:32:09 [A1] heartbeat -> A2
+01:32:09 [A1] heartbeat -> A2
+01:32:09 [A1] received SENSOR_DATA from B1
+01:32:09 [A1] edge decision = IRRIGATION (soil_moisture 21.6 < 25.0)
+01:32:09 [A1] SENSOR_DATA uploaded to server
+01:32:09 [A1] command sent to C1 (IRRIGATION 10s, command_id=9208015a0284, generation=1)
+01:32:09 [A1] CONTROL_COMMAND uploaded to server
+01:32:09 [A1] ACK received (message_id=9208015a0284)
+01:32:09 [A1] heartbeat -> A2
+01:32:09 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:09 [A1] CONTROL_RESULT uploaded to server
+01:32:09 [A1] heartbeat -> A2
+01:32:09 [A1] heartbeat -> A2
+01:32:10 [A1] heartbeat -> A2
+01:32:10 [A1] heartbeat -> A2
+01:32:10 [A1] heartbeat -> A2
+01:32:10 [A1] heartbeat -> A2
+01:32:10 [A1] heartbeat -> A2
+01:32:10 [A1] received SENSOR_DATA from B1
+01:32:10 [A1] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:32:10 [A1] SENSOR_DATA uploaded to server
+01:32:10 [A1] command sent to C1 (IRRIGATION 10s, command_id=fbff9011138d, generation=1)
+01:32:10 [A1] CONTROL_COMMAND uploaded to server
+01:32:10 [A1] ACK received (message_id=fbff9011138d)
+01:32:10 [A1] heartbeat -> A2
+01:32:10 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:10 [A1] CONTROL_RESULT uploaded to server
+01:32:10 [A1] heartbeat -> A2
+01:32:10 [A1] heartbeat -> A2
+01:32:10 [A1] heartbeat -> A2
+01:32:10 [A1] heartbeat -> A2
+01:32:11 [A1] heartbeat -> A2
+01:32:11 [A1] heartbeat -> A2
+01:32:11 [A1] heartbeat -> A2
+01:32:11 [A1] heartbeat -> A2
+01:32:11 [A1] heartbeat -> A2
+01:32:11 [A1] heartbeat -> A2
+01:32:11 [A1] SERVER_POLICY v2 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:32:11 [A1] edge autonomy intact: policy is advisory, control stays local
+01:32:11 [A1] heartbeat -> A2
+01:32:11 [A1] received SENSOR_DATA from B1
+01:32:11 [A1] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:32:11 [A1] SENSOR_DATA uploaded to server
+01:32:11 [A1] command sent to C1 (IRRIGATION 10s, command_id=e620dad68e9a, generation=1)
+01:32:11 [A1] CONTROL_COMMAND uploaded to server
+01:32:11 [A1] ACK received (message_id=e620dad68e9a)
+01:32:11 [A1] heartbeat -> A2
+01:32:11 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:32:11 [A1] CONTROL_RESULT uploaded to server
+01:32:11 [A1] heartbeat -> A2
+01:32:12 [A1] heartbeat -> A2
+01:32:12 [A1] heartbeat -> A2
+01:32:12 [A1] heartbeat -> A2
+01:32:12 [A1] heartbeat -> A2
+01:32:12 [A1] heartbeat -> A2
+01:32:12 [A1] B1 disconnected
+01:32:12 [A1] C1 disconnected

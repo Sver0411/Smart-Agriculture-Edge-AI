@@ -1,0 +1,389 @@
+01:29:32 [A2] gateway started on 127.0.0.1:50826 (sensor=B2, controller=C2, peer=A1, generation=1, role=ACTIVE)
+01:29:32 [A2] connected to server 127.0.0.1:50821
+01:29:32 [A2] peer link established with A1
+01:29:32 [A2] heartbeat -> A1
+01:29:32 [A2] B2 registered (SENSOR, owner=A2, generation=1)
+01:29:32 [A2] received SENSOR_DATA from B2
+01:29:32 [A2] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:29:32 [A2] SENSOR_DATA uploaded to server
+01:29:32 [A2] C2 not connected, IRRIGATION command 90b59adb32a2 not delivered
+01:29:32 [A2] heartbeat -> A1
+01:29:32 [A2] A1 is online
+01:29:32 [A2] heartbeat -> A1
+01:29:32 [A2] received SENSOR_DATA from B2
+01:29:32 [A2] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:29:32 [A2] SENSOR_DATA uploaded to server
+01:29:32 [A2] C2 not connected, IRRIGATION command d17fa5a8eeaa not delivered
+01:29:32 [A2] heartbeat -> A1
+01:29:33 [A2] heartbeat -> A1
+01:29:33 [A2] heartbeat -> A1
+01:29:33 [A2] heartbeat -> A1
+01:29:33 [A2] heartbeat -> A1
+01:29:33 [A2] heartbeat -> A1
+01:29:33 [A2] received SENSOR_DATA from B2
+01:29:33 [A2] edge decision = IRRIGATION (soil_moisture 21.8 < 25.0)
+01:29:33 [A2] SENSOR_DATA uploaded to server
+01:29:33 [A2] C2 not connected, IRRIGATION command 586db1b8e9d5 not delivered
+01:29:33 [A2] heartbeat -> A1
+01:29:33 [A2] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:29:33 [A2] edge autonomy intact: policy is advisory, control stays local
+01:29:33 [A2] heartbeat -> A1
+01:29:33 [A2] heartbeat -> A1
+01:29:33 [A2] heartbeat -> A1
+01:29:33 [A2] heartbeat -> A1
+01:29:34 [A2] heartbeat -> A1
+01:29:34 [A2] received SENSOR_DATA from B2
+01:29:34 [A2] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:29:34 [A2] SENSOR_DATA uploaded to server
+01:29:34 [A2] C2 not connected, IRRIGATION command 8f5ec20b03fa not delivered
+01:29:34 [A2] heartbeat -> A1
+01:29:34 [A2] C1 registered (CONTROLLER, owner=A2, generation=1)
+01:29:34 [A2] B1 registered (SENSOR, owner=A2, generation=1)
+01:29:34 [A2] heartbeat -> A1
+01:29:34 [A2] heartbeat -> A1
+01:29:34 [A2] received SENSOR_DATA from B1
+01:29:34 [A2] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+01:29:34 [A2] SENSOR_DATA uploaded to server
+01:29:34 [A2] command sent to C1 (IRRIGATION 10s, command_id=ba717b019ee9, generation=1)
+01:29:34 [A2] CONTROL_COMMAND uploaded to server
+01:29:34 [A2] C2 registered (CONTROLLER, owner=A2, generation=1)
+01:29:34 [A2] ACK received (message_id=ba717b019ee9)
+01:29:34 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:34 [A2] CONTROL_RESULT uploaded to server
+01:29:34 [A2] heartbeat -> A1
+01:29:34 [A2] heartbeat to A1 failed, reconnecting
+01:29:34 [A2] peer link established with A1
+01:29:34 [A2] heartbeat -> A1
+01:29:34 [A2] received SENSOR_DATA from B2
+01:29:34 [A2] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:29:34 [A2] SENSOR_DATA uploaded to server
+01:29:34 [A2] command sent to C2 (IRRIGATION 10s, command_id=9505f51375e6, generation=1)
+01:29:34 [A2] CONTROL_COMMAND uploaded to server
+01:29:34 [A2] ACK received (message_id=9505f51375e6)
+01:29:34 [A2] FAILOVER A1 -> OFFLINE
+01:29:34 [A2] ownership generation = 1 -> 2
+01:29:34 [A2] heartbeat -> A1
+01:29:34 [A2] controller result received (IRRIGATION -> EXECUTED)
+01:29:34 [A2] CONTROL_RESULT uploaded to server
+01:29:34 [A2] received SENSOR_DATA from B1
+01:29:34 [A2] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:29:34 [A2] SENSOR_DATA uploaded to server
+01:29:34 [A2] command sent to C1 (IRRIGATION 10s, command_id=c91b3be05b16, generation=2)
+01:29:34 [A2] CONTROL_COMMAND uploaded to server
+01:29:34 [A2] ACK received (message_id=c91b3be05b16)
+01:29:34 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:34 [A2] CONTROL_RESULT uploaded to server
+01:29:34 [A2] heartbeat to A1 failed, reconnecting
+01:29:34 [A2] peer link established with A1
+01:29:34 [A2] heartbeat -> A1
+01:29:35 [A2] heartbeat -> A1
+01:29:35 [A2] heartbeat to A1 failed, reconnecting
+01:29:35 [A2] peer link established with A1
+01:29:35 [A2] heartbeat -> A1
+01:29:35 [A2] heartbeat -> A1
+01:29:35 [A2] received SENSOR_DATA from B1
+01:29:35 [A2] edge decision = IRRIGATION (soil_moisture 21.8 < 25.0)
+01:29:35 [A2] SENSOR_DATA uploaded to server
+01:29:35 [A2] command sent to C1 (IRRIGATION 10s, command_id=92d568efa2b1, generation=2)
+01:29:35 [A2] CONTROL_COMMAND uploaded to server
+01:29:35 [A2] ACK received (message_id=92d568efa2b1)
+01:29:35 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:35 [A2] CONTROL_RESULT uploaded to server
+01:29:35 [A2] heartbeat to A1 failed, reconnecting
+01:29:35 [A2] peer link established with A1
+01:29:35 [A2] heartbeat -> A1
+01:29:35 [A2] received SENSOR_DATA from B2
+01:29:35 [A2] edge decision = IRRIGATION (soil_moisture 22.3 < 25.0)
+01:29:35 [A2] SENSOR_DATA uploaded to server
+01:29:35 [A2] command sent to C2 (IRRIGATION 10s, command_id=6d0b009a3a8e, generation=2)
+01:29:35 [A2] heartbeat -> A1
+01:29:35 [A2] CONTROL_COMMAND uploaded to server
+01:29:35 [A2] ACK received (message_id=6d0b009a3a8e)
+01:29:35 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:35 [A2] CONTROL_RESULT uploaded to server
+01:29:35 [A2] heartbeat to A1 failed, reconnecting
+01:29:35 [A2] received SENSOR_DATA from B1
+01:29:35 [A2] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:29:35 [A2] SENSOR_DATA uploaded to server
+01:29:35 [A2] command sent to C1 (IRRIGATION 10s, command_id=86a984cd5b7f, generation=2)
+01:29:35 [A2] CONTROL_COMMAND uploaded to server
+01:29:35 [A2] ACK received (message_id=86a984cd5b7f)
+01:29:35 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:35 [A2] CONTROL_RESULT uploaded to server
+01:29:35 [A2] received SENSOR_DATA from B2
+01:29:35 [A2] edge decision = IRRIGATION (soil_moisture 22.2 < 25.0)
+01:29:35 [A2] SENSOR_DATA uploaded to server
+01:29:35 [A2] command sent to C2 (IRRIGATION 10s, command_id=8356fbd06948, generation=2)
+01:29:35 [A2] CONTROL_COMMAND uploaded to server
+01:29:35 [A2] peer link established with A1
+01:29:35 [A2] heartbeat -> A1
+01:29:35 [A2] ACK received (message_id=8356fbd06948)
+01:29:35 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:35 [A2] CONTROL_RESULT uploaded to server
+01:29:35 [A2] heartbeat -> A1
+01:29:36 [A2] heartbeat to A1 failed, reconnecting
+01:29:36 [A2] peer link established with A1
+01:29:36 [A2] heartbeat -> A1
+01:29:36 [A2] heartbeat to A1 failed, reconnecting
+01:29:36 [A2] peer link established with A1
+01:29:36 [A2] heartbeat -> A1
+01:29:36 [A2] received SENSOR_DATA from B2
+01:29:36 [A2] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:29:36 [A2] SENSOR_DATA uploaded to server
+01:29:36 [A2] command sent to C2 (IRRIGATION 10s, command_id=31b4c073ecf0, generation=2)
+01:29:36 [A2] CONTROL_COMMAND uploaded to server
+01:29:36 [A2] ACK received (message_id=31b4c073ecf0)
+01:29:36 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:36 [A2] CONTROL_RESULT uploaded to server
+01:29:36 [A2] heartbeat -> A1
+01:29:36 [A2] heartbeat to A1 failed, reconnecting
+01:29:36 [A2] received SENSOR_DATA from B1
+01:29:36 [A2] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:29:36 [A2] SENSOR_DATA uploaded to server
+01:29:36 [A2] command sent to C1 (IRRIGATION 10s, command_id=b2df56717c68, generation=2)
+01:29:36 [A2] CONTROL_COMMAND uploaded to server
+01:29:36 [A2] ACK received (message_id=b2df56717c68)
+01:29:36 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:36 [A2] CONTROL_RESULT uploaded to server
+01:29:36 [A2] peer link established with A1
+01:29:36 [A2] heartbeat -> A1
+01:29:36 [A2] heartbeat -> A1
+01:29:36 [A2] received SENSOR_DATA from B2
+01:29:36 [A2] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:29:36 [A2] SENSOR_DATA uploaded to server
+01:29:36 [A2] command sent to C2 (IRRIGATION 10s, command_id=de47c8ab3bfc, generation=2)
+01:29:36 [A2] CONTROL_COMMAND uploaded to server
+01:29:36 [A2] ACK received (message_id=de47c8ab3bfc)
+01:29:36 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:36 [A2] CONTROL_RESULT uploaded to server
+01:29:36 [A2] heartbeat to A1 failed, reconnecting
+01:29:36 [A2] peer link established with A1
+01:29:36 [A2] heartbeat -> A1
+01:29:37 [A2] received SENSOR_DATA from B1
+01:29:37 [A2] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:29:37 [A2] SENSOR_DATA uploaded to server
+01:29:37 [A2] command sent to C1 (IRRIGATION 10s, command_id=d1fe988463be, generation=2)
+01:29:37 [A2] CONTROL_COMMAND uploaded to server
+01:29:37 [A2] ACK received (message_id=d1fe988463be)
+01:29:37 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:37 [A2] CONTROL_RESULT uploaded to server
+01:29:37 [A2] heartbeat -> A1
+01:29:37 [A2] heartbeat to A1 failed, reconnecting
+01:29:37 [A2] peer link established with A1
+01:29:37 [A2] heartbeat -> A1
+01:29:37 [A2] heartbeat -> A1
+01:29:37 [A2] received SENSOR_DATA from B1
+01:29:37 [A2] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:29:37 [A2] SENSOR_DATA uploaded to server
+01:29:37 [A2] command sent to C1 (IRRIGATION 10s, command_id=9dd58b2fb96a, generation=2)
+01:29:37 [A2] CONTROL_COMMAND uploaded to server
+01:29:37 [A2] ACK received (message_id=9dd58b2fb96a)
+01:29:37 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:37 [A2] CONTROL_RESULT uploaded to server
+01:29:37 [A2] heartbeat to A1 failed, reconnecting
+01:29:37 [A2] peer link established with A1
+01:29:37 [A2] heartbeat -> A1
+01:29:37 [A2] heartbeat -> A1
+01:29:37 [A2] heartbeat to A1 failed, reconnecting
+01:29:37 [A2] peer link established with A1
+01:29:37 [A2] heartbeat -> A1
+01:29:38 [A2] heartbeat to A1 failed, reconnecting
+01:29:38 [A2] received SENSOR_DATA from B1
+01:29:38 [A2] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:29:38 [A2] SENSOR_DATA uploaded to server
+01:29:38 [A2] command sent to C1 (IRRIGATION 10s, command_id=da11ea24129b, generation=2)
+01:29:38 [A2] CONTROL_COMMAND uploaded to server
+01:29:38 [A2] ACK received (message_id=da11ea24129b)
+01:29:38 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:38 [A2] CONTROL_RESULT uploaded to server
+01:29:38 [A2] peer link established with A1
+01:29:38 [A2] heartbeat -> A1
+01:29:38 [A2] heartbeat -> A1
+01:29:38 [A2] heartbeat to A1 failed, reconnecting
+01:29:38 [A2] peer link established with A1
+01:29:38 [A2] heartbeat -> A1
+01:29:38 [A2] heartbeat -> A1
+01:29:38 [A2] heartbeat to A1 failed, reconnecting
+01:29:38 [A2] peer link established with A1
+01:29:38 [A2] heartbeat -> A1
+01:29:38 [A2] heartbeat -> A1
+01:29:38 [A2] heartbeat to A1 failed, reconnecting
+01:29:39 [A2] peer link established with A1
+01:29:39 [A2] heartbeat -> A1
+01:29:39 [A2] heartbeat -> A1
+01:29:39 [A2] heartbeat to A1 failed, reconnecting
+01:29:39 [A2] received SENSOR_DATA from B2
+01:29:39 [A2] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:29:39 [A2] SENSOR_DATA uploaded to server
+01:29:39 [A2] command sent to C2 (IRRIGATION 10s, command_id=9627d2d36bdd, generation=2)
+01:29:39 [A2] CONTROL_COMMAND uploaded to server
+01:29:39 [A2] ACK received (message_id=9627d2d36bdd)
+01:29:39 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:39 [A2] CONTROL_RESULT uploaded to server
+01:29:39 [A2] peer link established with A1
+01:29:39 [A2] heartbeat -> A1
+01:29:39 [A2] heartbeat -> A1
+01:29:39 [A2] received SENSOR_DATA from B1
+01:29:39 [A2] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:29:39 [A2] SENSOR_DATA uploaded to server
+01:29:39 [A2] command sent to C1 (IRRIGATION 10s, command_id=9602fc9dba31, generation=2)
+01:29:39 [A2] CONTROL_COMMAND uploaded to server
+01:29:39 [A2] ACK received (message_id=9602fc9dba31)
+01:29:39 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:39 [A2] CONTROL_RESULT uploaded to server
+01:29:39 [A2] heartbeat to A1 failed, reconnecting
+01:29:39 [A2] peer link established with A1
+01:29:39 [A2] heartbeat -> A1
+01:29:39 [A2] heartbeat -> A1
+01:29:39 [A2] heartbeat to A1 failed, reconnecting
+01:29:39 [A2] peer link established with A1
+01:29:39 [A2] heartbeat -> A1
+01:29:40 [A2] heartbeat -> A1
+01:29:40 [A2] received SENSOR_DATA from B2
+01:29:40 [A2] edge decision = IRRIGATION (soil_moisture 21.6 < 25.0)
+01:29:40 [A2] SENSOR_DATA uploaded to server
+01:29:40 [A2] command sent to C2 (IRRIGATION 10s, command_id=8fbc421e43d2, generation=2)
+01:29:40 [A2] CONTROL_COMMAND uploaded to server
+01:29:40 [A2] ACK received (message_id=8fbc421e43d2)
+01:29:40 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:40 [A2] CONTROL_RESULT uploaded to server
+01:29:40 [A2] heartbeat to A1 failed, reconnecting
+01:29:40 [A2] peer link established with A1
+01:29:40 [A2] heartbeat -> A1
+01:29:40 [A2] heartbeat -> A1
+01:29:40 [A2] heartbeat to A1 failed, reconnecting
+01:29:40 [A2] peer link established with A1
+01:29:40 [A2] heartbeat -> A1
+01:29:40 [A2] received SENSOR_DATA from B1
+01:29:40 [A2] edge decision = IRRIGATION (soil_moisture 21.6 < 25.0)
+01:29:40 [A2] SENSOR_DATA uploaded to server
+01:29:40 [A2] command sent to C1 (IRRIGATION 10s, command_id=0fceb8e14d0d, generation=2)
+01:29:40 [A2] CONTROL_COMMAND uploaded to server
+01:29:40 [A2] heartbeat -> A1
+01:29:40 [A2] ACK received (message_id=0fceb8e14d0d)
+01:29:40 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:40 [A2] CONTROL_RESULT uploaded to server
+01:29:40 [A2] heartbeat to A1 failed, reconnecting
+01:29:40 [A2] peer link established with A1
+01:29:40 [A2] heartbeat -> A1
+01:29:40 [A2] received SENSOR_DATA from B2
+01:29:40 [A2] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:29:40 [A2] SENSOR_DATA uploaded to server
+01:29:40 [A2] command sent to C2 (IRRIGATION 10s, command_id=e2e3703a87e2, generation=2)
+01:29:40 [A2] CONTROL_COMMAND uploaded to server
+01:29:40 [A2] ACK received (message_id=e2e3703a87e2)
+01:29:40 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:40 [A2] CONTROL_RESULT uploaded to server
+01:29:40 [A2] heartbeat -> A1
+01:29:41 [A2] received SENSOR_DATA from B1
+01:29:41 [A2] edge decision = IRRIGATION (soil_moisture 21.6 < 25.0)
+01:29:41 [A2] SENSOR_DATA uploaded to server
+01:29:41 [A2] command sent to C1 (IRRIGATION 10s, command_id=f4a6b84bf903, generation=2)
+01:29:41 [A2] CONTROL_COMMAND uploaded to server
+01:29:41 [A2] ACK received (message_id=f4a6b84bf903)
+01:29:41 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:41 [A2] CONTROL_RESULT uploaded to server
+01:29:41 [A2] heartbeat to A1 failed, reconnecting
+01:29:41 [A2] peer link established with A1
+01:29:41 [A2] heartbeat -> A1
+01:29:41 [A2] heartbeat -> A1
+01:29:41 [A2] heartbeat to A1 failed, reconnecting
+01:29:41 [A2] peer link established with A1
+01:29:41 [A2] heartbeat -> A1
+01:29:41 [A2] heartbeat -> A1
+01:29:41 [A2] heartbeat to A1 failed, reconnecting
+01:29:41 [A2] peer link established with A1
+01:29:41 [A2] heartbeat -> A1
+01:29:41 [A2] received SENSOR_DATA from B1
+01:29:41 [A2] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:29:41 [A2] SENSOR_DATA uploaded to server
+01:29:41 [A2] command sent to C1 (IRRIGATION 10s, command_id=115836b27295, generation=2)
+01:29:41 [A2] CONTROL_COMMAND uploaded to server
+01:29:41 [A2] heartbeat -> A1
+01:29:41 [A2] ACK received (message_id=115836b27295)
+01:29:41 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:41 [A2] CONTROL_RESULT uploaded to server
+01:29:41 [A2] heartbeat to A1 failed, reconnecting
+01:29:42 [A2] peer link established with A1
+01:29:42 [A2] heartbeat -> A1
+01:29:42 [A2] heartbeat -> A1
+01:29:42 [A2] heartbeat to A1 failed, reconnecting
+01:29:42 [A2] peer link established with A1
+01:29:42 [A2] heartbeat -> A1
+01:29:42 [A2] heartbeat to A1 failed, reconnecting
+01:29:42 [A2] peer link established with A1
+01:29:42 [A2] heartbeat -> A1
+01:29:42 [A2] heartbeat -> A1
+01:29:42 [A2] received SENSOR_DATA from B2
+01:29:42 [A2] edge decision = IRRIGATION (soil_moisture 21.6 < 25.0)
+01:29:42 [A2] SENSOR_DATA uploaded to server
+01:29:42 [A2] command sent to C2 (IRRIGATION 10s, command_id=a3712ccc06aa, generation=2)
+01:29:42 [A2] CONTROL_COMMAND uploaded to server
+01:29:42 [A2] ACK received (message_id=a3712ccc06aa)
+01:29:42 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:42 [A2] CONTROL_RESULT uploaded to server
+01:29:42 [A2] heartbeat to A1 failed, reconnecting
+01:29:42 [A2] peer link established with A1
+01:29:42 [A2] heartbeat -> A1
+01:29:42 [A2] heartbeat -> A1
+01:29:43 [A2] received SENSOR_DATA from B1
+01:29:43 [A2] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:29:43 [A2] SENSOR_DATA uploaded to server
+01:29:43 [A2] command sent to C1 (IRRIGATION 10s, command_id=e64ce89c0bec, generation=2)
+01:29:43 [A2] CONTROL_COMMAND uploaded to server
+01:29:43 [A2] ACK received (message_id=e64ce89c0bec)
+01:29:43 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:43 [A2] CONTROL_RESULT uploaded to server
+01:29:43 [A2] heartbeat to A1 failed, reconnecting
+01:29:43 [A2] received SENSOR_DATA from B2
+01:29:43 [A2] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+01:29:43 [A2] SENSOR_DATA uploaded to server
+01:29:43 [A2] command sent to C2 (IRRIGATION 10s, command_id=9fa2d23091f0, generation=2)
+01:29:43 [A2] CONTROL_COMMAND uploaded to server
+01:29:43 [A2] ACK received (message_id=9fa2d23091f0)
+01:29:43 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:43 [A2] CONTROL_RESULT uploaded to server
+01:29:43 [A2] peer link established with A1
+01:29:43 [A2] heartbeat -> A1
+01:29:43 [A2] heartbeat -> A1
+01:29:43 [A2] heartbeat to A1 failed, reconnecting
+01:29:43 [A2] peer link established with A1
+01:29:43 [A2] heartbeat -> A1
+01:29:43 [A2] SERVER_POLICY v2 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:29:43 [A2] edge autonomy intact: policy is advisory, control stays local
+01:29:43 [A2] heartbeat -> A1
+01:29:43 [A2] heartbeat to A1 failed, reconnecting
+01:29:43 [A2] received SENSOR_DATA from B2
+01:29:43 [A2] edge decision = IRRIGATION (soil_moisture 21.8 < 25.0)
+01:29:43 [A2] SENSOR_DATA uploaded to server
+01:29:43 [A2] command sent to C2 (IRRIGATION 10s, command_id=babf74520d62, generation=2)
+01:29:43 [A2] CONTROL_COMMAND uploaded to server
+01:29:43 [A2] ACK received (message_id=babf74520d62)
+01:29:43 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:43 [A2] CONTROL_RESULT uploaded to server
+01:29:43 [A2] peer link established with A1
+01:29:43 [A2] heartbeat -> A1
+01:29:43 [A2] received SENSOR_DATA from B1
+01:29:43 [A2] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+01:29:43 [A2] SENSOR_DATA uploaded to server
+01:29:43 [A2] command sent to C1 (IRRIGATION 10s, command_id=58bc7e4adf35, generation=2)
+01:29:43 [A2] CONTROL_COMMAND uploaded to server
+01:29:43 [A2] ACK received (message_id=58bc7e4adf35)
+01:29:43 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:43 [A2] CONTROL_RESULT uploaded to server
+01:29:43 [A2] heartbeat -> A1
+01:29:44 [A2] heartbeat to A1 failed, reconnecting
+01:29:44 [A2] peer link established with A1
+01:29:44 [A2] heartbeat -> A1
+01:29:44 [A2] received SENSOR_DATA from B2
+01:29:44 [A2] edge decision = IRRIGATION (soil_moisture 21.8 < 25.0)
+01:29:44 [A2] SENSOR_DATA uploaded to server
+01:29:44 [A2] command sent to C2 (IRRIGATION 10s, command_id=eae0ee26fd6f, generation=2)
+01:29:44 [A2] CONTROL_COMMAND uploaded to server
+01:29:44 [A2] ACK received (message_id=eae0ee26fd6f)
+01:29:44 [A2] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:44 [A2] server unavailable, CONTROL_RESULT queued locally (depth=1)
+01:29:44 [A2] B2 disconnected
+01:29:44 [A2] C2 disconnected
+01:29:44 [A2] B1 disconnected
+01:29:44 [A2] C1 disconnected

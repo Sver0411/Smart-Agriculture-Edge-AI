@@ -1,0 +1,47 @@
+{
+  "dataset_kind": "synthetic-software-validation",
+  "seed": 42,
+  "scope": "host software comparison only",
+  "engines": {
+    "rule": {
+      "samples": 240,
+      "synthetic_policy_agreement": 240,
+      "host_latency_mean_us": 1.66055,
+      "serialized_model_bytes": null,
+      "flash_bytes": null,
+      "energy_joules": null,
+      "device_latency_us": null,
+      "int8_result": null
+    },
+    "logistic": {
+      "samples": 240,
+      "synthetic_policy_agreement": 231,
+      "host_latency_mean_us": 6.766333333333333,
+      "serialized_model_bytes": 1212,
+      "flash_bytes": null,
+      "energy_joules": null,
+      "device_latency_us": null,
+      "int8_result": null
+    },
+    "tree": {
+      "samples": 240,
+      "synthetic_policy_agreement": 240,
+      "host_latency_mean_us": 3.0162916666666666,
+      "serialized_model_bytes": 1218,
+      "flash_bytes": null,
+      "energy_joules": null,
+      "device_latency_us": null,
+      "int8_result": null
+    },
+    "mlp": {
+      "samples": 240,
+      "synthetic_policy_agreement": 240,
+      "host_latency_mean_us": 15.645620833333332,
+      "serialized_model_bytes": 3109,
+      "flash_bytes": null,
+      "energy_joules": null,
+      "device_latency_us": null,
+      "int8_result": null
+    }
+  }
+}

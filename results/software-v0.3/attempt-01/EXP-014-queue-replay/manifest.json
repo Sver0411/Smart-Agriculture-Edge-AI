@@ -1,0 +1,12 @@
+{
+  "config_sha256": "75bcf31f957fd98458268f6b51f09cd1e09610380c86fd8b83c1fbf01d9d1e71",
+  "input_mode": "software-simulation",
+  "raw_sha256": "efb9f8ac1f29526fc4d75da9e43636fdf3a3eb65bf196b0858ff22cfcbca44d6",
+  "revision": "6a078015c29436361a6d4739d72eceae86ddcebd",
+  "scenario": "queue-replay",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "PASS",
+  "verification": "host-tested",
+  "working_tree_dirty": true
+}

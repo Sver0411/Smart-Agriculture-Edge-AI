@@ -1,0 +1,15 @@
+{
+  "disruptions": [],
+  "frame_faults": [
+    {
+      "action": "drop",
+      "match": {
+        "source": "C1",
+        "type": "ACK"
+      }
+    }
+  ],
+  "scenario": "ack-loss",
+  "seed": 42,
+  "sensor_fault": false
+}

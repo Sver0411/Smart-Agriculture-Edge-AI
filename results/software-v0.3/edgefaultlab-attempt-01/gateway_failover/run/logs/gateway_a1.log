@@ -1,0 +1,61 @@
+01:29:32 [A1] gateway started on 127.0.0.1:50824 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+01:29:32 [A1] connected to server 127.0.0.1:50821
+01:29:32 [A1] peer link established with A2
+01:29:32 [A1] heartbeat -> A2
+01:29:32 [A1] server link error: [Errno 54] Connection reset by peer
+01:29:32 [A1] B1 registered (SENSOR, owner=A1, generation=1)
+01:29:32 [A1] C2 registered (CONTROLLER, owner=A1, generation=1)
+01:29:32 [A1] received SENSOR_DATA from B1
+01:29:32 [A1] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+01:29:32 [A1] server unavailable, SENSOR_DATA queued locally (depth=1)
+01:29:32 [A1] C1 not connected, IRRIGATION command a57d3daf9aa8 not delivered
+01:29:32 [A1] C1 registered (CONTROLLER, owner=A1, generation=1)
+01:29:32 [A1] A2 is online
+01:29:32 [A1] heartbeat to A2 failed, reconnecting
+01:29:32 [A1] peer link established with A2
+01:29:32 [A1] heartbeat -> A2
+01:29:32 [A1] received SENSOR_DATA from B1
+01:29:32 [A1] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+01:29:32 [A1] server unavailable, SENSOR_DATA queued locally (depth=2)
+01:29:32 [A1] command sent to C1 (IRRIGATION 10s, command_id=97f82f7d0f34, generation=1)
+01:29:32 [A1] server unavailable, CONTROL_COMMAND queued locally (depth=3)
+01:29:32 [A1] ACK received (message_id=97f82f7d0f34)
+01:29:32 [A1] heartbeat -> A2
+01:29:32 [A1] controller result received (IRRIGATION -> EXECUTED)
+01:29:32 [A1] server unavailable, CONTROL_RESULT queued locally (depth=4)
+01:29:32 [A1] heartbeat -> A2
+01:29:33 [A1] heartbeat -> A2
+01:29:33 [A1] heartbeat -> A2
+01:29:33 [A1] received SENSOR_DATA from B1
+01:29:33 [A1] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:29:33 [A1] server unavailable, SENSOR_DATA queued locally (depth=5)
+01:29:33 [A1] command sent to C1 (IRRIGATION 10s, command_id=d119b27e4bc6, generation=1)
+01:29:33 [A1] server unavailable, CONTROL_COMMAND queued locally (depth=6)
+01:29:33 [A1] ACK received (message_id=d119b27e4bc6)
+01:29:33 [A1] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:33 [A1] server unavailable, CONTROL_RESULT queued locally (depth=7)
+01:29:33 [A1] heartbeat -> A2
+01:29:33 [A1] heartbeat -> A2
+01:29:33 [A1] heartbeat -> A2
+01:29:33 [A1] heartbeat -> A2
+01:29:33 [A1] received SENSOR_DATA from B1
+01:29:33 [A1] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+01:29:33 [A1] server unavailable, SENSOR_DATA queued locally (depth=8)
+01:29:33 [A1] command sent to C1 (IRRIGATION 10s, command_id=cf3161e66d11, generation=1)
+01:29:33 [A1] server unavailable, CONTROL_COMMAND queued locally (depth=9)
+01:29:33 [A1] ACK received (message_id=cf3161e66d11)
+01:29:33 [A1] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:33 [A1] server unavailable, CONTROL_RESULT queued locally (depth=10)
+01:29:33 [A1] heartbeat -> A2
+01:29:33 [A1] heartbeat -> A2
+01:29:33 [A1] heartbeat -> A2
+01:29:34 [A1] heartbeat -> A2
+01:29:34 [A1] received SENSOR_DATA from B1
+01:29:34 [A1] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+01:29:34 [A1] server unavailable, SENSOR_DATA queued locally (depth=11)
+01:29:34 [A1] command sent to C1 (IRRIGATION 10s, command_id=fc88da758982, generation=1)
+01:29:34 [A1] server unavailable, CONTROL_COMMAND queued locally (depth=12)
+01:29:34 [A1] ACK received (message_id=fc88da758982)
+01:29:34 [A1] controller result received (IRRIGATION -> REJECTED, reason=COOLDOWN)
+01:29:34 [A1] server unavailable, CONTROL_RESULT queued locally (depth=13)
+01:29:34 [A1] heartbeat -> A2
