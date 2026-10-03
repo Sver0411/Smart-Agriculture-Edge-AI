@@ -1,0 +1,26 @@
+{
+  "SensorTrust": {
+    "url": "https://github.com/Sver0411/SensorTrust",
+    "commit": "fad43a495abddb9029ef005d16a0909ca1de957c"
+  },
+  "AdaptiveSense": {
+    "url": "https://github.com/Sver0411/AdaptiveSense",
+    "commit": "6e0d086cf14c81d2fb5dba8305e13a7dff2dae3b"
+  },
+  "TinyEdgeBench": {
+    "url": "https://github.com/Sver0411/TinyEdgeBench",
+    "commit": "359bacd153b38218179f4977b2f748696b9d5844"
+  },
+  "EventGuard-LoRa": {
+    "url": "https://github.com/Sver0411/EventGuard-LoRa",
+    "commit": "f7b6e44597abe958d7e9d6d481265d0fae33b749"
+  },
+  "EdgeFaultLab": {
+    "url": "https://github.com/Sver0411/EdgeFaultLab",
+    "commit": "c7248239f456cc877114ca1e67c5949fb4a7b958"
+  },
+  "EdgeSense-AIoT": {
+    "url": "https://github.com/Sver0411/EdgeSense-AIoT",
+    "commit": "f6f004bbd7e92bf1ebc024790f71c12fa8249bfd"
+  }
+}
