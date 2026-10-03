@@ -43,3 +43,14 @@ def test_runner_failure_is_nonzero_and_preserves_failure(tmp_path):
     # A fresh child run is created beneath output; second invocation must fail.
     proc=subprocess.run([sys.executable,'-m','experiments.runner','--scenario','normal','--output',str(run)],capture_output=True,text=True)
     assert proc.returncode!=0
+
+
+def test_gateway_recovery_metrics_include_pre_crash_incarnation(tmp_path):
+    out=tmp_path/'recovery'
+    summary=asyncio.run(run_scenario('gateway-recovery',out,seed=42,duration=0.2))
+    assert summary['status']=='PASS'
+    events=[json.loads(line) for line in (out/'raw/events.jsonl').read_text().splitlines()]
+    commands={e['message']['message_id'] for e in events if e['event']=='sent'
+              and e['message']['type']=='CONTROL_COMMAND' and e['message']['target'] in ('C1','C2')}
+    metrics=json.loads((out/'results/metrics.json').read_text())
+    assert metrics['control_commands']['value']>=len(commands)

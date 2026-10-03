@@ -55,12 +55,13 @@ async def run_scenario(name,output,seed=42,duration=None):
     if name=='reordered-messages':rules=[{'action':'reorder','count':2,'match':{'type':'SENSOR_DATA','source':'B1'}}]
     faults=FrameFaults(rules,seed);inter=transport_interceptor.set(faults)
     server=Server(port=sp,db_path=str(out/'server.db'),policy_interval=0.5)
-    servers=[server];gateways={};nodes={};tasks=[];assertions=[];observations={};disruptions=[]
+    servers=[server];gateways={};gateway_history=[];nodes={};tasks=[];assertions=[];observations={};disruptions=[]
     def check(description,condition):assertions.append({'description':description,'passed':bool(condition)})
     def new_gateway(id):
         g=Gateway(id,port=gateway_ports[id],peer_port=gateway_ports['A2' if id=='A1' else 'A1'],server_port=sp,
                   heartbeat_interval=0.1,heartbeat_timeout=0.6,queue_path=str(out/(id+'.db')),random_seed=seed,result_timeout=0.4)
         g.tracker.timeout=0.12
+        gateway_history.append(g)
         return g
     def command(id,source='A1',generation=1,timestamp=None):
         m=Message(type=CONTROL_COMMAND,source=source,target='C1',message_id=id,
@@ -153,7 +154,7 @@ async def run_scenario(name,output,seed=42,duration=None):
         for k in ('sensor_samples','trusted_samples','degraded_samples','fault_samples'):
             m.set(k,sum(nodes[id].metrics.get(k) for id in ('B1','B2')))
         for target,source in [('acks','acks_received'),('retries','retries'),('delivery_failures','delivery_failures'),('control_commands','commands'),('gateway_failovers','failovers'),('offline_queued','queue_enqueued'),('queue_replayed','queue_replayed')]:
-            m.set(target,sum(g.metrics.get(source) for g in gateways.values()))
+            m.set(target,sum(g.metrics.get(source) for g in gateway_history))
         for target,source in [('control_executed','executed'),('control_rejected','rejected'),('duplicate_execution_prevented','duplicates')]:
             m.set(target,sum(nodes[id].metrics.get(source) for id in ('C1','C2')))
         m.set('messages_sent',recorder.counts['sent']);m.set('messages_delivered',recorder.counts['delivered'])
@@ -170,8 +171,8 @@ async def run_scenario(name,output,seed=42,duration=None):
             m.set('sampling_interval_distribution',{str(k):v for k,v in interval_counts.items()})
         decisions={e['message']['message_id']:e['message']['payload'].get('type') for e in recorder.events if e['event']=='sent' and e['message']['type']=='CONTROL_COMMAND' and e['message']['target'] in ('C1','C2')}
         m.set('decision_counts',dict(Counter(decisions.values())))
-        calls=sum(g.metrics.get('decision_calls') for g in gateways.values())
-        if calls:m.set('decision_latency',{'mean_us':sum(g.metrics.get('decision_latency_us') for g in gateways.values())/calls,'calls':calls,'scope':'host inference'})
+        calls=sum(g.metrics.get('decision_calls') for g in gateway_history)
+        if calls:m.set('decision_latency',{'mean_us':sum(g.metrics.get('decision_latency_us') for g in gateway_history)/calls,'calls':calls,'scope':'host inference'})
         write_json(results/'metrics.json',m.as_dict())
     except Exception as exc:
         check('scenario runs without exception',False);observations['error']=f'{type(exc).__name__}: {exc}'
