@@ -1,0 +1,12 @@
+{
+  "disruptions": [
+    {
+      "action": "gateway_crash",
+      "time_s": 0.9683599171694368
+    }
+  ],
+  "frame_faults": [],
+  "scenario": "gateway-recovery",
+  "seed": 42,
+  "sensor_fault": false
+}

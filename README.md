@@ -99,11 +99,11 @@ python -m experiments.edgefaultlab --edgefaultlab-root ../EdgeFaultLab --output 
 
 实际运行结果：
 
-- 合并基线 94 个测试通过；最终 154 个测试通过，完整结果见[整合报告](docs/V0_3_INTEGRATION_REPORT.md)。原有测试保留。
+- 合并基线 94 个测试通过；最终 155 个测试通过，完整结果见[整合报告](docs/V0_3_INTEGRATION_REPORT.md)。原有测试保留。
 - 17/17 内部场景通过：normal、full-control-loop、packet-loss、ack-loss、duplicate-command、delayed-result、lost-result、reordered-messages、sensor-fault、gateway-failover、gateway-recovery、stale-generation、server-offline、queue-replay、policy-replay、split-brain、expired-command。
 - 独立 EdgeFaultLab 第二轮 5/5 通过。第一轮 4/5 通过，启动时节点归属分离导致重复命令场景没有执行；失败原始记录保留。
 - SensorTrust Python 参考与冻结 C core 的共享五故障/恢复轨迹在主机端一致。
-- [CI 验收通过](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37141974396)：154 个测试、17 个内部场景和 5 个外部场景。
+- [CI 验收通过](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37142688673)：155 个测试、17 个内部场景和 5 个外部场景。
 - 三个 FP32 导出在 240 条留出样本上与训练器预测一致；相同 seed 的四个训练/导出文件逐字节复现。
 - INT8 权重存储参考：Logistic 有 2/240 条预测与 FP32 不一致，MLP 为 0/240。激活与 bias 保持浮点、推理先反量化，尚无整数内核或设备结果。
 

@@ -64,7 +64,8 @@ Actual locally executed full suites, with logs in `results/software-v0.3/validat
 | Decision engines | `.venv/bin/python -m pytest tests/ -q` | 130 passed |
 | Protocol/controller/server | `.venv/bin/python -m pytest tests/ -q` | 143 passed |
 | Experiment framework | `.venv/bin/python -m pytest tests/ -q` | 147 passed |
-| Release acceptance | `.venv/bin/python -m pytest tests/ -q` | 154 passed |
+| Initial release acceptance | `.venv/bin/python -m pytest tests/ -q` | 154 passed |
+| Recovery metrics correction / final main | `.venv/bin/python -m pytest tests/ -q` | 155 passed in 38.64s |
 
 No original tests were deleted. Two early collection failures (an indentation mistake in the policy handler) are preserved in `failed-collection-01.log` / `failed-collection-02.log`; they were corrected before the protocol stage passed.
 
@@ -87,7 +88,7 @@ Additional executed checks:
 
 These are synthetic policy-imitation checks, not real agriculture accuracy. INT8 here quantizes stored weights then dequantizes for host inference; bias/activations remain floating point. It is not an integer device kernel. Logistic approximation and quantization disagreements are retained as negative results.
 
-CI: **PASS** on committed source `79a5c5a5fecaa718d7886348abcef70dba0c7824`: 154 tests passed in 35.21s, 17/17 internal scenarios passed, 5/5 independent EdgeFaultLab scenarios passed. [Acceptance run](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37141974396). Workflow uploads raw evidence even on failure. The earlier [main baseline merge run](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37139572527) also passed.
+Final main CI: **PASS** on committed source `9c0d94653cca8c23ee4058c1c878178731053051`: 155 tests passed in 37.29s, 17/17 internal scenarios passed, 5/5 independent EdgeFaultLab scenarios passed. [Final main acceptance run](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37142688673). Earlier [branch acceptance](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37141974396) passed 154 tests before the recovery metrics correction. Workflow uploads raw evidence even on failure. The earlier [main baseline merge run](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37139572527) also passed.
 
 ## 6. Experiments
 
@@ -139,6 +140,8 @@ Metrics scope:
 - Logical command decisions and per-sample intervals are counted independently of transmissions/uploads.
 - Host receive latency and inference latency are measured; recovery_time is null outside measured recovery scenarios.
 - Hardware flash, device latency, energy and RF performance remain not measured.
+
+After the initial main acceptance, gateway-recovery aggregation was corrected to retain counters from every gateway incarnation, including A1 before its restart. A regression checks that reported command counts include all distinct observed sent command IDs. Targeted experiment tests passed (5 tests in 6.59s); the complete suite then passed 155 tests. A fresh gateway-recovery run at clean source `9c0d946` passed, with evidence under `results/software-v0.3/metrics-correction/EXP-001-gateway-recovery`. Earlier experiment snapshots remain unchanged; their recovery counters predate this correction. Final main CI reran all 17 internal and 5 external scenarios with the corrected aggregation.
 
 ## 7. Current limitations
 
