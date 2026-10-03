@@ -1,21 +1,6 @@
-"""Sensor node B1 / B2.
+"""Bidirectional sensor node: source → trust → scheduling → telemetry/alerts.
 
-The sensor node is the origin of every reading in the system.  It does four
-things, in a loop:
-
-1. sample ``temperature`` / ``humidity`` / ``soil_moisture`` / ``light``
-   (simulated - no real hardware in v0.2),
-2. run the basic SensorTrust check and report a ``FAULT`` as an ``ALERT``,
-3. ask AdaptiveSense for the next sampling interval and sleep that long,
-4. stay registered with one gateway, falling back to the other one when the
-   owner disappears.
-
-Both B and C are direct children of their gateway; the sensor node never talks
-to a controller.
-
-After registration the node samples, reads gateway ownership updates and sends
-keepalives in independent tasks.  This lets a slow sampling schedule coexist
-with node liveness and promptly detects a closed gateway socket.
+RX and NODE_STATUS keepalive run independently of sampling.
 """
 
 from __future__ import annotations
@@ -44,7 +29,7 @@ from common.messages import (  # noqa: E402
     send_message,
 )
 from common.reliability import Counters  # noqa: E402
-from sensor_node.adaptive_sense import next_sample_interval  # noqa: E402
+from sensor_node.adaptive_sense import AdaptiveSense  # noqa: E402
 from sensor_node.sensor_trust import FAULT, HEALTHY, SensorTrust  # noqa: E402
 
 # name -> (default start value, random walk step, hard clamp)
@@ -99,8 +84,8 @@ class SensorNode:
         gateway_host: str = "127.0.0.1",
         gateway_port: int | None = None,
         simulator: SensorSimulator | None = None,
-        slow_interval: float = config.SAMPLE_INTERVAL_SLOW,
-        fast_interval: float = config.SAMPLE_INTERVAL_FAST,
+        slow_interval: float | None = None,
+        fast_interval: float | None = None,
         keepalive_interval: float = config.NODE_STATUS_INTERVAL,
         history_size: int = 8,
     ):
@@ -124,6 +109,7 @@ class SensorNode:
         self.metrics = Counters()
 
         self.trust = SensorTrust()
+        self.scheduler = AdaptiveSense(slow=slow_interval, fast=fast_interval)
         self.history: list[dict] = []
         self._stopping = False
 
@@ -287,15 +273,17 @@ class SensorNode:
             )
 
             trust = self.trust.update(reading, timestamp=time.monotonic())
+            schedule = self.scheduler.update(reading, trust, time.monotonic())
             state = trust["state"]
             self.metrics.inc("sensor_samples")
             self.metrics.inc({"HEALTHY":"trusted_samples", "DEGRADED":"degraded_samples", "FAULT":"fault_samples"}[state])
             payload = {"data": reading, "health_state": state,
                        "health_score": trust["health_score"], "fault_flags": trust["fault_flags"],
-                       "health": trust["channels"], "usable_for_control": trust["usable_for_control"]}
-            await send_message(writer, Message(type=SENSOR_DATA, source=self.node_id,
-                target=self.owner_gateway or self.gateway_id, payload=payload))
-            self.metrics.inc("sensor_messages")
+                       "health": trust["channels"], "sampling":schedule, "usable_for_control": trust["usable_for_control"]}
+            if schedule["upload_requested"]:
+                await send_message(writer, Message(type=SENSOR_DATA, source=self.node_id,
+                    target=self.owner_gateway or self.gateway_id, payload=payload))
+                self.metrics.inc("sensor_messages")
             if state != HEALTHY or not trust["usable_for_control"]:
                 await send_message(writer, Message(type=ALERT, source=self.node_id,
                     target=self.owner_gateway or self.gateway_id,
@@ -303,9 +291,7 @@ class SensorNode:
                              "sensor_node_id":self.node_id, "reasons":trust["fault_flags"],
                              "message":"sensor evidence is not safe for automatic control"}))
 
-            interval = next_sample_interval(
-                self.history, slow=self.slow_interval, fast=self.fast_interval
-            )
+            interval = schedule["interval_s"]
             node_log(self.node_id, f"next sampling interval = {interval:g}s")
             await asyncio.sleep(interval)
 
@@ -325,6 +311,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=None)
     parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--sample-interval", type=float, default=None, help="accelerated software sampling base interval")
     parser.add_argument(
         "--inject-fault",
         type=int,
@@ -338,6 +325,7 @@ def parse_args(argv=None) -> argparse.Namespace:
 async def _run(args: argparse.Namespace) -> None:
     node = SensorNode(
         node_id=args.id,
+        slow_interval=args.sample_interval, fast_interval=args.sample_interval,
         gateway_host=args.host,
         gateway_port=args.port,
         simulator=SensorSimulator(args.id, seed=args.seed, inject_fault_at=args.inject_fault),

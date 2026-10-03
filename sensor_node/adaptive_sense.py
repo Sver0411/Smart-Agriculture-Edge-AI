@@ -54,3 +54,48 @@ def next_sample_interval(
         return slow
 
     return fast if relative_change(history[-2], history[-1]) >= threshold else slow
+
+
+from copy import deepcopy
+from dataclasses import asdict
+from common.settings import node_settings
+from sensor_node.adaptive_scheduler import AdaptiveScheduler
+from sensor_node.sensor_trust import numeric
+
+class AdaptiveSense:
+    """Trust-aware adapter. Untrusted values never enter change-detector history."""
+    def __init__(self, settings=None, slow=None, fast=None):
+        self.settings=deepcopy(settings or node_settings())
+        if slow is not None or fast is not None:
+            slow=config.SAMPLE_INTERVAL_SLOW if slow is None else slow
+            fast=config.SAMPLE_INTERVAL_FAST if fast is None else fast
+            if not numeric(slow) or not numeric(fast) or not 0 < fast <= slow:
+                raise ValueError("require 0 < fast <= slow")
+            self.settings["sampling"]={"min_interval":fast,"default_interval":slow,"max_interval":slow*3}
+            self.settings["adaptive"]["ladders"]={"stable":[slow,slow*2,slow*3],"active":[fast],"alert":[fast]}
+            self.settings["fault_interval_s"]=slow
+            self.settings["degraded_interval_s"]=slow
+        self.core=AdaptiveScheduler(self.settings)
+        self._untrusted=False
+        self._health=None
+
+    def update(self, sample, trust, timestamp):
+        if not numeric(timestamp):
+            raise ValueError("timestamp must be finite")
+        healthy=trust.get("state")=="HEALTHY" and trust.get("usable_for_control",False)
+        changed=trust.get("state")!=self._health
+        self._health=trust.get("state")
+        if not healthy:
+            self._untrusted=True
+            state="ACTIVE" if trust.get("state")=="DEGRADED" else "STABLE"
+            interval=self.settings["degraded_interval_s"] if state=="ACTIVE" else self.settings["fault_interval_s"]
+            return {"state":state,"interval_s":interval,"score":None,"detected_event":False,
+                    "upload_requested":True,"health_state":trust.get("state"),"reason":"untrusted_measurement"}
+        if self._untrusted:
+            self.core=AdaptiveScheduler(self.settings, time=timestamp)
+            self._untrusted=False
+        values={k:v for k,v in sample.items() if k in self.settings["adaptive"]["channels"] and numeric(v)}
+        decision=asdict(self.core.update(timestamp,values))
+        decision["upload_requested"] |= changed
+        decision["health_state"]=trust["state"]
+        return decision

@@ -76,13 +76,13 @@ class Demo:
         inject_fault = None if args.scenario == "failover" else 4
         self.sensors = {
             "B1": SensorNode(
-                "B1",
+                "B1", slow_interval=5.0, fast_interval=2.0,
                 simulator=SensorSimulator(
                     "B1", seed=11, start={"soil_moisture": 21.5}, inject_fault_at=inject_fault
                 ),
             ),
             "B2": SensorNode(
-                "B2",
+                "B2", slow_interval=5.0, fast_interval=2.0,
                 simulator=SensorSimulator(
                     "B2", seed=22, start={"temperature": 33.5, "soil_moisture": 41.0}
                 ),
