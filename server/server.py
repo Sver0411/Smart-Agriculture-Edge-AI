@@ -73,7 +73,7 @@ class Server:
 
     async def start(self) -> None:
         self.db.init_schema()
-        self.dedup = Deduplicator(self.db.conn)
+        self.dedup = Deduplicator(self.db.conn,auto_commit=False)
         self._server = await asyncio.start_server(self._handle_gateway, self.host, self.port)
         self._tasks.append(asyncio.create_task(self._policy_loop(), name="server-policy"))
         node_log(NODE_ID, f"listening on {self.host}:{self.port} (sqlite: {self.db.path})")
@@ -138,6 +138,19 @@ class Server:
     # -- storage -----------------------------------------------------------
 
     def _store(self, message: Message) -> None:
+        try:
+            if message.type == SENSOR_DATA:
+                record=message.payload.get("record")
+                if not isinstance(record,dict):raise ValueError("record must be object")
+                from common.protocol import number
+                if not number(record.get("timestamp",message.timestamp)):raise ValueError("invalid record timestamp")
+            with self.db.transaction():
+                self._store_validated(message)
+        except (ValueError, TypeError, OverflowError) as exc:
+            self.metrics.inc("invalid_uploads")
+            node_log(NODE_ID,f"upload rejected: {exc}")
+
+    def _store_validated(self, message: Message) -> None:
         # Gateways upload "at least once".  Replays and retries carry the same
         # message_id, so anything we have already processed is dropped here.
         if not self.dedup.is_new(message.message_id):
@@ -218,6 +231,7 @@ class Server:
                 message=payload.get("message", ""),
                 sensor_node_id=payload.get("sensor_node_id"),
                 message_id=message_id,
+                metadata=payload,
             )
             self.metrics.inc("alerts")
             node_log(

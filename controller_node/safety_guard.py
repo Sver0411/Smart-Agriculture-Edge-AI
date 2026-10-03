@@ -22,6 +22,7 @@ from __future__ import annotations
 import pathlib
 import sys
 import time
+import math
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
@@ -90,17 +91,17 @@ class SafetyGuard:
         now = time.time() if now is None else now
 
         # 1. message / command validity
-        if command_type not in self.max_duration:
+        if not isinstance(command_type,str) or command_type not in self.max_duration:
             return False, INVALID_TYPE
-        if not command_id:
+        if not isinstance(command_id,str) or not command_id:
             return False, INVALID_COMMAND_ID
 
         # 2. freshness
-        if now - issued_at > self.command_ttl:
+        if type(issued_at) not in (int,float) or not math.isfinite(issued_at) or issued_at > now + self.command_ttl or now - issued_at > self.command_ttl:
             return False, EXPIRED
 
         # 3. generation (epoch) - replay and split-brain protection
-        if gateway_generation is not None and gateway_generation < self.current_generation:
+        if gateway_generation is not None and (type(gateway_generation) is not int or gateway_generation < self.current_generation):
             return False, STALE_GENERATION
 
         # 4. owner gateway - a gateway may only take over with a newer epoch
@@ -113,7 +114,7 @@ class SafetyGuard:
             return False, DUPLICATE_COMMAND_ID
 
         # 6. duration
-        if isinstance(duration, bool) or not isinstance(duration, (int, float)) or duration <= 0:
+        if isinstance(duration, bool) or not isinstance(duration, (int, float)) or not math.isfinite(duration) or duration <= 0:
             return False, INVALID_DURATION
         if duration > self.max_duration[command_type]:
             return False, DURATION_EXCEEDED

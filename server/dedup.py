@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS processed_message (
 class Deduplicator:
     """Remembers the ``message_id`` of every processed upload."""
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection, auto_commit=True):
+        self.auto_commit = auto_commit
         self.conn = conn
         self.ignored = 0
         self.processed = 0
@@ -49,5 +50,5 @@ class Deduplicator:
             return False
 
         self.processed += 1
-        self.conn.commit()
+        if self.auto_commit:self.conn.commit()
         return True

@@ -19,6 +19,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
+from contextvars import ContextVar
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -96,11 +98,15 @@ class Message:
     payload: dict = field(default_factory=dict)
     timestamp: float = field(default_factory=time.time)
     message_id: str = field(default_factory=new_message_id)
+    protocol_version: int | None = None
+    sequence: int | None = None
+    attempt: int | None = None
+    generation: int | None = None
 
     # -- serialisation -----------------------------------------------------
 
     def to_dict(self) -> dict:
-        return {
+        envelope = {
             "type": self.type,
             "source": self.source,
             "target": self.target,
@@ -109,8 +115,13 @@ class Message:
             "payload": self.payload,
         }
 
+        for key in ("protocol_version", "sequence", "attempt", "generation"):
+            value = getattr(self,key)
+            if value is not None: envelope[key] = value
+        return envelope
+
     def to_json(self) -> str:
-        return json.dumps(self.to_dict(), ensure_ascii=False)
+        return json.dumps(self.to_dict(), ensure_ascii=False, allow_nan=False)
 
     def to_line(self) -> str:
         """JSON text plus the newline that delimits messages on the wire."""
@@ -128,7 +139,7 @@ class Message:
         if data["type"] not in MESSAGE_TYPES:
             raise MessageError(f"unknown message type: {data['type']!r}")
 
-        if not isinstance(data["timestamp"], (int, float)) or isinstance(data["timestamp"], bool):
+        if not isinstance(data["timestamp"], (int, float)) or isinstance(data["timestamp"], bool) or not math.isfinite(data["timestamp"]):
             raise MessageError("timestamp must be a number")
 
         if not isinstance(data["payload"], dict):
@@ -138,7 +149,19 @@ class Message:
             if not isinstance(data[name], str) or not data[name]:
                 raise MessageError(f"{name} must be a non-empty string")
 
+        optional = {}
+        for key in ("protocol_version", "sequence", "attempt", "generation"):
+            if key in data:
+                value=data[key]
+                if type(value) is not int or value < (1 if key in ("protocol_version", "attempt") else 0):
+                    raise MessageError(f"invalid {key}")
+                if key == "protocol_version" and value != 1:
+                    raise MessageError("unsupported protocol version")
+                optional[key]=value
+        if not finite_json(data["payload"]):
+            raise MessageError("payload contains nonfinite number")
         return cls(
+            **optional,
             type=data["type"],
             source=data["source"],
             target=data["target"],
@@ -151,7 +174,7 @@ class Message:
     def from_json(cls, raw: str) -> "Message":
         try:
             data = json.loads(raw)
-        except json.JSONDecodeError as exc:
+        except (ValueError, RecursionError) as exc:
             raise MessageError(f"malformed JSON message: {exc}") from exc
         return cls.from_dict(data)
 
@@ -182,8 +205,12 @@ class Message:
 
 async def send_message(writer, message: Message) -> None:
     """Write one message to an ``asyncio`` stream writer."""
+    interceptor = transport_interceptor.get()
+    if interceptor is not None and await interceptor(writer, message):
+        return
     writer.write(message.to_line().encode("utf-8"))
     await writer.drain()
+    observe_transport("sent", message)
 
 
 async def read_message(reader):
@@ -191,13 +218,18 @@ async def read_message(reader):
 
     Returns ``None`` when the peer closed the connection.
     """
-    line = await reader.readline()
+    try:
+        line = await reader.readline()
+    except (ValueError, asyncio.LimitOverrunError) as exc:
+        raise MessageError("message frame exceeds stream limit") from exc
     if not line:
         return None
     text = line.decode("utf-8", errors="replace").strip()
     if not text:
         return None
-    return Message.from_line(text)
+    message = Message.from_line(text)
+    observe_transport("delivered", message)
+    return message
 
 
 async def close_writer(writer) -> None:
@@ -216,3 +248,17 @@ async def close_writer(writer) -> None:
         await asyncio.wait_for(writer.wait_closed(), timeout=1.0)
     except Exception:  # pragma: no cover - timeout or already closed
         pass
+
+
+transport_observer = ContextVar("transport_observer", default=None)
+transport_interceptor = ContextVar("transport_interceptor", default=None)
+
+def observe_transport(event,message):
+    observer=transport_observer.get()
+    if observer is not None:observer(event,message)
+
+def finite_json(obj):
+    if isinstance(obj,float):return math.isfinite(obj)
+    if isinstance(obj,dict):return all(finite_json(v) for v in obj.values())
+    if isinstance(obj,list):return all(finite_json(v) for v in obj)
+    return True

@@ -50,7 +50,8 @@ from common.messages import (  # noqa: E402
     read_message,
     send_message,
 )
-from common.reliability import AckTracker, COMMAND_DELIVERY_FAILED, Counters  # noqa: E402
+from common.reliability import AckTracker, COMMAND_DELIVERY_FAILED, Counters, CommandOutcomes
+from common.protocol import SequenceGuard, integer  # noqa: E402
 from gateway.edge_decision import EdgeDecider  # noqa: E402
 from gateway.offline_queue import OfflineQueue  # noqa: E402
 from gateway.ownership import OwnershipManager  # noqa: E402
@@ -80,6 +81,8 @@ class Gateway:
         drop_command_rate: float = 0.0,
         duplicate_command: bool = False,
         decision_engine: str = "rule",
+        random_seed: int = 42,
+        result_timeout: float = 15.0,
     ):
         if gateway_id not in config.GATEWAY_PORTS:
             raise ValueError(f"unknown gateway id: {gateway_id!r}")
@@ -102,6 +105,7 @@ class Gateway:
         self.heartbeat_timeout = heartbeat_timeout
 
         # fault injection knobs (demo only - they default to "no fault")
+        self.rng = random.Random(random_seed)
         self.drop_command_rate = drop_command_rate
         self.duplicate_command = duplicate_command
 
@@ -109,6 +113,8 @@ class Gateway:
         self.registry = NodeRegistry()
         self.ownership = OwnershipManager(gateway_id, self.peer_id, self.registry)
         self.tracker = AckTracker()
+        self.outcomes = CommandOutcomes(result_timeout)
+        self.sequences = SequenceGuard()
         self.offline_queue = OfflineQueue(queue_path or ":memory:")
         self._flush_lock = asyncio.Lock()
         self.metrics = Counters()
@@ -227,7 +233,9 @@ class Gateway:
 
                 if message.type == ACK:
                     acked = message.payload.get("ack_message_id")
-                    if self.tracker.acknowledge(acked):
+                    entry = self.tracker.pending.get(acked) if isinstance(acked,str) else None
+                    if entry and entry.message.target == source and message.target == self.gateway_id and self.connections.get(source) is writer and self.tracker.acknowledge(acked):
+                        self.outcomes.ack(entry.message.payload["command_id"])
                         self.metrics.inc("acks_received")
                         node_log(self.gateway_id, f"ACK received (message_id={acked})")
                     continue
@@ -269,6 +277,9 @@ class Gateway:
         """Answer a NODE_REGISTER with owner + generation."""
         node_id = message.source
         node_type = message.payload.get("node_type", config.SENSOR)
+        if node_id not in (*config.GATEWAY_OF_SENSOR,*config.GATEWAY_OF_CONTROLLER) or node_type not in (config.SENSOR,config.CONTROLLER) or message.target != self.gateway_id:
+            node_log(self.gateway_id,"invalid node registration rejected")
+            return
         entry = self.registry.upsert(
             node_id=node_id,
             node_type=node_type,
@@ -299,6 +310,9 @@ class Gateway:
         )
 
     def _on_peer_heartbeat(self, message: Message) -> None:
+        if not integer(message.payload.get("generation",0)):
+            self.metrics.inc("malformed_peer_heartbeat")
+            return
         self.peer_last_seen = time.time()
         role = self.ownership.observe_peer(
             config.ONLINE, message.payload.get("generation")
@@ -350,6 +364,10 @@ class Gateway:
         for key in ("node_mode", "boot_id", "sample_seq", "device_monotonic_ms", "timestamp_source", "sampling", "health", "health_score", "fault_flags", "physical_read_ok", "test_injected"):
             if key in payload:
                 record[key] = payload[key]
+        fresh = self.sequences.accept(message)
+        if not fresh:
+            usable = False
+            self.metrics.inc("reordered_or_duplicate_samples")
         record["usable_for_control"] = usable
 
         node_log(self.gateway_id, f"received {message.type} from {message.source}")
@@ -367,6 +385,7 @@ class Gateway:
                     type=ALERT,
                     source=self.gateway_id,
                     target="SERVER",
+                    message_id=message.message_id,
                     payload={
                         "alert_type": payload.get("alert_type", "SENSOR_FAULT"),
                         "health": health, "health_score": payload.get("health_score"),
@@ -388,7 +407,7 @@ class Gateway:
             }
         )
         await self.upload_queue.put(
-            Message(type=SENSOR_DATA, source=self.gateway_id, target="SERVER", payload={"record": record})
+            Message(type=SENSOR_DATA, source=self.gateway_id, target="SERVER", message_id=message.message_id, sequence=message.sequence, payload={"record": record})
         )
 
         if not usable:
@@ -523,7 +542,11 @@ class Gateway:
                             break
                         if message.type == SERVER_POLICY:
                             await send_message(writer, message.ack(self.gateway_id))
-                            self._apply_policy(message)
+                            try:
+                                self._apply_policy(message)
+                            except MessageError as exc:
+                                self.metrics.inc("invalid_policies")
+                                node_log(self.gateway_id,f"policy rejected: {exc}")
                         else:
                             node_log(self.gateway_id, f"unexpected {message.type} from server")
             except (OSError, MessageError) as exc:
@@ -535,7 +558,7 @@ class Gateway:
             await asyncio.sleep(2.0)
 
     def _apply_policy(self, message: Message) -> None:
-        version = int(message.payload.get("policy_version", 0))
+        version = message.payload.get("policy_version", 0)
         applied, policy = self.decider.update_policy(message.payload)
         if not applied:
             node_log(
@@ -579,12 +602,15 @@ class Gateway:
             return
 
         if first_attempt:
+            message.attempt = 1
+            message.generation = self.ownership.generation
             self.tracker.track(message)
+            self.outcomes.track(message,time.monotonic())
             self.metrics.inc("commands")
             self.last_command = message
 
         # fault injection: silently lose the frame so the retry path is visible
-        if self.drop_command_rate > 0.0 and random.random() < self.drop_command_rate:
+        if self.drop_command_rate > 0.0 and self.rng.random() < self.drop_command_rate:
             node_log(self.gateway_id, f"simulated command loss (command_id={command_id})")
             return
 
@@ -625,6 +651,8 @@ class Gateway:
         while True:
             message = await self.result_queue.get()
             payload = dict(message.payload)
+            outcome = self.outcomes.result(payload.get("command_id"))
+            if outcome == "late":self.metrics.inc("late_results")
             node_log(
                 self.gateway_id,
                 f"controller result received ({payload.get('command_type')} -> {payload.get('status')}"
@@ -777,6 +805,12 @@ class Gateway:
                     f"retry {attempt}/{config.MAX_RETRIES}",
                 )
                 await self.command_queue.put((message, True))
+
+            for command in self.outcomes.expire(time.monotonic()):
+                self.metrics.inc("unknown_execution_results")
+                await self.upload_queue.put(Message(type=ALERT,source=self.gateway_id,target="SERVER",
+                    payload={"alert_type":"CONTROL_RESULT_UNKNOWN","command_id":command.payload["command_id"],
+                             "message":"command acknowledged but execution result not observed; no new execution requested"}))
 
             for message in self.tracker.exhausted(now):
                 self.tracker.discard(message.message_id)

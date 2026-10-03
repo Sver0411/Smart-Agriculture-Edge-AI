@@ -13,6 +13,7 @@ from __future__ import annotations
 import sqlite3
 import time
 import json
+from contextlib import contextmanager
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS sensor_data (
@@ -94,6 +95,7 @@ class Database:
     """A very thin wrapper around :mod:`sqlite3`."""
 
     def __init__(self, path: str = ":memory:"):
+        self._transaction_depth = 0
         self.path = path
         self.conn: sqlite3.Connection | None = None
 
@@ -112,12 +114,15 @@ class Database:
         columns = {row[1] for row in self.conn.execute("PRAGMA table_info(sensor_data)")}
         if "metadata_json" not in columns:
             self.conn.execute("ALTER TABLE sensor_data ADD COLUMN metadata_json TEXT")
-        self.conn.commit()
+        alert_columns = {row[1] for row in self.conn.execute("PRAGMA table_info(alert)")}
+        if "metadata_json" not in alert_columns:
+            self.conn.execute("ALTER TABLE alert ADD COLUMN metadata_json TEXT")
+        self._commit()
         return self
 
     def close(self) -> None:
         if self.conn is not None:
-            self.conn.commit()
+            self._commit()
             self.conn.close()
             self.conn = None
 
@@ -156,7 +161,7 @@ class Database:
                 time.time(),
             ),
         )
-        self.conn.commit()
+        self._commit()
         return int(cur.lastrowid)
 
     def insert_gateway_heartbeat(
@@ -184,7 +189,7 @@ class Database:
                 time.time(),
             ),
         )
-        self.conn.commit()
+        self._commit()
         return int(cur.lastrowid)
 
     def insert_controller_command(
@@ -217,7 +222,7 @@ class Database:
                 time.time(),
             ),
         )
-        self.conn.commit()
+        self._commit()
         return int(cur.lastrowid)
 
     def insert_controller_result(
@@ -252,7 +257,7 @@ class Database:
                 time.time(),
             ),
         )
-        self.conn.commit()
+        self._commit()
         return int(cur.lastrowid)
 
     def insert_alert(
@@ -263,16 +268,17 @@ class Database:
         message: str = "",
         sensor_node_id: str | None = None,
         message_id: str | None = None,
+        metadata: dict | None = None,
     ) -> int:
         cur = self.conn.execute(
             """
             INSERT INTO alert (
-                message_id, gateway_id, sensor_node_id, alert_type, message, timestamp, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                message_id, gateway_id, sensor_node_id, alert_type, message, timestamp, created_at, metadata_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (message_id, gateway_id, sensor_node_id, alert_type, message, float(timestamp), time.time()),
+            (message_id, gateway_id, sensor_node_id, alert_type, message, float(timestamp), time.time(), json.dumps(metadata or {},allow_nan=False)),
         )
-        self.conn.commit()
+        self._commit()
         return int(cur.lastrowid)
 
     def insert_log(self, node_id: str, level: str, message: str, timestamp: float | None = None) -> int:
@@ -281,7 +287,7 @@ class Database:
             "INSERT INTO log (node_id, level, message, timestamp, created_at) VALUES (?, ?, ?, ?, ?)",
             (node_id, level, message, now, time.time()),
         )
-        self.conn.commit()
+        self._commit()
         return int(cur.lastrowid)
 
     # -- reads -------------------------------------------------------------
@@ -311,3 +317,20 @@ class Database:
             "SELECT * FROM controller_result ORDER BY id DESC LIMIT ?", (int(limit),)
         ).fetchall()
         return [dict(row) for row in rows]
+
+
+    def _commit(self):
+        if not self._transaction_depth:self.conn.commit()
+
+    @contextmanager
+    def transaction(self):
+        self._transaction_depth += 1
+        try:
+            yield
+        except Exception:
+            self.conn.rollback()
+            raise
+        else:
+            self.conn.commit()
+        finally:
+            self._transaction_depth -= 1

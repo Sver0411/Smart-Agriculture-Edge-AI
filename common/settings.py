@@ -3,6 +3,7 @@ from copy import deepcopy
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 
 CONFIG_PATH = Path(__file__).resolve().parents[1] / "config/software.json"
@@ -59,7 +60,8 @@ def validate_settings(cfg):
         positive(v,key)
     return cfg
 
-def load_settings(path=CONFIG_PATH):
+def load_settings(path=None):
+    path=path or os.environ.get("SMART_AGRICULTURE_CONFIG",CONFIG_PATH)
     return validate_settings(json.loads(Path(path).read_text()))
 
 def config_hash(cfg):

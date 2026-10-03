@@ -65,16 +65,13 @@ class EdgeDecider:
         A policy whose ``policy_version`` is not newer than the version we
         already hold is ignored - it is a replay or an out-of-order delivery.
         """
+        from common.protocol import validate_policy
+        candidate = validate_policy(payload,self.policy)
         version = payload.get("policy_version")
-        if version is not None:
-            version = int(version)
-            if version <= self.policy_version:
-                return False, dict(self.policy)
-            self.policy_version = version
-
-        for key in POLICY_KEYS:
-            if key in payload:
-                self.policy[key] = payload[key]
+        if version is not None and version <= self.policy_version:
+            return False, dict(self.policy)
+        self.policy = candidate
+        if version is not None:self.policy_version = version
         return True, dict(self.policy)
 
     def decide(self, sensor_data: dict) -> dict | None:

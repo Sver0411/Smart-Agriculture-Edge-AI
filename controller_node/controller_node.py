@@ -32,6 +32,7 @@ from common.messages import (  # noqa: E402
     NODE_REGISTER_ACK,
     NODE_STATUS,
     Message,
+    MessageError,
     close_writer,
     read_message,
     send_message,
@@ -68,6 +69,7 @@ class ControllerNode:
         self.guard = safety_guard or SafetyGuard()
         self.time_scale = time_scale
         self.metrics = Counters()
+        self._command_lock = asyncio.Lock()
 
         self._stopping = False
 
@@ -112,7 +114,11 @@ class ControllerNode:
             keepalive = asyncio.create_task(self._keepalive(writer, gateway_id))
             try:
                 while not self._stopping:
-                    message = await read_message(reader)
+                    try:
+                        message = await read_message(reader)
+                    except MessageError:
+                        self.metrics.inc("malformed_messages")
+                        continue
                     if message is None:
                         break
                     if message.type == CONTROL_COMMAND:
@@ -124,7 +130,7 @@ class ControllerNode:
             finally:
                 keepalive.cancel()
                 await asyncio.gather(keepalive, return_exceptions=True)
-        except (ConnectionResetError, BrokenPipeError, OSError):
+        except (ConnectionResetError, BrokenPipeError, OSError, MessageError):
             node_log(self.node_id, f"connection to {gateway_id} lost, re-registering elsewhere")
         finally:
             await close_writer(writer)
@@ -152,7 +158,9 @@ class ControllerNode:
                 continue
 
             owner = reply.payload.get("owner_gateway", gateway_id)
-            generation = int(reply.payload.get("generation", config.INITIAL_GENERATION))
+            generation = reply.payload.get("generation",config.INITIAL_GENERATION)
+            if type(generation) is not int or generation < 0 or reply.source != gateway_id or owner != gateway_id or reply.target != self.node_id:
+                return False
             if not self.guard.set_ownership(owner, generation):
                 node_log(
                     self.node_id,
@@ -192,7 +200,7 @@ class ControllerNode:
         """Accept an ownership change pushed by the gateway."""
         owner = message.payload.get("owner_gateway")
         generation = message.payload.get("generation")
-        if not owner or generation is None:
+        if owner != self.gateway_id or message.source != self.gateway_id or message.target != self.node_id or type(generation) is not int or generation < 0:
             return
         if self.guard.set_ownership(owner, int(generation)):
             node_log(self.node_id, f"owner_gateway = {owner} (generation={generation})")
@@ -200,13 +208,17 @@ class ControllerNode:
     # -- command handling --------------------------------------------------
 
     async def process_command(self, message: Message, writer=None) -> dict:
+        async with self._command_lock:
+            return await self._process_command(message,writer)
+
+    async def _process_command(self, message: Message, writer=None) -> dict:
         """Run one CONTROL_COMMAND through ACK + Safety Guard.
 
         Returns the ``CONTROL_RESULT`` payload.  ``writer`` may be ``None`` when
         a command is injected directly (fault injection in the demo).
         """
         payload = message.payload
-        command_id = payload.get("command_id") or message.message_id
+        command_id = payload.get("command_id")
         command_type = payload.get("type")
         duration = payload.get("duration")
         generation = payload.get("gateway_generation")
@@ -314,8 +326,7 @@ async def _run(args: argparse.Namespace) -> None:
     if args.gateway:
         node.primary_gateway = args.gateway
         node.gateway_id = args.gateway
-        if args.port is None:
-            node.fixed_port = config.GATEWAY_PORTS[args.gateway]
+
     await node.run()
 
 

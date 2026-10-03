@@ -86,6 +86,7 @@ class AckTracker:
         if entry is None:
             return
         entry.retries += 1
+        entry.message.attempt = entry.retries + 1
         entry.attempts += 1
         entry.expires_at = now + self.timeout
 
@@ -117,3 +118,28 @@ class Counters:
     def merge(self, other: "Counters") -> "Counters":
         self._values.update(other._values)
         return self
+
+
+class CommandOutcomes:
+    """Receipt and execution are independent. Missing results become UNKNOWN.
+
+    Never issue a new actuator command to repair a missing result. Late results
+    can resolve UNKNOWN; terminal result IDs are retained for this process.
+    """
+    def __init__(self, timeout=10):
+        self.timeout=timeout;self.pending={};self.unknown=set();self.resolved=set()
+    def track(self,message,now):
+        self.pending[message.payload['command_id']]={'message':message,'deadline':now+self.timeout,'acked':False}
+    def ack(self,command_id):
+        if command_id in self.pending:self.pending[command_id]['acked']=True
+    def result(self,command_id):
+        if command_id in self.resolved:return 'duplicate'
+        late=command_id in self.unknown
+        self.pending.pop(command_id,None);self.unknown.discard(command_id);self.resolved.add(command_id)
+        return 'late' if late else 'resolved'
+    def expire(self,now):
+        unknown=[]
+        for key,entry in list(self.pending.items()):
+            if entry['acked'] and now>=entry['deadline']:
+                self.pending.pop(key);self.unknown.add(key);unknown.append(entry['message'])
+        return unknown

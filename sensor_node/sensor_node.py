@@ -11,6 +11,7 @@ import pathlib
 import random
 import sys
 import time
+import uuid
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
@@ -108,6 +109,7 @@ class SensorNode:
         self.history_size = history_size
         self.metrics = Counters()
 
+        self.boot_id = uuid.uuid4().hex[:12]
         self.trust = SensorTrust()
         self.scheduler = AdaptiveSense(slow=slow_interval, fast=fast_interval)
         self.history: list[dict] = []
@@ -278,11 +280,13 @@ class SensorNode:
             self.metrics.inc("sensor_samples")
             self.metrics.inc({"HEALTHY":"trusted_samples", "DEGRADED":"degraded_samples", "FAULT":"fault_samples"}[state])
             payload = {"data": reading, "health_state": state,
+                       "boot_id":self.boot_id, "sample_seq":self.simulator.samples,
                        "health_score": trust["health_score"], "fault_flags": trust["fault_flags"],
                        "health": trust["channels"], "sampling":schedule, "usable_for_control": trust["usable_for_control"]}
             if schedule["upload_requested"]:
                 await send_message(writer, Message(type=SENSOR_DATA, source=self.node_id,
-                    target=self.owner_gateway or self.gateway_id, payload=payload))
+                    target=self.owner_gateway or self.gateway_id, payload=payload,
+                    sequence=self.simulator.samples, generation=self.generation, protocol_version=1))
                 self.metrics.inc("sensor_messages")
             if state != HEALTHY or not trust["usable_for_control"]:
                 await send_message(writer, Message(type=ALERT, source=self.node_id,
@@ -333,8 +337,7 @@ async def _run(args: argparse.Namespace) -> None:
     if args.gateway:
         node.primary_gateway = args.gateway
         node.gateway_id = args.gateway
-        if args.port is None:
-            node.fixed_port = config.GATEWAY_PORTS[args.gateway]
+
     await node.run()
 
 
