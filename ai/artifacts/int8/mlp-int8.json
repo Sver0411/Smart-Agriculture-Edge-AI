@@ -1,0 +1,147 @@
+{
+  "engine": "mlp",
+  "feature_version": 1,
+  "features": [
+    "soil_margin",
+    "temperature_margin",
+    "humidity",
+    "log_light"
+  ],
+  "labels": [
+    "NONE",
+    "IRRIGATION",
+    "VENTILATION"
+  ],
+  "layers": [
+    {
+      "bias": [
+        -0.7514648357886332,
+        23.10860299538935,
+        7.706622878742615,
+        -2.5842782749124535,
+        -1.1182567085087218,
+        -1.5423455311293643,
+        -5.074434572608231,
+        -2.9924344433226584
+      ],
+      "weight_scale": 0.16930908645295217,
+      "weights_int8": [
+        [
+          -22,
+          26,
+          -1,
+          -15
+        ],
+        [
+          80,
+          6,
+          -11,
+          -21
+        ],
+        [
+          35,
+          -22,
+          -2,
+          -1
+        ],
+        [
+          36,
+          127,
+          -2,
+          -1
+        ],
+        [
+          -53,
+          -19,
+          -6,
+          -3
+        ],
+        [
+          58,
+          -20,
+          -5,
+          25
+        ],
+        [
+          -93,
+          4,
+          -8,
+          -19
+        ],
+        [
+          -16,
+          6,
+          5,
+          -4
+        ]
+      ]
+    },
+    {
+      "bias": [
+        3.1787397992761632,
+        -0.41942860226922,
+        -3.550216146753225
+      ],
+      "weight_scale": 0.16171047322013507,
+      "weights_int8": [
+        [
+          -12,
+          62,
+          79,
+          -104,
+          -43,
+          -18,
+          -62,
+          13
+        ],
+        [
+          15,
+          -127,
+          -6,
+          61,
+          53,
+          34,
+          118,
+          -4
+        ],
+        [
+          -11,
+          68,
+          -74,
+          47,
+          -2,
+          -19,
+          -62,
+          -9
+        ]
+      ]
+    }
+  ],
+  "mean": [
+    1.0210689438812601,
+    -0.7796243482710886,
+    0.5065416393336744,
+    0.5560501427450361
+  ],
+  "provenance": {
+    "dataset_kind": "synthetic-software-validation",
+    "dataset_sha256": "ea096f08454eebf33b1ab3a26a112042b4d01b82c256667ce73ec4fbef205085",
+    "purpose": "policy imitation and pipeline validation",
+    "rows": 1200,
+    "seed": 42,
+    "test_rows": 240,
+    "train_rows": 960
+  },
+  "quantization": {
+    "activations": "float",
+    "bias": "float",
+    "inference": "host dequantized reference, not integer kernel",
+    "scheme": "symmetric-per-tensor-int8-weights"
+  },
+  "scale": [
+    1.1479576644338134,
+    2.0503369645697407,
+    0.2850891332475339,
+    0.07802698812847562
+  ]
+}

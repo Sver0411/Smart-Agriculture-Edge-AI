@@ -42,3 +42,12 @@ def test_bad_engine_and_incompatible_artifact_fail(tmp_path):
     with pytest.raises(ValueError):create_engine('huge-network')
     path=tmp_path/'bad.json';path.write_text(json.dumps({'engine':'tree','features':['wrong']}))
     with pytest.raises(ValueError):create_engine('tree',path)
+
+
+def test_bad_model_dimensions_fail_before_runtime(tmp_path):
+    model=dict(create_engine('logistic').model);model['scale']=[0,1,1,1]
+    path=tmp_path/'model.json';path.write_text(json.dumps(model))
+    with pytest.raises(ValueError):create_engine('logistic',path)
+    model=dict(create_engine('tree').model);model['nodes']=[{'feature':0,'threshold':1,'left':0,'right':0}]
+    path.write_text(json.dumps(model))
+    with pytest.raises(ValueError):create_engine('tree',path)
