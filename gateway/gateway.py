@@ -79,6 +79,7 @@ class Gateway:
         queue_path: str | None = None,
         drop_command_rate: float = 0.0,
         duplicate_command: bool = False,
+        decision_engine: str = "rule",
     ):
         if gateway_id not in config.GATEWAY_PORTS:
             raise ValueError(f"unknown gateway id: {gateway_id!r}")
@@ -104,7 +105,7 @@ class Gateway:
         self.drop_command_rate = drop_command_rate
         self.duplicate_command = duplicate_command
 
-        self.decider = EdgeDecider()
+        self.decider = EdgeDecider(engine=decision_engine)
         self.registry = NodeRegistry()
         self.ownership = OwnershipManager(gateway_id, self.peer_id, self.registry)
         self.tracker = AckTracker()
@@ -409,7 +410,15 @@ class Gateway:
                 node_log(self.gateway_id, f"role={self.ownership.role} - local control disabled")
             return
 
-        decision = self.decider.decide(record)
+        from ai.features import FeatureError
+        started = time.perf_counter()
+        try:
+            decision = self.decider.decide(record)
+        except FeatureError:
+            self.metrics.inc("feature_rejected")
+            return
+        self.metrics.inc("decision_calls")
+        self.metrics.inc("decision_latency_us", int((time.perf_counter()-started)*1_000_000))
         if decision is None:
             node_log(
                 self.gateway_id,
@@ -806,6 +815,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--server-port", type=int, default=config.SERVER_PORT)
     parser.add_argument("--peer-host", default="127.0.0.1")
     parser.add_argument("--peer-port", type=int, default=None)
+    parser.add_argument("--engine", choices=("rule","logistic","tree","mlp"), default="rule")
     parser.add_argument("--queue-db", default=None, help="store-and-forward sqlite file")
     return parser.parse_args(argv)
 
@@ -813,6 +823,7 @@ def parse_args(argv=None) -> argparse.Namespace:
 async def _run(args: argparse.Namespace) -> None:
     gateway = Gateway(
         gateway_id=args.id,
+        decision_engine=args.engine,
         host=args.host,
         port=args.port,
         server_host=args.server_host,

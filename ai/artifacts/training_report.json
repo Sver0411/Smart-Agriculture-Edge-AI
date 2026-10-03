@@ -1,0 +1,29 @@
+{
+  "logistic": {
+    "synthetic_test_correct": 230,
+    "synthetic_test_count": 240,
+    "export_parity_count": 240,
+    "serialized_bytes": 1212,
+    "device_flash_bytes": null,
+    "device_latency_ms": null,
+    "int8_parity": null
+  },
+  "tree": {
+    "synthetic_test_correct": 240,
+    "synthetic_test_count": 240,
+    "export_parity_count": 240,
+    "serialized_bytes": 1218,
+    "device_flash_bytes": null,
+    "device_latency_ms": null,
+    "int8_parity": null
+  },
+  "mlp": {
+    "synthetic_test_correct": 240,
+    "synthetic_test_count": 240,
+    "export_parity_count": 240,
+    "serialized_bytes": 3109,
+    "device_flash_bytes": null,
+    "device_latency_ms": null,
+    "int8_parity": null
+  }
+}

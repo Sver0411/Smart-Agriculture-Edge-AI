@@ -42,25 +42,8 @@ def edge_decision(sensor_data: dict, policy: dict | None = None) -> dict | None:
     Thresholds and durations come from ``policy`` (the cloud server pushes them
     down), falling back to :data:`common.config.DEFAULT_POLICY`.
     """
-    policy = {**config.DEFAULT_POLICY, **(policy or {})}
-
-    soil = sensor_data.get("soil_moisture")
-    if soil is not None and soil < policy["soil_moisture_threshold"]:
-        return {
-            "type": IRRIGATION,
-            "duration": policy["irrigation_duration"],
-            "reason": f"soil_moisture {soil} < {policy['soil_moisture_threshold']}",
-        }
-
-    temperature = sensor_data.get("temperature")
-    if temperature is not None and temperature > policy["temperature_threshold"]:
-        return {
-            "type": VENTILATION,
-            "duration": policy["ventilation_duration"],
-            "reason": f"temperature {temperature} > {policy['temperature_threshold']}",
-        }
-
-    return None
+    from ai.engines.rule import RuleEngine
+    return RuleEngine().predict(sensor_data, policy)
 
 
 class EdgeDecider:
@@ -70,7 +53,9 @@ class EdgeDecider:
     thresholds in place.
     """
 
-    def __init__(self, policy: dict | None = None, policy_version: int = 0):
+    def __init__(self, policy: dict | None = None, policy_version: int = 0, engine="rule", artifact=None):
+        from ai.engines import create_engine
+        self.engine = create_engine(engine, artifact)
         self.policy = {**config.DEFAULT_POLICY, **(policy or {})}
         self.policy_version = policy_version
 
@@ -93,4 +78,4 @@ class EdgeDecider:
         return True, dict(self.policy)
 
     def decide(self, sensor_data: dict) -> dict | None:
-        return edge_decision(sensor_data, self.policy)
+        return self.engine.predict(sensor_data, self.policy)

@@ -1,0 +1,68 @@
+{
+  "engine": "tree",
+  "feature_version": 1,
+  "features": [
+    "soil_margin",
+    "temperature_margin",
+    "humidity",
+    "log_light"
+  ],
+  "labels": [
+    "NONE",
+    "IRRIGATION",
+    "VENTILATION"
+  ],
+  "mean": [
+    1.0210689438812601,
+    -0.7796243482710886,
+    0.5065416393336744,
+    0.5560501427450361
+  ],
+  "nodes": [
+    {
+      "feature": 1,
+      "left": 1,
+      "right": 4,
+      "threshold": -0.014246189501136541
+    },
+    {
+      "feature": 0,
+      "left": 2,
+      "right": 3,
+      "threshold": 0.002030658652074635
+    },
+    {
+      "class_id": 1
+    },
+    {
+      "class_id": 0
+    },
+    {
+      "feature": 0,
+      "left": 5,
+      "right": 6,
+      "threshold": -0.0003806810500464053
+    },
+    {
+      "class_id": 1
+    },
+    {
+      "class_id": 2
+    }
+  ],
+  "provenance": {
+    "dataset_kind": "synthetic-software-validation",
+    "dataset_sha256": "ea096f08454eebf33b1ab3a26a112042b4d01b82c256667ce73ec4fbef205085",
+    "purpose": "policy imitation and pipeline validation",
+    "rows": 1200,
+    "seed": 42,
+    "test_rows": 240,
+    "train_rows": 960
+  },
+  "scale": [
+    1.1479576644338134,
+    2.0503369645697407,
+    0.2850891332475339,
+    0.07802698812847562
+  ]
+}
