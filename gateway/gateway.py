@@ -329,23 +329,24 @@ class Gateway:
         usable = payload.get("usable_for_control", health_state != "FAULT")
         if not isinstance(usable, bool):
             usable = False
-        if health_state == "FAULT":
+        if health_state not in ("HEALTHY",):
             usable = False
         if isinstance(health, dict) and any(
-            isinstance(channel, dict) and channel.get("state") == "FAULT"
+            isinstance(channel, dict) and channel.get("state") != "HEALTHY"
             for channel in health.values()
         ):
             usable = False
         for field in ("temperature", "humidity", "soil_moisture", "light"):
             if field in record and (isinstance(record[field], bool) or
                                     not isinstance(record[field], (int, float)) or
-                                    not math.isfinite(record[field])):
+                                    not math.isfinite(record[field]) or
+                                    not config.SENSOR_RANGES[field][0] <= record[field] <= config.SENSOR_RANGES[field][1]):
                 usable = False
         physical = payload.get("node_mode") == "physical"
         received_at = time.time()
         record["timestamp"] = received_at if physical else message.timestamp
         record["received_at"] = received_at
-        for key in ("node_mode", "boot_id", "sample_seq", "device_monotonic_ms", "timestamp_source", "sampling", "health", "physical_read_ok", "test_injected"):
+        for key in ("node_mode", "boot_id", "sample_seq", "device_monotonic_ms", "timestamp_source", "sampling", "health", "health_score", "fault_flags", "physical_read_ok", "test_injected"):
             if key in payload:
                 record[key] = payload[key]
         record["usable_for_control"] = usable
@@ -366,7 +367,9 @@ class Gateway:
                     source=self.gateway_id,
                     target="SERVER",
                     payload={
-                        "alert_type": "SENSOR_FAULT",
+                        "alert_type": payload.get("alert_type", "SENSOR_FAULT"),
+                        "health": health, "health_score": payload.get("health_score"),
+                        "fault_flags": payload.get("fault_flags", []), "data": data,
                         "sensor_node_id": message.source,
                         "health_state": health_state,
                         "message": "; ".join(reasons) or payload.get("message", "sensor alert"),

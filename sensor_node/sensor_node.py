@@ -25,6 +25,7 @@ import asyncio
 import pathlib
 import random
 import sys
+import time
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
@@ -44,7 +45,7 @@ from common.messages import (  # noqa: E402
 )
 from common.reliability import Counters  # noqa: E402
 from sensor_node.adaptive_sense import next_sample_interval  # noqa: E402
-from sensor_node.sensor_trust import FAULT, HEALTHY, check_sensor_health, health_reasons  # noqa: E402
+from sensor_node.sensor_trust import FAULT, HEALTHY, SensorTrust  # noqa: E402
 
 # name -> (default start value, random walk step, hard clamp)
 PROFILES = {
@@ -122,6 +123,7 @@ class SensorNode:
         self.history_size = history_size
         self.metrics = Counters()
 
+        self.trust = SensorTrust()
         self.history: list[dict] = []
         self._stopping = False
 
@@ -284,39 +286,22 @@ class SensorNode:
                 f"(temp={reading['temperature']}C, hum={reading['humidity']}%, light={reading['light']})",
             )
 
-            health = check_sensor_health(reading)
-            if health == HEALTHY:
-                node_log(self.node_id, f"sensor health = {HEALTHY}")
-                await send_message(
-                    writer,
-                    Message(
-                        type=SENSOR_DATA,
-                        source=self.node_id,
-                        target=self.owner_gateway or self.gateway_id,
-                        payload={"data": reading, "health_state": HEALTHY},
-                    ),
-                )
-                self.metrics.inc("sensor_messages")
-                node_log(self.node_id, f"SENSOR_DATA -> {self.owner_gateway or self.gateway_id}")
-            else:
-                reasons = health_reasons(reading)
-                node_log(self.node_id, f"sensor health = {FAULT} ({'; '.join(reasons)})")
-                await send_message(
-                    writer,
-                    Message(
-                        type=ALERT,
-                        source=self.node_id,
-                        target=self.owner_gateway or self.gateway_id,
-                        payload={
-                            "alert_type": "SENSOR_FAULT",
-                            "sensor_node_id": self.node_id,
-                            "health_state": FAULT,
-                            "reasons": reasons,
-                            "data": reading,
-                        },
-                    ),
-                )
-                node_log(self.node_id, "ALERT sent (data never reached the decision stage)")
+            trust = self.trust.update(reading, timestamp=time.monotonic())
+            state = trust["state"]
+            self.metrics.inc("sensor_samples")
+            self.metrics.inc({"HEALTHY":"trusted_samples", "DEGRADED":"degraded_samples", "FAULT":"fault_samples"}[state])
+            payload = {"data": reading, "health_state": state,
+                       "health_score": trust["health_score"], "fault_flags": trust["fault_flags"],
+                       "health": trust["channels"], "usable_for_control": trust["usable_for_control"]}
+            await send_message(writer, Message(type=SENSOR_DATA, source=self.node_id,
+                target=self.owner_gateway or self.gateway_id, payload=payload))
+            self.metrics.inc("sensor_messages")
+            if state != HEALTHY or not trust["usable_for_control"]:
+                await send_message(writer, Message(type=ALERT, source=self.node_id,
+                    target=self.owner_gateway or self.gateway_id,
+                    payload={**payload, "alert_type":"SENSOR_FAULT" if state == FAULT else "SENSOR_DEGRADED",
+                             "sensor_node_id":self.node_id, "reasons":trust["fault_flags"],
+                             "message":"sensor evidence is not safe for automatic control"}))
 
             interval = next_sample_interval(
                 self.history, slow=self.slow_interval, fast=self.fast_interval
