@@ -317,6 +317,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--id", required=True, choices=sorted(config.GATEWAY_OF_CONTROLLER))
     parser.add_argument("--gateway", default=None, choices=sorted(config.GATEWAY_PORTS), help="primary gateway id")
     parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--startup-delay", type=float, default=0, help="software experiment process startup delay")
     parser.add_argument("--port", type=int, default=None)
     return parser.parse_args(argv)
 
@@ -327,6 +328,8 @@ async def _run(args: argparse.Namespace) -> None:
         node.primary_gateway = args.gateway
         node.gateway_id = args.gateway
 
+    if args.startup_delay < 0:raise ValueError("startup delay must be nonnegative")
+    await asyncio.sleep(args.startup_delay)
     await node.run()
 
 
