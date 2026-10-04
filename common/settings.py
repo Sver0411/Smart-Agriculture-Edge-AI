@@ -68,7 +68,7 @@ def validate_settings(cfg):
     for v in a["ladder_confirmations"].values():
         if type(v) is not int or v < 1:
             raise ValueError("invalid ladder confirmations")
-    for key in ("fault_interval_s", "degraded_interval_s"):
+    for key in ("fault_interval_s", "degraded_interval_s", "fault_reminder_s"):
         positive(n[key], key)
     for key,v in cfg["policy"].items():
         positive(v,key)

@@ -32,6 +32,7 @@ from common.messages import (  # noqa: E402
     send_message,
 )
 from common.reliability import Counters  # noqa: E402
+from sensor_node.fault_notifier import FaultNotifier
 from sensor_node.adaptive_sense import AdaptiveSense  # noqa: E402
 from sensor_node.sensor_trust import FAULT, HEALTHY, SensorTrust  # noqa: E402
 
@@ -116,6 +117,7 @@ class SensorNode:
 
         self.boot_id = uuid.uuid4().hex[:12]
         self.trust = SensorTrust()
+        self.fault_notifier = FaultNotifier()
         self.scheduler = AdaptiveSense(slow=slow_interval, fast=fast_interval)
         self.history: list[dict] = []
         self._stopping = False
@@ -296,12 +298,13 @@ class SensorNode:
                     target=self.owner_gateway or self.gateway_id, payload=payload,
                     sequence=self.sample_sequence, generation=self.generation, protocol_version=1))
                 self.metrics.inc("sensor_messages")
-            if state != HEALTHY or not trust["usable_for_control"]:
+            notification = self.fault_notifier.update(trust)
+            if notification is not None:
                 await send_message(writer, Message(type=ALERT, source=self.node_id,
                     target=self.owner_gateway or self.gateway_id,
-                    payload={**payload, "alert_type":"SENSOR_FAULT" if state == FAULT else "SENSOR_DEGRADED",
-                             "sensor_node_id":self.node_id, "reasons":trust["fault_flags"],
-                             "message":"sensor evidence is not safe for automatic control"}))
+                    payload={**payload, **notification,
+                             "sensor_node_id":self.node_id, "reasons":trust["fault_flags"]}))
+                self.metrics.inc("fault_alerts")
 
             interval = schedule["interval_s"]
             self.interval_counts[interval] += 1

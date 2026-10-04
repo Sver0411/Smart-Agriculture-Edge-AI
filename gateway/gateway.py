@@ -387,6 +387,7 @@ class Gateway:
                         "alert_type": payload.get("alert_type", "SENSOR_FAULT"),
                         "health": health, "health_score": payload.get("health_score"),
                         "fault_flags": payload.get("fault_flags", []), "data": data,
+                        "fault_signature": payload.get("fault_signature"), "notification": payload.get("notification"),
                         "sensor_node_id": message.source,
                         "health_state": health_state,
                         "message": "; ".join(reasons) or payload.get("message", "sensor alert"),

@@ -184,7 +184,8 @@
       }
     },
     "fault_interval_s": 20,
-    "degraded_interval_s": 10
+    "degraded_interval_s": 10,
+    "fault_reminder_s": 300.0
   },
   "policy": {
     "soil_moisture_threshold": 25.0,
