@@ -24,7 +24,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: Unit, integration and host reference tests
         shell: bash
-        run: python -m pytest tests/ -vv -o faulthandler_timeout=60 | tee "$RUNNER_TEMP/unit-tests.log"
+        run: python -m pytest tests/ -vv -o faulthandler_timeout=60 --basetemp "$RUNNER_TEMP/pytest" | tee "$RUNNER_TEMP/unit-tests.log"
       - name: Complete topology software scenarios
         if: matrix.python == '3.12'
         run: python -m experiments.runner --all --output "$RUNNER_TEMP/smart-agriculture/software"
@@ -45,5 +45,6 @@ jobs:
           name: software-evidence-python-${{ matrix.python }}
           path: |
             ${{ runner.temp }}/unit-tests.log
+            ${{ runner.temp }}/pytest
             ${{ runner.temp }}/smart-agriculture
           if-no-files-found: warn
