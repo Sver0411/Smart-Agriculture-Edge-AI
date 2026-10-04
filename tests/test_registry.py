@@ -62,7 +62,7 @@ def test_registry_generation_of_unknown_node_is_the_initial_one(registry):
 
 
 def test_registry_expire_marks_silent_nodes_offline(registry):
-    now = time.time()
+    now = time.monotonic()
     registry.touch("B1", now)
     registry.touch("C1", now - 100.0)
 
@@ -73,7 +73,7 @@ def test_registry_expire_marks_silent_nodes_offline(registry):
 
 
 def test_registry_expire_reports_a_node_only_once(registry):
-    now = time.time()
+    now = time.monotonic()
     registry.touch("B1", now - 100.0)
     assert [e.node_id for e in registry.expire(now=now)] == ["B1"]
     assert registry.expire(now=now) == []

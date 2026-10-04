@@ -132,6 +132,7 @@ class Gateway:
         self.peer_writer: asyncio.StreamWriter | None = None
 
         self.peer_last_seen: float | None = None
+        self.peer_started_at: float | None = None
         self.peer_status = config.UNKNOWN
         # last command we put on the wire (used to replay a stale command in
         # the split-brain demo: a delayed frame from a deposed gateway)
@@ -151,6 +152,7 @@ class Gateway:
     # -- lifecycle ---------------------------------------------------------
 
     async def start(self) -> None:
+        self.peer_started_at = time.monotonic()
         self._server = await asyncio.start_server(self._handle_client, self.host, self.port)
         self._tasks = [
             asyncio.create_task(self.task_sensor_data(), name=f"{self.gateway_id}-1-sensor-data"),
@@ -310,7 +312,7 @@ class Gateway:
         if not integer(message.payload.get("generation",0)):
             self.metrics.inc("malformed_peer_heartbeat")
             return
-        self.peer_last_seen = time.time()
+        self.peer_last_seen = time.monotonic()
         # Peer ownership evidence may advance a known node, never compete at
         # the same epoch. Registration itself cannot create this evidence.
         snapshot = message.payload.get("ownership", {})
@@ -766,9 +768,10 @@ class Gateway:
 
     def evaluate_peer_status(self, now: float | None = None) -> str:
         """Return the peer state; trigger the failover on the OFFLINE edge."""
-        now = time.time() if now is None else now
+        now = time.monotonic() if now is None else now
         if self.peer_last_seen is None:
-            status = config.UNKNOWN
+            status = (config.OFFLINE if self.peer_started_at is not None and
+                      now - self.peer_started_at > self.heartbeat_timeout else config.UNKNOWN)
         elif now - self.peer_last_seen > self.heartbeat_timeout:
             status = config.OFFLINE
         else:
@@ -834,7 +837,7 @@ class Gateway:
     async def task_retry(self) -> None:
         while not self._stopping:
             await asyncio.sleep(config.RETRY_SCAN_INTERVAL)
-            now = time.time()
+            now = time.monotonic()
 
             for message in self.tracker.due(now):
                 self.tracker.mark_retry(message.message_id, now)

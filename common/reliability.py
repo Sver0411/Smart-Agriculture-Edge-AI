@@ -54,7 +54,7 @@ class AckTracker:
     # -- bookkeeping -------------------------------------------------------
 
     def track(self, message: Message, now: float | None = None) -> None:
-        now = time.time() if now is None else now
+        now = time.monotonic() if now is None else now
         self.pending[message.message_id] = PendingMessage(
             message=message, expires_at=now + self.timeout
         )
@@ -73,7 +73,7 @@ class AckTracker:
 
     def due(self, now: float | None = None) -> list[Message]:
         """Messages whose ACK is overdue and that still have retries left."""
-        now = time.time() if now is None else now
+        now = time.monotonic() if now is None else now
         return [
             entry.message
             for entry in self.pending.values()
@@ -81,7 +81,7 @@ class AckTracker:
         ]
 
     def mark_retry(self, message_id: str, now: float | None = None) -> None:
-        now = time.time() if now is None else now
+        now = time.monotonic() if now is None else now
         entry = self.pending.get(message_id)
         if entry is None:
             return
@@ -92,7 +92,7 @@ class AckTracker:
 
     def exhausted(self, now: float | None = None) -> list[Message]:
         """Messages that ran out of retries - delivery has to be given up."""
-        now = time.time() if now is None else now
+        now = time.monotonic() if now is None else now
         return [
             entry.message
             for entry in self.pending.values()

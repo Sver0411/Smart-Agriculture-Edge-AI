@@ -82,6 +82,7 @@ class SafetyGuard:
         now: float | None = None,
         gateway_generation: int | None = None,
         source_gateway: str | None = None,
+        monotonic_now: float | None = None,
     ) -> tuple[bool, str | None]:
         """Return ``(True, None)`` when the command may be executed.
 
@@ -89,6 +90,8 @@ class SafetyGuard:
         then the ownership/epoch checks that keep a deposed gateway out, and
         only then the actuator specific limits.
         """
+        elapsed_now = (monotonic_now if monotonic_now is not None else
+                       time.monotonic() if now is None else now)
         now = time.time() if now is None else now
 
         # 1. message / command validity
@@ -122,7 +125,7 @@ class SafetyGuard:
 
         # 7. cooldown
         previous = self.last_executed.get(command_type)
-        if previous is not None and now - previous < self.cooldown.get(command_type, 0.0):
+        if previous is not None and elapsed_now - previous < self.cooldown.get(command_type, 0.0):
             return False, COOLDOWN
 
         return True, None
@@ -134,10 +137,12 @@ class SafetyGuard:
         now: float | None = None,
         gateway_generation: int | None = None,
         source_gateway: str | None = None,
+        monotonic_now: float | None = None,
     ) -> None:
         """Record a command that has just been executed."""
         self.executed_command_ids.add(command_id)
-        self.last_executed[command_type] = time.time() if now is None else now
+        self.last_executed[command_type] = (monotonic_now if monotonic_now is not None else
+                                           time.monotonic() if now is None else now)
         if gateway_generation is not None and gateway_generation > self.current_generation:
             self.current_generation = int(gateway_generation)
         if source_gateway:

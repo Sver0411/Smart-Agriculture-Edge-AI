@@ -311,7 +311,7 @@ def test_a_replayed_command_is_not_executed_twice(tmp_path):
     async def scenario():
         harness = Harness(tmp_path)
         await harness.server.start()
-        a1 = await harness.add_gateway("A1")
+        a1 = await harness.add_gateway("A1", heartbeat_timeout=100.0)  # isolate dedup from bootstrap takeover
 
         controller = ControllerNode("C1")
         harness.add_node(controller)

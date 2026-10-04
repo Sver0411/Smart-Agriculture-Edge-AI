@@ -5,8 +5,8 @@ in-memory table of the nodes it knows about.  The interesting field is
 ``owner_gateway`` together with ``generation`` - they decide which gateway is
 allowed to drive a node right now.
 
-``last_seen`` is the gateway's local wall-clock time when it received a node
-message. Client-provided envelope timestamps never define node liveness.
+``last_seen`` is the gateway's local audit wall-clock time when it received a node
+message. Expiry uses separate ``seen_monotonic`` elapsed time. Client-provided envelope timestamps never define node liveness.
 """
 
 from __future__ import annotations
@@ -32,6 +32,7 @@ class NodeEntry:
     owner_gateway: str
     status: str = config.OFFLINE
     last_seen: float = field(default_factory=time.time)  # gateway receive wall time
+    seen_monotonic: float = field(default_factory=time.monotonic)
     generation: int = config.INITIAL_GENERATION
 
     def as_dict(self) -> dict:
@@ -72,6 +73,7 @@ class NodeRegistry:
         entry.generation = generation
         entry.status = status
         entry.last_seen = time.time() if timestamp is None else timestamp
+        entry.seen_monotonic = time.monotonic() if timestamp is None else timestamp
         return entry
 
     def get(self, node_id: str) -> NodeEntry | None:
@@ -81,6 +83,7 @@ class NodeRegistry:
         entry = self.entries.get(node_id)
         if entry is not None:
             entry.last_seen = time.time() if timestamp is None else timestamp
+            entry.seen_monotonic = time.monotonic() if timestamp is None else timestamp
             entry.status = config.ONLINE
 
     def set_status(self, node_id: str, status: str) -> None:
@@ -116,10 +119,10 @@ class NodeRegistry:
 
     def expire(self, now: float | None = None, timeout: float = config.NODE_TIMEOUT) -> list[NodeEntry]:
         """Mark silent nodes OFFLINE and return the ones that just changed."""
-        now = time.time() if now is None else now
+        now = time.monotonic() if now is None else now
         expired = []
         for entry in self.entries.values():
-            if entry.status != config.OFFLINE and now - entry.last_seen > timeout:
+            if entry.status != config.OFFLINE and now - entry.seen_monotonic > timeout:
                 entry.status = config.OFFLINE
                 expired.append(entry)
         return expired
