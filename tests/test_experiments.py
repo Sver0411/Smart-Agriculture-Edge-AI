@@ -39,9 +39,9 @@ def test_fault_rule_replay_is_seeded_and_terminal_drop():
 def test_runner_failure_is_nonzero_and_preserves_failure(tmp_path):
     # Invalid output re-use is refused, so evidence is never silently overwritten.
     run=tmp_path/'run';run.mkdir()
-    proc=subprocess.run([sys.executable,'-m','experiments.runner','--scenario','normal','--output',str(run)],capture_output=True,text=True)
+    proc=subprocess.run([sys.executable,'-m','experiments.runner','--scenario','normal','--output',str(run)],capture_output=True,text=True,timeout=15)
     # A fresh child run is created beneath output; second invocation must fail.
-    proc=subprocess.run([sys.executable,'-m','experiments.runner','--scenario','normal','--output',str(run)],capture_output=True,text=True)
+    proc=subprocess.run([sys.executable,'-m','experiments.runner','--scenario','normal','--output',str(run)],capture_output=True,text=True,timeout=15)
     assert proc.returncode!=0
 
 
@@ -61,7 +61,7 @@ import pytest
 def test_reliability_hardening_scenarios_have_nonvacuous_verdicts(scenario,tmp_path):
     out=tmp_path/scenario
     summary=asyncio.run(run_scenario(scenario,out,seed=42,duration=0.2))
-    assert summary['status']=='PASS',summary
+    assert summary['status']=='PASS',json.dumps(summary,indent=2)
     assert len(summary['assertions'])>=8
     assert json.loads((out/'config.json').read_text())['runtime_overrides']['gateway']['server_receipt_timeout']==0.25
 

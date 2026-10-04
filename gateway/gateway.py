@@ -222,7 +222,7 @@ class Gateway:
     async def _handle_client(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         self.inbound_writers.add(writer)
         try:
-            while True:
+            while not self._stopping:
                 try:
                     message = await read_message(reader)
                 except MessageError as exc:
@@ -336,9 +336,12 @@ class Gateway:
     # -- Task 1: receive sensor data ---------------------------------------
 
     async def task_sensor_data(self) -> None:
-        while True:
+        while not self._stopping:
             message = await self.sensor_queue.get()
-            await self._process_sensor_message(message)
+            try:
+                await self._process_sensor_message(message)
+            finally:
+                self.sensor_queue.task_done()
 
     async def _process_sensor_message(self, message: Message) -> None:
         payload = message.payload
@@ -461,7 +464,7 @@ class Gateway:
     # -- Task 2: upload to the cloud server --------------------------------
 
     async def task_upload(self) -> None:
-        while True:
+        while not self._stopping:
             message = await self.upload_queue.get()
             await self._deliver(message)
 
@@ -505,7 +508,7 @@ class Gateway:
             writer = self.server_writer
             if writer is None:
                 return
-            while self.server_writer is writer:
+            while not self._stopping and self.server_writer is writer:
                 batch = self.offline_queue.peek(limit=100)
                 if not batch:
                     node_log(self.gateway_id, "offline queue empty")
@@ -551,7 +554,7 @@ class Gateway:
             flush = asyncio.create_task(self._flush_offline_queue())
             try:
                 if self.server_writer is writer:
-                    while True:
+                    while not self._stopping:
                         message = await read_message(reader)
                         if message is None:
                             break
@@ -597,9 +600,12 @@ class Gateway:
     # -- Task 4: send control commands to C --------------------------------
 
     async def task_send_commands(self) -> None:
-        while True:
+        while not self._stopping:
             message, is_retry = await self.command_queue.get()
-            await self._dispatch_command(message, first_attempt=not is_retry)
+            try:
+                await self._dispatch_command(message, first_attempt=not is_retry)
+            finally:
+                self.command_queue.task_done()
 
     async def _dispatch_command(self, message: Message, first_attempt: bool) -> None:
         payload = message.payload
@@ -686,7 +692,7 @@ class Gateway:
     # -- Task 5: process control results -----------------------------------
 
     async def task_control_result(self) -> None:
-        while True:
+        while not self._stopping:
             message = await self.result_queue.get()
             payload = dict(message.payload)
             command_id = payload.get("command_id")

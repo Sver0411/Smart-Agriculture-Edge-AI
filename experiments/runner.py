@@ -139,12 +139,25 @@ async def run_scenario(name,output,seed=42,duration=None):
                 check('dedup row committed before dropped ACK',bool(faults.events[0].get('commit_observed')))
         if name=='controller-unavailable':
             nodes['B1'].stop();node_tasks['B1'].cancel();await asyncio.gather(node_tasks['B1'],return_exceptions=True)
+            # Wait for the stopped sensor's TCP EOF, then consume its already
+            # decoded decisions while C1 is still deliberately offline.
+            deadline=time.monotonic()+3
+            while 'B1' in gateways['A1'].connections and time.monotonic()<deadline:
+                await asyncio.sleep(0.01)
+            await asyncio.wait_for(gateways['A1'].sensor_queue.join(),3)
+            await asyncio.wait_for(gateways['A1'].command_queue.join(),3)
+            expected=gateways['A1'].metrics.get('not_dispatched')
+            while server.db.conn.execute("SELECT COUNT(*) FROM controller_result WHERE controller_id='C1' AND status='NOT_DISPATCHED'").fetchone()[0] < expected and time.monotonic()<deadline:
+                await asyncio.sleep(0.01)
             rows=[dict(r) for r in server.db.conn.execute("SELECT * FROM controller_result WHERE controller_id='C1'")]
             failures=[r for r in rows if r['status']=='NOT_DISPATCHED' and r['reason']=='CONTROLLER_UNAVAILABLE']
             check('server records unavailable controller outcome',bool(failures))
             check('offline controller executes zero commands',nodes['C1'].metrics.get('executed')==0)
             observations['undispatched_ids']=[r['command_id'] for r in failures]
             task=asyncio.create_task(nodes['C1'].run());tasks.append(task);node_tasks['C1']=task
+            deadline=time.monotonic()+3
+            while (nodes['C1'].guard.owner_gateway!='A1' or 'C1' not in gateways['A1'].connections) and time.monotonic()<deadline:
+                await asyncio.sleep(0.01)
         if name in ('gateway-failover','gateway-recovery','stale-generation'):
             await gateways['A1'].stop();disruptions.append({'action':'gateway_crash','time_s':time.monotonic()-recorder.start})
             failure_time=time.monotonic()
