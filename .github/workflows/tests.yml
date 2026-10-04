@@ -2,7 +2,7 @@ name: tests
 
 on:
   push:
-    branches: [main, v0.3-software-integration]
+    branches: [main, v0.3-software-integration, v0.3.1-reliability-hardening]
     paths-ignore: ['docs/**', 'README.md', 'results/**']
   pull_request:
   workflow_dispatch:
@@ -10,29 +10,39 @@ on:
 jobs:
   software:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.10', '3.12']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.python }}
       - name: Install test dependencies
         run: pip install -r requirements.txt
       - name: Unit, integration and host reference tests
-        run: python -m pytest tests/ -q
+        shell: bash
+        run: python -m pytest tests/ -q | tee "$RUNNER_TEMP/unit-tests.log"
       - name: Complete topology software scenarios
+        if: matrix.python == '3.12'
         run: python -m experiments.runner --all --output "$RUNNER_TEMP/smart-agriculture/software"
       - name: Checkout independent EdgeFaultLab at reviewed revision
+        if: matrix.python == '3.12'
         uses: actions/checkout@v4
         with:
           repository: Sver0411/EdgeFaultLab
           ref: c7248239f456cc877114ca1e67c5949fb4a7b958
           path: .external/edgefaultlab
       - name: External fault scenarios
+        if: matrix.python == '3.12'
         run: python -m experiments.edgefaultlab --edgefaultlab-root .external/edgefaultlab --output "$RUNNER_TEMP/smart-agriculture/edgefaultlab"
-      - name: Preserve experiment evidence including failures
+      - name: Preserve test logs and experiment evidence including failures
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: software-experiment-evidence
-          path: ${{ runner.temp }}/smart-agriculture
+          name: software-evidence-python-${{ matrix.python }}
+          path: |
+            ${{ runner.temp }}/unit-tests.log
+            ${{ runner.temp }}/smart-agriculture
           if-no-files-found: warn
