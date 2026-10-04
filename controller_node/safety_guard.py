@@ -26,6 +26,7 @@ import math
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
+from common.protocol import number
 from common import config  # noqa: E402
 
 # rejection reasons
@@ -101,7 +102,7 @@ class SafetyGuard:
             return False, INVALID_COMMAND_ID
 
         # 2. freshness
-        if type(issued_at) not in (int,float) or not math.isfinite(issued_at) or issued_at > now + self.command_ttl or now - issued_at > self.command_ttl:
+        if not number(issued_at) or issued_at > now + self.command_ttl or now - issued_at > self.command_ttl:
             return False, EXPIRED
 
         # 3. generation (epoch) - replay and split-brain protection
@@ -118,7 +119,7 @@ class SafetyGuard:
             return False, DUPLICATE_COMMAND_ID
 
         # 6. duration
-        if isinstance(duration, bool) or not isinstance(duration, (int, float)) or not math.isfinite(duration) or duration <= 0:
+        if not number(duration) or duration <= 0:
             return False, INVALID_DURATION
         if duration > self.max_duration[command_type]:
             return False, DURATION_EXCEEDED
@@ -145,5 +146,6 @@ class SafetyGuard:
                                            time.monotonic() if now is None else now)
         if gateway_generation is not None and gateway_generation > self.current_generation:
             self.current_generation = int(gateway_generation)
-        if source_gateway:
+        if source_gateway and (gateway_generation is not None and gateway_generation >= self.current_generation
+                               or gateway_generation is None and self.owner_gateway in (None, source_gateway)):
             self.owner_gateway = source_gateway

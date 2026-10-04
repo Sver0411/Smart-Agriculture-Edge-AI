@@ -6,7 +6,10 @@ def integer(value, minimum=0):
     return type(value) is int and value>=minimum
 
 def number(value):
-    return type(value) in (int,float) and math.isfinite(value)
+    try:
+        return type(value) in (int,float) and math.isfinite(value)
+    except OverflowError:
+        return False
 
 class SequenceGuard:
     """Reordered telemetry is auditable history, never a fresh control input.

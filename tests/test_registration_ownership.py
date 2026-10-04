@@ -52,3 +52,12 @@ def test_redirect_then_same_epoch_competitor_rejected_new_epoch_accepted(cls,nod
     replies.append(reply('A1','A1',1,True));assert asyncio.run(n._register(None,None,'A1'))
     replies.append(reply('A2','A2',1,True));assert not asyncio.run(n._register(None,None,'A2'))
     replies.append(reply('A2','A2',2,True));assert asyncio.run(n._register(None,None,'A2'))
+
+@pytest.mark.parametrize('cls,node',[(SensorNode,'B1'),(ControllerNode,'C1')])
+def test_malformed_registration_owner_is_rejected_without_crashing(cls,node,monkeypatch):
+    n=cls(node);module='sensor_node.sensor_node' if cls is SensorNode else 'controller_node.controller_node'
+    async def send(w,m):pass
+    async def read(r):return Message(type=NODE_REGISTER_ACK,source='A1',target=node,
+        payload={'owner_gateway':[],'generation':1,'accepted':True})
+    monkeypatch.setattr(module+'.send_message',send);monkeypatch.setattr(module+'.read_message',read)
+    assert not asyncio.run(n._register(None,None,'A1'))

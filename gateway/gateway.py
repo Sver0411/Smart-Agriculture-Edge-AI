@@ -320,7 +320,7 @@ class Gateway:
             for node_id, row in snapshot.items():
                 entry = self.registry.get(node_id)
                 if (entry and isinstance(row, dict) and row.get("owner_gateway") == self.peer_id
-                        and integer(row.get("generation")) and row["generation"] > entry.generation):
+                        and integer(row.get("generation")) and entry.generation < row["generation"] <= message.payload.get("generation", 0)):
                     self.registry.transfer([node_id], self.peer_id, row["generation"])
         role = self.ownership.observe_peer(
             config.ONLINE, message.payload.get("generation")

@@ -203,7 +203,7 @@ class SensorNode:
             owner = reply.payload.get("owner_gateway")
             generation = reply.payload.get("generation")
             if (reply.source != gateway_id or reply.target != self.node_id or
-                    owner not in config.GATEWAY_PORTS or type(generation) is not int or generation < 0):
+                    not isinstance(owner, str) or owner not in config.GATEWAY_PORTS or type(generation) is not int or generation < 0):
                 return False
             if reply.payload.get("accepted") is False:
                 if generation >= self.generation:

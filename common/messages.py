@@ -142,7 +142,7 @@ class Message:
         if data["type"] not in MESSAGE_TYPES:
             raise MessageError(f"unknown message type: {data['type']!r}")
 
-        if not isinstance(data["timestamp"], (int, float)) or isinstance(data["timestamp"], bool) or not math.isfinite(data["timestamp"]):
+        if not isinstance(data["timestamp"], (int, float)) or isinstance(data["timestamp"], bool) or not finite_json(data["timestamp"]):
             raise MessageError("timestamp must be a number")
 
         if not isinstance(data["payload"], dict):
@@ -264,7 +264,9 @@ def observe_transport(event,message):
     if observer is not None:observer(event,message)
 
 def finite_json(obj):
-    if isinstance(obj,float):return math.isfinite(obj)
+    if type(obj) in (int,float):
+        try:return math.isfinite(obj)
+        except OverflowError:return False
     if isinstance(obj,dict):return all(finite_json(v) for v in obj.values())
     if isinstance(obj,list):return all(finite_json(v) for v in obj)
     return True

@@ -103,3 +103,20 @@ def test_malformed_alert_does_not_stop_following_sensor_processing():
         await g._process_sensor_message(Message(type=SENSOR_DATA,source='B1',target='A1',payload={'data':{'soil_moisture':10,'temperature':25}}))
         assert not g.command_queue.empty()
     asyncio.run(run())
+
+
+def test_huge_json_integers_and_direct_duration_are_rejected_without_overflow():
+    m=command();m.payload['duration']=10**1000
+    with pytest.raises(MessageError):Message.from_json(m.to_json())
+    assert SafetyGuard().check('one','IRRIGATION',10**1000,time.time())[1]=='INVALID_DURATION'
+    m=command();raw=m.to_dict();raw['timestamp']=10**1000
+    with pytest.raises(MessageError):Message.from_dict(raw)
+
+
+def test_older_in_flight_execution_cannot_revert_newer_owner():
+    g=SafetyGuard();g.set_ownership('A1',1)
+    assert g.check('in-flight','IRRIGATION',1,time.time(),gateway_generation=1,source_gateway='A1')[0]
+    g.set_ownership('A2',2)
+    g.commit('in-flight','IRRIGATION',gateway_generation=1,source_gateway='A1')
+    assert (g.owner_gateway,g.current_generation)==('A2',2)
+    assert 'in-flight' in g.executed_command_ids
