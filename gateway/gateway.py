@@ -347,22 +347,12 @@ class Gateway:
         record = dict(data)
         health = payload.get("health", {})
         health_state = payload.get("health_state", "HEALTHY")
-        usable = payload.get("usable_for_control", health_state != "FAULT")
-        if not isinstance(usable, bool):
-            usable = False
-        if health_state not in ("HEALTHY",):
-            usable = False
-        if isinstance(health, dict) and any(
-            isinstance(channel, dict) and channel.get("state") != "HEALTHY"
-            for channel in health.values()
-        ):
-            usable = False
-        for field in ("temperature", "humidity", "soil_moisture", "light"):
-            if field in record and (isinstance(record[field], bool) or
-                                    not isinstance(record[field], (int, float)) or
-                                    not math.isfinite(record[field]) or
-                                    not config.SENSOR_RANGES[field][0] <= record[field] <= config.SENSOR_RANGES[field][1]):
-                usable = False
+        from gateway.trust_gate import trusted_channels, ACTION_CHANNELS, FEATURE_CHANNELS
+        trusted = trusted_channels(record, payload)
+        usable = (bool(trusted & {"soil_moisture", "temperature"}) if self.decider.engine.name == "rule"
+                  else trusted >= FEATURE_CHANNELS)
+        record["control_trust"] = {action: trusted >= required for action, required in ACTION_CHANNELS.items()}
+        record["trusted_channels"] = sorted(trusted)
         physical = payload.get("node_mode") == "physical"
         received_at = time.time()
         record["timestamp"] = received_at if physical else message.timestamp
@@ -439,7 +429,7 @@ class Gateway:
         from ai.features import FeatureError
         started = time.perf_counter()
         try:
-            decision = self.decider.decide(record)
+            decision = self.decider.decide(record, trusted_channels=trusted)
         except FeatureError:
             self.metrics.inc("feature_rejected")
             return

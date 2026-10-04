@@ -66,5 +66,11 @@ class EdgeDecider:
         if version is not None:self.policy_version = version
         return True, dict(self.policy)
 
-    def decide(self, sensor_data: dict) -> dict | None:
+    def decide(self, sensor_data: dict, trusted_channels=None) -> dict | None:
+        if trusted_channels is not None:
+            from gateway.trust_gate import FEATURE_CHANNELS
+            if self.engine.name == "rule":
+                sensor_data = {k: v for k, v in sensor_data.items() if k in trusted_channels}
+            elif not set(trusted_channels) >= FEATURE_CHANNELS:
+                return None
         return self.engine.predict(sensor_data, self.policy)

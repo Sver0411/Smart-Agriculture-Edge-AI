@@ -156,6 +156,7 @@ class Database:
                 json.dumps({key: record[key] for key in (
                     "node_mode", "boot_id", "sample_seq", "device_monotonic_ms",
                     "sampling", "health", "health_score", "fault_flags", "usable_for_control", "received_at",
+                    "control_trust", "trusted_channels",
                     "physical_read_ok", "test_injected", "timestamp_source",
                 ) if key in record}),
                 time.time(),
