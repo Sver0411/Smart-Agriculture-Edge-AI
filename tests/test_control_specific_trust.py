@@ -32,3 +32,15 @@ def test_learned_engine_never_runs_on_untrusted_feature(engine,bad):
             'data':{'soil_moisture':10,'temperature':40,'humidity':50,'light':800},'health':h,'health_state':'DEGRADED'}))
         assert g.command_queue.empty() and g.metrics.get('decision_calls')==0
     asyncio.run(run())
+
+
+def test_legacy_physical_channel_health_without_valid_flag_can_ventilate():
+    # Frozen physical B1 protocol: state/score/flags, no Python-only valid field.
+    async def run():
+        g=Gateway('A1')
+        await g._process_sensor_message(Message(type=SENSOR_DATA,source='B1',target='A1',payload={
+            'node_mode':'physical','data':{'temperature':40,'humidity':60},'usable_for_control':True,
+            'health':{'temperature':{'state':'HEALTHY','score':100,'flags':0},
+                      'humidity':{'state':'HEALTHY','score':100,'flags':0}}}))
+        assert (await g.command_queue.get())[0].payload['type']=='VENTILATION'
+    asyncio.run(run())

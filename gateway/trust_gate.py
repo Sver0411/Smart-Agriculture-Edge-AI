@@ -24,7 +24,7 @@ def trusted_channels(data, payload):
         if health is not None:
             channel = health.get(field)
             if (not isinstance(channel, dict) or channel.get('state') != 'HEALTHY'
-                    or channel.get('valid') is not True):
+                    or channel.get('valid', True) is not True):
                 continue
         elif (payload.get('health_state', 'HEALTHY') != 'HEALTHY' or
               payload.get('usable_for_control', True) is not True):
