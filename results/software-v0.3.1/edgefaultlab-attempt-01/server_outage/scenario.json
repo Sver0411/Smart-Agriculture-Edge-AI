@@ -1,0 +1,205 @@
+{
+  "_note": "Smart Agriculture Edge AI integration: the cloud server disappears for 10 seconds. The edge must keep running B -> A -> C and replay its queue when the server returns. Edit every 'cwd' to point at your checkout.",
+  "assertions": [
+    {
+      "assert": "message_count",
+      "description": "the local control loop kept executing during the outage",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "payload.status": "EXECUTED",
+        "type": "CONTROL_RESULT"
+      },
+      "min": 1
+    },
+    {
+      "after": 4,
+      "assert": "eventually",
+      "description": "uploads resume after the server comes back",
+      "link": "gateways_to_server",
+      "match": {
+        "type": "SENSOR_DATA"
+      },
+      "within": 8
+    },
+    {
+      "assert": "unique",
+      "description": "the outage did not cause a double execution",
+      "key": "payload.command_id",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "payload.status": "EXECUTED",
+        "type": "CONTROL_RESULT"
+      }
+    }
+  ],
+  "duration": 12,
+  "faults": [
+    {
+      "action": "link_down",
+      "at": 2,
+      "duration": 2,
+      "id": "server-down",
+      "link": "gateways_to_server"
+    }
+  ],
+  "links": [
+    {
+      "listen": "127.0.0.1:60716",
+      "name": "gateways_to_server",
+      "upstream": "127.0.0.1:60720"
+    },
+    {
+      "listen": "127.0.0.1:60717",
+      "name": "nodes_to_gateway_a1",
+      "upstream": "127.0.0.1:60719"
+    },
+    {
+      "listen": "127.0.0.1:60718",
+      "name": "nodes_to_gateway_a2",
+      "upstream": "127.0.0.1:60721"
+    }
+  ],
+  "name": "smart agriculture - server outage",
+  "processes": [
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "server.server",
+        "--port",
+        "60720",
+        "--db",
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-attempt-01/server_outage/efl_server.db"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-attempt-01/server_outage/config.json"
+      },
+      "name": "server"
+    },
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "gateway.gateway",
+        "--id",
+        "A1",
+        "--port",
+        "60719",
+        "--server-port",
+        "60716",
+        "--peer-port",
+        "60718",
+        "--queue-db",
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-attempt-01/server_outage/efl_queue_a1.db"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-attempt-01/server_outage/config.json"
+      },
+      "name": "gateway_a1"
+    },
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "gateway.gateway",
+        "--id",
+        "A2",
+        "--port",
+        "60721",
+        "--server-port",
+        "60716",
+        "--peer-port",
+        "60717",
+        "--queue-db",
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-attempt-01/server_outage/efl_queue_a2.db"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-attempt-01/server_outage/config.json"
+      },
+      "name": "gateway_a2"
+    },
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "sensor_node.sensor_node",
+        "--id",
+        "B1",
+        "--gateway",
+        "A1",
+        "--sample-interval",
+        "0.2",
+        "--seed",
+        "42"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-attempt-01/server_outage/config.json"
+      },
+      "name": "sensor_b1"
+    },
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "controller_node.controller_node",
+        "--id",
+        "C1",
+        "--gateway",
+        "A1"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-attempt-01/server_outage/config.json"
+      },
+      "name": "controller_c1"
+    },
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "sensor_node.sensor_node",
+        "--id",
+        "B2",
+        "--gateway",
+        "A2",
+        "--sample-interval",
+        "0.2",
+        "--seed",
+        "43"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-attempt-01/server_outage/config.json"
+      },
+      "name": "sensor_b2"
+    },
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "controller_node.controller_node",
+        "--id",
+        "C2",
+        "--gateway",
+        "A2"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-attempt-01/server_outage/config.json"
+      },
+      "name": "controller_c2"
+    }
+  ],
+  "seed": 42
+}

@@ -1,0 +1,38 @@
+{
+  "assertions": [
+    {
+      "description": "the mesh keeps reporting to the cloud after A1 dies",
+      "detail": "matched [type='SENSOR_DATA'] at 2.376s (window 2.000s..10.000s)",
+      "passed": true
+    },
+    {
+      "description": "failover does not execute a command twice",
+      "detail": "5 distinct payload.command_id value(s) in 5 matching message(s)",
+      "passed": true
+    },
+    {
+      "description": "no unsafe execution was reported",
+      "detail": "no message matching [payload.reason='UNSAFE_EXECUTION', type='CONTROL_RESULT'] was ever delivered",
+      "passed": true
+    },
+    {
+      "description": "sensor data reached the cloud at all",
+      "detail": "observed 34 message(s) matching [type='SENSOR_DATA']",
+      "passed": true
+    },
+    {
+      "description": "A2 uploads after A1 crash",
+      "detail": "matched [source='A2', type='SENSOR_DATA'] at 2.376s (window 2.000s..10.000s)",
+      "passed": true
+    },
+    {
+      "description": "B1 reconnects to A2",
+      "detail": "matched [source='B1', type='NODE_REGISTER'] at 2.004s (window 2.000s..10.000s)",
+      "passed": true
+    }
+  ],
+  "exit_code": 0,
+  "external_revision": "c7248239f456cc877114ca1e67c5949fb4a7b958",
+  "scenario": "gateway_failover",
+  "status": "PASS"
+}

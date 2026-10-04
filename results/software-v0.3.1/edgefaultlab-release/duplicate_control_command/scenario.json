@@ -1,0 +1,208 @@
+{
+  "_note": "Smart Agriculture Edge AI integration: every CONTROL_COMMAND sent to C1 is delivered twice. C1 must execute each command_id exactly once. Edit every 'cwd' to point at your checkout.",
+  "assertions": [
+    {
+      "assert": "unique",
+      "description": "a command_id is executed at most once",
+      "key": "payload.command_id",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "payload.status": "EXECUTED",
+        "type": "CONTROL_RESULT"
+      }
+    },
+    {
+      "assert": "message_count",
+      "description": "commands still run at all",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "payload.status": "EXECUTED",
+        "type": "CONTROL_RESULT"
+      },
+      "min": 1
+    },
+    {
+      "assert": "never",
+      "description": "no unsafe execution was reported",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "payload.reason": "UNSAFE_EXECUTION",
+        "type": "CONTROL_RESULT"
+      }
+    }
+  ],
+  "duration": 12,
+  "faults": [
+    {
+      "action": "duplicate",
+      "at": 2,
+      "copies": 1,
+      "count": 3,
+      "id": "duplicate-command",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "type": "CONTROL_COMMAND"
+      }
+    }
+  ],
+  "links": [
+    {
+      "listen": "127.0.0.1:54246",
+      "name": "gateways_to_server",
+      "upstream": "127.0.0.1:54250"
+    },
+    {
+      "listen": "127.0.0.1:54247",
+      "name": "nodes_to_gateway_a1",
+      "upstream": "127.0.0.1:54249"
+    },
+    {
+      "listen": "127.0.0.1:54248",
+      "name": "nodes_to_gateway_a2",
+      "upstream": "127.0.0.1:54251"
+    }
+  ],
+  "name": "smart agriculture - duplicate control command",
+  "processes": [
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "server.server",
+        "--port",
+        "54250",
+        "--db",
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-release/duplicate_control_command/efl_server.db"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-release/duplicate_control_command/config.json"
+      },
+      "name": "server"
+    },
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "gateway.gateway",
+        "--id",
+        "A1",
+        "--port",
+        "54249",
+        "--server-port",
+        "54246",
+        "--peer-port",
+        "54248",
+        "--queue-db",
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-release/duplicate_control_command/efl_queue_a1.db"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-release/duplicate_control_command/config.json"
+      },
+      "name": "gateway_a1"
+    },
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "gateway.gateway",
+        "--id",
+        "A2",
+        "--port",
+        "54251",
+        "--server-port",
+        "54246",
+        "--peer-port",
+        "54247",
+        "--queue-db",
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-release/duplicate_control_command/efl_queue_a2.db"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-release/duplicate_control_command/config.json"
+      },
+      "name": "gateway_a2"
+    },
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "sensor_node.sensor_node",
+        "--id",
+        "B1",
+        "--gateway",
+        "A1",
+        "--sample-interval",
+        "0.2",
+        "--seed",
+        "42"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-release/duplicate_control_command/config.json"
+      },
+      "name": "sensor_b1"
+    },
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "controller_node.controller_node",
+        "--id",
+        "C1",
+        "--gateway",
+        "A1"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-release/duplicate_control_command/config.json"
+      },
+      "name": "controller_c1"
+    },
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "sensor_node.sensor_node",
+        "--id",
+        "B2",
+        "--gateway",
+        "A2",
+        "--sample-interval",
+        "0.2",
+        "--seed",
+        "43"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-release/duplicate_control_command/config.json"
+      },
+      "name": "sensor_b2"
+    },
+    {
+      "command": [
+        "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.venv/bin/python",
+        "-u",
+        "-m",
+        "controller_node.controller_node",
+        "--id",
+        "C2",
+        "--gateway",
+        "A2"
+      ],
+      "cwd": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/software-v0.3.1/edgefaultlab-release/duplicate_control_command/config.json"
+      },
+      "name": "controller_c2"
+    }
+  ],
+  "seed": 42
+}

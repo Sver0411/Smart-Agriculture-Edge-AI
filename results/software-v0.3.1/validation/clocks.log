@@ -1,0 +1,70 @@
+.......................................................................F [ 32%]
+........................................................................ [ 65%]
+........................................................................ [ 98%]
+...                                                                      [100%]
+=================================== FAILURES ===================================
+________________ test_a_replayed_command_is_not_executed_twice _________________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-197/test_a_replayed_command_is_not0')
+
+    def test_a_replayed_command_is_not_executed_twice(tmp_path):
+        """At-least-once delivery is only safe because the receiver is idempotent."""
+    
+        async def scenario():
+            harness = Harness(tmp_path)
+            await harness.server.start()
+            a1 = await harness.add_gateway("A1")
+    
+            controller = ControllerNode("C1")
+            harness.add_node(controller)
+            await asyncio.sleep(0.8)
+    
+            message = command_message("same-id", generation=1, source="A1", target="C1")
+            first = await controller.process_command(message)
+            second = await controller.process_command(message)
+    
+            await harness.stop()
+            return first, second, controller.metrics.as_dict()
+    
+        first, second, metrics = asyncio.run(scenario())
+        assert first["status"] == "EXECUTED"
+>       assert second["status"] == "DUPLICATE"
+E       AssertionError: assert 'REJECTED' == 'DUPLICATE'
+E         
+E         - DUPLICATE
+E         + REJECTED
+
+tests/test_failover_e2e.py:329: AssertionError
+----------------------------- Captured stdout call -----------------------------
+12:05:04 [SERVER] listening on 127.0.0.1:58696 (sqlite: /private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-197/test_a_replayed_command_is_not0/server.db)
+12:05:04 [A1] gateway started on 127.0.0.1:9201 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+12:05:04 [A1] connected to server 127.0.0.1:58696
+12:05:04 [A1] offline queue empty
+12:05:04 [C1] connected to gateway A1 (127.0.0.1)
+12:05:04 [C1] NODE_REGISTER sent to A1 (attempt 1)
+12:05:04 [A1] C1 registered (owner=A1, generation=1)
+12:05:04 [C1] registered with A1 (generation=1)
+12:05:04 [SERVER] gateway A1 connected
+12:05:04 [C1] IRRIGATION command received (command_id=same-id, duration=5s, generation=1)
+12:05:04 [C1] safety check passed
+12:05:05 [SERVER] SERVER_POLICY v1 pushed to A1
+12:05:05 [A1] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+12:05:05 [A1] edge autonomy intact: policy is advisory, control stays local
+12:05:05 [A1] FAILOVER A2 -> OFFLINE
+12:05:05 [A1] taking ownership of B2
+12:05:05 [A1] taking ownership of C2
+12:05:05 [A1] ownership generation = 1 -> 2
+12:05:05 [C1] owner_gateway = A1 (generation=2)
+12:05:05 [SERVER] SERVER_POLICY v2 pushed to A1
+12:05:05 [A1] SERVER_POLICY v2 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+12:05:05 [A1] edge autonomy intact: policy is advisory, control stays local
+12:05:05 [C1] irrigation executed
+12:05:05 [C1] CONTROL_RESULT EXECUTED
+12:05:05 [C1] IRRIGATION command received (command_id=same-id, duration=5s, generation=1)
+12:05:05 [C1] IRRIGATION command rejected: STALE_GENERATION
+12:05:05 [C1] CONTROL_RESULT REJECTED (STALE_GENERATION)
+12:05:05 [A1] C1 disconnected
+12:05:05 [SERVER] gateway A1 disconnected
+=========================== short test summary info ============================
+FAILED tests/test_failover_e2e.py::test_a_replayed_command_is_not_executed_twice
+1 failed, 218 passed in 40.52s

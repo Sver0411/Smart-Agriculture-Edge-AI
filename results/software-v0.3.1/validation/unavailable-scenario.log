@@ -1,0 +1,370 @@
+12:10:55 [SERVER] listening on 127.0.0.1:60275 (sqlite: results/software-v0.3.1/attempt-01-unavailable/EXP-001-controller-unavailable/server.db)
+12:10:55 [A1] gateway started on 127.0.0.1:60276 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+12:10:55 [A2] gateway started on 127.0.0.1:60277 (sensor=B2, controller=C2, peer=A1, generation=1, role=ACTIVE)
+12:10:55 [A1] connected to server 127.0.0.1:60275
+12:10:55 [A1] offline queue empty
+12:10:55 [SERVER] gateway A1 connected
+12:10:55 [A2] connected to server 127.0.0.1:60275
+12:10:55 [A2] peer link established with A1
+12:10:55 [A2] heartbeat -> A1
+12:10:55 [C2] connected to gateway A2 (127.0.0.1)
+12:10:55 [C2] NODE_REGISTER sent to A2 (attempt 1)
+12:10:55 [B1] connected to gateway A1 (127.0.0.1)
+12:10:55 [B1] NODE_REGISTER sent to A1 (attempt 1)
+12:10:55 [B2] connected to gateway A2 (127.0.0.1)
+12:10:55 [B2] NODE_REGISTER sent to A2 (attempt 1)
+12:10:55 [A2] offline queue empty
+12:10:55 [A2] C2 registered (owner=A2, generation=1)
+12:10:55 [A1] B1 registered (owner=A1, generation=1)
+12:10:55 [A2] B2 registered (owner=A2, generation=1)
+12:10:55 [SERVER] gateway A2 connected
+12:10:55 [C2] registered with A2 (generation=1)
+12:10:55 [B1] registered with A1 (generation=1)
+12:10:55 [B2] registered with A2 (generation=1)
+12:10:55 [B1] sample #1 soil moisture = 9.9% (temp=25.2C, hum=56.2%, light=733.6)
+12:10:55 [B1] next sampling interval = 0.2s
+12:10:55 [B2] sample #1 soil moisture = 49.9% (temp=35.4C, hum=61.6%, light=791.0)
+12:10:55 [B2] next sampling interval = 0.2s
+12:10:55 [A1] received SENSOR_DATA from B1
+12:10:55 [A1] edge decision = IRRIGATION (soil_moisture 9.9 < 25.0)
+12:10:55 [A2] received SENSOR_DATA from B2
+12:10:55 [A2] edge decision = VENTILATION (temperature 35.4 > 32.0)
+12:10:55 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:55 [A2] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:55 [A2] command sent to C2 (VENTILATION 5s, command_id=800168e5d9f3, generation=1)
+12:10:55 [SERVER] sensor data stored (B1 soil=9.9% temp=25.2C)
+12:10:55 [SERVER] sensor data stored (B2 soil=49.9% temp=35.4C)
+12:10:55 [C2] VENTILATION command received (command_id=800168e5d9f3, duration=5s, generation=1)
+12:10:55 [C2] ACK sent (command_id=800168e5d9f3)
+12:10:55 [C2] safety check passed
+12:10:55 [A2] ACK received (message_id=800168e5d9f3)
+12:10:55 [A1] offline queue empty
+12:10:55 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:55 [A2] offline queue empty
+12:10:55 [A2] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=1)
+12:10:55 [SERVER] control result stored (IRRIGATION -> NOT_DISPATCHED, reason=CONTROLLER_UNAVAILABLE)
+12:10:55 [A1] offline queue empty
+12:10:55 [A2] offline queue empty
+12:10:55 [C2] ventilation executed
+12:10:55 [C2] CONTROL_RESULT sent to A2
+12:10:55 [A2] controller result received (VENTILATION -> EXECUTED)
+12:10:55 [A2] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:55 [SERVER] control result stored (VENTILATION -> EXECUTED)
+12:10:55 [A2] offline queue empty
+12:10:55 [A2] heartbeat -> A1
+12:10:55 [A1] peer link established with A2
+12:10:55 [A1] A2 is online
+12:10:55 [A1] heartbeat -> A2
+12:10:55 [A2] A1 is online
+12:10:55 [A2] heartbeat -> A1
+12:10:55 [A1] heartbeat -> A2
+12:10:55 [B1] sample #2 soil moisture = 10.1% (temp=25.5C, hum=57.6%, light=634.4)
+12:10:55 [B1] next sampling interval = 0.1s
+12:10:55 [B2] sample #2 soil moisture = 49.9% (temp=35.7C, hum=63.9%, light=790.6)
+12:10:55 [B2] next sampling interval = 0.1s
+12:10:55 [A1] received SENSOR_DATA from B1
+12:10:55 [A1] edge decision = IRRIGATION (soil_moisture 10.1 < 25.0)
+12:10:55 [A2] received SENSOR_DATA from B2
+12:10:55 [A2] edge decision = VENTILATION (temperature 35.7 > 32.0)
+12:10:55 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:55 [A2] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:55 [A2] command sent to C2 (VENTILATION 5s, command_id=9aeb37453499, generation=1)
+12:10:55 [SERVER] sensor data stored (B1 soil=10.1% temp=25.5C)
+12:10:55 [SERVER] sensor data stored (B2 soil=49.9% temp=35.7C)
+12:10:55 [C2] VENTILATION command received (command_id=9aeb37453499, duration=5s, generation=1)
+12:10:55 [C2] ACK sent (command_id=9aeb37453499)
+12:10:55 [C2] safety check passed
+12:10:55 [A2] ACK received (message_id=9aeb37453499)
+12:10:55 [A1] offline queue empty
+12:10:55 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:55 [A2] offline queue empty
+12:10:55 [A2] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=1)
+12:10:55 [SERVER] control result stored (IRRIGATION -> NOT_DISPATCHED, reason=CONTROLLER_UNAVAILABLE)
+12:10:55 [A1] offline queue empty
+12:10:55 [A2] offline queue empty
+12:10:55 [C2] ventilation executed
+12:10:55 [C2] CONTROL_RESULT sent to A2
+12:10:55 [A2] controller result received (VENTILATION -> EXECUTED)
+12:10:55 [A2] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:55 [SERVER] control result stored (VENTILATION -> EXECUTED)
+12:10:55 [A2] offline queue empty
+12:10:55 [A2] heartbeat -> A1
+12:10:55 [A1] heartbeat -> A2
+12:10:55 [B1] sample #3 soil moisture = 10.0% (temp=25.4C, hum=53.9%, light=635.7)
+12:10:55 [B1] next sampling interval = 0.1s
+12:10:55 [B2] sample #3 soil moisture = 49.8% (temp=35.1C, hum=63.4%, light=875.1)
+12:10:55 [B2] next sampling interval = 0.1s
+12:10:55 [A1] received SENSOR_DATA from B1
+12:10:55 [A1] edge decision = IRRIGATION (soil_moisture 10.0 < 25.0)
+12:10:55 [A2] received SENSOR_DATA from B2
+12:10:55 [A2] edge decision = VENTILATION (temperature 35.1 > 32.0)
+12:10:55 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:55 [A2] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:55 [A2] command sent to C2 (VENTILATION 5s, command_id=c92ff7c82f02, generation=1)
+12:10:55 [SERVER] sensor data stored (B1 soil=10.0% temp=25.4C)
+12:10:55 [SERVER] sensor data stored (B2 soil=49.8% temp=35.1C)
+12:10:55 [C2] VENTILATION command received (command_id=c92ff7c82f02, duration=5s, generation=1)
+12:10:55 [C2] ACK sent (command_id=c92ff7c82f02)
+12:10:55 [C2] safety check passed
+12:10:55 [A2] ACK received (message_id=c92ff7c82f02)
+12:10:55 [A1] offline queue empty
+12:10:55 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:55 [A2] offline queue empty
+12:10:55 [A2] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=1)
+12:10:55 [SERVER] control result stored (IRRIGATION -> NOT_DISPATCHED, reason=CONTROLLER_UNAVAILABLE)
+12:10:55 [A1] offline queue empty
+12:10:55 [A2] offline queue empty
+12:10:56 [C2] ventilation executed
+12:10:56 [C2] CONTROL_RESULT sent to A2
+12:10:56 [A2] controller result received (VENTILATION -> EXECUTED)
+12:10:56 [A2] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:56 [SERVER] control result stored (VENTILATION -> EXECUTED)
+12:10:56 [A2] offline queue empty
+12:10:56 [A2] heartbeat -> A1
+12:10:56 [A1] heartbeat -> A2
+12:10:56 [B1] sample #4 soil moisture = 10.0% (temp=24.8C, hum=51.4%, light=646.5)
+12:10:56 [B1] next sampling interval = 0.1s
+12:10:56 [B2] sample #4 soil moisture = 49.8% (temp=35.1C, hum=65.4%, light=797.4)
+12:10:56 [B2] next sampling interval = 0.1s
+12:10:56 [A2] heartbeat -> A1
+12:10:56 [A1] heartbeat -> A2
+12:10:56 [B1] sample #5 soil moisture = 10.1% (temp=24.5C, hum=52.2%, light=528.1)
+12:10:56 [B1] next sampling interval = 0.1s
+12:10:56 [B2] sample #5 soil moisture = 49.8% (temp=35.6C, hum=68.0%, light=700.4)
+12:10:56 [B2] next sampling interval = 0.1s
+12:10:56 [A2] received SENSOR_DATA from B2
+12:10:56 [A2] edge decision = VENTILATION (temperature 35.6 > 32.0)
+12:10:56 [A2] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:56 [A2] command sent to C2 (VENTILATION 5s, command_id=6e3d2160f10c, generation=1)
+12:10:56 [SERVER] sensor data stored (B2 soil=49.8% temp=35.6C)
+12:10:56 [C2] VENTILATION command received (command_id=6e3d2160f10c, duration=5s, generation=1)
+12:10:56 [C2] ACK sent (command_id=6e3d2160f10c)
+12:10:56 [C2] safety check passed
+12:10:56 [A2] ACK received (message_id=6e3d2160f10c)
+12:10:56 [A2] offline queue empty
+12:10:56 [A2] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=1)
+12:10:56 [A2] offline queue empty
+12:10:56 [C2] ventilation executed
+12:10:56 [C2] CONTROL_RESULT sent to A2
+12:10:56 [A2] controller result received (VENTILATION -> EXECUTED)
+12:10:56 [A2] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:56 [SERVER] control result stored (VENTILATION -> EXECUTED)
+12:10:56 [A2] offline queue empty
+12:10:56 [A2] heartbeat -> A1
+12:10:56 [A1] heartbeat -> A2
+12:10:56 [B1] sample #6 soil moisture = 10.1% (temp=24.8C, hum=53.7%, light=445.4)
+12:10:56 [B1] next sampling interval = 0.1s
+12:10:56 [B2] sample #6 soil moisture = 49.9% (temp=35.6C, hum=67.9%, light=723.7)
+12:10:56 [B2] next sampling interval = 0.1s
+12:10:56 [A2] heartbeat -> A1
+12:10:56 [A1] heartbeat -> A2
+12:10:56 [B1] sample #7 soil moisture = 9.9% (temp=25.4C, hum=52.4%, light=348.6)
+12:10:56 [B1] next sampling interval = 0.1s
+12:10:56 [B2] sample #7 soil moisture = 49.8% (temp=35.6C, hum=68.5%, light=615.5)
+12:10:56 [B2] next sampling interval = 0.1s
+12:10:56 [A1] received SENSOR_DATA from B1
+12:10:56 [A1] edge decision = IRRIGATION (soil_moisture 9.9 < 25.0)
+12:10:56 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:56 [SERVER] sensor data stored (B1 soil=9.9% temp=25.4C)
+12:10:56 [A1] offline queue empty
+12:10:56 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:56 [SERVER] control result stored (IRRIGATION -> NOT_DISPATCHED, reason=CONTROLLER_UNAVAILABLE)
+12:10:56 [A1] offline queue empty
+12:10:56 [A1] B1 disconnected
+12:10:56 [C1] connected to gateway A1 (127.0.0.1)
+12:10:56 [C1] NODE_REGISTER sent to A1 (attempt 1)
+12:10:56 [A1] C1 registered (owner=A1, generation=1)
+12:10:56 [C1] registered with A1 (generation=1)
+12:10:56 [A2] heartbeat -> A1
+12:10:56 [A1] heartbeat -> A2
+12:10:56 [B2] sample #8 soil moisture = 49.9% (temp=35.0C, hum=72.1%, light=566.6)
+12:10:56 [B2] next sampling interval = 0.1s
+12:10:56 [A2] received SENSOR_DATA from B2
+12:10:56 [A2] edge decision = VENTILATION (temperature 35.0 > 32.0)
+12:10:56 [A2] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:56 [A2] command sent to C2 (VENTILATION 5s, command_id=2af6f836021a, generation=1)
+12:10:56 [SERVER] sensor data stored (B2 soil=49.9% temp=35.0C)
+12:10:56 [C2] VENTILATION command received (command_id=2af6f836021a, duration=5s, generation=1)
+12:10:56 [C2] ACK sent (command_id=2af6f836021a)
+12:10:56 [C2] safety check passed
+12:10:56 [A2] ACK received (message_id=2af6f836021a)
+12:10:56 [A2] offline queue empty
+12:10:56 [A2] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=1)
+12:10:56 [A2] offline queue empty
+12:10:56 [C2] ventilation executed
+12:10:56 [C2] CONTROL_RESULT sent to A2
+12:10:56 [A2] controller result received (VENTILATION -> EXECUTED)
+12:10:56 [A2] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:56 [SERVER] control result stored (VENTILATION -> EXECUTED)
+12:10:56 [A2] offline queue empty
+12:10:56 [A2] heartbeat -> A1
+12:10:56 [A1] heartbeat -> A2
+12:10:56 [B2] sample #9 soil moisture = 49.8% (temp=35.5C, hum=72.3%, light=651.9)
+12:10:56 [B2] next sampling interval = 0.1s
+12:10:56 [SERVER] SERVER_POLICY v1 pushed to A1, A2
+12:10:56 [A1] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+12:10:56 [A1] edge autonomy intact: policy is advisory, control stays local
+12:10:56 [A2] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+12:10:56 [A2] edge autonomy intact: policy is advisory, control stays local
+12:10:56 [A2] heartbeat -> A1
+12:10:56 [A1] heartbeat -> A2
+12:10:56 [B2] sample #10 soil moisture = 49.9% (temp=35.6C, hum=75.7%, light=554.5)
+12:10:56 [B2] next sampling interval = 0.1s
+12:10:56 [A2] heartbeat -> A1
+12:10:56 [A1] heartbeat -> A2
+12:10:56 [B2] sample #11 soil moisture = 50.0% (temp=35.8C, hum=78.0%, light=514.0)
+12:10:56 [B2] next sampling interval = 0.1s
+12:10:56 [A2] received SENSOR_DATA from B2
+12:10:56 [A2] edge decision = VENTILATION (temperature 35.8 > 32.0)
+12:10:56 [A2] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:56 [A2] command sent to C2 (VENTILATION 5s, command_id=fd56072bbcdb, generation=1)
+12:10:56 [SERVER] sensor data stored (B2 soil=50.0% temp=35.8C)
+12:10:56 [C2] VENTILATION command received (command_id=fd56072bbcdb, duration=5s, generation=1)
+12:10:56 [C2] ACK sent (command_id=fd56072bbcdb)
+12:10:56 [C2] safety check passed
+12:10:56 [A2] ACK received (message_id=fd56072bbcdb)
+12:10:56 [A2] offline queue empty
+12:10:56 [A2] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=1)
+12:10:56 [A2] offline queue empty
+12:10:56 [C2] ventilation executed
+12:10:56 [C2] CONTROL_RESULT sent to A2
+12:10:56 [A2] controller result received (VENTILATION -> EXECUTED)
+12:10:56 [A2] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:56 [SERVER] control result stored (VENTILATION -> EXECUTED)
+12:10:56 [A2] offline queue empty
+12:10:56 [A2] heartbeat -> A1
+12:10:56 [A1] heartbeat -> A2
+12:10:56 [B2] sample #12 soil moisture = 49.9% (temp=35.8C, hum=79.6%, light=597.6)
+12:10:56 [B2] next sampling interval = 0.1s
+12:10:57 [A2] heartbeat -> A1
+12:10:57 [A1] heartbeat -> A2
+12:10:57 [B2] sample #13 soil moisture = 49.9% (temp=36.1C, hum=76.0%, light=566.0)
+12:10:57 [B2] next sampling interval = 0.1s
+12:10:57 [A2] heartbeat -> A1
+12:10:57 [A1] heartbeat -> A2
+12:10:57 [B2] sample #14 soil moisture = 50.1% (temp=35.8C, hum=76.9%, light=578.4)
+12:10:57 [B2] next sampling interval = 0.1s
+12:10:57 [SERVER] SERVER_POLICY v2 pushed to A1, A2
+12:10:57 [A1] SERVER_POLICY v2 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+12:10:57 [A1] edge autonomy intact: policy is advisory, control stays local
+12:10:57 [A2] SERVER_POLICY v2 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+12:10:57 [A2] edge autonomy intact: policy is advisory, control stays local
+12:10:57 [A2] heartbeat -> A1
+12:10:57 [A1] heartbeat -> A2
+12:10:57 [B2] sample #15 soil moisture = 50.1% (temp=35.3C, hum=76.8%, light=687.7)
+12:10:57 [B2] next sampling interval = 0.1s
+12:10:57 [A2] heartbeat -> A1
+12:10:57 [A1] heartbeat -> A2
+12:10:57 [B2] sample #16 soil moisture = 50.3% (temp=35.6C, hum=73.2%, light=712.1)
+12:10:57 [B2] next sampling interval = 0.1s
+12:10:57 [A2] received SENSOR_DATA from B2
+12:10:57 [A2] edge decision = VENTILATION (temperature 35.6 > 32.0)
+12:10:57 [A2] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:57 [A2] command sent to C2 (VENTILATION 5s, command_id=004677fda820, generation=1)
+12:10:57 [SERVER] sensor data stored (B2 soil=50.3% temp=35.6C)
+12:10:57 [C2] VENTILATION command received (command_id=004677fda820, duration=5s, generation=1)
+12:10:57 [C2] ACK sent (command_id=004677fda820)
+12:10:57 [C2] safety check passed
+12:10:57 [A2] ACK received (message_id=004677fda820)
+12:10:57 [A2] offline queue empty
+12:10:57 [A2] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=1)
+12:10:57 [A2] offline queue empty
+12:10:57 [C2] ventilation executed
+12:10:57 [C2] CONTROL_RESULT sent to A2
+12:10:57 [A2] controller result received (VENTILATION -> EXECUTED)
+12:10:57 [A2] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:57 [SERVER] control result stored (VENTILATION -> EXECUTED)
+12:10:57 [A2] offline queue empty
+12:10:57 [A2] heartbeat -> A1
+12:10:57 [A1] heartbeat -> A2
+12:10:57 [B2] sample #17 soil moisture = 50.2% (temp=35.1C, hum=70.2%, light=751.7)
+12:10:57 [B2] next sampling interval = 0.1s
+12:10:57 [A2] heartbeat -> A1
+12:10:57 [A1] heartbeat -> A2
+12:10:57 [B2] sample #18 soil moisture = 50.0% (temp=34.6C, hum=72.6%, light=760.1)
+12:10:57 [B2] next sampling interval = 0.1s
+12:10:57 [A2] received SENSOR_DATA from B2
+12:10:57 [A2] edge decision = VENTILATION (temperature 34.6 > 32.0)
+12:10:57 [A2] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:57 [A2] command sent to C2 (VENTILATION 5s, command_id=2ca80cf15a3c, generation=1)
+12:10:57 [SERVER] sensor data stored (B2 soil=50.0% temp=34.6C)
+12:10:57 [C2] VENTILATION command received (command_id=2ca80cf15a3c, duration=5s, generation=1)
+12:10:57 [C2] ACK sent (command_id=2ca80cf15a3c)
+12:10:57 [C2] safety check passed
+12:10:57 [A2] ACK received (message_id=2ca80cf15a3c)
+12:10:57 [A2] offline queue empty
+12:10:57 [A2] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=1)
+12:10:57 [A2] offline queue empty
+12:10:57 [C2] ventilation executed
+12:10:57 [C2] CONTROL_RESULT sent to A2
+12:10:57 [A2] controller result received (VENTILATION -> EXECUTED)
+12:10:57 [A2] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:57 [SERVER] control result stored (VENTILATION -> EXECUTED)
+12:10:57 [A2] offline queue empty
+12:10:57 [A2] heartbeat -> A1
+12:10:57 [A1] heartbeat -> A2
+12:10:57 [B2] sample #19 soil moisture = 49.9% (temp=34.6C, hum=68.9%, light=857.0)
+12:10:57 [B2] next sampling interval = 0.1s
+12:10:57 [SERVER] SERVER_POLICY v3 pushed to A1, A2
+12:10:57 [A1] SERVER_POLICY v3 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+12:10:57 [A1] edge autonomy intact: policy is advisory, control stays local
+12:10:57 [A2] SERVER_POLICY v3 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+12:10:57 [A2] edge autonomy intact: policy is advisory, control stays local
+12:10:57 [A2] heartbeat -> A1
+12:10:57 [A1] heartbeat -> A2
+12:10:57 [B2] sample #20 soil moisture = 50.0% (temp=35.1C, hum=65.9%, light=974.4)
+12:10:57 [B2] next sampling interval = 0.1s
+12:10:57 [A2] received SENSOR_DATA from B2
+12:10:57 [A2] edge decision = VENTILATION (temperature 35.1 > 32.0)
+12:10:57 [A2] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:57 [A2] command sent to C2 (VENTILATION 5s, command_id=66326dabb119, generation=1)
+12:10:57 [SERVER] sensor data stored (B2 soil=50.0% temp=35.1C)
+12:10:57 [C2] VENTILATION command received (command_id=66326dabb119, duration=5s, generation=1)
+12:10:57 [C2] ACK sent (command_id=66326dabb119)
+12:10:57 [C2] safety check passed
+12:10:57 [A2] ACK received (message_id=66326dabb119)
+12:10:57 [A2] offline queue empty
+12:10:57 [A2] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=1)
+12:10:57 [A2] offline queue empty
+12:10:57 [C2] ventilation executed
+12:10:57 [C2] CONTROL_RESULT sent to A2
+12:10:57 [A2] controller result received (VENTILATION -> EXECUTED)
+12:10:57 [A2] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:57 [SERVER] control result stored (VENTILATION -> EXECUTED)
+12:10:57 [A2] offline queue empty
+12:10:57 [A2] heartbeat -> A1
+12:10:57 [A1] heartbeat -> A2
+12:10:57 [B2] sample #21 soil moisture = 49.9% (temp=35.6C, hum=69.0%, light=1026.5)
+12:10:57 [B2] next sampling interval = 0.1s
+12:10:57 [A2] heartbeat -> A1
+12:10:57 [A1] heartbeat -> A2
+12:10:57 [B2] sample #22 soil moisture = 50.0% (temp=35.6C, hum=72.5%, light=1109.0)
+12:10:57 [B2] next sampling interval = 0.1s
+12:10:57 [A2] received SENSOR_DATA from B2
+12:10:57 [A2] edge decision = VENTILATION (temperature 35.6 > 32.0)
+12:10:57 [A2] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+12:10:57 [A2] command sent to C2 (VENTILATION 5s, command_id=a42bc68de5a3, generation=1)
+12:10:57 [SERVER] sensor data stored (B2 soil=50.0% temp=35.6C)
+12:10:57 [C2] VENTILATION command received (command_id=a42bc68de5a3, duration=5s, generation=1)
+12:10:57 [C2] ACK sent (command_id=a42bc68de5a3)
+12:10:57 [C2] safety check passed
+12:10:57 [A2] ACK received (message_id=a42bc68de5a3)
+12:10:57 [A2] offline queue empty
+12:10:57 [A2] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=1)
+12:10:57 [A2] offline queue empty
+12:10:57 [C2] ventilation executed
+12:10:57 [C2] CONTROL_RESULT sent to A2
+12:10:57 [A2] controller result received (VENTILATION -> EXECUTED)
+12:10:57 [A2] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+12:10:57 [SERVER] control result stored (VENTILATION -> EXECUTED)
+12:10:57 [A2] offline queue empty
+12:10:58 [A2] heartbeat -> A1
+12:10:58 [A1] heartbeat -> A2
+12:10:58 [B2] sample #23 soil moisture = 50.0% (temp=36.1C, hum=71.6%, light=1011.3)
+12:10:58 [B2] next sampling interval = 0.1s
+12:10:58 [A2] C2 disconnected
+12:10:58 [A2] B2 disconnected
+12:10:58 [A1] C1 disconnected
+12:10:58 [SERVER] gateway A1 disconnected
+12:10:58 [SERVER] gateway A2 disconnected
+controller-unavailable: PASS

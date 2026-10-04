@@ -1,0 +1,72 @@
+{
+  "assertions": [
+    {
+      "description": "A2 explicitly rejects B1 and C1 before takeover",
+      "passed": true
+    },
+    {
+      "description": "correct B1/C1 initial owner at A1",
+      "passed": true
+    },
+    {
+      "description": "registration does not bump initial epoch",
+      "passed": true
+    },
+    {
+      "description": "no logical command reported executed twice on control link",
+      "passed": true
+    },
+    {
+      "description": "both sensor zones sampled",
+      "passed": true
+    },
+    {
+      "description": "C1 executes trusted control",
+      "passed": true
+    },
+    {
+      "description": "C2 zone continues",
+      "passed": true
+    },
+    {
+      "description": "server records sensor history",
+      "passed": true
+    }
+  ],
+  "exit_code": 0,
+  "observations": {
+    "gateway_states": {
+      "A1": {
+        "gateway_id": "A1",
+        "generation": 1,
+        "health": "ONLINE",
+        "peer_generation": 1,
+        "peer_health": "ONLINE",
+        "peer_id": "A2",
+        "role": "ACTIVE"
+      },
+      "A2": {
+        "gateway_id": "A2",
+        "generation": 1,
+        "health": "ONLINE",
+        "peer_generation": 1,
+        "peer_health": "ONLINE",
+        "peer_id": "A1",
+        "role": "ACTIVE"
+      }
+    },
+    "node_ownership": {
+      "B1": {
+        "generation": 1,
+        "owner": "A1"
+      },
+      "B2": {
+        "generation": 1,
+        "owner": "A2"
+      }
+    }
+  },
+  "question": "Do B1/C1 contact A2 first, receive NOT_OWNER, then establish correct ownership at A1 without startup delays?",
+  "scenario": "registration-race",
+  "status": "PASS"
+}

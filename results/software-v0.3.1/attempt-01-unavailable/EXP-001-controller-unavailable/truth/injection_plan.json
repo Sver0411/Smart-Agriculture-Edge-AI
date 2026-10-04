@@ -1,0 +1,7 @@
+{
+  "disruptions": [],
+  "frame_faults": [],
+  "scenario": "controller-unavailable",
+  "seed": 42,
+  "sensor_fault": false
+}

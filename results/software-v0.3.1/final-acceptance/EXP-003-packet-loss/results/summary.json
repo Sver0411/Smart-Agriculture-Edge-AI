@@ -1,0 +1,68 @@
+{
+  "assertions": [
+    {
+      "description": "no logical command reported executed twice on control link",
+      "passed": true
+    },
+    {
+      "description": "both sensor zones sampled",
+      "passed": true
+    },
+    {
+      "description": "C1 executes trusted control",
+      "passed": true
+    },
+    {
+      "description": "C2 zone continues",
+      "passed": true
+    },
+    {
+      "description": "server records sensor history",
+      "passed": true
+    },
+    {
+      "description": "planned frame fault exercised",
+      "passed": true
+    },
+    {
+      "description": "bounded retry observed",
+      "passed": true
+    }
+  ],
+  "exit_code": 0,
+  "observations": {
+    "gateway_states": {
+      "A1": {
+        "gateway_id": "A1",
+        "generation": 1,
+        "health": "ONLINE",
+        "peer_generation": 1,
+        "peer_health": "ONLINE",
+        "peer_id": "A2",
+        "role": "ACTIVE"
+      },
+      "A2": {
+        "gateway_id": "A2",
+        "generation": 1,
+        "health": "ONLINE",
+        "peer_generation": 1,
+        "peer_health": "ONLINE",
+        "peer_id": "A1",
+        "role": "ACTIVE"
+      }
+    },
+    "node_ownership": {
+      "B1": {
+        "generation": 1,
+        "owner": "A1"
+      },
+      "B2": {
+        "generation": 1,
+        "owner": "A2"
+      }
+    }
+  },
+  "question": "Does a dropped control frame retry and execute once?",
+  "scenario": "packet-loss",
+  "status": "PASS"
+}

@@ -1,0 +1,110 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.10.21, pytest-9.1.1, pluggy-1.6.0 -- /Users/mac/.cache/uv/builds-v0/.tmpGdNSh4/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI
+configfile: pytest.ini
+collecting ... collected 230 items
+
+tests/test_adaptive_scheduler.py::test_hysteresis_immediate_escalation_and_one_step_relaxation[STABLE-0-STABLE] PASSED [  0%]
+tests/test_adaptive_scheduler.py::test_hysteresis_immediate_escalation_and_one_step_relaxation[STABLE-3-ACTIVE] PASSED [  0%]
+tests/test_adaptive_scheduler.py::test_hysteresis_immediate_escalation_and_one_step_relaxation[STABLE-8-ALERT] PASSED [  1%]
+tests/test_adaptive_scheduler.py::test_hysteresis_immediate_escalation_and_one_step_relaxation[ALERT-5-ALERT] PASSED [  1%]
+tests/test_adaptive_scheduler.py::test_hysteresis_immediate_escalation_and_one_step_relaxation[ALERT-0-ACTIVE] PASSED [  2%]
+tests/test_adaptive_scheduler.py::test_hysteresis_immediate_escalation_and_one_step_relaxation[ACTIVE-2-ACTIVE] PASSED [  2%]
+tests/test_adaptive_scheduler.py::test_hysteresis_immediate_escalation_and_one_step_relaxation[ACTIVE-1-STABLE] PASSED [  3%]
+tests/test_adaptive_scheduler.py::test_stable_ladder_and_heartbeat_upload PASSED [  3%]
+tests/test_adaptive_scheduler.py::test_active_ladder_event_upload_and_normalized_score PASSED [  3%]
+tests/test_adaptive_scheduler.py::test_fault_spike_does_not_contaminate_score_and_recovery_baseline PASSED [  4%]
+tests/test_adaptive_scheduler.py::test_degraded_is_cautious_and_not_environment_alert PASSED [  4%]
+tests/test_adaptive_scheduler.py::test_fault_aware_replay_is_deterministic PASSED [  5%]
+tests/test_adaptive_sense.py::test_stable_history_keeps_the_slow_interval PASSED [  5%]
+tests/test_adaptive_sense.py::test_changing_history_switches_to_the_fast_interval PASSED [  6%]
+tests/test_adaptive_sense.py::test_short_history_uses_the_slow_interval PASSED [  6%]
+tests/test_alert_dedup.py::test_transition_fault_signature_reminder_and_recovery PASSED [  6%]
+tests/test_alert_dedup.py::test_initial_missing_before_fault_confirmation_notifies_once PASSED [  7%]
+tests/test_b1_c_components.py::test_b1_c_components PASSED               [  7%]
+tests/test_control_specific_trust.py::test_rule_uses_only_healthy_action_dependencies[light-10-25-IRRIGATION] PASSED [  8%]
+tests/test_control_specific_trust.py::test_rule_uses_only_healthy_action_dependencies[light-50-40-VENTILATION] PASSED [  8%]
+tests/test_control_specific_trust.py::test_rule_uses_only_healthy_action_dependencies[soil_moisture-10-40-VENTILATION] PASSED [  9%]
+tests/test_control_specific_trust.py::test_rule_uses_only_healthy_action_dependencies[temperature-10-40-IRRIGATION] PASSED [  9%]
+tests/test_control_specific_trust.py::test_rule_uses_only_healthy_action_dependencies[soil_moisture-10-25-None] PASSED [ 10%]
+tests/test_control_specific_trust.py::test_rule_uses_only_healthy_action_dependencies[humidity-10-25-IRRIGATION] PASSED [ 10%]
+tests/test_control_specific_trust.py::test_learned_engine_never_runs_on_untrusted_feature[light-logistic] PASSED [ 10%]
+tests/test_control_specific_trust.py::test_learned_engine_never_runs_on_untrusted_feature[light-tree] PASSED [ 11%]
+tests/test_control_specific_trust.py::test_learned_engine_never_runs_on_untrusted_feature[light-mlp] PASSED [ 11%]
+tests/test_control_specific_trust.py::test_learned_engine_never_runs_on_untrusted_feature[soil_moisture-logistic] PASSED [ 12%]
+tests/test_control_specific_trust.py::test_learned_engine_never_runs_on_untrusted_feature[soil_moisture-tree] PASSED [ 12%]
+tests/test_control_specific_trust.py::test_learned_engine_never_runs_on_untrusted_feature[soil_moisture-mlp] PASSED [ 13%]
+tests/test_control_specific_trust.py::test_learned_engine_never_runs_on_untrusted_feature[humidity-logistic] PASSED [ 13%]
+tests/test_control_specific_trust.py::test_learned_engine_never_runs_on_untrusted_feature[humidity-tree] PASSED [ 13%]
+tests/test_control_specific_trust.py::test_learned_engine_never_runs_on_untrusted_feature[humidity-mlp] PASSED [ 14%]
+tests/test_control_specific_trust.py::test_learned_engine_never_runs_on_untrusted_feature[temperature-logistic] PASSED [ 14%]
+tests/test_control_specific_trust.py::test_learned_engine_never_runs_on_untrusted_feature[temperature-tree] PASSED [ 15%]
+tests/test_control_specific_trust.py::test_learned_engine_never_runs_on_untrusted_feature[temperature-mlp] PASSED [ 15%]
+tests/test_control_specific_trust.py::test_legacy_physical_channel_health_without_valid_flag_can_ventilate PASSED [ 16%]
+tests/test_controller_unavailable.py::test_unsent_command_has_persisted_failure_without_late_execution[never-CONTROLLER_UNAVAILABLE] PASSED [ 16%]
+tests/test_controller_unavailable.py::test_unsent_command_has_persisted_failure_without_late_execution[disconnected-CONTROLLER_UNAVAILABLE] PASSED [ 16%]
+tests/test_controller_unavailable.py::test_unsent_command_has_persisted_failure_without_late_execution[ownership-NOT_OWNER] PASSED [ 17%]
+tests/test_controller_unavailable.py::test_unsent_command_has_persisted_failure_without_late_execution[expired-EXPIRED] PASSED [ 17%]
+tests/test_controller_unavailable.py::test_retry_unavailability_is_unknown_not_false_claim_of_no_execution PASSED [ 18%]
+tests/test_database.py::test_sensor_data_is_stored PASSED                [ 18%]
+tests/test_database.py::test_controller_command_and_result_are_stored PASSED [ 19%]
+tests/test_database.py::test_alert_and_heartbeat_are_stored PASSED       [ 19%]
+tests/test_decision_engines.py::test_feature_schema_and_policy_relative_values PASSED [ 20%]
+tests/test_decision_engines.py::test_features_reject_invalid_or_incomplete[bad0] PASSED [ 20%]
+tests/test_decision_engines.py::test_features_reject_invalid_or_incomplete[bad1] PASSED [ 20%]
+tests/test_decision_engines.py::test_features_reject_invalid_or_incomplete[bad2] PASSED [ 21%]
+tests/test_decision_engines.py::test_engine_interface_and_determinism[rule] PASSED [ 21%]
+tests/test_decision_engines.py::test_engine_interface_and_determinism[logistic] PASSED [ 22%]
+tests/test_decision_engines.py::test_engine_interface_and_determinism[tree] PASSED [ 22%]
+tests/test_decision_engines.py::test_engine_interface_and_determinism[mlp] PASSED [ 23%]
+tests/test_decision_engines.py::test_dataset_replay_and_export_provenance PASSED [ 23%]
+tests/test_decision_engines.py::test_bad_engine_and_incompatible_artifact_fail PASSED [ 23%]
+tests/test_decision_engines.py::test_bad_model_dimensions_fail_before_runtime PASSED [ 24%]
+tests/test_edge_decision.py::test_dry_soil_triggers_irrigation PASSED    [ 24%]
+tests/test_edge_decision.py::test_hot_temperature_triggers_ventilation PASSED [ 25%]
+tests/test_edge_decision.py::test_normal_conditions_trigger_nothing PASSED [ 25%]
+tests/test_edge_decision.py::test_server_policy_changes_the_thresholds PASSED [ 26%]
+tests/test_edgefaultlab_adapter.py::test_external_adapter_configures_all_seven_roles_and_dynamic_ports PASSED [ 26%]
+tests/test_experiments.py::test_unmeasured_is_not_observed_zero PASSED   [ 26%]
+tests/test_experiments.py::test_normal_experiment_has_machine_verdict_and_evidence PASSED [ 27%]
+tests/test_experiments.py::test_fault_rule_replay_is_seeded_and_terminal_drop PASSED [ 27%]
+tests/test_experiments.py::test_runner_failure_is_nonzero_and_preserves_failure Timeout (0:01:00)!
+Thread 0x0000000205c4e2c0 (most recent call first):
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/selectors.py", line 416 in select
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/subprocess.py", line 2021 in _communicate
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/subprocess.py", line 1154 in communicate
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/subprocess.py", line 505 in run
+  File "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/tests/test_experiments.py", line 42 in test_runner_failure_is_nonzero_and_preserves_failure
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/python.py", line 167 in pytest_pyfunc_call
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/python.py", line 1707 in runtest
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/runner.py", line 184 in pytest_runtest_call
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/runner.py", line 250 in <lambda>
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/runner.py", line 361 in from_call
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/runner.py", line 249 in call_and_report
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/runner.py", line 139 in runtestprotocol
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/main.py", line 408 in pytest_runtestloop
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/main.py", line 384 in _main
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/main.py", line 330 in wrap_session
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/main.py", line 377 in pytest_cmdline_main
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/config/__init__.py", line 229 in _main
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/_pytest/config/__init__.py", line 253 in _console_main
+  File "/Users/mac/.cache/uv/archive-v0/L2lPapS11rsjnWBs/lib/python3.10/site-packages/pytest/__main__.py", line 9 in <module>
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/runpy.py", line 86 in _run_code
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/runpy.py", line 196 in _run_module_as_main
