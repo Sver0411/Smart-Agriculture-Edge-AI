@@ -20,6 +20,8 @@ import argparse
 import asyncio
 import pathlib
 import sys
+import sqlite3
+from copy import copy
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
@@ -40,6 +42,7 @@ from common.messages import (  # noqa: E402
 )
 from common.reliability import Counters  # noqa: E402
 from server.database import Database  # noqa: E402
+from server.validation import validate_server_upload
 from server.dedup import Deduplicator  # noqa: E402
 
 NODE_ID = "SERVER"
@@ -122,6 +125,9 @@ class Server:
                     self.clients[gateway_id] = writer
                     node_log(NODE_ID, f"gateway {gateway_id} connected")
 
+                if message.source != gateway_id:
+                    self.metrics.inc("invalid_uploads")
+                    continue
                 self._store(message)
         except (ConnectionResetError, BrokenPipeError):
             pass
@@ -137,22 +143,23 @@ class Server:
 
     # -- storage -----------------------------------------------------------
 
-    def _store(self, message: Message) -> None:
-        before=(self.dedup.processed,self.dedup.ignored)
+    def _store(self, message: Message) -> bool:
+        before = (self.dedup.processed, self.dedup.ignored)
+        metrics_before = copy(self.metrics._values)
         try:
-            if message.type == SENSOR_DATA:
-                record=message.payload.get("record")
-                if not isinstance(record,dict):raise ValueError("record must be object")
-                node_id=record.get("sensor_node_id","?")
-                if not isinstance(node_id,str):raise ValueError("invalid sensor_node_id")
-                from common.protocol import number
-                if not number(record.get("timestamp",message.timestamp)):raise ValueError("invalid record timestamp")
+            validate_server_upload(message)
+            if message.type == ACK:
+                self.metrics.inc("acks_received")
+                return False  # policy receipt is not a durable business upload
             with self.db.transaction():
                 self._store_validated(message)
-        except (ValueError, TypeError, OverflowError) as exc:
-            self.dedup.processed,self.dedup.ignored=before
+            return True  # transaction exit committed, including duplicate receipts
+        except (ValueError, TypeError, OverflowError, sqlite3.Error) as exc:
+            self.dedup.processed, self.dedup.ignored = before
+            self.metrics._values = metrics_before
             self.metrics.inc("invalid_uploads")
-            node_log(NODE_ID,f"upload rejected: {exc}")
+            node_log(NODE_ID, f"upload rejected: {exc}")
+            return False
 
     def _store_validated(self, message: Message) -> None:
         # Gateways upload "at least once".  Replays and retries carry the same
@@ -169,7 +176,7 @@ class Server:
             record = payload.get("record", {})
             self.db.insert_sensor_data(
                 gateway_id=gateway_id,
-                sensor_node_id=record.get("sensor_node_id", "?"),
+                sensor_node_id=record["sensor_node_id"],
                 record=record,
                 health_state=record.get("health_state", "HEALTHY"),
                 message_id=message_id,
@@ -186,9 +193,9 @@ class Server:
         elif message.type == CONTROL_COMMAND:
             self.db.insert_controller_command(
                 gateway_id=gateway_id,
-                controller_id=payload.get("controller_id", message.target),
-                command_id=payload.get("command_id", message_id),
-                command_type=payload.get("type", "UNKNOWN"),
+                controller_id=payload["controller_id"],
+                command_id=payload["command_id"],
+                command_type=payload["type"],
                 duration=payload.get("duration"),
                 timestamp=message.timestamp,
                 generation=payload.get("gateway_generation"),
@@ -199,8 +206,8 @@ class Server:
         elif message.type == CONTROL_RESULT:
             self.db.insert_controller_result(
                 gateway_id=gateway_id,
-                command_id=payload.get("command_id", "?"),
-                status=payload.get("status", "UNKNOWN"),
+                command_id=payload["command_id"],
+                status=payload["status"],
                 timestamp=message.timestamp,
                 controller_id=payload.get("controller_id"),
                 command_type=payload.get("command_type"),
@@ -218,9 +225,9 @@ class Server:
 
         elif message.type == HEARTBEAT:
             self.db.insert_gateway_heartbeat(
-                gateway_id=payload.get("gateway_id", gateway_id),
+                gateway_id=payload["gateway_id"],
                 timestamp=message.timestamp,
-                status=payload.get("status", "ONLINE"),
+                status=payload["status"],
                 peer_id=payload.get("peer_id"),
                 peer_status=payload.get("peer_status"),
                 message_id=message_id,
@@ -231,8 +238,8 @@ class Server:
             self.db.insert_alert(
                 gateway_id=gateway_id,
                 timestamp=message.timestamp,
-                alert_type=payload.get("alert_type", "UNKNOWN"),
-                message=payload.get("message", ""),
+                alert_type=payload["alert_type"],
+                message=payload["message"],
                 sensor_node_id=payload.get("sensor_node_id"),
                 message_id=message_id,
                 metadata=payload,
