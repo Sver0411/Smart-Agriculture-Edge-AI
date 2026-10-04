@@ -589,19 +589,20 @@ class Gateway:
         command_id = payload.get("command_id")
         target = message.target
 
+        if first_attempt:
+            self.metrics.inc("commands")
+        reason = None
         if not self.ownership.may_control(target):
-            node_log(
-                self.gateway_id,
-                f"role={self.ownership.role}, not owner of {target} - command {command_id} dropped",
-            )
-            return
-
+            reason = "NOT_OWNER"
+        elif payload.get("gateway_generation") != self.registry.generation_of(target):
+            reason = "STALE_GENERATION"
+        elif time.time() - message.timestamp > config.COMMAND_TTL or message.timestamp > time.time() + config.COMMAND_TTL:
+            reason = "EXPIRED"
         writer = self.connections.get(target)
-        if writer is None:
-            node_log(
-                self.gateway_id,
-                f"{target} not connected, {payload.get('type')} command {command_id} not delivered",
-            )
+        if reason is None and (writer is None or getattr(writer, "is_closing", lambda: False)()):
+            reason = "CONTROLLER_UNAVAILABLE"
+        if reason:
+            await self._report_undispatched(message, reason, first_attempt)
             return
 
         if first_attempt:
@@ -609,7 +610,6 @@ class Gateway:
             message.generation = self.ownership.generation
             self.tracker.track(message)
             self.outcomes.track(message,time.monotonic())
-            self.metrics.inc("commands")
             self.last_command = message
 
         # fault injection: silently lose the frame so the retry path is visible
@@ -647,6 +647,24 @@ class Gateway:
                 await send_message(writer, message)
             except (ConnectionResetError, BrokenPipeError, RuntimeError):
                 pass
+
+    async def _report_undispatched(self, message, reason, first_attempt):
+        """Only an unsent first attempt is known NOT_DISPATCHED.
+
+        A failed retry may follow an executed command whose ACK was lost; its
+        outcome is UNKNOWN. Neither outcome is queued for later execution.
+        """
+        self.tracker.discard(message.message_id)
+        command_id = message.payload.get("command_id")
+        self.outcomes.pending.pop(command_id, None)
+        self.metrics.inc("not_dispatched" if first_attempt else "dispatch_unknown")
+        await self.upload_queue.put(Message(
+            type=CONTROL_RESULT, source=self.gateway_id, target="SERVER",
+            payload={"command_id": command_id, "controller_id": message.target,
+                     "command_type": message.payload.get("type"),
+                     "status": "NOT_DISPATCHED" if first_attempt else "UNKNOWN",
+                     "reason": reason, "generation": message.payload.get("gateway_generation"),
+                     "issued_at": message.timestamp, "gateway_id": self.gateway_id}))
 
     # -- Task 5: process control results -----------------------------------
 
