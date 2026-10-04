@@ -99,6 +99,7 @@ class SensorNode:
         self.gateway_host = gateway_host
         self.primary_gateway = config.GATEWAY_OF_SENSOR[node_id]
         self.gateway_id = self.primary_gateway
+        self.preferred_gateway = None
         self.fixed_port = gateway_port
 
         self.owner_gateway: str | None = None
@@ -126,7 +127,7 @@ class SensorNode:
         if self.fixed_port is not None:
             return [(self.gateway_id, self.gateway_host, self.fixed_port)]
 
-        order = [self.owner_gateway or self.primary_gateway]
+        order = [self.preferred_gateway or self.owner_gateway or self.primary_gateway]
         order += [name for name in sorted(config.GATEWAY_PORTS) if name not in order]
         return [(name, self.gateway_host, config.GATEWAY_PORTS[name]) for name in order]
 
@@ -182,7 +183,7 @@ class SensorNode:
                     type=NODE_REGISTER,
                     source=self.node_id,
                     target=gateway_id,
-                    payload={"node_id": self.node_id, "node_type": config.SENSOR},
+                    payload={"node_id": self.node_id, "node_type": config.SENSOR, "generation": self.generation},
                 ),
             )
             node_log(self.node_id, f"NODE_REGISTER sent to {gateway_id} (attempt {attempt})")
@@ -197,20 +198,20 @@ class SensorNode:
             if reply.type != NODE_REGISTER_ACK:
                 continue
 
-            owner = reply.payload.get("owner_gateway", gateway_id)
+            owner = reply.payload.get("owner_gateway")
             generation = reply.payload.get("generation")
             if (reply.source != gateway_id or reply.target != self.node_id or
-                    owner != gateway_id or reply.payload.get("accepted") is not True or
-                    isinstance(generation, bool) or not isinstance(generation, int)):
-                node_log(self.node_id, f"invalid NODE_REGISTER_ACK from {gateway_id}")
+                    owner not in config.GATEWAY_PORTS or type(generation) is not int or generation < 0):
                 return False
-            if generation < self.generation:
-                node_log(
-                    self.node_id,
-                    f"refusing {gateway_id}: generation {generation} < {self.generation}",
-                )
+            if reply.payload.get("accepted") is False:
+                if generation >= self.generation:
+                    self.preferred_gateway = owner
                 return False
-
+            if (reply.payload.get("accepted") is not True or owner != gateway_id or
+                    generation < self.generation or
+                    (generation == self.generation and self.owner_gateway not in (None, owner))):
+                return False
+            self.preferred_gateway = owner
             self.owner_gateway = owner
             self.generation = generation
             node_log(self.node_id, f"registered with {owner} (generation={generation})")
@@ -238,7 +239,7 @@ class SensorNode:
                 isinstance(generation, bool) or not isinstance(generation, int)):
             node_log(self.node_id, f"ignored invalid NODE_STATUS from {message.source}")
             return False
-        if generation < self.generation:
+        if generation < self.generation or (generation == self.generation and self.owner_gateway not in (None, owner)):
             node_log(self.node_id, f"ignored stale NODE_STATUS generation={generation} < current={self.generation}")
             return False
         self.owner_gateway = owner

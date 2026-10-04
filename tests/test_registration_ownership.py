@@ -1,0 +1,54 @@
+"""Deterministic ownership races: registration never creates authority."""
+import asyncio
+import pytest
+from common.messages import Message, NODE_REGISTER, NODE_REGISTER_ACK, HEARTBEAT
+from gateway.gateway import Gateway
+from sensor_node.sensor_node import SensorNode
+from controller_node.controller_node import ControllerNode
+from common import config
+
+@pytest.mark.parametrize('node,gateway',[('B1','A2'),('C1','A2'),('B2','A1'),('C2','A1')])
+def test_wrong_gateway_rejects_without_changing_owner(node,gateway,monkeypatch):
+    g=Gateway(gateway);replies=[]
+    async def send(w,m):replies.append(m)
+    monkeypatch.setattr('gateway.gateway.send_message',send)
+    before=g.registry.get(node).as_dict()
+    asyncio.run(g._handle_register(object(),Message(type=NODE_REGISTER,source=node,target=gateway,
+        payload={'node_type':config.SENSOR if node.startswith('B') else config.CONTROLLER})))
+    assert replies[0].payload['accepted'] is False
+    assert replies[0].payload['reason']=='NOT_OWNER'
+    assert g.registry.get(node).as_dict()==before
+    assert node not in g.connections
+
+@pytest.mark.parametrize('node',['B1','C1'])
+def test_takeover_authorizes_registration_and_recovery_cannot_steal(node,monkeypatch):
+    a2=Gateway('A2');a2._takeover();replies=[]
+    async def send(w,m):replies.append(m)
+    monkeypatch.setattr('gateway.gateway.send_message',send)
+    asyncio.run(a2._handle_register(object(),Message(type=NODE_REGISTER,source=node,target='A2',
+        payload={'node_type':config.SENSOR if node.startswith('B') else config.CONTROLLER,'generation':1})))
+    assert replies[-1].payload['accepted'] and replies[-1].payload['generation']==2
+    old=Gateway('A1');old._on_peer_heartbeat(Message(type=HEARTBEAT,source='A2',target='A1',
+        payload={'generation':2,'ownership':{n:{'owner_gateway':'A2','generation':2} for n in ['B1','C1']}}))
+    asyncio.run(old._handle_register(object(),Message(type=NODE_REGISTER,source=node,target='A1',
+        payload={'node_type':config.SENSOR if node.startswith('B') else config.CONTROLLER,'generation':2})))
+    assert replies[-1].payload['accepted'] is False
+    assert old.registry.get(node).owner_gateway=='A2'
+
+@pytest.mark.parametrize('cls,node',[(SensorNode,'B1'),(ControllerNode,'C1')])
+def test_redirect_then_same_epoch_competitor_rejected_new_epoch_accepted(cls,node,monkeypatch):
+    n=cls(node)
+    async def send(w,m):pass
+    module='sensor_node.sensor_node' if cls is SensorNode else 'controller_node.controller_node'
+    monkeypatch.setattr(module+'.send_message',send)
+    replies=[]
+    async def read(r):return replies.pop(0)
+    monkeypatch.setattr(module+'.read_message',read)
+    def reply(source,owner,epoch,accepted):return Message(type=NODE_REGISTER_ACK,source=source,target=node,
+        payload={'owner_gateway':owner,'generation':epoch,'accepted':accepted})
+    replies.append(reply('A2','A1',1,False))
+    assert not asyncio.run(n._register(None,None,'A2'))
+    assert n._candidates()[0][0]=='A1'
+    replies.append(reply('A1','A1',1,True));assert asyncio.run(n._register(None,None,'A1'))
+    replies.append(reply('A2','A2',1,True));assert not asyncio.run(n._register(None,None,'A2'))
+    replies.append(reply('A2','A2',2,True));assert asyncio.run(n._register(None,None,'A2'))

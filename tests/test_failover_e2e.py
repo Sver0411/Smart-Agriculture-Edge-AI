@@ -217,8 +217,8 @@ def test_a_dead_gateway_loses_its_nodes_to_the_peer(tmp_path):
     assert sensor_owner == "A2"
 
 
-def test_sensor_receives_generation_bump_after_registering_a2_at_old_epoch(tmp_path):
-    """Exercise the exact gap between fallback registration and formal takeover."""
+def test_sensor_fallback_waits_for_takeover_before_registering_a2(tmp_path):
+    """Fallback must not create ownership before formal takeover."""
     async def scenario():
         harness = Harness(tmp_path)
         await harness.server.start()
@@ -234,12 +234,9 @@ def test_sensor_receives_generation_bump_after_registering_a2_at_old_epoch(tmp_p
                 await asyncio.sleep(0.05)
             assert (sensor.owner_gateway, sensor.generation) == ("A1", 1)
             await a1.stop()
-            for _ in range(60):
-                if sensor.owner_gateway == "A2":
-                    break
-                await asyncio.sleep(0.05)
-            assert (sensor.owner_gateway, sensor.generation) == ("A2", 1)
-            assert a2.registry.get("B1").generation == 1
+            await asyncio.sleep(0.3)
+            assert (sensor.owner_gateway, sensor.generation) == ("A1", 1)
+            assert a2.registry.get("B1").owner_gateway == "A1"
             assert a2._takeover() == 2
             for _ in range(50):
                 if sensor.generation == 2:

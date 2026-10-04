@@ -112,6 +112,7 @@ class Gateway:
         self.decider = EdgeDecider(engine=decision_engine)
         self.registry = NodeRegistry()
         self.ownership = OwnershipManager(gateway_id, self.peer_id, self.registry)
+        self._seed_registry()
         self.tracker = AckTracker()
         self.outcomes = CommandOutcomes(result_timeout)
         self.sequences = SequenceGuard()
@@ -146,7 +147,6 @@ class Gateway:
     # -- lifecycle ---------------------------------------------------------
 
     async def start(self) -> None:
-        self._seed_registry()
         self._server = await asyncio.start_server(self._handle_client, self.host, self.port)
         self._tasks = [
             asyncio.create_task(self.task_sensor_data(), name=f"{self.gateway_id}-1-sensor-data"),
@@ -240,15 +240,15 @@ class Gateway:
                         node_log(self.gateway_id, f"ACK received (message_id={acked})")
                     continue
 
-                if source in (self.sensor_id, self.controller_id,
-                              self.peer_sensor_id, self.peer_controller_id):
-                    if self.connections.get(source) is not writer:
-                        self.connections[source] = writer
-                        node_log(self.gateway_id, f"{source} connected")
-
                 if message.type == HEARTBEAT:
                     if source == self.peer_id:
                         self._on_peer_heartbeat(message)
+                    continue
+
+                # A node socket gains authority only through accepted registration.
+                if (self.connections.get(source) is not writer or
+                        message.target != self.gateway_id or not self.ownership.owns(source)):
+                    self.metrics.inc("unregistered_node_messages")
                     continue
 
                 if message.type == NODE_STATUS and source != self.peer_id:
@@ -280,40 +280,42 @@ class Gateway:
         if node_id not in (*config.GATEWAY_OF_SENSOR,*config.GATEWAY_OF_CONTROLLER) or node_type not in (config.SENSOR,config.CONTROLLER) or message.target != self.gateway_id:
             node_log(self.gateway_id,"invalid node registration rejected")
             return
-        entry = self.registry.upsert(
-            node_id=node_id,
-            node_type=node_type,
-            owner_gateway=self.gateway_id,
-            generation=self.ownership.generation,
-            status=config.ONLINE,
-        )
-        self.connections[node_id] = writer
-        node_log(
-            self.gateway_id,
-            f"{node_id} registered ({node_type}, owner={entry.owner_gateway}, generation={entry.generation})",
-        )
-        await send_message(
-            writer,
-            Message(
-                type=NODE_REGISTER_ACK,
-                source=self.gateway_id,
-                target=node_id,
-                payload={
-                    "node_id": node_id,
-                    "node_type": node_type,
-                    "assigned_gateway": self.gateway_id,
-                    "owner_gateway": self.gateway_id,
-                    "generation": entry.generation,
-                    "accepted": True,
-                },
-            ),
-        )
+        entry = self.registry.get(node_id)
+        expected_type = config.SENSOR if node_id in config.GATEWAY_OF_SENSOR else config.CONTROLLER
+        supplied_generation = message.payload.get("generation", 0)
+        accepted = (entry is not None and node_type == expected_type and
+                    self.ownership.may_control(node_id) and integer(supplied_generation) and
+                    supplied_generation <= entry.generation)
+        reason = None if accepted else ("NOT_OWNER" if entry and not self.ownership.may_control(node_id)
+                                        else "INVALID_GENERATION_OR_TYPE")
+        if accepted:
+            self.registry.touch(node_id)
+            self.connections[node_id] = writer
+            node_log(self.gateway_id, f"{node_id} registered (owner={entry.owner_gateway}, generation={entry.generation})")
+        else:
+            self.metrics.inc("registration_rejected")
+        await send_message(writer, Message(
+            type=NODE_REGISTER_ACK, source=self.gateway_id, target=node_id,
+            payload={"node_id": node_id, "node_type": expected_type,
+                     "assigned_gateway": entry.owner_gateway if entry else None,
+                     "owner_gateway": entry.owner_gateway if entry else None,
+                     "generation": entry.generation if entry else self.ownership.generation,
+                     "accepted": accepted, "reason": reason}))
 
     def _on_peer_heartbeat(self, message: Message) -> None:
         if not integer(message.payload.get("generation",0)):
             self.metrics.inc("malformed_peer_heartbeat")
             return
         self.peer_last_seen = time.time()
+        # Peer ownership evidence may advance a known node, never compete at
+        # the same epoch. Registration itself cannot create this evidence.
+        snapshot = message.payload.get("ownership", {})
+        if isinstance(snapshot, dict):
+            for node_id, row in snapshot.items():
+                entry = self.registry.get(node_id)
+                if (entry and isinstance(row, dict) and row.get("owner_gateway") == self.peer_id
+                        and integer(row.get("generation")) and row["generation"] > entry.generation):
+                    self.registry.transfer([node_id], self.peer_id, row["generation"])
         role = self.ownership.observe_peer(
             config.ONLINE, message.payload.get("generation")
         )
@@ -690,6 +692,8 @@ class Gateway:
                 "peer_status": status,
                 "generation": self.ownership.generation,
                 "role": self.ownership.role,
+                "ownership": {entry.node_id: {"owner_gateway": entry.owner_gateway, "generation": entry.generation}
+                              for entry in self.registry.owned_by(self.gateway_id)},
             }
 
             if self.peer_writer is not None:

@@ -64,7 +64,8 @@ class SafetyGuard:
 
     def set_ownership(self, owner_gateway: str, generation: int) -> bool:
         """Adopt a new owner.  Older epochs are refused (no silent downgrade)."""
-        if generation < self.current_generation:
+        if (type(generation) is not int or generation < self.current_generation or
+                (generation == self.current_generation and self.owner_gateway not in (None, owner_gateway))):
             return False
         self.owner_gateway = owner_gateway
         self.current_generation = int(generation)
