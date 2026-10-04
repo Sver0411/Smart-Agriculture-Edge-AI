@@ -341,7 +341,7 @@ def test_duplicate_command_injection_never_reaches_the_actuator(tmp_path):
         a1 = await harness.add_gateway("A1", duplicate_command=True)
         a1.registry.upsert("C1", config.CONTROLLER, "A1", generation=1)
 
-        controller = ControllerNode("C1")
+        controller = ControllerNode("C1", time_scale=0)  # test idempotency, not actuator duration
         harness.add_node(controller)
 
         sensor = SensorNode(
@@ -352,7 +352,11 @@ def test_duplicate_command_injection_never_reaches_the_actuator(tmp_path):
         )
         harness.add_node(sensor)
 
-        await asyncio.sleep(2.5)
+        deadline = asyncio.get_running_loop().time() + 5.0
+        while (controller.metrics.get("executed") < 1 or controller.metrics.get("duplicates") < 1):
+            if asyncio.get_running_loop().time() >= deadline:
+                break
+            await asyncio.sleep(0.01)
         metrics = dict(controller.metrics.as_dict())
         await harness.stop()
         return metrics
