@@ -1,12 +1,18 @@
 {
-  "release": "v0.3 Software Integration & Experimental Foundation",
+  "release": "v0.3.1 Reliability Hardening & Protocol Correctness",
   "date": "2026-10-04",
   "new_software": {
     "SensorTrust": "host-tested; shared C reference fixture",
     "AdaptiveSense": "host-tested; software scenarios",
     "DecisionEngine": "host-tested; synthetic training/export parity",
     "Reliability": "host-tested; fault scenarios",
-    "ExperimentFramework": "host-tested; software experimentally evaluated"
+    "ExperimentFramework": "host-tested; software experimentally evaluated",
+    "RegistrationOwnership": "host-tested; deterministic races and full topology",
+    "DurableServerReceipt": "host-tested; SQLite commit + ACK-loss replay",
+    "ControlTrustGate": "host-tested; action dependencies and strict learned input",
+    "FaultNotifications": "host-tested; transition/reminder/recovery",
+    "ElapsedClocks": "host-tested; wall-clock-jump regressions",
+    "TaskLifecycle": "host-tested; legacy cancellation race regression"
   },
   "hardware_tested_in_this_release": false,
   "firmware_built_in_this_release": false,
