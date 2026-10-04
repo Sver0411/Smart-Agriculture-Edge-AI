@@ -161,7 +161,12 @@ async def run_scenario(name,output,seed=42,duration=None):
         m.set('duplicates',recorder.counts['duplicated']);m.set('dropped',recorder.counts['dropped'])
         m.set('server_duplicates_ignored',sum(s.dedup.ignored for s in servers))
         m.set('deduplicated',sum(s.dedup.ignored for s in servers))
-        if recorder.latencies:m.set('latency',{'mean_s':sum(recorder.latencies)/len(recorder.latencies),'observations':len(recorder.latencies),'scope':'host TCP receive, not RF'})
+        for metric, values, scope in (
+            ('attempt_transport_latency', recorder.attempt_latencies, 'successful socket write/drain to matching decode; attempt and FIFO matched; host only'),
+            ('logical_delivery_latency', recorder.logical_latencies, 'first send request including dropped attempts to first receiver decode; includes retry/fault delay'),
+            ('ack_latency', recorder.ack_latencies, 'first send request to first receipt ACK; includes retries; excludes execution outcome'),
+            ('persisted_ack_latency', recorder.persisted_ack_latencies, 'first send request to first SQLite committed receipt; includes replay')):
+            if values:m.set(metric, {'mean_s':sum(values)/len(values),'observations':len(values),'scope':scope})
         if 'recovery_time_s' in observations:m.set('recovery_time',observations['recovery_time_s'])
         interval_counts=Counter()
         for id in ('B1','B2'):interval_counts.update(nodes[id].interval_counts)

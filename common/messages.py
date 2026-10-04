@@ -210,6 +210,7 @@ class Message:
 
 async def send_message(writer, message: Message) -> None:
     """Write one message to an ``asyncio`` stream writer."""
+    observe_transport("send_attempt", message)
     interceptor = transport_interceptor.get()
     if interceptor is not None and await interceptor(writer, message):
         return
