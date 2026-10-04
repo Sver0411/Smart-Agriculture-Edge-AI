@@ -36,6 +36,7 @@ __all__ = [
     "NODE_REGISTER_ACK",
     "NODE_STATUS",
     "ACK",
+    "PERSISTED_ACK",
     "RETRY_TRACKED_TYPES",
     "MESSAGE_TYPES",
     "REQUIRED_FIELDS",
@@ -57,6 +58,7 @@ NODE_REGISTER = "NODE_REGISTER"
 NODE_REGISTER_ACK = "NODE_REGISTER_ACK"
 NODE_STATUS = "NODE_STATUS"
 ACK = "ACK"
+PERSISTED_ACK = "PERSISTED_ACK"
 
 MESSAGE_TYPES = (
     SENSOR_DATA,
@@ -69,6 +71,7 @@ MESSAGE_TYPES = (
     NODE_REGISTER_ACK,
     NODE_STATUS,
     ACK,
+    PERSISTED_ACK,
 )
 
 # Messages with an implemented retry path: gateway AckTracker for commands,

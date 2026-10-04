@@ -35,6 +35,7 @@ from common import config  # noqa: E402
 from common.log import node_log  # noqa: E402
 from common.messages import (  # noqa: E402
     ACK,
+    PERSISTED_ACK,
     ALERT,
     CONTROL_COMMAND,
     CONTROL_RESULT,
@@ -83,6 +84,7 @@ class Gateway:
         decision_engine: str = "rule",
         random_seed: int = 42,
         result_timeout: float = 15.0,
+        receipt_timeout: float = config.SERVER_RECEIPT_TIMEOUT,
     ):
         if gateway_id not in config.GATEWAY_PORTS:
             raise ValueError(f"unknown gateway id: {gateway_id!r}")
@@ -118,6 +120,8 @@ class Gateway:
         self.sequences = SequenceGuard()
         self.offline_queue = OfflineQueue(queue_path or ":memory:")
         self._flush_lock = asyncio.Lock()
+        self.receipt_timeout = receipt_timeout
+        self._receipt_waiters = {}
         self.metrics = Counters()
 
         # Connected B / C nodes, keyed by node id.
@@ -466,58 +470,73 @@ class Gateway:
     async def task_upload(self) -> None:
         while True:
             message = await self.upload_queue.get()
-            await self._flush_offline_queue()
             await self._deliver(message)
 
     async def _deliver(self, message: Message) -> None:
+        if message.type in QUEUEABLE_TYPES:
+            # Always durable before transmission, even when the link is online.
+            self._queue_locally(message, "awaiting server durable receipt")
+            await self._flush_offline_queue()
+            return
         writer = self.server_writer
-        if writer is None:
-            self._queue_locally(message, "server unavailable")
-            return
-        try:
-            await send_message(writer, message)
-        except (ConnectionResetError, BrokenPipeError, RuntimeError):
-            self.server_writer = None
-            self._queue_locally(message, "server link broken")
-            return
-        if message.type != HEARTBEAT:  # routine, would flood the console
-            node_log(self.gateway_id, f"{message.type} uploaded to server")
+        if writer is not None:
+            try:
+                await send_message(writer, message)
+            except (OSError, RuntimeError):
+                if self.server_writer is writer:
+                    self.server_writer = None
+                writer.close()
 
     def _queue_locally(self, message: Message, cause: str) -> None:
-        """Store-and-forward: never throw history away."""
         if message.type not in QUEUEABLE_TYPES:
-            if message.type != HEARTBEAT:
-                node_log(self.gateway_id, f"{cause}, {message.type} dropped")
             return
         self.offline_queue.enqueue(message)
         self.metrics.inc("queue_enqueued")
-        node_log(
-            self.gateway_id,
-            f"{cause}, {message.type} queued locally (depth={self.offline_queue.count()})",
-        )
+        node_log(self.gateway_id, f"{cause}, {message.type} queued locally (depth={self.offline_queue.count()})")
+
+    def _handle_persisted_ack(self, message, writer) -> bool:
+        ack_id = message.payload.get("ack_message_id")
+        if (message.type != PERSISTED_ACK or message.source != "SERVER" or
+                message.target != self.gateway_id or message.payload.get("persisted") is not True or
+                not isinstance(ack_id, str) or self.server_writer is not writer):
+            return False
+        pending = self._receipt_waiters.get(ack_id)
+        if pending is None or pending[2] is not writer or pending[1].done():
+            return False  # duplicate/late receipts cannot delete an unrelated row
+        pending[1].set_result(True)
+        self.metrics.inc("persisted_acks")
+        return True
 
     async def _flush_offline_queue(self) -> None:
         async with self._flush_lock:
             writer = self.server_writer
-            if writer is None or self.offline_queue.count() == 0:
+            if writer is None:
                 return
-            pending = self.offline_queue.count()
-            node_log(self.gateway_id, f"flushing offline queue ({pending} messages, oldest first)")
             while self.server_writer is writer:
                 batch = self.offline_queue.peek(limit=100)
                 if not batch:
                     node_log(self.gateway_id, "offline queue empty")
                     return
                 for queue_id, message in batch:
+                    future = asyncio.get_running_loop().create_future()
+                    self._receipt_waiters[message.message_id] = (queue_id, future, writer)
                     try:
+                        self.offline_queue.bump_retry(queue_id)
                         await send_message(writer, message)
-                    except (ConnectionResetError, BrokenPipeError, RuntimeError, OSError):
+                        await asyncio.wait_for(asyncio.shield(future), timeout=self.receipt_timeout)
+                        # This row is removed only after this message's committed receipt.
+                        self.offline_queue.delete(queue_id)
+                        self.metrics.inc("queue_replayed")
+                    except (OSError, RuntimeError, asyncio.TimeoutError):
                         if self.server_writer is writer:
                             self.server_writer = None
-                        node_log(self.gateway_id, "server link broken during replay, stopping flush")
+                        getattr(writer, "close", lambda: None)()
+                        self.metrics.inc("server_receipt_failures")
                         return
-                    self.offline_queue.delete(queue_id)
-                    self.metrics.inc("queue_replayed")
+                    finally:
+                        self._receipt_waiters.pop(message.message_id, None)
+                        if not future.done():
+                            future.cancel()
 
     # -- Task 3: receive server policy -------------------------------------
 
@@ -536,14 +555,16 @@ class Gateway:
 
             self.server_writer = writer
             node_log(self.gateway_id, f"connected to server {self.server_host}:{self.server_port}")
+            flush = asyncio.create_task(self._flush_offline_queue())
             try:
-                await self._flush_offline_queue()
                 if self.server_writer is writer:
                     while True:
                         message = await read_message(reader)
                         if message is None:
                             break
-                        if message.type == SERVER_POLICY:
+                        if message.type == PERSISTED_ACK:
+                            self._handle_persisted_ack(message, writer)
+                        elif message.type == SERVER_POLICY:
                             await send_message(writer, message.ack(self.gateway_id))
                             try:
                                 self._apply_policy(message)
@@ -555,7 +576,10 @@ class Gateway:
             except (OSError, MessageError) as exc:
                 node_log(self.gateway_id, f"server link error: {exc}")
             finally:
-                self.server_writer = None
+                if self.server_writer is writer:
+                    self.server_writer = None
+                flush.cancel()
+                await asyncio.gather(flush, return_exceptions=True)
                 writer.close()
 
             await asyncio.sleep(2.0)

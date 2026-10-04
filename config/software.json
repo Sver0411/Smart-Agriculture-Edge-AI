@@ -74,7 +74,8 @@
     "SERVER_PORT": 9100,
     "SIMULATION_TIME_SCALE": 0.2,
     "STANDBY": "STANDBY",
-    "UNKNOWN": "UNKNOWN"
+    "UNKNOWN": "UNKNOWN",
+    "SERVER_RECEIPT_TIMEOUT": 2.0
   },
   "node": {
     "trust_channels": {

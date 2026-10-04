@@ -29,6 +29,7 @@ from common import config  # noqa: E402
 from common.log import node_log  # noqa: E402
 from common.messages import (  # noqa: E402
     ACK,
+    PERSISTED_ACK,
     ALERT,
     CONTROL_COMMAND,
     CONTROL_RESULT,
@@ -128,7 +129,10 @@ class Server:
                 if message.source != gateway_id:
                     self.metrics.inc("invalid_uploads")
                     continue
-                self._store(message)
+                if self._store(message):
+                    await send_message(writer, Message(type=PERSISTED_ACK, source=NODE_ID,
+                        target=gateway_id, payload={"ack_message_id": message.message_id,
+                                                   "persisted": True}))
         except (ConnectionResetError, BrokenPipeError):
             pass
         finally:
@@ -173,7 +177,8 @@ class Server:
         message_id = message.message_id
 
         if message.type == SENSOR_DATA:
-            record = payload.get("record", {})
+            record = dict(payload["record"])
+            record.setdefault("timestamp", message.timestamp)
             self.db.insert_sensor_data(
                 gateway_id=gateway_id,
                 sensor_node_id=record["sensor_node_id"],

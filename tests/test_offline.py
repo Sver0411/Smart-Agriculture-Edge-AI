@@ -9,7 +9,7 @@ import pytest
 import asyncio
 import socket
 
-from common.messages import SENSOR_DATA, Message
+from common.messages import SENSOR_DATA, PERSISTED_ACK, Message
 from gateway.gateway import Gateway
 from server.server import Server
 from gateway.offline_queue import OfflineQueue
@@ -123,6 +123,8 @@ def test_gateway_drains_all_250_queued_messages_in_order(tmp_path, monkeypatch, 
 
     async def fake_send(writer, message):
         delivered.append(message.message_id)
+        gateway._handle_persisted_ack(Message(type=PERSISTED_ACK, source="SERVER", target="A1",
+            payload={"ack_message_id": message.message_id, "persisted": True}), writer)
 
     monkeypatch.setattr("gateway.gateway.send_message", fake_send)
     gateway.server_writer = object()
@@ -149,6 +151,8 @@ def test_gateway_replay_failure_keeps_all_unsent_messages(tmp_path, monkeypatch,
         if len(delivered) == 130:
             raise BrokenPipeError("simulated server disconnect")
         delivered.append(message.message_id)
+        gateway._handle_persisted_ack(Message(type=PERSISTED_ACK, source="SERVER", target="A1",
+            payload={"ack_message_id": message.message_id, "persisted": True}), writer)
 
     monkeypatch.setattr("gateway.gateway.send_message", fail_after_130)
     gateway.server_writer = object()
@@ -162,6 +166,8 @@ def test_gateway_replay_failure_keeps_all_unsent_messages(tmp_path, monkeypatch,
 
         async def send_rest(writer, message):
             delivered.append(message.message_id)
+            gateway._handle_persisted_ack(Message(type=PERSISTED_ACK, source="SERVER", target="A1",
+            payload={"ack_message_id": message.message_id, "persisted": True}), writer)
 
         monkeypatch.setattr("gateway.gateway.send_message", send_rest)
         gateway.server_writer = object()

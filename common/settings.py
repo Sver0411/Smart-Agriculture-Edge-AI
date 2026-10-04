@@ -26,7 +26,7 @@ def validate_settings(cfg):
             for value in obj:finite(value)
     finite(cfg)
     system=cfg["system"]
-    for key in ("HEARTBEAT_INTERVAL","HEARTBEAT_TIMEOUT","NODE_TIMEOUT","NODE_STATUS_INTERVAL","ACK_TIMEOUT","COMMAND_TTL"):
+    for key in ("HEARTBEAT_INTERVAL","HEARTBEAT_TIMEOUT","NODE_TIMEOUT","NODE_STATUS_INTERVAL","ACK_TIMEOUT","COMMAND_TTL","SERVER_RECEIPT_TIMEOUT"):
         positive(system[key],key)
     if system["NODE_STATUS_INTERVAL"] >= system["NODE_TIMEOUT"]:raise ValueError("node keepalive must be shorter than timeout")
     for port in [system["SERVER_PORT"],*system["GATEWAY_PORTS"].values()]:
