@@ -17,4 +17,4 @@ def test_external_adapter_configures_all_seven_roles_and_dynamic_ports(tmp_path)
     assert any(p['name']=='controller_c2' for p in result['processes'])
     assert any(a.get('match',{}).get('source')=='B1' for a in result['assertions'])
     sensor=next(p for p in result['processes'] if p['name']=='sensor_b1')
-    assert '--startup-delay' in sensor['command'] and sensor['env']['SMART_AGRICULTURE_CONFIG']
+    assert '--startup-delay' not in sensor['command'] and sensor['env']['SMART_AGRICULTURE_CONFIG']

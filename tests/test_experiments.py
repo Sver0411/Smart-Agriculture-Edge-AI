@@ -54,3 +54,19 @@ def test_gateway_recovery_metrics_include_pre_crash_incarnation(tmp_path):
               and e['message']['type']=='CONTROL_COMMAND' and e['message']['target'] in ('C1','C2')}
     metrics=json.loads((out/'results/metrics.json').read_text())
     assert metrics['control_commands']['value']>=len(commands)
+
+import pytest
+
+@pytest.mark.parametrize('scenario',['registration-race','persisted-ack-loss','controller-unavailable'])
+def test_reliability_hardening_scenarios_have_nonvacuous_verdicts(scenario,tmp_path):
+    out=tmp_path/scenario
+    summary=asyncio.run(run_scenario(scenario,out,seed=42,duration=0.2))
+    assert summary['status']=='PASS',summary
+    assert len(summary['assertions'])>=8
+    assert json.loads((out/'config.json').read_text())['runtime_overrides']['gateway']['server_receipt_timeout']==0.25
+
+
+def test_external_adapter_has_no_ownership_startup_delay(tmp_path):
+    from experiments.edgefaultlab import adapt
+    spec=adapt({'processes':[],'links':[],'faults':[],'assertions':[]},Path(__file__).resolve().parents[1],tmp_path)
+    assert all('--startup-delay' not in p['command'] for p in spec['processes'])

@@ -43,10 +43,9 @@ def adapt(template,project,output,seed=42):
             i=command.index('--port');command[i+1]=str(mapping[9302])
         if proc['name'].startswith('sensor'):
             command+=['--sample-interval','0.2','--seed',str(seed)]
-        if proc['name'].startswith(('sensor','controller')):command+=['--startup-delay','0.5']
         proc['cwd']=str(root);proc['env']={'SMART_AGRICULTURE_CONFIG':str(config_path)}
     for id,module,gateway in [('B2','sensor_node.sensor_node','A2'),('C2','controller_node.controller_node','A2')]:
-        command=[sys.executable,'-u','-m',module,'--id',id,'--gateway',gateway,'--startup-delay','0.5']
+        command=[sys.executable,'-u','-m',module,'--id',id,'--gateway',gateway]
         if id=='B2':command+=['--sample-interval','0.2','--seed',str(seed+1)]
         spec['processes'].append({'name':'sensor_b2' if id=='B2' else 'controller_c2','command':command,'cwd':str(root),'env':{'SMART_AGRICULTURE_CONFIG':str(config_path)}})
     for fault in spec['faults']:

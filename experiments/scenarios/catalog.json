@@ -15,5 +15,8 @@
   "queue-replay": "Do 250 queued messages replay without any new telemetry trigger?",
   "policy-replay": "Does an older policy leave current thresholds unchanged?",
   "split-brain": "Does a controller reject a non-owner at the same epoch?",
-  "expired-command": "Does an expired command leave the actuator untouched?"
+  "expired-command": "Does an expired command leave the actuator untouched?",
+  "registration-race": "Do B1/C1 contact A2 first, receive NOT_OWNER, then establish correct ownership at A1 without startup delays?",
+  "persisted-ack-loss": "Does a committed upload retain its gateway copy after a lost persisted ACK and replay to one business row?",
+  "controller-unavailable": "Is unavailable C1 reported NOT_DISPATCHED, with no old command executed after reconnection?"
 }

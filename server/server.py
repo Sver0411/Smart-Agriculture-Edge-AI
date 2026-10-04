@@ -129,7 +129,7 @@ class Server:
                 if message.source != gateway_id:
                     self.metrics.inc("invalid_uploads")
                     continue
-                if self._store(message):
+                if self._store(message) and message.type in (SENSOR_DATA, CONTROL_COMMAND, CONTROL_RESULT, ALERT):
                     await send_message(writer, Message(type=PERSISTED_ACK, source=NODE_ID,
                         target=gateway_id, payload={"ack_message_id": message.message_id,
                                                    "persisted": True}))

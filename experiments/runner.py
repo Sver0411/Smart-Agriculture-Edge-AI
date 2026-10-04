@@ -43,6 +43,14 @@ async def run_scenario(name,output,seed=42,duration=None):
     cfg=deepcopy(SETTINGS);cfg['experiment']['seed']=seed
     sp,p1,p2=ports(3);gateway_ports={'A1':p1,'A2':p2}
     cfg['system']['SERVER_PORT']=sp;cfg['system']['GATEWAY_PORTS']=gateway_ports
+    cfg['runtime_overrides']={'gateway':{'heartbeat_interval':0.1,'heartbeat_timeout':0.6,
+        'command_ack_timeout':0.12,'result_timeout':0.4,'server_receipt_timeout':0.25},
+        'sensor':{'slow_interval':0.2,'fast_interval':0.1,'keepalive_interval':0.1,
+                  'B1_start':{'soil_moisture':10,'temperature':25},'B2_start':{'soil_moisture':50,'temperature':36}},
+        'controller':{'cooldown':{'IRRIGATION':0,'VENTILATION':0},'time_scale':0},
+        'server':{'policy_interval':0.5},'settling_s':0.8,'observation_s':duration if duration is not None else 1.6,
+        'wrong_initial_gateway':'A2' if name=='registration-race' else None,
+        'controller_initially_offline':'C1' if name=='controller-unavailable' else None}
     write_json(out/'config.json',cfg)
     recorder=TransportRecorder();obs=transport_observer.set(recorder)
     match={'type':'CONTROL_COMMAND','target':'C1'}
@@ -52,14 +60,26 @@ async def run_scenario(name,output,seed=42,duration=None):
     if name=='duplicate-command':rules=[{'action':'duplicate','match':match}]
     if name=='delayed-result':rules=[{'action':'delay','delay_s':0.8,'match':{'type':'CONTROL_RESULT','source':'C1'}}]
     if name=='lost-result':rules=[{'action':'drop','count':1000,'match':{'type':'CONTROL_RESULT','source':'C1'}}]
+    if name=='persisted-ack-loss':rules=[{'action':'drop','match':{'type':'PERSISTED_ACK','target':'A1'}}]
     if name=='reordered-messages':rules=[{'action':'reorder','count':2,'match':{'type':'SENSOR_DATA','source':'B1'}}]
-    faults=FrameFaults(rules,seed);inter=transport_interceptor.set(faults)
+    faults=FrameFaults(rules,seed)
+    async def inject(writer,message):
+        handled=await faults(writer,message)
+        if name=='persisted-ack-loss' and handled and message.type=='PERSISTED_ACK':
+            ack_id=message.payload['ack_message_id']
+            retained=any(m.message_id==ack_id for _,m in gateways['A1'].offline_queue.peek(1000))
+            committed=server.db.conn.execute('SELECT COUNT(*) FROM processed_message WHERE message_id=?',(ack_id,)).fetchone()[0]==1
+            faults.events[-1].update(queue_retained=retained,commit_observed=committed)
+            recorder('persistence_boundary',Message(type='PERSISTED_ACK',source='SERVER',target='A1',
+                payload={**message.payload,'queue_retained':retained,'commit_observed':committed}))
+        return handled
+    inter=transport_interceptor.set(inject)
     server=Server(port=sp,db_path=str(out/'server.db'),policy_interval=0.5)
-    servers=[server];gateways={};gateway_history=[];nodes={};tasks=[];assertions=[];observations={};disruptions=[]
+    servers=[server];gateways={};gateway_history=[];nodes={};tasks=[];node_tasks={};assertions=[];observations={};disruptions=[]
     def check(description,condition):assertions.append({'description':description,'passed':bool(condition)})
     def new_gateway(id):
         g=Gateway(id,port=gateway_ports[id],peer_port=gateway_ports['A2' if id=='A1' else 'A1'],server_port=sp,
-                  heartbeat_interval=0.1,heartbeat_timeout=0.6,queue_path=str(out/(id+'.db')),random_seed=seed,result_timeout=0.4)
+                  heartbeat_interval=0.1,heartbeat_timeout=0.6,queue_path=str(out/(id+'.db')),random_seed=seed,result_timeout=0.4,receipt_timeout=0.25)
         g.tracker.timeout=0.12
         gateway_history.append(g)
         return g
@@ -75,8 +95,10 @@ async def run_scenario(name,output,seed=42,duration=None):
         for id in ('C1','C2'):
             n=ControllerNode(id,safety_guard=SafetyGuard(cooldown={'IRRIGATION':0,'VENTILATION':0}),time_scale=0)
             n._candidates=lambda n=n:[(x,'127.0.0.1',gateway_ports[x]) for x in [n.guard.owner_gateway or n.primary_gateway]+[x for x in ('A1','A2') if x!=(n.guard.owner_gateway or n.primary_gateway)]]
-            nodes[id]=n;tasks.append(asyncio.create_task(n.run()))
-        await asyncio.sleep(0.15)
+            if name=='registration-race' and id=='C1':n.primary_gateway='A2'
+            nodes[id]=n
+            if not (name=='controller-unavailable' and id=='C1'):
+                task=asyncio.create_task(n.run());tasks.append(task);node_tasks[id]=task
         for index,id in enumerate(('B1','B2')):
             sim=SensorSimulator(id,seed=seed+index,start={'soil_moisture':10 if id=='B1' else 50,'temperature':25 if id=='B1' else 36})
             if name=='sensor-fault' and id=='B1':
@@ -85,8 +107,44 @@ async def run_scenario(name,output,seed=42,duration=None):
                 sim.sample=broken
             n=SensorNode(id,simulator=sim,slow_interval=0.2,fast_interval=0.1,keepalive_interval=0.1)
             n._candidates=lambda n=n:[(x,'127.0.0.1',gateway_ports[x]) for x in [n.owner_gateway or n.primary_gateway]+[x for x in ('A1','A2') if x!=(n.owner_gateway or n.primary_gateway)]]
-            nodes[id]=n;tasks.append(asyncio.create_task(n.run()))
+            if name=='registration-race' and id=='B1':n.primary_gateway='A2'
+            nodes[id]=n;task=asyncio.create_task(n.run());tasks.append(task);node_tasks[id]=task
         await asyncio.sleep(0.8)
+        if name=='registration-race':
+            wrong=[e for e in recorder.events if e['event']=='delivered' and e['message']['type']=='NODE_REGISTER_ACK'
+                   and e['message']['source']=='A2' and e['message']['target'] in ('B1','C1')]
+            check('A2 explicitly rejects B1 and C1 before takeover',
+                  {e['message']['target'] for e in wrong}=={'B1','C1'} and
+                  all(e['message']['payload'].get('reason')=='NOT_OWNER' and
+                      e['message']['payload'].get('accepted') is False for e in wrong))
+            check('correct B1/C1 initial owner at A1',nodes['B1'].owner_gateway==nodes['C1'].guard.owner_gateway=='A1')
+            check('registration does not bump initial epoch',all(g.ownership.generation==1 for g in gateways.values()))
+        if name=='persisted-ack-loss':
+            first=next((e for e in recorder.events if e['event']=='dropped' and e['message']['type']=='PERSISTED_ACK'),None)
+            check('committed receipt was dropped',first is not None)
+            if first:
+                ack_id=first['message']['payload']['ack_message_id']
+                deadline=time.monotonic()+3
+                while (gateways['A1'].offline_queue.count() or server.dedup.ignored==0) and time.monotonic()<deadline:
+                    await asyncio.sleep(0.01)
+                check('server deduplicates replay after ACK loss',server.dedup.ignored>0)
+                check('acknowledged row removed',all(m.message_id!=ack_id for _,m in gateways['A1'].offline_queue.peek(1000)))
+                table=next((e['message']['type'] for e in recorder.events if e['message']['message_id']==ack_id),'SENSOR_DATA')
+                table={'SENSOR_DATA':'sensor_data','CONTROL_COMMAND':'controller_command','CONTROL_RESULT':'controller_result','ALERT':'alert'}[table]
+                count=server.db.conn.execute(f'SELECT COUNT(*) FROM {table} WHERE message_id=?',(ack_id,)).fetchone()[0]
+                check('one committed business row for lost receipt',count==1)
+                observations['replayed_message_id']=ack_id
+                # The queue is sampled when the ACK is dropped, not inferred from a later empty queue.
+                check('row retained at moment of dropped ACK',bool(faults.events[0].get('queue_retained')))
+                check('dedup row committed before dropped ACK',bool(faults.events[0].get('commit_observed')))
+        if name=='controller-unavailable':
+            nodes['B1'].stop();node_tasks['B1'].cancel();await asyncio.gather(node_tasks['B1'],return_exceptions=True)
+            rows=[dict(r) for r in server.db.conn.execute("SELECT * FROM controller_result WHERE controller_id='C1'")]
+            failures=[r for r in rows if r['status']=='NOT_DISPATCHED' and r['reason']=='CONTROLLER_UNAVAILABLE']
+            check('server records unavailable controller outcome',bool(failures))
+            check('offline controller executes zero commands',nodes['C1'].metrics.get('executed')==0)
+            observations['undispatched_ids']=[r['command_id'] for r in failures]
+            task=asyncio.create_task(nodes['C1'].run());tasks.append(task);node_tasks['C1']=task
         if name in ('gateway-failover','gateway-recovery','stale-generation'):
             await gateways['A1'].stop();disruptions.append({'action':'gateway_crash','time_s':time.monotonic()-recorder.start})
             failure_time=time.monotonic()
@@ -138,6 +196,11 @@ async def run_scenario(name,output,seed=42,duration=None):
         if name=='sensor-fault':
             check('C1 never executes on faulty B1',nodes['C1'].metrics.get('executed')==0)
             check('fault evidence stored',server.db.count('alert')>0 and nodes['B1'].metrics.get('fault_samples')>0)
+        elif name=='controller-unavailable':
+            check('C1 really reconnects after offline decision',nodes['C1'].guard.owner_gateway=='A1' and 'C1' in gateways['A1'].connections)
+            check('reconnected C1 never executes old undispatched command',nodes['C1'].metrics.get('executed')==0)
+            sent_ids={e['message']['payload'].get('command_id') for e in recorder.events if e['event']=='sent' and e['message']['type']=='CONTROL_COMMAND' and e['message']['target']=='C1'}
+            check('no unavailable command is later dispatched',not sent_ids.intersection(observations['undispatched_ids']))
         else:
             check('C1 executes trusted control',nodes['C1'].metrics.get('executed')>0)
         check('C2 zone continues',nodes['C2'].metrics.get('executed')>0)
@@ -191,14 +254,14 @@ async def run_scenario(name,output,seed=42,duration=None):
             if not s._stopping:await s.stop()
         transport_observer.reset(obs);transport_interceptor.reset(inter)
     (raw/'events.jsonl').write_text(''.join(json.dumps(e,sort_keys=True,allow_nan=False)+'\n' for e in recorder.events))
-    write_json(truth/'injection_plan.json',{'scenario':name,'seed':seed,'frame_faults':rules,'disruptions':disruptions,'sensor_fault':name=='sensor-fault'})
+    write_json(truth/'injection_plan.json',{'scenario':name,'seed':seed,'frame_faults':rules,'disruptions':disruptions,'receipt_observations':faults.events,'sensor_fault':name=='sensor-fault'})
     code=0 if assertions and all(a['passed'] for a in assertions) else 1
     summary={'scenario':name,'question':CATALOG[name],'status':'PASS' if code==0 else 'FAIL','exit_code':code,'assertions':assertions,'observations':observations}
     write_json(results/'summary.json',summary)
     revision=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
     write_json(out/'manifest.json',{'schema_version':1,'scenario':name,'seed':seed,'input_mode':'software-simulation','verification':'host-tested',
-        'revision':revision,'working_tree_dirty':any(not line[3:].startswith('results/software-v0.3/') for line in subprocess.check_output(['git','status','--porcelain'],text=True).splitlines()),
-        'dirty_scope':'source files; generated results/software-v0.3 evidence excluded',
+        'revision':revision,'working_tree_dirty':any(not line[3:].startswith(('results/software-v0.3/','results/software-v0.3.1/')) for line in subprocess.check_output(['git','status','--porcelain'],text=True).splitlines()),
+        'dirty_scope':'source files; generated software-v0.3 and software-v0.3.1 evidence excluded',
         'config_sha256':config_hash(cfg),'raw_sha256':hashlib.sha256((raw/'events.jsonl').read_bytes()).hexdigest(),'status':summary['status']})
     (results/'report.md').write_text(f"# {name}: {summary['status']}\n\n{CATALOG[name]}\n\n"+'\n'.join(f"- {'PASS' if a['passed'] else 'FAIL'}: {a['description']}" for a in assertions)+'\n')
     return summary
