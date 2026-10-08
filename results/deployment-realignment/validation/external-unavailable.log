@@ -1,0 +1,5 @@
+External EdgeFaultLab runner NOT RUN in this round.
+Pinned revision: c7248239f456cc877114ca1e67c5949fb4a7b958
+Attempt: git clone https://github.com/Sver0411/EdgeFaultLab.git /tmp/sa-realignment-EdgeFaultLab
+Result: exit 128; Failed to connect to github.com port 443 after 75013 ms: Couldn't connect to server.
+Adapter unit/integration configuration tests are part of the local pytest suite; historical external 5/5 evidence is not counted as a new run.

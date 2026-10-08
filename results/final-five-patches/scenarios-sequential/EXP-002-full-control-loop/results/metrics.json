@@ -1,0 +1,144 @@
+{
+  "ack_latency": {
+    "status": "observed",
+    "value": {
+      "mean_s": 0.08325844327257735,
+      "observations": 11,
+      "scope": "first send request to first receipt ACK; includes retries; excludes execution outcome"
+    }
+  },
+  "acks": {
+    "status": "observed",
+    "value": 11
+  },
+  "attempt_transport_latency": {
+    "status": "observed",
+    "value": {
+      "mean_s": 0.034319545703784544,
+      "observations": 206,
+      "scope": "successful socket write/drain to matching decode; attempt and FIFO matched; host only"
+    }
+  },
+  "control_commands": {
+    "status": "observed",
+    "value": 11
+  },
+  "control_executed": {
+    "status": "observed",
+    "value": 11
+  },
+  "control_rejected": {
+    "status": "observed",
+    "value": 0
+  },
+  "decision_counts": {
+    "status": "observed",
+    "value": {
+      "IRRIGATION": 6,
+      "VENTILATION": 5
+    }
+  },
+  "decision_latency": {
+    "status": "observed",
+    "value": {
+      "calls": 11,
+      "mean_us": 24.0,
+      "scope": "host inference"
+    }
+  },
+  "deduplicated": {
+    "status": "observed",
+    "value": 0
+  },
+  "degraded_samples": {
+    "status": "observed",
+    "value": 0
+  },
+  "delivery_failures": {
+    "status": "observed",
+    "value": 0
+  },
+  "dropped": {
+    "status": "observed",
+    "value": 0
+  },
+  "duplicate_execution_prevented": {
+    "status": "observed",
+    "value": 1
+  },
+  "duplicates": {
+    "status": "observed",
+    "value": 0
+  },
+  "fault_samples": {
+    "status": "observed",
+    "value": 0
+  },
+  "gateway_failovers": {
+    "status": "observed",
+    "value": 0
+  },
+  "logical_delivery_latency": {
+    "status": "observed",
+    "value": {
+      "mean_s": 0.03446154473764938,
+      "observations": 202,
+      "scope": "first send request including dropped attempts to first receiver decode; includes retry/fault delay"
+    }
+  },
+  "messages_delivered": {
+    "status": "observed",
+    "value": 206
+  },
+  "messages_sent": {
+    "status": "observed",
+    "value": 207
+  },
+  "offline_queued": {
+    "status": "observed",
+    "value": 35
+  },
+  "persisted_ack_latency": {
+    "status": "observed",
+    "value": {
+      "mean_s": 0.0547720147740385,
+      "observations": 31,
+      "scope": "first send request to first SQLite committed receipt; includes replay"
+    }
+  },
+  "queue_replayed": {
+    "status": "observed",
+    "value": 30
+  },
+  "recovery_time": {
+    "status": "not measured",
+    "value": null
+  },
+  "retries": {
+    "status": "observed",
+    "value": 1
+  },
+  "sampling_interval_distribution": {
+    "status": "observed",
+    "value": {
+      "0.1": 24,
+      "0.2": 2
+    }
+  },
+  "sampling_interval_mean": {
+    "status": "observed",
+    "value": 0.1076923076923077
+  },
+  "sensor_samples": {
+    "status": "observed",
+    "value": 26
+  },
+  "server_duplicates_ignored": {
+    "status": "observed",
+    "value": 0
+  },
+  "trusted_samples": {
+    "status": "observed",
+    "value": 26
+  }
+}

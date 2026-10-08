@@ -1,0 +1,27 @@
+{
+  "assertions": [
+    {
+      "description": "A2 explicitly rejects B1 and C1 before takeover",
+      "passed": true
+    },
+    {
+      "description": "correct B1/C1 initial owner at A1",
+      "passed": true
+    },
+    {
+      "description": "registration does not bump initial epoch",
+      "passed": true
+    },
+    {
+      "description": "scenario runs without exception",
+      "passed": false
+    }
+  ],
+  "exit_code": 1,
+  "observations": {
+    "error": "NameError: name 'config' is not defined"
+  },
+  "question": "Do B1/C1 contact A2 first, receive NOT_OWNER, then establish correct ownership at A1 without startup delays?",
+  "scenario": "registration-race",
+  "status": "FAIL"
+}

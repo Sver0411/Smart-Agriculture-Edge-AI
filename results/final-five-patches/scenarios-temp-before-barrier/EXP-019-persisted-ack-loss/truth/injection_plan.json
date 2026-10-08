@@ -1,0 +1,23 @@
+{
+  "disruptions": [],
+  "frame_faults": [
+    {
+      "action": "drop",
+      "match": {
+        "target": "A1",
+        "type": "PERSISTED_ACK"
+      }
+    }
+  ],
+  "receipt_observations": [
+    {
+      "action": "drop",
+      "commit_observed": true,
+      "message_id": "5daf7852774a",
+      "queue_retained": true
+    }
+  ],
+  "scenario": "persisted-ack-loss",
+  "seed": 42,
+  "sensor_fault": false
+}

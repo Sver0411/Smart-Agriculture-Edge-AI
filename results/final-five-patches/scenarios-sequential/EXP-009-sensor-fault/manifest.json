@@ -1,0 +1,13 @@
+{
+  "config_sha256": "6af4ff219c8fc3e4daad442654c8f8690430a247f802fb9eda9ba64e9bc9c87e",
+  "dirty_scope": "source files; generated software-v0.3 and software-v0.3.1 evidence excluded",
+  "input_mode": "software-simulation",
+  "raw_sha256": "6fd3697f5df8210cf8b5166c061da5eb6da6a299a2417b3626c844334523ee53",
+  "revision": "f56b8575dccaea41d5cba53cb490fdfc6fa17f21",
+  "scenario": "sensor-fault",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "PASS",
+  "verification": "host-tested",
+  "working_tree_dirty": true
+}

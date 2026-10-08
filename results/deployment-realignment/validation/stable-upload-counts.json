@@ -1,0 +1,23 @@
+{
+  "simulation": {
+    "samples": 100,
+    "enqueued": 10,
+    "sensor_transport_sink_calls": 10,
+    "all_states_stable": true,
+    "scope": "host C policy / FreeRTOS and cJSON sink stubs; fixed trace times, not energy/RF"
+  },
+  "lab": {
+    "samples": 100,
+    "enqueued": 3,
+    "sensor_transport_sink_calls": 3,
+    "all_states_stable": true,
+    "scope": "host C policy / FreeRTOS and cJSON sink stubs; fixed trace times, not energy/RF"
+  },
+  "deployment": {
+    "samples": 100,
+    "enqueued": 2,
+    "sensor_transport_sink_calls": 2,
+    "all_states_stable": true,
+    "scope": "host C policy / FreeRTOS and cJSON sink stubs; fixed trace times, not energy/RF"
+  }
+}

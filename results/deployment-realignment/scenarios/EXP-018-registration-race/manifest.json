@@ -1,0 +1,13 @@
+{
+  "config_sha256": "dc3e754fb03fa394924eb6160a6e12304d5de03502e3489e6006771f451c3fcf",
+  "dirty_scope": "source files; generated software-v0.3 and software-v0.3.1 evidence excluded",
+  "input_mode": "software-simulation",
+  "raw_sha256": "33593b27eefddcf75d20fc5d82f0786ce5345d4d12620b94ef846d36676c24bc",
+  "revision": "f56b8575dccaea41d5cba53cb490fdfc6fa17f21",
+  "scenario": "registration-race",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "FAIL",
+  "verification": "host-tested",
+  "working_tree_dirty": true
+}

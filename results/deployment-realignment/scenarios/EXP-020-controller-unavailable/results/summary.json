@@ -1,0 +1,29 @@
+{
+  "assertions": [
+    {
+      "description": "server records unavailable controller outcome",
+      "passed": true
+    },
+    {
+      "description": "offline controller executes zero commands",
+      "passed": true
+    },
+    {
+      "description": "scenario runs without exception",
+      "passed": false
+    }
+  ],
+  "exit_code": 1,
+  "observations": {
+    "error": "NameError: name 'config' is not defined",
+    "undispatched_ids": [
+      "013221b36ac4",
+      "a6f5dd208f94",
+      "ffbff207c1aa",
+      "faf4a86de991"
+    ]
+  },
+  "question": "Is unavailable C1 reported NOT_DISPATCHED, with no old command executed after reconnection?",
+  "scenario": "controller-unavailable",
+  "status": "FAIL"
+}

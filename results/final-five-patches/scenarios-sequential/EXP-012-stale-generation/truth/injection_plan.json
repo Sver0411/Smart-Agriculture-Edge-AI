@@ -1,0 +1,13 @@
+{
+  "disruptions": [
+    {
+      "action": "gateway_crash",
+      "time_s": 2.203718333999859
+    }
+  ],
+  "frame_faults": [],
+  "receipt_observations": [],
+  "scenario": "stale-generation",
+  "seed": 42,
+  "sensor_fault": false
+}

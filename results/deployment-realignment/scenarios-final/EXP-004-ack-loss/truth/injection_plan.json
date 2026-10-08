@@ -1,0 +1,21 @@
+{
+  "disruptions": [],
+  "frame_faults": [
+    {
+      "action": "drop",
+      "match": {
+        "source": "C1",
+        "type": "ACK"
+      }
+    }
+  ],
+  "receipt_observations": [
+    {
+      "action": "drop",
+      "message_id": "d9289eb8b07f"
+    }
+  ],
+  "scenario": "ack-loss",
+  "seed": 42,
+  "sensor_fault": false
+}

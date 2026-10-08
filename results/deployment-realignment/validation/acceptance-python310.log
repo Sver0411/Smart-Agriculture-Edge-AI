@@ -1,0 +1,1095 @@
+........................................................................ [ 24%]
+...............F.FFFFFF................................................. [ 48%]
+........................................................................ [ 72%]
+........................................................................ [ 96%]
+..........                                                               [100%]
+=================================== FAILURES ===================================
+________ test_a_node_registration_is_acknowledged_with_owner_and_epoch _________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_a_node_registration_is_ac0')
+
+    def test_a_node_registration_is_acknowledged_with_owner_and_epoch(tmp_path):
+        async def scenario():
+            harness = Harness(tmp_path)
+            await harness.server.start()
+            gateway = await harness.add_gateway("A1")
+    
+            reader, writer = await asyncio.open_connection("127.0.0.1", gateway.port)
+            try:
+                await send_message(
+                    writer,
+                    Message(
+                        type=NODE_REGISTER,
+                        source="C1",
+                        target="A1",
+                        payload={"node_id": "C1", "node_type": config.CONTROLLER},
+                    ),
+                )
+                reply = await asyncio.wait_for(read_message(reader), timeout=3.0)
+            finally:
+                writer.close()
+                await harness.stop()
+    
+            assert reply is not None
+            return reply
+    
+>       reply = asyncio.run(scenario())
+
+tests/test_failover_e2e.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/runners.py:44: in run
+    return loop.run_until_complete(main)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:649: in run_until_complete
+    return future.result()
+tests/test_failover_e2e.py:109: in scenario
+    gateway = await harness.add_gateway("A1")
+tests/test_failover_e2e.py:68: in add_gateway
+    await gateway.start()
+gateway/gateway.py:218: in start
+    self._server = await asyncio.start_server(self._handle_client, self.host, self.port)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/streams.py:85: in start_server
+    return await loop.create_server(factory, host, port, **kwds)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=True debug=False>
+protocol_factory = <function start_server.<locals>.factory at 0x10277edd0>
+host = '127.0.0.1', port = 9201, family = <AddressFamily.AF_UNSPEC: 0>
+flags = <AddressInfo.AI_PASSIVE: 1>
+sock = <socket.socket [closed] fd=-1, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6>
+backlog = 100, ssl = None, reuse_address = True, reuse_port = None
+ssl_handshake_timeout = None, start_serving = True
+
+    async def create_server(
+            self, protocol_factory, host=None, port=None,
+            *,
+            family=socket.AF_UNSPEC,
+            flags=socket.AI_PASSIVE,
+            sock=None,
+            backlog=100,
+            ssl=None,
+            reuse_address=None,
+            reuse_port=None,
+            ssl_handshake_timeout=None,
+            start_serving=True):
+        """Create a TCP server.
+    
+        The host parameter can be a string, in that case the TCP server is
+        bound to host and port.
+    
+        The host parameter can also be a sequence of strings and in that case
+        the TCP server is bound to all hosts of the sequence. If a host
+        appears multiple times (possibly indirectly e.g. when hostnames
+        resolve to the same IP address), the server is only bound once to that
+        host.
+    
+        Return a Server object which can be used to stop the service.
+    
+        This method is a coroutine.
+        """
+        if isinstance(ssl, bool):
+            raise TypeError('ssl argument must be an SSLContext or None')
+    
+        if ssl_handshake_timeout is not None and ssl is None:
+            raise ValueError(
+                'ssl_handshake_timeout is only meaningful with ssl')
+    
+        if sock is not None:
+            _check_ssl_socket(sock)
+    
+        if host is not None or port is not None:
+            if sock is not None:
+                raise ValueError(
+                    'host/port and sock can not be specified at the same time')
+    
+            if reuse_address is None:
+                reuse_address = os.name == 'posix' and sys.platform != 'cygwin'
+            sockets = []
+            if host == '':
+                hosts = [None]
+            elif (isinstance(host, str) or
+                  not isinstance(host, collections.abc.Iterable)):
+                hosts = [host]
+            else:
+                hosts = host
+    
+            fs = [self._create_server_getaddrinfo(host, port, family=family,
+                                                  flags=flags)
+                  for host in hosts]
+            infos = await tasks.gather(*fs)
+            infos = set(itertools.chain.from_iterable(infos))
+    
+            completed = False
+            try:
+                for res in infos:
+                    af, socktype, proto, canonname, sa = res
+                    try:
+                        sock = socket.socket(af, socktype, proto)
+                    except socket.error:
+                        # Assume it's a bad family/type/protocol combination.
+                        if self._debug:
+                            logger.warning('create_server() failed to create '
+                                           'socket.socket(%r, %r, %r)',
+                                           af, socktype, proto, exc_info=True)
+                        continue
+                    sockets.append(sock)
+                    if reuse_address:
+                        sock.setsockopt(
+                            socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
+                    if reuse_port:
+                        _set_reuseport(sock)
+                    # Disable IPv4/IPv6 dual stack support (enabled by
+                    # default on Linux) which makes a single socket
+                    # listen on both address families.
+                    if (_HAS_IPv6 and
+                            af == socket.AF_INET6 and
+                            hasattr(socket, 'IPPROTO_IPV6')):
+                        sock.setsockopt(socket.IPPROTO_IPV6,
+                                        socket.IPV6_V6ONLY,
+                                        True)
+                    try:
+                        sock.bind(sa)
+                    except OSError as err:
+>                       raise OSError(err.errno, 'error while attempting '
+                                      'to bind on address %r: %s'
+                                      % (sa, err.strerror.lower())) from None
+E                                     OSError: [Errno 48] error while attempting to bind on address ('127.0.0.1', 9201): address already in use
+
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:1519: OSError
+----------------------------- Captured stdout call -----------------------------
+00:54:19 [SERVER] listening on 127.0.0.1:58292 (sqlite: /private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_a_node_registration_is_ac0/server.db)
+_______________ test_a_dead_gateway_loses_its_nodes_to_the_peer ________________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_a_dead_gateway_loses_its_0')
+
+    def test_a_dead_gateway_loses_its_nodes_to_the_peer(tmp_path):
+        """A2 must own B1 / C1 and move to a new epoch once A1 stops answering."""
+    
+        async def scenario():
+            harness = Harness(tmp_path)
+            await harness.server.start()
+            a1 = await harness.add_gateway("A1")
+            a2 = await harness.add_gateway("A2")
+    
+            sensor = SensorNode(
+                "B1",
+                simulator=SensorSimulator("B1", seed=3, start={"soil_moisture": 19.0}),
+                slow_interval=0.4,
+                fast_interval=0.3,
+            )
+            controller = ControllerNode("C1")
+            harness.add_node(sensor)
+            harness.add_node(controller)
+    
+            await asyncio.sleep(1.2)
+            assert a1.registry.get("C1").owner_gateway == "A1"
+            assert sensor.owner_gateway == "A1"
+            assert sensor.generation == config.INITIAL_GENERATION
+    
+            # A1 dies. B1 / C1 fall back to A2 on their own, and the watchdog in A2
+            # then declares A1 dead and takes over formally (new epoch).
+            await a1.stop()
+            await asyncio.sleep(3.5)
+    
+            a2_generation = a2.ownership.generation
+            owner_of_c1 = a2.registry.get("C1").owner_gateway
+            c1_generation = a2.registry.get("C1").generation
+            b1_generation = a2.registry.get("B1").generation
+            sensor_owner = sensor.owner_gateway
+            sensor_generation = sensor.generation
+            await harness.stop()
+            return a2_generation, owner_of_c1, c1_generation, b1_generation, sensor_owner, sensor_generation
+    
+>       generation, owner, c1_generation, b1_generation, sensor_owner, sensor_generation = asyncio.run(scenario())
+
+tests/test_failover_e2e.py:212: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/runners.py:44: in run
+    return loop.run_until_complete(main)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:649: in run_until_complete
+    return future.result()
+tests/test_failover_e2e.py:181: in scenario
+    a2 = await harness.add_gateway("A2")
+tests/test_failover_e2e.py:68: in add_gateway
+    await gateway.start()
+gateway/gateway.py:218: in start
+    self._server = await asyncio.start_server(self._handle_client, self.host, self.port)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/streams.py:85: in start_server
+    return await loop.create_server(factory, host, port, **kwds)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=True debug=False>
+protocol_factory = <function start_server.<locals>.factory at 0x10277eef0>
+host = '127.0.0.1', port = 9202, family = <AddressFamily.AF_UNSPEC: 0>
+flags = <AddressInfo.AI_PASSIVE: 1>
+sock = <socket.socket [closed] fd=-1, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6>
+backlog = 100, ssl = None, reuse_address = True, reuse_port = None
+ssl_handshake_timeout = None, start_serving = True
+
+    async def create_server(
+            self, protocol_factory, host=None, port=None,
+            *,
+            family=socket.AF_UNSPEC,
+            flags=socket.AI_PASSIVE,
+            sock=None,
+            backlog=100,
+            ssl=None,
+            reuse_address=None,
+            reuse_port=None,
+            ssl_handshake_timeout=None,
+            start_serving=True):
+        """Create a TCP server.
+    
+        The host parameter can be a string, in that case the TCP server is
+        bound to host and port.
+    
+        The host parameter can also be a sequence of strings and in that case
+        the TCP server is bound to all hosts of the sequence. If a host
+        appears multiple times (possibly indirectly e.g. when hostnames
+        resolve to the same IP address), the server is only bound once to that
+        host.
+    
+        Return a Server object which can be used to stop the service.
+    
+        This method is a coroutine.
+        """
+        if isinstance(ssl, bool):
+            raise TypeError('ssl argument must be an SSLContext or None')
+    
+        if ssl_handshake_timeout is not None and ssl is None:
+            raise ValueError(
+                'ssl_handshake_timeout is only meaningful with ssl')
+    
+        if sock is not None:
+            _check_ssl_socket(sock)
+    
+        if host is not None or port is not None:
+            if sock is not None:
+                raise ValueError(
+                    'host/port and sock can not be specified at the same time')
+    
+            if reuse_address is None:
+                reuse_address = os.name == 'posix' and sys.platform != 'cygwin'
+            sockets = []
+            if host == '':
+                hosts = [None]
+            elif (isinstance(host, str) or
+                  not isinstance(host, collections.abc.Iterable)):
+                hosts = [host]
+            else:
+                hosts = host
+    
+            fs = [self._create_server_getaddrinfo(host, port, family=family,
+                                                  flags=flags)
+                  for host in hosts]
+            infos = await tasks.gather(*fs)
+            infos = set(itertools.chain.from_iterable(infos))
+    
+            completed = False
+            try:
+                for res in infos:
+                    af, socktype, proto, canonname, sa = res
+                    try:
+                        sock = socket.socket(af, socktype, proto)
+                    except socket.error:
+                        # Assume it's a bad family/type/protocol combination.
+                        if self._debug:
+                            logger.warning('create_server() failed to create '
+                                           'socket.socket(%r, %r, %r)',
+                                           af, socktype, proto, exc_info=True)
+                        continue
+                    sockets.append(sock)
+                    if reuse_address:
+                        sock.setsockopt(
+                            socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
+                    if reuse_port:
+                        _set_reuseport(sock)
+                    # Disable IPv4/IPv6 dual stack support (enabled by
+                    # default on Linux) which makes a single socket
+                    # listen on both address families.
+                    if (_HAS_IPv6 and
+                            af == socket.AF_INET6 and
+                            hasattr(socket, 'IPPROTO_IPV6')):
+                        sock.setsockopt(socket.IPPROTO_IPV6,
+                                        socket.IPV6_V6ONLY,
+                                        True)
+                    try:
+                        sock.bind(sa)
+                    except OSError as err:
+>                       raise OSError(err.errno, 'error while attempting '
+                                      'to bind on address %r: %s'
+                                      % (sa, err.strerror.lower())) from None
+E                                     OSError: [Errno 48] error while attempting to bind on address ('127.0.0.1', 9202): address already in use
+
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:1519: OSError
+----------------------------- Captured stdout call -----------------------------
+00:54:20 [SERVER] listening on 127.0.0.1:58300 (sqlite: /private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_a_dead_gateway_loses_its_0/server.db)
+00:54:20 [A1] gateway started on 127.0.0.1:9201 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+________ test_sensor_fallback_waits_for_takeover_before_registering_a2 _________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_sensor_fallback_waits_for0')
+
+    def test_sensor_fallback_waits_for_takeover_before_registering_a2(tmp_path):
+        """Fallback must not create ownership before formal takeover."""
+        async def scenario():
+            harness = Harness(tmp_path)
+            await harness.server.start()
+            a1 = await harness.add_gateway("A1")
+            a2 = await harness.add_gateway("A2", heartbeat_timeout=100.0)
+            sensor = SensorNode("B1", slow_interval=0.4, fast_interval=0.4,
+                                keepalive_interval=0.1)
+            harness.add_node(sensor)
+            try:
+                for _ in range(50):
+                    if sensor.owner_gateway == "A1":
+                        break
+                    await asyncio.sleep(0.05)
+                assert (sensor.owner_gateway, sensor.generation) == ("A1", 1)
+                await a1.stop()
+                await asyncio.sleep(0.3)
+                assert (sensor.owner_gateway, sensor.generation) == ("A1", 1)
+                assert a2.registry.get("B1").owner_gateway == "A1"
+                assert a2._takeover() == 2
+                for _ in range(50):
+                    if sensor.generation == 2:
+                        break
+                    await asyncio.sleep(0.05)
+                assert a2.registry.get("B1").generation == sensor.generation == 2
+                assert sensor.owner_gateway == "A2"
+            finally:
+                await harness.stop()
+    
+>       asyncio.run(scenario())
+
+tests/test_failover_e2e.py:250: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/runners.py:44: in run
+    return loop.run_until_complete(main)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:649: in run_until_complete
+    return future.result()
+tests/test_failover_e2e.py:225: in scenario
+    a1 = await harness.add_gateway("A1")
+tests/test_failover_e2e.py:68: in add_gateway
+    await gateway.start()
+gateway/gateway.py:218: in start
+    self._server = await asyncio.start_server(self._handle_client, self.host, self.port)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/streams.py:85: in start_server
+    return await loop.create_server(factory, host, port, **kwds)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=True debug=False>
+protocol_factory = <function start_server.<locals>.factory at 0x10277e710>
+host = '127.0.0.1', port = 9201, family = <AddressFamily.AF_UNSPEC: 0>
+flags = <AddressInfo.AI_PASSIVE: 1>
+sock = <socket.socket [closed] fd=-1, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6>
+backlog = 100, ssl = None, reuse_address = True, reuse_port = None
+ssl_handshake_timeout = None, start_serving = True
+
+    async def create_server(
+            self, protocol_factory, host=None, port=None,
+            *,
+            family=socket.AF_UNSPEC,
+            flags=socket.AI_PASSIVE,
+            sock=None,
+            backlog=100,
+            ssl=None,
+            reuse_address=None,
+            reuse_port=None,
+            ssl_handshake_timeout=None,
+            start_serving=True):
+        """Create a TCP server.
+    
+        The host parameter can be a string, in that case the TCP server is
+        bound to host and port.
+    
+        The host parameter can also be a sequence of strings and in that case
+        the TCP server is bound to all hosts of the sequence. If a host
+        appears multiple times (possibly indirectly e.g. when hostnames
+        resolve to the same IP address), the server is only bound once to that
+        host.
+    
+        Return a Server object which can be used to stop the service.
+    
+        This method is a coroutine.
+        """
+        if isinstance(ssl, bool):
+            raise TypeError('ssl argument must be an SSLContext or None')
+    
+        if ssl_handshake_timeout is not None and ssl is None:
+            raise ValueError(
+                'ssl_handshake_timeout is only meaningful with ssl')
+    
+        if sock is not None:
+            _check_ssl_socket(sock)
+    
+        if host is not None or port is not None:
+            if sock is not None:
+                raise ValueError(
+                    'host/port and sock can not be specified at the same time')
+    
+            if reuse_address is None:
+                reuse_address = os.name == 'posix' and sys.platform != 'cygwin'
+            sockets = []
+            if host == '':
+                hosts = [None]
+            elif (isinstance(host, str) or
+                  not isinstance(host, collections.abc.Iterable)):
+                hosts = [host]
+            else:
+                hosts = host
+    
+            fs = [self._create_server_getaddrinfo(host, port, family=family,
+                                                  flags=flags)
+                  for host in hosts]
+            infos = await tasks.gather(*fs)
+            infos = set(itertools.chain.from_iterable(infos))
+    
+            completed = False
+            try:
+                for res in infos:
+                    af, socktype, proto, canonname, sa = res
+                    try:
+                        sock = socket.socket(af, socktype, proto)
+                    except socket.error:
+                        # Assume it's a bad family/type/protocol combination.
+                        if self._debug:
+                            logger.warning('create_server() failed to create '
+                                           'socket.socket(%r, %r, %r)',
+                                           af, socktype, proto, exc_info=True)
+                        continue
+                    sockets.append(sock)
+                    if reuse_address:
+                        sock.setsockopt(
+                            socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
+                    if reuse_port:
+                        _set_reuseport(sock)
+                    # Disable IPv4/IPv6 dual stack support (enabled by
+                    # default on Linux) which makes a single socket
+                    # listen on both address families.
+                    if (_HAS_IPv6 and
+                            af == socket.AF_INET6 and
+                            hasattr(socket, 'IPPROTO_IPV6')):
+                        sock.setsockopt(socket.IPPROTO_IPV6,
+                                        socket.IPV6_V6ONLY,
+                                        True)
+                    try:
+                        sock.bind(sa)
+                    except OSError as err:
+>                       raise OSError(err.errno, 'error while attempting '
+                                      'to bind on address %r: %s'
+                                      % (sa, err.strerror.lower())) from None
+E                                     OSError: [Errno 48] error while attempting to bind on address ('127.0.0.1', 9201): address already in use
+
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:1519: OSError
+----------------------------- Captured stdout call -----------------------------
+00:54:20 [SERVER] listening on 127.0.0.1:58303 (sqlite: /private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_sensor_fallback_waits_for0/server.db)
+____________ test_a_deposed_gateway_can_no_longer_move_the_actuator ____________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_a_deposed_gateway_can_no_0')
+
+    def test_a_deposed_gateway_can_no_longer_move_the_actuator(tmp_path):
+        """The split-brain guard: a late command from the old epoch is refused."""
+    
+        async def scenario():
+            harness = Harness(tmp_path)
+            await harness.server.start()
+            a1 = await harness.add_gateway("A1")
+            await harness.add_gateway("A2")
+    
+            controller = ControllerNode("C1")
+            harness.add_node(controller)
+            await asyncio.sleep(0.8)
+            assert controller.guard.current_generation == 1
+    
+            # C1 is told that A2 now owns it at epoch 2
+            controller.guard.set_ownership("A2", 2)
+    
+            # ... and then a command from the deposed A1 arrives late
+            stale = command_message("stale-1", generation=1, source="A1", target="C1")
+            result = await controller.process_command(stale)
+    
+            await harness.stop()
+            return result
+    
+>       result = asyncio.run(scenario())
+
+tests/test_failover_e2e.py:277: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/runners.py:44: in run
+    return loop.run_until_complete(main)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:649: in run_until_complete
+    return future.result()
+tests/test_failover_e2e.py:259: in scenario
+    a1 = await harness.add_gateway("A1")
+tests/test_failover_e2e.py:68: in add_gateway
+    await gateway.start()
+gateway/gateway.py:218: in start
+    self._server = await asyncio.start_server(self._handle_client, self.host, self.port)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/streams.py:85: in start_server
+    return await loop.create_server(factory, host, port, **kwds)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=True debug=False>
+protocol_factory = <function start_server.<locals>.factory at 0x102943370>
+host = '127.0.0.1', port = 9201, family = <AddressFamily.AF_UNSPEC: 0>
+flags = <AddressInfo.AI_PASSIVE: 1>
+sock = <socket.socket [closed] fd=-1, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6>
+backlog = 100, ssl = None, reuse_address = True, reuse_port = None
+ssl_handshake_timeout = None, start_serving = True
+
+    async def create_server(
+            self, protocol_factory, host=None, port=None,
+            *,
+            family=socket.AF_UNSPEC,
+            flags=socket.AI_PASSIVE,
+            sock=None,
+            backlog=100,
+            ssl=None,
+            reuse_address=None,
+            reuse_port=None,
+            ssl_handshake_timeout=None,
+            start_serving=True):
+        """Create a TCP server.
+    
+        The host parameter can be a string, in that case the TCP server is
+        bound to host and port.
+    
+        The host parameter can also be a sequence of strings and in that case
+        the TCP server is bound to all hosts of the sequence. If a host
+        appears multiple times (possibly indirectly e.g. when hostnames
+        resolve to the same IP address), the server is only bound once to that
+        host.
+    
+        Return a Server object which can be used to stop the service.
+    
+        This method is a coroutine.
+        """
+        if isinstance(ssl, bool):
+            raise TypeError('ssl argument must be an SSLContext or None')
+    
+        if ssl_handshake_timeout is not None and ssl is None:
+            raise ValueError(
+                'ssl_handshake_timeout is only meaningful with ssl')
+    
+        if sock is not None:
+            _check_ssl_socket(sock)
+    
+        if host is not None or port is not None:
+            if sock is not None:
+                raise ValueError(
+                    'host/port and sock can not be specified at the same time')
+    
+            if reuse_address is None:
+                reuse_address = os.name == 'posix' and sys.platform != 'cygwin'
+            sockets = []
+            if host == '':
+                hosts = [None]
+            elif (isinstance(host, str) or
+                  not isinstance(host, collections.abc.Iterable)):
+                hosts = [host]
+            else:
+                hosts = host
+    
+            fs = [self._create_server_getaddrinfo(host, port, family=family,
+                                                  flags=flags)
+                  for host in hosts]
+            infos = await tasks.gather(*fs)
+            infos = set(itertools.chain.from_iterable(infos))
+    
+            completed = False
+            try:
+                for res in infos:
+                    af, socktype, proto, canonname, sa = res
+                    try:
+                        sock = socket.socket(af, socktype, proto)
+                    except socket.error:
+                        # Assume it's a bad family/type/protocol combination.
+                        if self._debug:
+                            logger.warning('create_server() failed to create '
+                                           'socket.socket(%r, %r, %r)',
+                                           af, socktype, proto, exc_info=True)
+                        continue
+                    sockets.append(sock)
+                    if reuse_address:
+                        sock.setsockopt(
+                            socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
+                    if reuse_port:
+                        _set_reuseport(sock)
+                    # Disable IPv4/IPv6 dual stack support (enabled by
+                    # default on Linux) which makes a single socket
+                    # listen on both address families.
+                    if (_HAS_IPv6 and
+                            af == socket.AF_INET6 and
+                            hasattr(socket, 'IPPROTO_IPV6')):
+                        sock.setsockopt(socket.IPPROTO_IPV6,
+                                        socket.IPV6_V6ONLY,
+                                        True)
+                    try:
+                        sock.bind(sa)
+                    except OSError as err:
+>                       raise OSError(err.errno, 'error while attempting '
+                                      'to bind on address %r: %s'
+                                      % (sa, err.strerror.lower())) from None
+E                                     OSError: [Errno 48] error while attempting to bind on address ('127.0.0.1', 9201): address already in use
+
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:1519: OSError
+----------------------------- Captured stdout call -----------------------------
+00:54:20 [SERVER] listening on 127.0.0.1:58306 (sqlite: /private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_a_deposed_gateway_can_no_0/server.db)
+_____________ test_a_recovering_gateway_does_not_take_control_back _____________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_a_recovering_gateway_does0')
+
+    def test_a_recovering_gateway_does_not_take_control_back(tmp_path):
+        """No automatic failback: the returning gateway becomes STANDBY."""
+    
+        async def scenario():
+            harness = Harness(tmp_path)
+            await harness.server.start()
+            a1 = await harness.add_gateway("A1")
+            a2 = await harness.add_gateway("A2")
+    
+            await asyncio.sleep(1.5)  # exchange a few heartbeats
+            a2.ownership.takeover(["B1", "C1"])  # A2 took over while A1 was down
+            await asyncio.sleep(1.5)  # A1 learns about the newer epoch
+    
+            role = a1.ownership.role
+            await harness.stop()
+            return role
+    
+>       assert asyncio.run(scenario()) == config.STANDBY
+
+tests/test_failover_e2e.py:300: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/runners.py:44: in run
+    return loop.run_until_complete(main)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:649: in run_until_complete
+    return future.result()
+tests/test_failover_e2e.py:290: in scenario
+    a2 = await harness.add_gateway("A2")
+tests/test_failover_e2e.py:68: in add_gateway
+    await gateway.start()
+gateway/gateway.py:218: in start
+    self._server = await asyncio.start_server(self._handle_client, self.host, self.port)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/streams.py:85: in start_server
+    return await loop.create_server(factory, host, port, **kwds)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=True debug=False>
+protocol_factory = <function start_server.<locals>.factory at 0x10277e170>
+host = '127.0.0.1', port = 9202, family = <AddressFamily.AF_UNSPEC: 0>
+flags = <AddressInfo.AI_PASSIVE: 1>
+sock = <socket.socket [closed] fd=-1, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6>
+backlog = 100, ssl = None, reuse_address = True, reuse_port = None
+ssl_handshake_timeout = None, start_serving = True
+
+    async def create_server(
+            self, protocol_factory, host=None, port=None,
+            *,
+            family=socket.AF_UNSPEC,
+            flags=socket.AI_PASSIVE,
+            sock=None,
+            backlog=100,
+            ssl=None,
+            reuse_address=None,
+            reuse_port=None,
+            ssl_handshake_timeout=None,
+            start_serving=True):
+        """Create a TCP server.
+    
+        The host parameter can be a string, in that case the TCP server is
+        bound to host and port.
+    
+        The host parameter can also be a sequence of strings and in that case
+        the TCP server is bound to all hosts of the sequence. If a host
+        appears multiple times (possibly indirectly e.g. when hostnames
+        resolve to the same IP address), the server is only bound once to that
+        host.
+    
+        Return a Server object which can be used to stop the service.
+    
+        This method is a coroutine.
+        """
+        if isinstance(ssl, bool):
+            raise TypeError('ssl argument must be an SSLContext or None')
+    
+        if ssl_handshake_timeout is not None and ssl is None:
+            raise ValueError(
+                'ssl_handshake_timeout is only meaningful with ssl')
+    
+        if sock is not None:
+            _check_ssl_socket(sock)
+    
+        if host is not None or port is not None:
+            if sock is not None:
+                raise ValueError(
+                    'host/port and sock can not be specified at the same time')
+    
+            if reuse_address is None:
+                reuse_address = os.name == 'posix' and sys.platform != 'cygwin'
+            sockets = []
+            if host == '':
+                hosts = [None]
+            elif (isinstance(host, str) or
+                  not isinstance(host, collections.abc.Iterable)):
+                hosts = [host]
+            else:
+                hosts = host
+    
+            fs = [self._create_server_getaddrinfo(host, port, family=family,
+                                                  flags=flags)
+                  for host in hosts]
+            infos = await tasks.gather(*fs)
+            infos = set(itertools.chain.from_iterable(infos))
+    
+            completed = False
+            try:
+                for res in infos:
+                    af, socktype, proto, canonname, sa = res
+                    try:
+                        sock = socket.socket(af, socktype, proto)
+                    except socket.error:
+                        # Assume it's a bad family/type/protocol combination.
+                        if self._debug:
+                            logger.warning('create_server() failed to create '
+                                           'socket.socket(%r, %r, %r)',
+                                           af, socktype, proto, exc_info=True)
+                        continue
+                    sockets.append(sock)
+                    if reuse_address:
+                        sock.setsockopt(
+                            socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
+                    if reuse_port:
+                        _set_reuseport(sock)
+                    # Disable IPv4/IPv6 dual stack support (enabled by
+                    # default on Linux) which makes a single socket
+                    # listen on both address families.
+                    if (_HAS_IPv6 and
+                            af == socket.AF_INET6 and
+                            hasattr(socket, 'IPPROTO_IPV6')):
+                        sock.setsockopt(socket.IPPROTO_IPV6,
+                                        socket.IPV6_V6ONLY,
+                                        True)
+                    try:
+                        sock.bind(sa)
+                    except OSError as err:
+>                       raise OSError(err.errno, 'error while attempting '
+                                      'to bind on address %r: %s'
+                                      % (sa, err.strerror.lower())) from None
+E                                     OSError: [Errno 48] error while attempting to bind on address ('127.0.0.1', 9202): address already in use
+
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:1519: OSError
+----------------------------- Captured stdout call -----------------------------
+00:54:20 [SERVER] listening on 127.0.0.1:58311 (sqlite: /private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_a_recovering_gateway_does0/server.db)
+00:54:20 [A1] gateway started on 127.0.0.1:9201 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+________________ test_a_replayed_command_is_not_executed_twice _________________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_a_replayed_command_is_not0')
+
+    def test_a_replayed_command_is_not_executed_twice(tmp_path):
+        """At-least-once delivery is only safe because the receiver is idempotent."""
+    
+        async def scenario():
+            harness = Harness(tmp_path)
+            await harness.server.start()
+            a1 = await harness.add_gateway("A1", heartbeat_timeout=100.0)  # isolate dedup from bootstrap takeover
+    
+            controller = ControllerNode("C1")
+            harness.add_node(controller)
+            await asyncio.sleep(0.8)
+    
+            message = command_message("same-id", generation=1, source="A1", target="C1")
+            first = await controller.process_command(message)
+            second = await controller.process_command(message)
+    
+            await harness.stop()
+            return first, second, controller.metrics.as_dict()
+    
+>       first, second, metrics = asyncio.run(scenario())
+
+tests/test_failover_e2e.py:327: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/runners.py:44: in run
+    return loop.run_until_complete(main)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:649: in run_until_complete
+    return future.result()
+tests/test_failover_e2e.py:314: in scenario
+    a1 = await harness.add_gateway("A1", heartbeat_timeout=100.0)  # isolate dedup from bootstrap takeover
+tests/test_failover_e2e.py:68: in add_gateway
+    await gateway.start()
+gateway/gateway.py:218: in start
+    self._server = await asyncio.start_server(self._handle_client, self.host, self.port)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/streams.py:85: in start_server
+    return await loop.create_server(factory, host, port, **kwds)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=True debug=False>
+protocol_factory = <function start_server.<locals>.factory at 0x102943b50>
+host = '127.0.0.1', port = 9201, family = <AddressFamily.AF_UNSPEC: 0>
+flags = <AddressInfo.AI_PASSIVE: 1>
+sock = <socket.socket [closed] fd=-1, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6>
+backlog = 100, ssl = None, reuse_address = True, reuse_port = None
+ssl_handshake_timeout = None, start_serving = True
+
+    async def create_server(
+            self, protocol_factory, host=None, port=None,
+            *,
+            family=socket.AF_UNSPEC,
+            flags=socket.AI_PASSIVE,
+            sock=None,
+            backlog=100,
+            ssl=None,
+            reuse_address=None,
+            reuse_port=None,
+            ssl_handshake_timeout=None,
+            start_serving=True):
+        """Create a TCP server.
+    
+        The host parameter can be a string, in that case the TCP server is
+        bound to host and port.
+    
+        The host parameter can also be a sequence of strings and in that case
+        the TCP server is bound to all hosts of the sequence. If a host
+        appears multiple times (possibly indirectly e.g. when hostnames
+        resolve to the same IP address), the server is only bound once to that
+        host.
+    
+        Return a Server object which can be used to stop the service.
+    
+        This method is a coroutine.
+        """
+        if isinstance(ssl, bool):
+            raise TypeError('ssl argument must be an SSLContext or None')
+    
+        if ssl_handshake_timeout is not None and ssl is None:
+            raise ValueError(
+                'ssl_handshake_timeout is only meaningful with ssl')
+    
+        if sock is not None:
+            _check_ssl_socket(sock)
+    
+        if host is not None or port is not None:
+            if sock is not None:
+                raise ValueError(
+                    'host/port and sock can not be specified at the same time')
+    
+            if reuse_address is None:
+                reuse_address = os.name == 'posix' and sys.platform != 'cygwin'
+            sockets = []
+            if host == '':
+                hosts = [None]
+            elif (isinstance(host, str) or
+                  not isinstance(host, collections.abc.Iterable)):
+                hosts = [host]
+            else:
+                hosts = host
+    
+            fs = [self._create_server_getaddrinfo(host, port, family=family,
+                                                  flags=flags)
+                  for host in hosts]
+            infos = await tasks.gather(*fs)
+            infos = set(itertools.chain.from_iterable(infos))
+    
+            completed = False
+            try:
+                for res in infos:
+                    af, socktype, proto, canonname, sa = res
+                    try:
+                        sock = socket.socket(af, socktype, proto)
+                    except socket.error:
+                        # Assume it's a bad family/type/protocol combination.
+                        if self._debug:
+                            logger.warning('create_server() failed to create '
+                                           'socket.socket(%r, %r, %r)',
+                                           af, socktype, proto, exc_info=True)
+                        continue
+                    sockets.append(sock)
+                    if reuse_address:
+                        sock.setsockopt(
+                            socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
+                    if reuse_port:
+                        _set_reuseport(sock)
+                    # Disable IPv4/IPv6 dual stack support (enabled by
+                    # default on Linux) which makes a single socket
+                    # listen on both address families.
+                    if (_HAS_IPv6 and
+                            af == socket.AF_INET6 and
+                            hasattr(socket, 'IPPROTO_IPV6')):
+                        sock.setsockopt(socket.IPPROTO_IPV6,
+                                        socket.IPV6_V6ONLY,
+                                        True)
+                    try:
+                        sock.bind(sa)
+                    except OSError as err:
+>                       raise OSError(err.errno, 'error while attempting '
+                                      'to bind on address %r: %s'
+                                      % (sa, err.strerror.lower())) from None
+E                                     OSError: [Errno 48] error while attempting to bind on address ('127.0.0.1', 9201): address already in use
+
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:1519: OSError
+----------------------------- Captured stdout call -----------------------------
+00:54:20 [SERVER] listening on 127.0.0.1:58316 (sqlite: /private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_a_replayed_command_is_not0/server.db)
+_________ test_duplicate_command_injection_never_reaches_the_actuator __________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_duplicate_command_injecti0')
+
+    def test_duplicate_command_injection_never_reaches_the_actuator(tmp_path):
+        """``--duplicate-command`` sends every command twice on purpose."""
+    
+        async def scenario():
+            harness = Harness(tmp_path)
+            await harness.server.start()
+            a1 = await harness.add_gateway("A1", duplicate_command=True)
+            a1.registry.upsert("C1", config.CONTROLLER, "A1", generation=1)
+    
+            controller = ControllerNode("C1", time_scale=0)  # test idempotency, not actuator duration
+            harness.add_node(controller)
+    
+            sensor = SensorNode(
+                "B1",
+                simulator=SensorSimulator("B1", seed=5, start={"soil_moisture": 18.0}),
+                slow_interval=0.4,
+                fast_interval=0.3,
+            )
+            harness.add_node(sensor)
+    
+            deadline = asyncio.get_running_loop().time() + 5.0
+            while (controller.metrics.get("executed") < 1 or controller.metrics.get("duplicates") < 1):
+                if asyncio.get_running_loop().time() >= deadline:
+                    break
+                await asyncio.sleep(0.01)
+            metrics = dict(controller.metrics.as_dict())
+            await harness.stop()
+            return metrics
+    
+>       metrics = asyncio.run(scenario())
+
+tests/test_failover_e2e.py:364: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/runners.py:44: in run
+    return loop.run_until_complete(main)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:649: in run_until_complete
+    return future.result()
+tests/test_failover_e2e.py:341: in scenario
+    a1 = await harness.add_gateway("A1", duplicate_command=True)
+tests/test_failover_e2e.py:68: in add_gateway
+    await gateway.start()
+gateway/gateway.py:218: in start
+    self._server = await asyncio.start_server(self._handle_client, self.host, self.port)
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/streams.py:85: in start_server
+    return await loop.create_server(factory, host, port, **kwds)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=True debug=False>
+protocol_factory = <function start_server.<locals>.factory at 0x10277dab0>
+host = '127.0.0.1', port = 9201, family = <AddressFamily.AF_UNSPEC: 0>
+flags = <AddressInfo.AI_PASSIVE: 1>
+sock = <socket.socket [closed] fd=-1, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6>
+backlog = 100, ssl = None, reuse_address = True, reuse_port = None
+ssl_handshake_timeout = None, start_serving = True
+
+    async def create_server(
+            self, protocol_factory, host=None, port=None,
+            *,
+            family=socket.AF_UNSPEC,
+            flags=socket.AI_PASSIVE,
+            sock=None,
+            backlog=100,
+            ssl=None,
+            reuse_address=None,
+            reuse_port=None,
+            ssl_handshake_timeout=None,
+            start_serving=True):
+        """Create a TCP server.
+    
+        The host parameter can be a string, in that case the TCP server is
+        bound to host and port.
+    
+        The host parameter can also be a sequence of strings and in that case
+        the TCP server is bound to all hosts of the sequence. If a host
+        appears multiple times (possibly indirectly e.g. when hostnames
+        resolve to the same IP address), the server is only bound once to that
+        host.
+    
+        Return a Server object which can be used to stop the service.
+    
+        This method is a coroutine.
+        """
+        if isinstance(ssl, bool):
+            raise TypeError('ssl argument must be an SSLContext or None')
+    
+        if ssl_handshake_timeout is not None and ssl is None:
+            raise ValueError(
+                'ssl_handshake_timeout is only meaningful with ssl')
+    
+        if sock is not None:
+            _check_ssl_socket(sock)
+    
+        if host is not None or port is not None:
+            if sock is not None:
+                raise ValueError(
+                    'host/port and sock can not be specified at the same time')
+    
+            if reuse_address is None:
+                reuse_address = os.name == 'posix' and sys.platform != 'cygwin'
+            sockets = []
+            if host == '':
+                hosts = [None]
+            elif (isinstance(host, str) or
+                  not isinstance(host, collections.abc.Iterable)):
+                hosts = [host]
+            else:
+                hosts = host
+    
+            fs = [self._create_server_getaddrinfo(host, port, family=family,
+                                                  flags=flags)
+                  for host in hosts]
+            infos = await tasks.gather(*fs)
+            infos = set(itertools.chain.from_iterable(infos))
+    
+            completed = False
+            try:
+                for res in infos:
+                    af, socktype, proto, canonname, sa = res
+                    try:
+                        sock = socket.socket(af, socktype, proto)
+                    except socket.error:
+                        # Assume it's a bad family/type/protocol combination.
+                        if self._debug:
+                            logger.warning('create_server() failed to create '
+                                           'socket.socket(%r, %r, %r)',
+                                           af, socktype, proto, exc_info=True)
+                        continue
+                    sockets.append(sock)
+                    if reuse_address:
+                        sock.setsockopt(
+                            socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
+                    if reuse_port:
+                        _set_reuseport(sock)
+                    # Disable IPv4/IPv6 dual stack support (enabled by
+                    # default on Linux) which makes a single socket
+                    # listen on both address families.
+                    if (_HAS_IPv6 and
+                            af == socket.AF_INET6 and
+                            hasattr(socket, 'IPPROTO_IPV6')):
+                        sock.setsockopt(socket.IPPROTO_IPV6,
+                                        socket.IPV6_V6ONLY,
+                                        True)
+                    try:
+                        sock.bind(sa)
+                    except OSError as err:
+>                       raise OSError(err.errno, 'error while attempting '
+                                      'to bind on address %r: %s'
+                                      % (sa, err.strerror.lower())) from None
+E                                     OSError: [Errno 48] error while attempting to bind on address ('127.0.0.1', 9201): address already in use
+
+../../../.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py:1519: OSError
+----------------------------- Captured stdout call -----------------------------
+00:54:20 [SERVER] listening on 127.0.0.1:58320 (sqlite: /private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-13/test_duplicate_command_injecti0/server.db)
+=========================== short test summary info ============================
+FAILED tests/test_failover_e2e.py::test_a_node_registration_is_acknowledged_with_owner_and_epoch
+FAILED tests/test_failover_e2e.py::test_a_dead_gateway_loses_its_nodes_to_the_peer
+FAILED tests/test_failover_e2e.py::test_sensor_fallback_waits_for_takeover_before_registering_a2
+FAILED tests/test_failover_e2e.py::test_a_deposed_gateway_can_no_longer_move_the_actuator
+FAILED tests/test_failover_e2e.py::test_a_recovering_gateway_does_not_take_control_back
+FAILED tests/test_failover_e2e.py::test_a_replayed_command_is_not_executed_twice
+FAILED tests/test_failover_e2e.py::test_duplicate_command_injection_never_reaches_the_actuator
+7 failed, 291 passed in 30.81s

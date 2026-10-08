@@ -1,0 +1,72 @@
+{
+  "assertions": [
+    {
+      "description": "every sensor command preserves fixed zone membership",
+      "passed": true
+    },
+    {
+      "description": "no logical command reported executed twice on control link",
+      "passed": true
+    },
+    {
+      "description": "both sensor zones sampled",
+      "passed": true
+    },
+    {
+      "description": "C1 executes trusted control",
+      "passed": false
+    },
+    {
+      "description": "C2 zone continues",
+      "passed": true
+    },
+    {
+      "description": "server records sensor history",
+      "passed": true
+    },
+    {
+      "description": "planned frame fault exercised",
+      "passed": false
+    },
+    {
+      "description": "missing result is UNKNOWN",
+      "passed": false
+    }
+  ],
+  "exit_code": 1,
+  "observations": {
+    "gateway_states": {
+      "A1": {
+        "gateway_id": "A1",
+        "generation": 1,
+        "health": "ONLINE",
+        "peer_generation": 2,
+        "peer_health": "ONLINE",
+        "peer_id": "A2",
+        "role": "STANDBY"
+      },
+      "A2": {
+        "gateway_id": "A2",
+        "generation": 2,
+        "health": "ONLINE",
+        "peer_generation": 1,
+        "peer_health": "ONLINE",
+        "peer_id": "A1",
+        "role": "ACTIVE"
+      }
+    },
+    "node_ownership": {
+      "B1": {
+        "generation": 1,
+        "owner": "A1"
+      },
+      "B2": {
+        "generation": 2,
+        "owner": "A2"
+      }
+    }
+  },
+  "question": "Does missing CONTROL_RESULT remain explicitly UNKNOWN without blind reexecution?",
+  "scenario": "lost-result",
+  "status": "FAIL"
+}

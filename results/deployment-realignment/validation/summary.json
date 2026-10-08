@@ -1,0 +1,109 @@
+{
+  "iteration": "Deployment Semantics & Edge Autonomy Realignment",
+  "date": "2026-10-06",
+  "baseline_commit": "f56b8575dccaea41d5cba53cb490fdfc6fa17f21",
+  "branch": "codex/deployment-semantics",
+  "working_tree_source": true,
+  "pytest": [
+    {
+      "python": "3.14.7",
+      "passed": 298,
+      "duration_s": 42.48,
+      "status": "PASS",
+      "evidence": "validation/acceptance-python314-sequential.log"
+    },
+    {
+      "python": "3.10.21",
+      "passed": 298,
+      "duration_s": 41.77,
+      "status": "PASS",
+      "evidence": "validation/acceptance-python310-sequential.log"
+    }
+  ],
+  "internal_scenarios": {
+    "passed": 20,
+    "total": 20,
+    "status": "PASS",
+    "evidence": "scenarios-acceptance/suite_summary.json",
+    "scenario_statuses": {
+      "normal": "PASS",
+      "full-control-loop": "PASS",
+      "packet-loss": "PASS",
+      "ack-loss": "PASS",
+      "duplicate-command": "PASS",
+      "delayed-result": "PASS",
+      "lost-result": "PASS",
+      "reordered-messages": "PASS",
+      "sensor-fault": "PASS",
+      "gateway-failover": "PASS",
+      "gateway-recovery": "PASS",
+      "stale-generation": "PASS",
+      "server-offline": "PASS",
+      "queue-replay": "PASS",
+      "policy-replay": "PASS",
+      "split-brain": "PASS",
+      "expired-command": "PASS",
+      "registration-race": "PASS",
+      "persisted-ack-loss": "PASS",
+      "controller-unavailable": "PASS"
+    }
+  },
+  "firmware_builds": [
+    {
+      "profile": "lab",
+      "idf": "5.4.4",
+      "target": "esp32s3",
+      "status": "PASS",
+      "flashed": false,
+      "flags": [
+        "CONFIG_B1_LAB_MODE=y"
+      ],
+      "evidence": "validation/firmware-lab-acceptance.log"
+    },
+    {
+      "profile": "deployment+light-sleep",
+      "idf": "5.4.4",
+      "target": "esp32s3",
+      "status": "PASS",
+      "flashed": false,
+      "flags": [
+        "CONFIG_B1_DEPLOYMENT_MODE=y",
+        "CONFIG_PM_ENABLE=y",
+        "CONFIG_FREERTOS_USE_TICKLESS_IDLE=y",
+        "CONFIG_B1_LIGHT_SLEEP=y"
+      ],
+      "evidence": "validation/firmware-low-power-acceptance.log"
+    }
+  ],
+  "hardware_tested": false,
+  "device_resource_metrics": null,
+  "external_edgefaultlab": {
+    "status": "NOT RUN",
+    "reason": "GitHub clone port 443 connection failed",
+    "evidence": "validation/external-unavailable.log"
+  },
+  "remote_ci_run": false,
+  "stable_host_trace": {
+    "simulation": {
+      "samples": 100,
+      "enqueued": 10,
+      "sensor_transport_sink_calls": 10,
+      "all_states_stable": true,
+      "scope": "host C policy / FreeRTOS and cJSON sink stubs; fixed trace times, not energy/RF"
+    },
+    "lab": {
+      "samples": 100,
+      "enqueued": 3,
+      "sensor_transport_sink_calls": 3,
+      "all_states_stable": true,
+      "scope": "host C policy / FreeRTOS and cJSON sink stubs; fixed trace times, not energy/RF"
+    },
+    "deployment": {
+      "samples": 100,
+      "enqueued": 2,
+      "sensor_transport_sink_calls": 2,
+      "all_states_stable": true,
+      "scope": "host C policy / FreeRTOS and cJSON sink stubs; fixed trace times, not energy/RF"
+    }
+  }
+}

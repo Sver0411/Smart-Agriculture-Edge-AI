@@ -1,0 +1,87 @@
+{
+  "iteration": "Final five semantic patches",
+  "date": "2026-10-06",
+  "branch": "codex/deployment-semantics",
+  "base_commit": "f56b8575dccaea41d5cba53cb490fdfc6fa17f21",
+  "prior_local_source": "baseline-source.json",
+  "pytest": [
+    {
+      "status": "PASS",
+      "python": "3.14.7",
+      "passed": 337,
+      "duration_s": 44.31,
+      "evidence": "validation/full-python314-final.log",
+      "source_stage": "after replay-completion observation barrier"
+    },
+    {
+      "status": "PASS",
+      "python": "3.10.21",
+      "passed": 337,
+      "duration_s": 103.7,
+      "evidence": "validation/full-python310-sequential.log",
+      "source_stage": "final production patch code; before experiment observation barrier; final Python3.10 scenario run verifies changed harness"
+    }
+  ],
+  "internal_scenarios": {
+    "status": "PASS",
+    "passed": 20,
+    "total": 20,
+    "python": "3.10.21",
+    "evidence": "scenarios-final/suite_summary.json",
+    "run_output_directory": "/tmp/sa-final-five-scenarios-final-01a10cd7",
+    "archived_directory": "scenarios-final",
+    "completion_budget_s": 10,
+    "assertions_unchanged": true,
+    "source_stage": "after final replay-completion observation barrier"
+  },
+  "firmware_builds": [
+    {
+      "status": "PASS",
+      "idf": "5.4.4",
+      "target": "esp32s3",
+      "profile": "lab",
+      "evidence": "validation/firmware-lab.log",
+      "flashed": false
+    },
+    {
+      "status": "PASS",
+      "idf": "5.4.4",
+      "target": "esp32s3",
+      "profile": "deployment+PM+tickless+light-sleep",
+      "evidence": "validation/firmware-low-power.log",
+      "flashed": false
+    }
+  ],
+  "hardware_tested": false,
+  "flashed": false,
+  "device_resource_metrics": null,
+  "remote_ci_run": false,
+  "test_counts": {
+    "prior": 298,
+    "new_five_patch_tests": 33,
+    "new_physical_parity_checks": 6,
+    "total": 337
+  },
+  "retained_failed_runs": [
+    {
+      "evidence": "validation/full-python314.log",
+      "passed": 336,
+      "failed": 1
+    },
+    {
+      "evidence": "scenarios/suite_summary.json",
+      "passed": 15,
+      "total": 20
+    },
+    {
+      "evidence": "scenarios-sequential/suite_summary.json",
+      "passed": 16,
+      "total": 20
+    },
+    {
+      "evidence": "scenarios-temp-before-barrier/suite_summary.json",
+      "passed": 18,
+      "total": 20
+    }
+  ]
+}

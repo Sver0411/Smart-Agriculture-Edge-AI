@@ -1,0 +1,81 @@
+{
+  "assertions": [
+    {
+      "description": "server records unavailable controller outcome",
+      "passed": false
+    },
+    {
+      "description": "offline controller executes zero commands",
+      "passed": true
+    },
+    {
+      "description": "every sensor command preserves fixed zone membership",
+      "passed": true
+    },
+    {
+      "description": "no logical command reported executed twice on control link",
+      "passed": true
+    },
+    {
+      "description": "both sensor zones sampled",
+      "passed": true
+    },
+    {
+      "description": "C1 really reconnects after offline decision",
+      "passed": false
+    },
+    {
+      "description": "reconnected C1 never executes old undispatched command",
+      "passed": true
+    },
+    {
+      "description": "no unavailable command is later dispatched",
+      "passed": true
+    },
+    {
+      "description": "C2 zone continues",
+      "passed": true
+    },
+    {
+      "description": "server records sensor history",
+      "passed": false
+    }
+  ],
+  "exit_code": 1,
+  "observations": {
+    "gateway_states": {
+      "A1": {
+        "gateway_id": "A1",
+        "generation": 6,
+        "health": "ONLINE",
+        "peer_generation": 7,
+        "peer_health": "ONLINE",
+        "peer_id": "A2",
+        "role": "STANDBY"
+      },
+      "A2": {
+        "gateway_id": "A2",
+        "generation": 7,
+        "health": "ONLINE",
+        "peer_generation": 6,
+        "peer_health": "ONLINE",
+        "peer_id": "A1",
+        "role": "ACTIVE"
+      }
+    },
+    "node_ownership": {
+      "B1": {
+        "generation": 2,
+        "owner": "A1"
+      },
+      "B2": {
+        "generation": 7,
+        "owner": "A2"
+      }
+    },
+    "undispatched_ids": []
+  },
+  "question": "Is unavailable C1 reported NOT_DISPATCHED, with no old command executed after reconnection?",
+  "scenario": "controller-unavailable",
+  "status": "FAIL"
+}

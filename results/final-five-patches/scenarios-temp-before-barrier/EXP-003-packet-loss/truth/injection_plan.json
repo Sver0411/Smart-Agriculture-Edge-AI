@@ -1,0 +1,21 @@
+{
+  "disruptions": [],
+  "frame_faults": [
+    {
+      "action": "drop",
+      "match": {
+        "target": "C1",
+        "type": "CONTROL_COMMAND"
+      }
+    }
+  ],
+  "receipt_observations": [
+    {
+      "action": "drop",
+      "message_id": "68e3f7058085"
+    }
+  ],
+  "scenario": "packet-loss",
+  "seed": 42,
+  "sensor_fault": false
+}

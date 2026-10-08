@@ -1,0 +1,118 @@
+.....F.......F.......F...                                                [100%]
+=================================== FAILURES ===================================
+________ test_python_c_upload_decision_parity[simulation-sensor_fault] _________
+
+c_policy = ('simulation', PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-2/upload-parity0/simulation'))
+case = 'sensor_fault'
+
+    @pytest.mark.parametrize('case',CASES)
+    def test_python_c_upload_decision_parity(c_policy, case):
+        profile,binary=c_policy
+        settings=node_settings(profile,physical=True)
+        samples=trace(case,settings)
+        raw=''.join(f'{round(t*1000)} {temp:.9g} {hum:.9g} {int(valid)}\n' for t,temp,hum,valid in samples)
+        lines=subprocess.check_output([str(binary)],input=raw,text=True).splitlines()
+        trust=SensorTrust(settings['trust_channels']);scheduler=AdaptiveSense(settings=settings)
+        uploads=[];events=[];states=[];sent=0
+        assert len(lines)==len(samples)
+        for (t,temp,hum,valid),line in zip(samples,lines):
+            sample={'temperature':temp,'humidity':hum}
+            health=trust.update(sample,t,valid={'temperature':valid,'humidity':valid})
+            decision=scheduler.update(sample,health,t)
+            state,ms,event,upload,admitted,enqueued,network,health_state,score=line.split()
+            assert state==decision['state'],(profile,case,t,line,decision)
+            assert int(ms)==pytest.approx(decision['interval_s']*1000,abs=1)
+            assert bool(int(event))==decision['detected_event'],(profile,case,t,line,decision)
+            assert bool(int(upload))==decision['upload_requested'],(profile,case,t,line,decision)
+            assert bool(int(admitted))==decision['upload_requested']
+            sent+=decision['upload_requested']
+            assert int(enqueued)==int(network)==sent
+            if decision['score'] is None:assert math.isnan(float(score))
+            else:assert float(score)==pytest.approx(decision['score'],abs=0.002)
+            uploads.append(decision['upload_requested']);events.append(decision['detected_event']);states.append(state)
+        assert uploads[0]
+        if case=='stable':assert sent<len(samples)/2
+>       if case=='sensor_fault':assert uploads[5] and not uploads[6] and uploads[20] and not uploads[21] and uploads[30]
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (True and not True)
+
+tests/test_upload_parity.py:78: AssertionError
+____________ test_python_c_upload_decision_parity[lab-sensor_fault] ____________
+
+c_policy = ('lab', PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-2/upload-parity1/lab'))
+case = 'sensor_fault'
+
+    @pytest.mark.parametrize('case',CASES)
+    def test_python_c_upload_decision_parity(c_policy, case):
+        profile,binary=c_policy
+        settings=node_settings(profile,physical=True)
+        samples=trace(case,settings)
+        raw=''.join(f'{round(t*1000)} {temp:.9g} {hum:.9g} {int(valid)}\n' for t,temp,hum,valid in samples)
+        lines=subprocess.check_output([str(binary)],input=raw,text=True).splitlines()
+        trust=SensorTrust(settings['trust_channels']);scheduler=AdaptiveSense(settings=settings)
+        uploads=[];events=[];states=[];sent=0
+        assert len(lines)==len(samples)
+        for (t,temp,hum,valid),line in zip(samples,lines):
+            sample={'temperature':temp,'humidity':hum}
+            health=trust.update(sample,t,valid={'temperature':valid,'humidity':valid})
+            decision=scheduler.update(sample,health,t)
+            state,ms,event,upload,admitted,enqueued,network,health_state,score=line.split()
+            assert state==decision['state'],(profile,case,t,line,decision)
+            assert int(ms)==pytest.approx(decision['interval_s']*1000,abs=1)
+            assert bool(int(event))==decision['detected_event'],(profile,case,t,line,decision)
+            assert bool(int(upload))==decision['upload_requested'],(profile,case,t,line,decision)
+            assert bool(int(admitted))==decision['upload_requested']
+            sent+=decision['upload_requested']
+            assert int(enqueued)==int(network)==sent
+            if decision['score'] is None:assert math.isnan(float(score))
+            else:assert float(score)==pytest.approx(decision['score'],abs=0.002)
+            uploads.append(decision['upload_requested']);events.append(decision['detected_event']);states.append(state)
+        assert uploads[0]
+        if case=='stable':assert sent<len(samples)/2
+>       if case=='sensor_fault':assert uploads[5] and not uploads[6] and uploads[20] and not uploads[21] and uploads[30]
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (True and not True)
+
+tests/test_upload_parity.py:78: AssertionError
+________ test_python_c_upload_decision_parity[deployment-sensor_fault] _________
+
+c_policy = ('deployment', PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-2/upload-parity2/deployment'))
+case = 'sensor_fault'
+
+    @pytest.mark.parametrize('case',CASES)
+    def test_python_c_upload_decision_parity(c_policy, case):
+        profile,binary=c_policy
+        settings=node_settings(profile,physical=True)
+        samples=trace(case,settings)
+        raw=''.join(f'{round(t*1000)} {temp:.9g} {hum:.9g} {int(valid)}\n' for t,temp,hum,valid in samples)
+        lines=subprocess.check_output([str(binary)],input=raw,text=True).splitlines()
+        trust=SensorTrust(settings['trust_channels']);scheduler=AdaptiveSense(settings=settings)
+        uploads=[];events=[];states=[];sent=0
+        assert len(lines)==len(samples)
+        for (t,temp,hum,valid),line in zip(samples,lines):
+            sample={'temperature':temp,'humidity':hum}
+            health=trust.update(sample,t,valid={'temperature':valid,'humidity':valid})
+            decision=scheduler.update(sample,health,t)
+            state,ms,event,upload,admitted,enqueued,network,health_state,score=line.split()
+            assert state==decision['state'],(profile,case,t,line,decision)
+            assert int(ms)==pytest.approx(decision['interval_s']*1000,abs=1)
+            assert bool(int(event))==decision['detected_event'],(profile,case,t,line,decision)
+            assert bool(int(upload))==decision['upload_requested'],(profile,case,t,line,decision)
+            assert bool(int(admitted))==decision['upload_requested']
+            sent+=decision['upload_requested']
+            assert int(enqueued)==int(network)==sent
+            if decision['score'] is None:assert math.isnan(float(score))
+            else:assert float(score)==pytest.approx(decision['score'],abs=0.002)
+            uploads.append(decision['upload_requested']);events.append(decision['detected_event']);states.append(state)
+        assert uploads[0]
+        if case=='stable':assert sent<len(samples)/2
+>       if case=='sensor_fault':assert uploads[5] and not uploads[6] and uploads[20] and not uploads[21] and uploads[30]
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (True and not True)
+
+tests/test_upload_parity.py:78: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_upload_parity.py::test_python_c_upload_decision_parity[simulation-sensor_fault]
+FAILED tests/test_upload_parity.py::test_python_c_upload_decision_parity[lab-sensor_fault]
+FAILED tests/test_upload_parity.py::test_python_c_upload_decision_parity[deployment-sensor_fault]
+3 failed, 22 passed in 2.62s

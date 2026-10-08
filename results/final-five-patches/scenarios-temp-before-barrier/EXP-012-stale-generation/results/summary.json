@@ -1,0 +1,96 @@
+{
+  "assertions": [
+    {
+      "description": "A2 peer A1 OFFLINE",
+      "passed": true
+    },
+    {
+      "description": "ownership epoch synchronized across A2/B1/C1",
+      "passed": true
+    },
+    {
+      "description": "B1 and C1 owner A2",
+      "passed": true
+    },
+    {
+      "description": "deposed command rejected",
+      "passed": true
+    },
+    {
+      "description": "every sensor command preserves fixed zone membership",
+      "passed": true
+    },
+    {
+      "description": "A2 drives C1 from B1 after takeover",
+      "passed": true
+    },
+    {
+      "description": "A2 continues driving C2 from B2",
+      "passed": true
+    },
+    {
+      "description": "no logical command reported executed twice on control link",
+      "passed": true
+    },
+    {
+      "description": "both sensor zones sampled",
+      "passed": true
+    },
+    {
+      "description": "C1 executes trusted control",
+      "passed": true
+    },
+    {
+      "description": "C2 zone continues",
+      "passed": true
+    },
+    {
+      "description": "server records sensor history",
+      "passed": true
+    }
+  ],
+  "exit_code": 0,
+  "observations": {
+    "gateway_states": {
+      "A1": {
+        "gateway_id": "A1",
+        "generation": 1,
+        "health": "ONLINE",
+        "peer_generation": 1,
+        "peer_health": "ONLINE",
+        "peer_id": "A2",
+        "role": "ACTIVE"
+      },
+      "A2": {
+        "gateway_id": "A2",
+        "generation": 2,
+        "health": "ONLINE",
+        "peer_generation": 1,
+        "peer_health": "ONLINE",
+        "peer_id": "A1",
+        "role": "ACTIVE"
+      }
+    },
+    "node_ownership": {
+      "B1": {
+        "generation": 2,
+        "owner": "A2"
+      },
+      "B2": {
+        "generation": 2,
+        "owner": "A2"
+      }
+    },
+    "recovery_time_s": 0.8354338749995804,
+    "stale_result": {
+      "command_id": "stale-probe",
+      "command_type": "IRRIGATION",
+      "generation": 1,
+      "reason": "STALE_GENERATION",
+      "status": "REJECTED"
+    }
+  },
+  "question": "Does a command from a deposed epoch remain rejected?",
+  "scenario": "stale-generation",
+  "status": "PASS"
+}

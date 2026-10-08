@@ -1,0 +1,86 @@
+{
+  "assertions": [
+    {
+      "description": "server records unavailable controller outcome",
+      "passed": true
+    },
+    {
+      "description": "offline controller executes zero commands",
+      "passed": true
+    },
+    {
+      "description": "every sensor command preserves fixed zone membership",
+      "passed": true
+    },
+    {
+      "description": "no logical command reported executed twice on control link",
+      "passed": true
+    },
+    {
+      "description": "both sensor zones sampled",
+      "passed": true
+    },
+    {
+      "description": "C1 really reconnects after offline decision",
+      "passed": true
+    },
+    {
+      "description": "reconnected C1 never executes old undispatched command",
+      "passed": true
+    },
+    {
+      "description": "no unavailable command is later dispatched",
+      "passed": true
+    },
+    {
+      "description": "C2 zone continues",
+      "passed": true
+    },
+    {
+      "description": "server records sensor history",
+      "passed": true
+    }
+  ],
+  "exit_code": 0,
+  "observations": {
+    "gateway_states": {
+      "A1": {
+        "gateway_id": "A1",
+        "generation": 1,
+        "health": "ONLINE",
+        "peer_generation": 1,
+        "peer_health": "ONLINE",
+        "peer_id": "A2",
+        "role": "ACTIVE"
+      },
+      "A2": {
+        "gateway_id": "A2",
+        "generation": 1,
+        "health": "ONLINE",
+        "peer_generation": 1,
+        "peer_health": "ONLINE",
+        "peer_id": "A1",
+        "role": "ACTIVE"
+      }
+    },
+    "node_ownership": {
+      "B1": {
+        "generation": 1,
+        "owner": "A1"
+      },
+      "B2": {
+        "generation": 1,
+        "owner": "A2"
+      }
+    },
+    "undispatched_ids": [
+      "90e286aef585",
+      "d0bf4e824304",
+      "1749395b80c5",
+      "990fb52cb32c"
+    ]
+  },
+  "question": "Is unavailable C1 reported NOT_DISPATCHED, with no old command executed after reconnection?",
+  "scenario": "controller-unavailable",
+  "status": "PASS"
+}

@@ -1,0 +1,17 @@
+{
+  "disruptions": [],
+  "frame_faults": [
+    {
+      "action": "drop",
+      "count": 1000,
+      "match": {
+        "source": "C1",
+        "type": "CONTROL_RESULT"
+      }
+    }
+  ],
+  "receipt_observations": [],
+  "scenario": "lost-result",
+  "seed": 42,
+  "sensor_fault": false
+}

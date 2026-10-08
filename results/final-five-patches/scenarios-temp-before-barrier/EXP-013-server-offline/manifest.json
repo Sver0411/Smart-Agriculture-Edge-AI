@@ -1,0 +1,13 @@
+{
+  "config_sha256": "53b009a8fc80a4af62d05208a3a6c33ec1cc9dfd7e7f90747ac0e3433c2454e1",
+  "dirty_scope": "source files; generated software-v0.3 and software-v0.3.1 evidence excluded",
+  "input_mode": "software-simulation",
+  "raw_sha256": "95ca4238e0b1979df036a5c5519b9d263ed4c3b6df40199443720fbc2e5538d7",
+  "revision": "f56b8575dccaea41d5cba53cb490fdfc6fa17f21",
+  "scenario": "server-offline",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "FAIL",
+  "verification": "host-tested",
+  "working_tree_dirty": true
+}

@@ -1,0 +1,487 @@
+{
+  "passed": 0,
+  "scenarios": [
+    {
+      "assertions": [
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Do both zones complete B -> A -> C -> A -> Server?",
+      "scenario": "normal",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Do all seven software roles participate in the complete control loop?",
+      "scenario": "full-control-loop",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Does a dropped control frame retry and execute once?",
+      "scenario": "packet-loss",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Does a lost receipt ACK retry without a second actuator execution?",
+      "scenario": "ack-loss",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Does a duplicated logical command execute once?",
+      "scenario": "duplicate-command",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Can an unknown execution outcome be resolved by a late result?",
+      "scenario": "delayed-result",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Does missing CONTROL_RESULT remain explicitly UNKNOWN without blind reexecution?",
+      "scenario": "lost-result",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Is old telemetry retained for audit but excluded from fresh control?",
+      "scenario": "reordered-messages",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Does a broken B1 channel block C1 while the other zone continues?",
+      "scenario": "sensor-fault",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined",
+        "recovery_time_s": 0.6103732920000766,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does A2 take over and synchronize sensor/controller generation?",
+      "scenario": "gateway-failover",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "recovered gateway standby",
+          "passed": true
+        },
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined",
+        "recovery_time_s": 0.6099932079996506,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does recovered A1 enter STANDBY?",
+      "scenario": "gateway-recovery",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined",
+        "recovery_time_s": 0.6127913749996878,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a command from a deposed epoch remain rejected?",
+      "scenario": "stale-generation",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "history queued durably",
+          "passed": true
+        },
+        {
+          "description": "local control executes during outage",
+          "passed": true
+        },
+        {
+          "description": "all offline queues drained",
+          "passed": true
+        },
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Does edge control continue and history replay after cloud recovery?",
+      "scenario": "server-offline",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "history queued durably",
+          "passed": true
+        },
+        {
+          "description": "local control executes during outage",
+          "passed": true
+        },
+        {
+          "description": "all offline queues drained",
+          "passed": true
+        },
+        {
+          "description": "250 logical queued samples stored",
+          "passed": true
+        },
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Do 250 queued messages replay without any new telemetry trigger?",
+      "scenario": "queue-replay",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "old policy ignored",
+          "passed": true
+        },
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Does an older policy leave current thresholds unchanged?",
+      "scenario": "policy-replay",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "non-owner cannot execute",
+          "passed": true
+        },
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined",
+        "result": {
+          "command_id": "non-owner",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "NOT_OWNER",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a controller reject a non-owner at the same epoch?",
+      "scenario": "split-brain",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "expired command rejected",
+          "passed": true
+        },
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined",
+        "result": {
+          "command_id": "expired",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "EXPIRED",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does an expired command leave the actuator untouched?",
+      "scenario": "expired-command",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 explicitly rejects B1 and C1 before takeover",
+          "passed": true
+        },
+        {
+          "description": "correct B1/C1 initial owner at A1",
+          "passed": true
+        },
+        {
+          "description": "registration does not bump initial epoch",
+          "passed": true
+        },
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined"
+      },
+      "question": "Do B1/C1 contact A2 first, receive NOT_OWNER, then establish correct ownership at A1 without startup delays?",
+      "scenario": "registration-race",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "committed receipt was dropped",
+          "passed": true
+        },
+        {
+          "description": "server deduplicates replay after ACK loss",
+          "passed": true
+        },
+        {
+          "description": "acknowledged row removed",
+          "passed": true
+        },
+        {
+          "description": "one committed business row for lost receipt",
+          "passed": true
+        },
+        {
+          "description": "row retained at moment of dropped ACK",
+          "passed": true
+        },
+        {
+          "description": "dedup row committed before dropped ACK",
+          "passed": true
+        },
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined",
+        "replayed_message_id": "fdc216111976"
+      },
+      "question": "Does a committed upload retain its gateway copy after a lost persisted ACK and replay to one business row?",
+      "scenario": "persisted-ack-loss",
+      "status": "FAIL"
+    },
+    {
+      "assertions": [
+        {
+          "description": "server records unavailable controller outcome",
+          "passed": true
+        },
+        {
+          "description": "offline controller executes zero commands",
+          "passed": true
+        },
+        {
+          "description": "scenario runs without exception",
+          "passed": false
+        }
+      ],
+      "exit_code": 1,
+      "observations": {
+        "error": "NameError: name 'config' is not defined",
+        "undispatched_ids": [
+          "013221b36ac4",
+          "a6f5dd208f94",
+          "ffbff207c1aa",
+          "faf4a86de991"
+        ]
+      },
+      "question": "Is unavailable C1 reported NOT_DISPATCHED, with no old command executed after reconnection?",
+      "scenario": "controller-unavailable",
+      "status": "FAIL"
+    }
+  ],
+  "total": 20
+}

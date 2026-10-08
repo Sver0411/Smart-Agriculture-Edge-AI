@@ -1,0 +1,280 @@
+........................................................................ [ 21%]
+........................................................................ [ 42%]
+..............F......................................................... [ 64%]
+........................................................................ [ 85%]
+.................................................                        [100%]
+=================================== FAILURES ===================================
+____________ test_server_reconnect_drains_250_without_a_new_upload _____________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-34/test_server_reconnect_drains_20')
+
+    def test_server_reconnect_drains_250_without_a_new_upload(tmp_path):
+        """The server connection itself must trigger replay; no sensor task runs."""
+        def free_port():
+            with socket.socket() as sock:
+                sock.bind(("127.0.0.1", 0))
+                return sock.getsockname()[1]
+    
+        async def scenario():
+            port = free_port()
+            server = Server(port=port, db_path=str(tmp_path / "server.db"))
+            gateway = Gateway("A1", server_port=port,
+                              queue_path=str(tmp_path / "gateway.db"))
+            expected = [f"reconnect-{i:03}" for i in range(250)]
+            for message_id in expected:
+                gateway.offline_queue.enqueue(upload(message_id=message_id))
+            await server.start()
+            task = asyncio.create_task(gateway.task_server_policy())
+            try:
+                for _ in range(200):
+                    if server.db.count("sensor_data") == 250 and gateway.offline_queue.count() == 0:
+                        break
+                    await asyncio.sleep(0.025)
+                assert gateway.offline_queue.count() == 0
+                assert gateway.metrics.get("queue_replayed") == 250
+                ids = [row[0] for row in server.db.conn.execute(
+                    "SELECT message_id FROM sensor_data ORDER BY id")]
+                assert ids == expected
+            finally:
+                task.cancel()
+                await asyncio.gather(task, return_exceptions=True)
+                gateway.offline_queue.close()
+                await server.stop()
+    
+>       asyncio.run(scenario())
+
+tests/test_offline.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:205: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:128: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py:720: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def scenario():
+        port = free_port()
+        server = Server(port=port, db_path=str(tmp_path / "server.db"))
+        gateway = Gateway("A1", server_port=port,
+                          queue_path=str(tmp_path / "gateway.db"))
+        expected = [f"reconnect-{i:03}" for i in range(250)]
+        for message_id in expected:
+            gateway.offline_queue.enqueue(upload(message_id=message_id))
+        await server.start()
+        task = asyncio.create_task(gateway.task_server_policy())
+        try:
+            for _ in range(200):
+                if server.db.count("sensor_data") == 250 and gateway.offline_queue.count() == 0:
+                    break
+                await asyncio.sleep(0.025)
+>           assert gateway.offline_queue.count() == 0
+E           assert 71 == 0
+E            +  where 71 = count()
+E            +    where count = <gateway.offline_queue.OfflineQueue object at 0x103862780>.count
+E            +      where <gateway.offline_queue.OfflineQueue object at 0x103862780> = <gateway.gateway.Gateway object at 0x102c67230>.offline_queue
+
+tests/test_offline.py:205: AssertionError
+----------------------------- Captured stdout call -----------------------------
+01:35:57 [SERVER] listening on 127.0.0.1:53486 (sqlite: /private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-34/test_server_reconnect_drains_20/server.db)
+01:35:57 [A1] connected to server 127.0.0.1:53486
+01:35:57 [SERVER] gateway A1 connected
+01:35:57 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:57 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:57 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:57 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:57 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:57 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:58 [SERVER] SERVER_POLICY v1 pushed to A1
+01:35:58 [A1] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:35:58 [A1] edge autonomy intact: policy is advisory, control stays local
+01:35:58 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:59 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:59 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:59 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:59 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:59 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:59 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:59 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:59 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:59 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:35:59 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:00 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:00 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:00 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:00 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:00 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:00 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:00 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:00 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:00 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:00 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:00 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:00 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:01 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:02 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:04 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:05 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:06 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:06 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:06 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:06 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:06 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:06 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:06 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:07 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:07 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:07 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:07 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:07 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:07 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:07 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:07 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:08 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:08 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:08 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:08 [SERVER] SERVER_POLICY v2 pushed to A1
+01:36:09 [A1] SERVER_POLICY v2 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:36:09 [A1] edge autonomy intact: policy is advisory, control stays local
+01:36:09 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:11 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:15 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:16 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:17 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:17 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:18 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:20 [SERVER] SERVER_POLICY v3 pushed to A1
+01:36:20 [A1] SERVER_POLICY v3 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:36:20 [A1] edge autonomy intact: policy is advisory, control stays local
+01:36:21 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:21 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:22 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:22 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:22 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:22 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:23 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:23 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:24 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:24 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:24 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:24 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:24 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:25 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:26 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:27 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:27 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:27 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:28 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:28 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:28 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:29 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:29 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:29 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:29 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:29 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:29 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:29 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:29 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:30 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:30 [SERVER] SERVER_POLICY v4 pushed to A1
+01:36:30 [A1] SERVER_POLICY v4 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:36:30 [A1] edge autonomy intact: policy is advisory, control stays local
+01:36:31 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:31 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:31 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:31 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:32 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:34 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:35 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:36 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:36 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:36 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:38 [SERVER] sensor data stored (B1 soil=20.0% temp=NoneC)
+01:36:38 [SERVER] gateway A1 disconnected
+=========================== short test summary info ============================
+FAILED tests/test_offline.py::test_server_reconnect_drains_250_without_a_new_upload
+1 failed, 336 passed in 308.97s (0:05:08)
