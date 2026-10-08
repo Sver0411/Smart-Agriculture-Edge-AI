@@ -1,6 +1,6 @@
 {
   "release": "v0.3.1 + Deployment Semantics & Edge Autonomy Realignment",
-  "date": "2026-10-06",
+  "date": "2026-10-08",
   "new_software": {
     "SensorTrust": "host-tested; shared C reference fixture",
     "AdaptiveSense": "host-tested; software scenarios",
@@ -39,22 +39,19 @@
     "firmware_built_in_this_release": false
   },
   "current_local_validation": {
-    "iteration": "Final five semantic patches",
-    "python314_tests": 337,
-    "python310_tests": 337,
-    "python310_final_runner_scenarios": 20,
-    "python310_stage": "full tests before experimental observation barrier; final scenarios after barrier",
+    "iteration": "Branch integration review",
+    "python314_tests": 350,
+    "python310_tests": 350,
+    "python312_tests": 350,
     "internal_scenarios_passed": 20,
     "internal_scenarios_total": 20,
-    "firmware_build_profiles": [
-      "lab",
-      "deployment+PM+tickless+light-sleep"
-    ],
+    "external_edgefaultlab_passed": 5,
+    "external_edgefaultlab_total": 5,
     "hardware_tested": false,
-    "external_edgefaultlab": "not rerun in this small patch",
-    "remote_ci": "not run",
-    "evidence": "results/final-five-patches/validation/summary.json",
-    "manifest": "results/final-five-patches/validation/manifest.json"
+    "firmware_rebuilt_in_this_review": false,
+    "remote_ci": "pending main push",
+    "evidence": "results/main-integration-review/validation/summary.json",
+    "manifest": "results/main-integration-review/validation/source-manifest.json"
   },
   "previous_local_validation": {
     "python314_tests": 298,
@@ -70,5 +67,25 @@
     "evidence": "results/deployment-realignment/validation/summary.json",
     "manifest": "results/deployment-realignment/validation/manifest.json",
     "historical_hardware": "results/v0.3/README.md; unchanged HW1 scope"
-  }
+  },
+  "validation_history": [
+    {
+      "iteration": "Final five semantic patches",
+      "python314_tests": 337,
+      "python310_tests": 337,
+      "python310_final_runner_scenarios": 20,
+      "python310_stage": "full tests before experimental observation barrier; final scenarios after barrier",
+      "internal_scenarios_passed": 20,
+      "internal_scenarios_total": 20,
+      "firmware_build_profiles": [
+        "lab",
+        "deployment+PM+tickless+light-sleep"
+      ],
+      "hardware_tested": false,
+      "external_edgefaultlab": "not rerun in this small patch",
+      "remote_ci": "not run",
+      "evidence": "results/final-five-patches/validation/summary.json",
+      "manifest": "results/final-five-patches/validation/manifest.json"
+    }
+  ]
 }

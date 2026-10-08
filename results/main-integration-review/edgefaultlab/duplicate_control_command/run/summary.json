@@ -1,0 +1,100 @@
+{
+  "run_id": "20261008-134914-a8355b",
+  "scenario": "smart agriculture - duplicate control command",
+  "seed": 42,
+  "duration": 12.0,
+  "observed_duration": 12.015551,
+  "messages_received": 1070,
+  "messages_forwarded": 1073,
+  "messages_dropped": 0,
+  "messages_delayed": 0,
+  "messages_duplicated": 3,
+  "messages_reordered": 0,
+  "messages_mutated": 0,
+  "malformed_messages": 0,
+  "messages_too_large": 0,
+  "connections_opened": 9,
+  "connections_closed": 13,
+  "faults_activated": 1,
+  "faults_completed": 1,
+  "process_kills": 0,
+  "process_restarts": 0,
+  "assertions_passed": 3,
+  "assertions_failed": 0,
+  "recovery_time": null,
+  "recovery": [],
+  "assertions": [
+    {
+      "assert": "unique",
+      "description": "a command_id is executed at most once",
+      "result": "PASS",
+      "detail": "18 distinct payload.command_id value(s) in 18 matching message(s)"
+    },
+    {
+      "assert": "message_count",
+      "description": "commands still run at all",
+      "result": "PASS",
+      "detail": "observed 18 message(s) matching [payload.status='EXECUTED', type='CONTROL_RESULT']"
+    },
+    {
+      "assert": "never",
+      "description": "no unsafe execution was reported",
+      "result": "PASS",
+      "detail": "no message matching [payload.reason='UNSAFE_EXECUTION', type='CONTROL_RESULT'] was ever delivered"
+    }
+  ],
+  "processes": [
+    {
+      "process": "server",
+      "pid": 47374,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "gateway_a1",
+      "pid": 47375,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "gateway_a2",
+      "pid": 47376,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "sensor_b1",
+      "pid": 47377,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "controller_c1",
+      "pid": 47378,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "sensor_b2",
+      "pid": 47379,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "controller_c2",
+      "pid": 47380,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    }
+  ],
+  "failures": [],
+  "result": "PASS",
+  "exit_code": 0
+}

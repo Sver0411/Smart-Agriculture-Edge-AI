@@ -328,6 +328,8 @@ A1 sees newer generation → remains STANDBY
 
 [v0.3.1 可靠性报告](docs/V0_3_1_RELIABILITY_REPORT.md) · [本轮代码审查](docs/V0_3_1_RELIABILITY_REVIEW.md) · [v0.3 整合与复用记录](docs/V0_3_INTEGRATION_REPORT.md)
 
+[分支整合审查与最新软件验证](docs/BRANCH_INTEGRATION_REVIEW.md) 记录开发线合入主线前的 checkpoint、命令窗口和配置修复；历史测试/实验报告保留原范围。
+
 下一阶段优先打通现场 E220 通信、NVS epoch 与真实功耗验证，并进行上述 Gateway Failure Hardware Demonstration。完整拓扑始终保留。
 
 MIT。直接复用的 AdaptiveSense Python 文件保留其 MIT 许可证与来源记录。

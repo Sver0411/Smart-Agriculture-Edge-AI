@@ -1,0 +1,269 @@
+FFFF.FFFFFFF.                                                            [100%]
+=================================== FAILURES ===================================
+_______ test_missing_current_epoch_never_implicitly_loads_previous_slot ________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-45/test_missing_current_epoch_nev0')
+
+    def test_missing_current_epoch_never_implicitly_loads_previous_slot(tmp_path):
+        store = StateStore(tmp_path / "state.db")
+        store.save("epoch", {"generation": 2})
+        store.save("epoch", {"generation": 3})
+        remove_current(store, "epoch")
+>       with pytest.raises(StateError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE StateError
+
+tests/test_branch_integration_review.py:28: Failed
+_______________ test_missing_controller_epoch_disables_execution _______________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-45/test_missing_controller_epoch_0')
+
+    def test_missing_controller_epoch_disables_execution(tmp_path):
+        store = StateStore(tmp_path / "controller.db")
+        guard = SafetyGuard(store=store)
+        assert guard.set_ownership("A1", 1)
+        assert guard.set_ownership("A2", 2)
+        remove_current(store, "controller")
+        reboot = SafetyGuard(store=store)
+>       assert reboot.persistence_fault
+E       assert False
+E        +  where False = <controller_node.safety_guard.SafetyGuard object at 0x102726490>.persistence_fault
+
+tests/test_branch_integration_review.py:40: AssertionError
+_________________ test_missing_gateway_epoch_disables_control __________________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-45/test_missing_gateway_epoch_dis0')
+
+    def test_missing_gateway_epoch_disables_control(tmp_path):
+        path = tmp_path / "gateway.db"
+        gateway = Gateway("A2", state_path=str(path))
+        gateway._takeover()
+        remove_current(gateway.state_store, "ownership")
+        reboot = Gateway("A2", state_path=str(path))
+>       assert reboot.persistence_fault
+E       assert False
+E        +  where False = <gateway.gateway.Gateway object at 0x102818ad0>.persistence_fault
+
+tests/test_branch_integration_review.py:50: AssertionError
+----------------------------- Captured stdout call -----------------------------
+13:44:43 [A2] taking ownership of B1
+13:44:43 [A2] taking ownership of C1
+13:44:43 [A2] ownership generation = 1 -> 2
+_______ test_missing_current_command_window_cannot_forget_recent_intent ________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-45/test_missing_current_command_w0')
+
+    def test_missing_current_command_window_cannot_forget_recent_intent(tmp_path):
+        store = StateStore(tmp_path / "commands.db")
+        recent = RecentCommandStore(store)
+        recent.begin("unresolved-command")
+        remove_current(store, "recent_commands")
+>       with pytest.raises(StateError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE StateError
+
+tests/test_branch_integration_review.py:59: Failed
+_____________ test_controller_live_id_window_matches_durable_bound _____________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-45/test_controller_live_id_window0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1026c36f0>
+
+    def test_controller_live_id_window_matches_durable_bound(tmp_path, monkeypatch):
+        monkeypatch.setitem(settings.SETTINGS["controller"], "recent_command_capacity", 2)
+    
+        async def run():
+            guard = SafetyGuard(store=StateStore(tmp_path / "controller.db"),
+                                cooldown={"IRRIGATION": 0, "VENTILATION": 0})
+            controller = ControllerNode("C1", safety_guard=guard, time_scale=0)
+            for i in range(5):
+                command = Message(type=CONTROL_COMMAND, source="A1", target="C1",
+                                  payload={"command_id": f"bounded-{i}", "type": "IRRIGATION",
+                                           "duration": 1, "gateway_generation": 1})
+                assert (await controller.process_command(command))["status"] == "EXECUTED"
+            assert guard.executed_command_ids == set(controller.recent_commands.entries)
+            assert guard.executed_command_ids == {"bounded-3", "bounded-4"}
+            assert (await controller.process_command(command))["status"] == "DUPLICATE"
+            assert controller.metrics.get("executed") == 5
+    
+>       asyncio.run(run())
+
+tests/test_branch_integration_review.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:205: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:128: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py:720: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def run():
+        guard = SafetyGuard(store=StateStore(tmp_path / "controller.db"),
+                            cooldown={"IRRIGATION": 0, "VENTILATION": 0})
+        controller = ControllerNode("C1", safety_guard=guard, time_scale=0)
+        for i in range(5):
+            command = Message(type=CONTROL_COMMAND, source="A1", target="C1",
+                              payload={"command_id": f"bounded-{i}", "type": "IRRIGATION",
+                                       "duration": 1, "gateway_generation": 1})
+            assert (await controller.process_command(command))["status"] == "EXECUTED"
+>       assert guard.executed_command_ids == set(controller.recent_commands.entries)
+E       AssertionError: assert {'bounded-0',..., 'bounded-4'} == {'bounded-3', 'bounded-4'}
+E         
+E         Extra items in the left set:
+E         'bounded-2'
+E         'bounded-0'
+E         'bounded-1'
+E         Use -v to get more diff
+
+tests/test_branch_integration_review.py:86: AssertionError
+----------------------------- Captured stdout call -----------------------------
+13:44:43 [C1] IRRIGATION command received (command_id=bounded-0, duration=1s, generation=1)
+13:44:43 [C1] safety check passed
+13:44:43 [C1] irrigation executed
+13:44:43 [C1] CONTROL_RESULT EXECUTED
+13:44:43 [C1] IRRIGATION command received (command_id=bounded-1, duration=1s, generation=1)
+13:44:43 [C1] safety check passed
+13:44:43 [C1] irrigation executed
+13:44:43 [C1] CONTROL_RESULT EXECUTED
+13:44:43 [C1] IRRIGATION command received (command_id=bounded-2, duration=1s, generation=1)
+13:44:43 [C1] safety check passed
+13:44:43 [C1] irrigation executed
+13:44:43 [C1] CONTROL_RESULT EXECUTED
+13:44:43 [C1] IRRIGATION command received (command_id=bounded-3, duration=1s, generation=1)
+13:44:43 [C1] safety check passed
+13:44:43 [C1] irrigation executed
+13:44:43 [C1] CONTROL_RESULT EXECUTED
+13:44:43 [C1] IRRIGATION command received (command_id=bounded-4, duration=1s, generation=1)
+13:44:43 [C1] safety check passed
+13:44:43 [C1] irrigation executed
+13:44:43 [C1] CONTROL_RESULT EXECUTED
+_________ test_invalid_replay_interval_is_rejected_at_config_load[-1] __________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-45/test_invalid_replay_interval_i0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1026c1ba0>
+value = -1
+
+    @pytest.mark.parametrize("value", [-1, float("nan"), float("inf"), True, "slow", None])
+    def test_invalid_replay_interval_is_rejected_at_config_load(tmp_path, monkeypatch, value):
+        profile = settings.profile_settings("simulation")
+        profile["connectivity"]["replay_interval_s"] = value
+        profiles = tmp_path / "profiles"
+        profiles.mkdir()
+        (profiles / "simulation.json").write_text(json.dumps(profile))
+        monkeypatch.setattr(settings, "CONFIG_PATH", tmp_path / "software.json")
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_branch_integration_review.py:102: Failed
+_________ test_invalid_replay_interval_is_rejected_at_config_load[nan] _________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-45/test_invalid_replay_interval_i1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x102756b10>
+value = nan
+
+    @pytest.mark.parametrize("value", [-1, float("nan"), float("inf"), True, "slow", None])
+    def test_invalid_replay_interval_is_rejected_at_config_load(tmp_path, monkeypatch, value):
+        profile = settings.profile_settings("simulation")
+        profile["connectivity"]["replay_interval_s"] = value
+        profiles = tmp_path / "profiles"
+        profiles.mkdir()
+        (profiles / "simulation.json").write_text(json.dumps(profile))
+        monkeypatch.setattr(settings, "CONFIG_PATH", tmp_path / "software.json")
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_branch_integration_review.py:102: Failed
+_________ test_invalid_replay_interval_is_rejected_at_config_load[inf] _________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-45/test_invalid_replay_interval_i2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10282d6a0>
+value = inf
+
+    @pytest.mark.parametrize("value", [-1, float("nan"), float("inf"), True, "slow", None])
+    def test_invalid_replay_interval_is_rejected_at_config_load(tmp_path, monkeypatch, value):
+        profile = settings.profile_settings("simulation")
+        profile["connectivity"]["replay_interval_s"] = value
+        profiles = tmp_path / "profiles"
+        profiles.mkdir()
+        (profiles / "simulation.json").write_text(json.dumps(profile))
+        monkeypatch.setattr(settings, "CONFIG_PATH", tmp_path / "software.json")
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_branch_integration_review.py:102: Failed
+________ test_invalid_replay_interval_is_rejected_at_config_load[True] _________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-45/test_invalid_replay_interval_i3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10282dd00>
+value = True
+
+    @pytest.mark.parametrize("value", [-1, float("nan"), float("inf"), True, "slow", None])
+    def test_invalid_replay_interval_is_rejected_at_config_load(tmp_path, monkeypatch, value):
+        profile = settings.profile_settings("simulation")
+        profile["connectivity"]["replay_interval_s"] = value
+        profiles = tmp_path / "profiles"
+        profiles.mkdir()
+        (profiles / "simulation.json").write_text(json.dumps(profile))
+        monkeypatch.setattr(settings, "CONFIG_PATH", tmp_path / "software.json")
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_branch_integration_review.py:102: Failed
+________ test_invalid_replay_interval_is_rejected_at_config_load[slow] _________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-45/test_invalid_replay_interval_i4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x102921250>
+value = 'slow'
+
+    @pytest.mark.parametrize("value", [-1, float("nan"), float("inf"), True, "slow", None])
+    def test_invalid_replay_interval_is_rejected_at_config_load(tmp_path, monkeypatch, value):
+        profile = settings.profile_settings("simulation")
+        profile["connectivity"]["replay_interval_s"] = value
+        profiles = tmp_path / "profiles"
+        profiles.mkdir()
+        (profiles / "simulation.json").write_text(json.dumps(profile))
+        monkeypatch.setattr(settings, "CONFIG_PATH", tmp_path / "software.json")
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_branch_integration_review.py:102: Failed
+________ test_invalid_replay_interval_is_rejected_at_config_load[None] _________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-45/test_invalid_replay_interval_i5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1027c0950>
+value = None
+
+    @pytest.mark.parametrize("value", [-1, float("nan"), float("inf"), True, "slow", None])
+    def test_invalid_replay_interval_is_rejected_at_config_load(tmp_path, monkeypatch, value):
+        profile = settings.profile_settings("simulation")
+        profile["connectivity"]["replay_interval_s"] = value
+        profiles = tmp_path / "profiles"
+        profiles.mkdir()
+        (profiles / "simulation.json").write_text(json.dumps(profile))
+        monkeypatch.setattr(settings, "CONFIG_PATH", tmp_path / "software.json")
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_branch_integration_review.py:102: Failed
+=========================== short test summary info ============================
+FAILED tests/test_branch_integration_review.py::test_missing_current_epoch_never_implicitly_loads_previous_slot
+FAILED tests/test_branch_integration_review.py::test_missing_controller_epoch_disables_execution
+FAILED tests/test_branch_integration_review.py::test_missing_gateway_epoch_disables_control
+FAILED tests/test_branch_integration_review.py::test_missing_current_command_window_cannot_forget_recent_intent
+FAILED tests/test_branch_integration_review.py::test_controller_live_id_window_matches_durable_bound
+FAILED tests/test_branch_integration_review.py::test_invalid_replay_interval_is_rejected_at_config_load[-1]
+FAILED tests/test_branch_integration_review.py::test_invalid_replay_interval_is_rejected_at_config_load[nan]
+FAILED tests/test_branch_integration_review.py::test_invalid_replay_interval_is_rejected_at_config_load[inf]
+FAILED tests/test_branch_integration_review.py::test_invalid_replay_interval_is_rejected_at_config_load[True]
+FAILED tests/test_branch_integration_review.py::test_invalid_replay_interval_is_rejected_at_config_load[slow]
+FAILED tests/test_branch_integration_review.py::test_invalid_replay_interval_is_rejected_at_config_load[None]
+11 failed, 2 passed in 0.47s

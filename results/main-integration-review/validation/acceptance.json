@@ -1,0 +1,81 @@
+[
+  {
+    "name": "python310",
+    "command": [
+      "uv",
+      "run",
+      "--python",
+      "3.10",
+      "--with",
+      "pytest>=7",
+      "python",
+      "-m",
+      "pytest",
+      "tests/",
+      "-q"
+    ],
+    "exit_code": 0,
+    "duration_s": 45.19,
+    "log": "validation/python310.log"
+  },
+  {
+    "name": "python312",
+    "command": [
+      "uv",
+      "run",
+      "--python",
+      "3.12",
+      "--with",
+      "pytest>=7",
+      "python",
+      "-m",
+      "pytest",
+      "tests/",
+      "-q"
+    ],
+    "exit_code": 0,
+    "duration_s": 43.22,
+    "log": "validation/python312.log"
+  },
+  {
+    "name": "software_scenarios",
+    "command": [
+      "uv",
+      "run",
+      "--python",
+      "3.12",
+      "--with",
+      "pytest>=7",
+      "python",
+      "-m",
+      "experiments.runner",
+      "--all",
+      "--output",
+      "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/main-integration-review/software-scenarios"
+    ],
+    "exit_code": 0,
+    "duration_s": 56.68,
+    "log": "validation/software_scenarios.log"
+  },
+  {
+    "name": "edgefaultlab",
+    "command": [
+      "uv",
+      "run",
+      "--python",
+      "3.12",
+      "--with",
+      "pytest>=7",
+      "python",
+      "-m",
+      "experiments.edgefaultlab",
+      "--edgefaultlab-root",
+      ".external/edgefaultlab",
+      "--output",
+      "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/results/main-integration-review/edgefaultlab"
+    ],
+    "exit_code": 0,
+    "duration_s": 60.38,
+    "log": "validation/edgefaultlab.log"
+  }
+]

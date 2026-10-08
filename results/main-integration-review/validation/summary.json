@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-08",
+  "tested_source_commit": "f204ad9fd05d6abed249511268d5344df02cf82d",
+  "main_before": "f56b8575dccaea41d5cba53cb490fdfc6fa17f21",
+  "tests": [
+    {
+      "python": "3.14.7",
+      "status": "PASS",
+      "passed": 350,
+      "duration_s": 44.36,
+      "log": "validation/full-local.log"
+    },
+    {
+      "python": "3.10.21",
+      "status": "PASS",
+      "passed": 350,
+      "duration_s": 43.32,
+      "log": "validation/python310.log"
+    },
+    {
+      "python": "3.12.14",
+      "status": "PASS",
+      "passed": 350,
+      "duration_s": 42.49,
+      "log": "validation/python312.log"
+    }
+  ],
+  "software_scenarios": {
+    "passed": 20,
+    "total": 20,
+    "evidence": "software-scenarios/suite_summary.json"
+  },
+  "edgefaultlab": {
+    "passed": 5,
+    "total": 5,
+    "revision": "c7248239f456cc877114ca1e67c5949fb4a7b958",
+    "evidence": "edgefaultlab/suite_summary.json"
+  },
+  "hardware_tested": false,
+  "firmware_rebuilt_in_this_review": false,
+  "device_resource_metrics": null,
+  "remote_ci": null
+}

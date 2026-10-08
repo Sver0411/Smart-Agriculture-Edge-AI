@@ -1,0 +1,110 @@
+{
+  "run_id": "20261008-134902-f469c9",
+  "scenario": "smart agriculture - server outage",
+  "seed": 42,
+  "duration": 12.0,
+  "observed_duration": 12.016349,
+  "messages_received": 1004,
+  "messages_forwarded": 1004,
+  "messages_dropped": 0,
+  "messages_delayed": 0,
+  "messages_duplicated": 0,
+  "messages_reordered": 0,
+  "messages_mutated": 0,
+  "malformed_messages": 0,
+  "messages_too_large": 0,
+  "connections_opened": 10,
+  "connections_closed": 10,
+  "faults_activated": 1,
+  "faults_completed": 1,
+  "process_kills": 0,
+  "process_restarts": 0,
+  "assertions_passed": 3,
+  "assertions_failed": 0,
+  "recovery_time": 3.712261,
+  "recovery": [
+    {
+      "fault": "server-down",
+      "action": "link_down",
+      "disruption_event": "LINK_DOWN",
+      "disrupted_at": 2.002398,
+      "recovered_at": 5.714659,
+      "recovery_time": 3.712261,
+      "recovered_by": "uploads resume after the server comes back"
+    }
+  ],
+  "assertions": [
+    {
+      "assert": "message_count",
+      "description": "the local control loop kept executing during the outage",
+      "result": "PASS",
+      "detail": "observed 20 message(s) matching [payload.status='EXECUTED', type='CONTROL_RESULT']"
+    },
+    {
+      "assert": "eventually",
+      "description": "uploads resume after the server comes back",
+      "result": "PASS",
+      "detail": "matched [type='SENSOR_DATA'] at 5.715s (window 4.000s..12.000s)"
+    },
+    {
+      "assert": "unique",
+      "description": "the outage did not cause a double execution",
+      "result": "PASS",
+      "detail": "20 distinct payload.command_id value(s) in 20 matching message(s)"
+    }
+  ],
+  "processes": [
+    {
+      "process": "server",
+      "pid": 47235,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "gateway_a1",
+      "pid": 47236,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "gateway_a2",
+      "pid": 47237,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "sensor_b1",
+      "pid": 47238,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "controller_c1",
+      "pid": 47239,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "sensor_b2",
+      "pid": 47240,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "controller_c2",
+      "pid": 47241,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    }
+  ],
+  "failures": [],
+  "result": "PASS",
+  "exit_code": 0
+}

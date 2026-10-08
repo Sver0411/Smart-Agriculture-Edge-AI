@@ -1,0 +1,136 @@
+{
+  "passed": 5,
+  "scenarios": [
+    {
+      "assertions": [
+        {
+          "description": "the mesh keeps reporting to the cloud after A1 dies",
+          "detail": "matched [type='SENSOR_DATA'] at 2.166s (window 2.000s..10.000s)",
+          "passed": true
+        },
+        {
+          "description": "failover does not execute a command twice",
+          "detail": "5 distinct payload.command_id value(s) in 5 matching message(s)",
+          "passed": true
+        },
+        {
+          "description": "no unsafe execution was reported",
+          "detail": "no message matching [payload.reason='UNSAFE_EXECUTION', type='CONTROL_RESULT'] was ever delivered",
+          "passed": true
+        },
+        {
+          "description": "sensor data reached the cloud at all",
+          "detail": "observed 34 message(s) matching [type='SENSOR_DATA']",
+          "passed": true
+        },
+        {
+          "description": "A2 uploads after A1 crash",
+          "detail": "matched [source='A2', type='SENSOR_DATA'] at 2.166s (window 2.000s..10.000s)",
+          "passed": true
+        },
+        {
+          "description": "B1 reconnects to A2",
+          "detail": "matched [source='B1', type='NODE_REGISTER'] at 2.008s (window 2.000s..10.000s)",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "external_revision": "c7248239f456cc877114ca1e67c5949fb4a7b958",
+      "scenario": "gateway_failover",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "the local control loop kept executing during the outage",
+          "detail": "observed 20 message(s) matching [payload.status='EXECUTED', type='CONTROL_RESULT']",
+          "passed": true
+        },
+        {
+          "description": "uploads resume after the server comes back",
+          "detail": "matched [type='SENSOR_DATA'] at 5.715s (window 4.000s..12.000s)",
+          "passed": true
+        },
+        {
+          "description": "the outage did not cause a double execution",
+          "detail": "20 distinct payload.command_id value(s) in 20 matching message(s)",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "external_revision": "c7248239f456cc877114ca1e67c5949fb4a7b958",
+      "scenario": "server_outage",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "a command_id is executed at most once",
+          "detail": "18 distinct payload.command_id value(s) in 18 matching message(s)",
+          "passed": true
+        },
+        {
+          "description": "commands still run at all",
+          "detail": "observed 18 message(s) matching [payload.status='EXECUTED', type='CONTROL_RESULT']",
+          "passed": true
+        },
+        {
+          "description": "no unsafe execution was reported",
+          "detail": "no message matching [payload.reason='UNSAFE_EXECUTION', type='CONTROL_RESULT'] was ever delivered",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "external_revision": "c7248239f456cc877114ca1e67c5949fb4a7b958",
+      "scenario": "duplicate_control_command",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "no aged command was executed",
+          "detail": "no message matching [payload.status='EXECUTED', type='CONTROL_RESULT'] was ever delivered",
+          "passed": true
+        },
+        {
+          "description": "the controller refused the aged command",
+          "detail": "observed 19 message(s) matching [payload.status='REJECTED', type='CONTROL_RESULT']",
+          "passed": true
+        },
+        {
+          "description": "the refusal was clean, not a safety violation",
+          "detail": "no message matching [payload.reason='UNSAFE_EXECUTION', type='CONTROL_RESULT'] was ever delivered",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "external_revision": "c7248239f456cc877114ca1e67c5949fb4a7b958",
+      "scenario": "stale_command",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "the command is executed after the ACK timeout and retry",
+          "detail": "matched [payload.status='EXECUTED', type='CONTROL_RESULT'] at 0.640s (window 0.000s..8.000s)",
+          "passed": true
+        },
+        {
+          "description": "the retry executed the command exactly once",
+          "detail": "19 distinct payload.command_id value(s) in 19 matching message(s)",
+          "passed": true
+        },
+        {
+          "description": "at least one command was sent",
+          "detail": "observed 19 message(s) matching [type='CONTROL_COMMAND']",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "external_revision": "c7248239f456cc877114ca1e67c5949fb4a7b958",
+      "scenario": "lost_command",
+      "status": "PASS"
+    }
+  ],
+  "total": 5
+}

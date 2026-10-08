@@ -1,0 +1,23 @@
+{
+  "assertions": [
+    {
+      "description": "the local control loop kept executing during the outage",
+      "detail": "observed 20 message(s) matching [payload.status='EXECUTED', type='CONTROL_RESULT']",
+      "passed": true
+    },
+    {
+      "description": "uploads resume after the server comes back",
+      "detail": "matched [type='SENSOR_DATA'] at 5.715s (window 4.000s..12.000s)",
+      "passed": true
+    },
+    {
+      "description": "the outage did not cause a double execution",
+      "detail": "20 distinct payload.command_id value(s) in 20 matching message(s)",
+      "passed": true
+    }
+  ],
+  "exit_code": 0,
+  "external_revision": "c7248239f456cc877114ca1e67c5949fb4a7b958",
+  "scenario": "server_outage",
+  "status": "PASS"
+}

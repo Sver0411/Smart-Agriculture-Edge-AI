@@ -1,0 +1,89 @@
+{
+  "main_before": "f56b8575dccaea41d5cba53cb490fdfc6fa17f21",
+  "branches": [
+    {
+      "ref": "refs/heads/codex/deployment-semantics",
+      "sha": "f56b8575dccaea41d5cba53cb490fdfc6fa17f21",
+      "behind_main": 0,
+      "unique_from_main": 0
+    },
+    {
+      "ref": "refs/heads/feature/deployment-semantics",
+      "sha": "a60c5d14d55dd2c328a3170f1c84eab905177001",
+      "behind_main": 0,
+      "unique_from_main": 2
+    },
+    {
+      "ref": "refs/heads/feature/main-integration-review",
+      "sha": "f204ad9fd05d6abed249511268d5344df02cf82d",
+      "behind_main": 0,
+      "unique_from_main": 3
+    },
+    {
+      "ref": "refs/heads/main",
+      "sha": "f56b8575dccaea41d5cba53cb490fdfc6fa17f21",
+      "behind_main": 0,
+      "unique_from_main": 0
+    },
+    {
+      "ref": "refs/heads/v0.2.1-protocol-hardening",
+      "sha": "4e320f96511f6884e8174411effd21f9d9cd4174",
+      "behind_main": 36,
+      "unique_from_main": 0
+    },
+    {
+      "ref": "refs/heads/v0.3-physical-b1",
+      "sha": "5a01dcdee7bca30867a92c38351da06300ad321e",
+      "behind_main": 35,
+      "unique_from_main": 0
+    },
+    {
+      "ref": "refs/heads/v0.3-software-integration",
+      "sha": "20ceb6f1517476d83b16c67a3554cde9ef3e941d",
+      "behind_main": 21,
+      "unique_from_main": 0
+    },
+    {
+      "ref": "refs/heads/v0.3.1-reliability-hardening",
+      "sha": "bc83741fb4b2c63ab27fe6fb00ed6d405b28255e",
+      "behind_main": 2,
+      "unique_from_main": 0
+    },
+    {
+      "ref": "refs/remotes/origin/feature/deployment-semantics",
+      "sha": "a60c5d14d55dd2c328a3170f1c84eab905177001",
+      "behind_main": 0,
+      "unique_from_main": 2
+    },
+    {
+      "ref": "refs/remotes/origin/main",
+      "sha": "f56b8575dccaea41d5cba53cb490fdfc6fa17f21",
+      "behind_main": 0,
+      "unique_from_main": 0
+    },
+    {
+      "ref": "refs/remotes/origin/v0.2.1-protocol-hardening",
+      "sha": "4e320f96511f6884e8174411effd21f9d9cd4174",
+      "behind_main": 36,
+      "unique_from_main": 0
+    },
+    {
+      "ref": "refs/remotes/origin/v0.3-physical-b1",
+      "sha": "5a01dcdee7bca30867a92c38351da06300ad321e",
+      "behind_main": 35,
+      "unique_from_main": 0
+    },
+    {
+      "ref": "refs/remotes/origin/v0.3-software-integration",
+      "sha": "79a5c5a5fecaa718d7886348abcef70dba0c7824",
+      "behind_main": 22,
+      "unique_from_main": 0
+    },
+    {
+      "ref": "refs/remotes/origin/v0.3.1-reliability-hardening",
+      "sha": "e9cf7a5547b367d0b126767a18ff1d6f8aa21428",
+      "behind_main": 4,
+      "unique_from_main": 0
+    }
+  ]
+}
