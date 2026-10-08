@@ -150,6 +150,7 @@ static bool register_node(int fd, const char *gateway, rx_buffer_t *rx)
         cJSON_AddStringToObject(payload, "node_id", "B1");
         cJSON_AddStringToObject(payload, "node_type", "SENSOR");
         cJSON_AddStringToObject(payload, "node_mode", "physical");
+        cJSON_AddStringToObject(payload, "boot_id", b1_boot_id);
         cJSON_AddNumberToObject(payload, "generation", highest_generation);
         b1_stats.registration_attempts++;
         if (!send_json(fd, b1_envelope("NODE_REGISTER", gateway, payload, uptime_ms() / 1000.0))) return false;
@@ -176,14 +177,44 @@ static bool register_node(int fd, const char *gateway, rx_buffer_t *rx)
     return false;
 }
 
-static bool tcp_send_payload(void *context, const char *type, cJSON *payload)
+static bool send_record(int fd, const b1_record_t *r)
 {
-    int fd = *(int *)context;
-    return send_json(fd, b1_envelope(type, owner, payload, uptime_ms() / 1000.0));
+    const char *line=r->wire;
+    while (*line) {
+        const char *end=strchr(line, '\n');
+        if (!end) return false;
+        cJSON *root=cJSON_ParseWithLength(line, (size_t)(end-line));
+        if (!root) return false;
+        cJSON_ReplaceItemInObjectCaseSensitive(root, "target", cJSON_CreateString(owner));
+        cJSON *p=cJSON_GetObjectItemCaseSensitive(root,"payload");
+        uint64_t now=uptime_ms();
+        if (strcmp(r->boot_id,b1_boot_id)==0 && now>=r->acquired_ms)
+            cJSON_AddNumberToObject(p,"delivery_age_ms",(double)(now-r->acquired_ms));
+        else cJSON_AddNullToObject(p,"delivery_age_ms");
+        cJSON *type=cJSON_GetObjectItemCaseSensitive(root,"type");
+        bool sensor=cJSON_IsString(type) && strcmp(type->valuestring,"SENSOR_DATA")==0;
+        if (!send_json(fd,root)) return false;
+        if (sensor) b1_stats.sensor_messages++; else b1_stats.alerts++;
+        line=end+1;
+    }
+    return true; /* local TCP submission only; record remains pending */
+}
+
+static void receive_durable_ack(cJSON *in)
+{
+    cJSON *p=cJSON_GetObjectItemCaseSensitive(in,"payload");
+    cJSON *id=cJSON_GetObjectItemCaseSensitive(p,"ack_message_id");
+    cJSON *scope=cJSON_GetObjectItemCaseSensitive(p,"scope");
+    cJSON *contract=cJSON_GetObjectItemCaseSensitive(p,"delivery_contract");
+    if (cJSON_IsString(id) && cJSON_IsString(scope) && strcmp(scope->valuestring,"GATEWAY_OUTBOX")==0 &&
+        cJSON_IsString(contract) && strcmp(contract->valuestring,"gateway-durable-v1")==0 &&
+        cJSON_IsTrue(cJSON_GetObjectItemCaseSensitive(p,"persisted")))
+        b1_queue_ack(id->valuestring);
 }
 
 static void log_stats(void)
 {
+    b1_queue_stats();
     printf("B1_STATS {\"wifi_connects\":%lu,\"gateway_connects\":%lu,\"registration_attempts\":%lu,"
            "\"registration_success\":%lu,\"sensor_samples\":%lu,\"sensor_messages\":%lu,"
            "\"alerts\":%lu,\"local_queue_drops\":%lu,\"gateway_failovers\":%lu}\n",
@@ -234,15 +265,15 @@ void b1_network_task(void *arg)
                     cJSON_IsString(target) && strcmp(target->valuestring, "B1") == 0 &&
                     strcmp(type->valuestring, "NODE_STATUS") == 0) {
                     if (!accept_ownership(in, candidate)) connected = false;
+                } else if (cJSON_IsString(type) && strcmp(type->valuestring,"PERSISTED_ACK")==0 &&
+                    cJSON_IsString(source) && strcmp(source->valuestring,candidate)==0 &&
+                    cJSON_IsString(target) && strcmp(target->valuestring,"B1")==0) {
+                    receive_durable_ack(in);
                 }
                 cJSON_Delete(in);
             }
-            b1_sample_t sample;
-            if (xQueueReceive(b1_queue, &sample, 0) == pdTRUE && !b1_transmit_sample(&(b1_transport_t){.context = &fd, .send = tcp_send_payload}, &sample)) {
-                // Preserve the failed sample if space remains; queue is volatile and bounded.
-                if (xQueueSendToFront(b1_queue, &sample, 0) != pdTRUE) b1_stats.local_queue_drops++;
-                break;
-            }
+            static b1_record_t pending;
+            if (connected && b1_queue_next(&pending, uptime_ms()) && !send_record(fd, &pending)) break;
             if (uptime_ms() - last_stats > 10000) { log_stats(); last_stats = uptime_ms(); }
         }
         printf("B1_NET {\"event\":\"DISCONNECTED\",\"gateway\":\"%s\",\"monotonic_ms\":%llu}\n",

@@ -4,13 +4,22 @@
 #include <stdio.h>
 #include <string.h>
 
-static uint32_t message_counter;
+static uint64_t message_counter;
 
 cJSON *b1_envelope(const char *type, const char *target, cJSON *payload, double uptime_s)
 {
     cJSON *root = cJSON_CreateObject();
-    char id[32];
-    snprintf(id, sizeof(id), "B1-%s-%08lx", b1_boot_id, (unsigned long)++message_counter);
+    char id[B1_SAMPLE_ID_SIZE+24];
+    cJSON *sample_id = cJSON_GetObjectItemCaseSensitive(payload, "sample_id");
+    cJSON *seq = cJSON_GetObjectItemCaseSensitive(payload, "sample_seq");
+    if (cJSON_IsString(sample_id))
+        snprintf(id, sizeof(id), "%s-%s", sample_id->valuestring, strcmp(type,"SENSOR_DATA")==0 ? "S" : "A");
+    else
+        snprintf(id, sizeof(id), "B1-%s-M%016llx", b1_boot_id, (unsigned long long)++message_counter);
+    if (cJSON_IsString(sample_id) && cJSON_IsNumber(seq)) {
+        cJSON_AddNumberToObject(root, "protocol_version", 1);
+        cJSON_AddNumberToObject(root, "sequence", seq->valuedouble);
+    }
     cJSON_AddStringToObject(root, "type", type);
     cJSON_AddStringToObject(root, "source", "B1");
     cJSON_AddStringToObject(root, "target", target);
@@ -73,7 +82,6 @@ bool b1_transmit_sample(const b1_transport_t *transport, const b1_sample_t *s)
     cJSON_AddStringToObject(sampling, "mode", s->mode);
     cJSON_AddStringToObject(sampling, "reason", s->reason);
     if (!transport->send(transport->context, "SENSOR_DATA", payload)) return false;
-    b1_stats.sensor_messages++;
     if (s->alert_requested) {
         cJSON *alert = cJSON_CreateObject();
         cJSON_AddStringToObject(alert, "alert_type", s->recovered ? "SENSOR_RECOVERED" :
@@ -83,7 +91,6 @@ bool b1_transmit_sample(const b1_transport_t *transport, const b1_sample_t *s)
         cJSON_AddStringToObject(alert, "message", s->recovered ? "sensor recovered" : s->injected ? "integration fault injection" : "sensor health anomaly");
         cJSON_AddNumberToObject(alert, "sample_seq", s->seq);
         if (!transport->send(transport->context, "ALERT", alert)) return false;
-        b1_stats.alerts++;
     }
     return true;
 }

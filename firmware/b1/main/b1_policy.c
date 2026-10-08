@@ -7,6 +7,8 @@
 #include "b1_profiles.h"
 #include "b1_control_relevance.h"
 
+const char *b1_policy_version(void) { return B1_POLICY_VERSION; }
+
 bool b1_policy_set_temperature_threshold(b1_policy_t *p, float threshold)
 {
     if (!isfinite(threshold)) return false;
@@ -92,7 +94,18 @@ void b1_policy_update(b1_policy_t *p, b1_sample_t *s)
     bool event = false;
     s->score = cd_update(&p->detector, t, values, valid, &event);
     as_decision_t decision;
+    const as_t report_baseline = p->scheduler;
     as_update(&p->scheduler, t, values, valid, s->score, event, &decision);
+    // The upstream core treats upload intent as reported. At the B1 boundary
+    // only durable gateway confirmation advances heartbeat/delta baselines.
+    p->scheduler.last_upload_t = report_baseline.last_upload_t;
+    p->scheduler.has_uploaded = report_baseline.has_uploaded;
+    memcpy(p->scheduler.last_upload_values, report_baseline.last_upload_values, sizeof(p->scheduler.last_upload_values));
+    memcpy(p->scheduler.last_upload_valid, report_baseline.last_upload_valid, sizeof(p->scheduler.last_upload_valid));
+    if (!p->scheduler.has_uploaded && p->as_config.up_first_sample) {
+        decision.upload_requested = true;
+        decision.upload_reasons |= UP_FIRST_SAMPLE;
+    }
     s->mode = decision.state == AS_ALERT ? "ALERT" : decision.state == AS_ACTIVE ? "ACTIVE" : "STABLE";
     s->reason = s->mode;
     s->next_interval_ms = (uint32_t)(decision.interval_s * 1000);

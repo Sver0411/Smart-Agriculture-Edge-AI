@@ -64,7 +64,13 @@ void b1_sensor_task(void *arg)
     if (!b1_policy_init(&policy)) abort();
     uint32_t sequence = 0;
     while (true) {
+        b1_sample_t reported;
+        if (b1_queue_take_confirmed(&reported)) b1_policy_mark_reported(&policy, &reported);
         b1_sample_t s = {0};
+        if (sequence == UINT32_MAX) {
+            printf("B1_DELIVERY {\"event\":\"SEQUENCE_EXHAUSTED_REBOOT_REQUIRED\"}\n");
+            while (true) vTaskDelay(pdMS_TO_TICKS(10000));
+        }
         s.seq = ++sequence;
         s.monotonic_ms = (uint64_t)(esp_timer_get_time() / 1000);
         s.valid = sht30_read(&s.temperature, &s.humidity);
@@ -102,7 +108,7 @@ void b1_sensor_task(void *arg)
                s.upload_requested ? "true" : "false", s.detected_event ? "true" : "false",
                (unsigned long)s.next_interval_ms, s.reason,
                (unsigned long)esp_get_minimum_free_heap_size());
-        if (b1_queue_sample(&s)) b1_policy_mark_reported(&policy, &s);
+        b1_queue_sample(&s);
         vTaskDelay(pdMS_TO_TICKS(s.next_interval_ms));
     }
 }
