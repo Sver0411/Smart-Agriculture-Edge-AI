@@ -33,7 +33,7 @@ def admission_priority(message):
     record = payload.get('record')
     evidence = record if isinstance(record, dict) else payload
     if (message.type == CONTROL_RESULT or payload.get('severity') == 'CRITICAL' or
-            evidence.get('severity') == 'CRITICAL' or evidence.get('health_state') == 'FAULT'):
+            evidence.get('importance') == 'HIGH' or evidence.get('severity') == 'CRITICAL' or evidence.get('health_state') == 'FAULT'):
         return HIGH
     if message.type == ALERT and payload.get('alert_type') in (
             'SENSOR_FAULT', 'COMMAND_DELIVERY_FAILED', 'CONTROL_RESULT_TIMEOUT', 'GATEWAY_FAILOVER'):
@@ -51,6 +51,11 @@ CREATE TABLE IF NOT EXISTS gateway_queue (
     priority INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS gateway_queue_message ON gateway_queue(message_id);
+CREATE TABLE IF NOT EXISTS sensor_receipts (
+    identity TEXT PRIMARY KEY,
+    digest TEXT NOT NULL,
+    received_at REAL NOT NULL
+);
 """
 
 
@@ -58,7 +63,10 @@ class OfflineQueue:
     """A durable FIFO of messages that still need to reach the server."""
 
     def __init__(self, path: str = ":memory:", max_messages=None, max_payload_bytes=None,
-                 reserved_messages=None, reserved_payload_bytes=None):
+                 reserved_messages=None, reserved_payload_bytes=None, max_sensor_receipts=100000):
+        if type(max_sensor_receipts) is not int or max_sensor_receipts < 1:
+            raise ValueError("receipt limit must be positive")
+        self.max_sensor_receipts = max_sensor_receipts
         self.path = path
         self.conn: sqlite3.Connection | None = None
         self.enqueued = 0
@@ -80,6 +88,7 @@ class OfflineQueue:
         if self.conn is None:
             self.conn = sqlite3.connect(self.path, check_same_thread=False)
             self.conn.execute("PRAGMA journal_mode=WAL")
+            self.conn.execute("PRAGMA synchronous=FULL")
             self.conn.executescript(SCHEMA)
             columns = {row[1] for row in self.conn.execute('PRAGMA table_info(gateway_queue)')}
             if 'priority' not in columns:
@@ -101,10 +110,16 @@ class OfflineQueue:
     def enqueue(self, message: Message) -> int:
         """Store a message for later delivery. Returns its queue id."""
         self.connect()
+        with self.conn:
+            queue_id, inserted = self._enqueue(message)
+        self.enqueued += inserted
+        return queue_id
+
+    def _enqueue(self, message):
         raw = message.to_json()
         # Repeated command-history uploads keep one outstanding logical row.
         row = self.conn.execute("SELECT queue_id FROM gateway_queue WHERE message_id=?", (message.message_id,)).fetchone()
-        if row is not None:return int(row[0])
+        if row is not None:return int(row[0]), False
         count, size = self.conn.execute("SELECT COUNT(*), COALESCE(SUM(length(CAST(payload AS BLOB))),0) FROM gateway_queue").fetchone()
         priority = admission_priority(message)
         count_limit = self.max_messages if priority == HIGH else self.max_messages-self.reserved_messages
@@ -121,9 +136,42 @@ class OfflineQueue:
             """,
             (message.message_id, message.type, raw, time.time(), priority),
         )
-        self.conn.commit()
+        return int(cursor.lastrowid), True
+
+    def sensor_is_fresh(self, identity):
+        """Persisted high-water check for this device boot, including after replay."""
+        self.connect()
+        prefix = identity.rsplit('-', 2)[0] + '-'
+        latest = self.conn.execute(
+            'SELECT MAX(identity) FROM sensor_receipts WHERE identity BETWEEN ? AND ?',
+            (prefix + '00000000-S', prefix + 'ffffffff-S')).fetchone()[0]
+        return latest is None or identity > latest
+
+    def admit_sensor(self, message, identity, digest):
+        """Commit receipt and cloud outbox together; duplicates never requeue.
+
+        Returns False for an identical retry even after cloud replay cleanup.
+        Refuse new receipts when the bounded ledger is full; never age out an
+        identity while a rebooted B might still retry it.
+        """
+        self.connect()
+        with self.conn:
+            row = self.conn.execute(
+                'SELECT digest FROM sensor_receipts WHERE identity=?', (identity,)).fetchone()
+            if row is not None:
+                if row[0] != digest:
+                    raise ValueError('sample identity reused for different evidence')
+                return False
+            count = self.conn.execute('SELECT COUNT(*) FROM sensor_receipts').fetchone()[0]
+            if count >= self.max_sensor_receipts:
+                raise QueueCapacityError('sensor receipt ledger full')
+            if self.conn.execute('SELECT 1 FROM gateway_queue WHERE message_id=?', (identity,)).fetchone():
+                raise ValueError('outbox identity exists without a matching receipt')
+            self._enqueue(message)
+            self.conn.execute('INSERT INTO sensor_receipts VALUES (?,?,?)',
+                              (identity, digest, time.time()))
         self.enqueued += 1
-        return int(cursor.lastrowid)
+        return True
 
     # -- read side ---------------------------------------------------------
 

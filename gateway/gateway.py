@@ -52,7 +52,8 @@ from common.messages import (  # noqa: E402
     send_message,
 )
 from common.reliability import AckTracker, COMMAND_DELIVERY_FAILED, Counters, CommandOutcomes
-from common.protocol import SequenceGuard, integer  # noqa: E402
+from gateway.sensor_delivery import CONTRACT, identity_and_digest
+from common.protocol import SequenceGuard, integer, number  # noqa: E402
 from gateway.edge_decision import EdgeDecider  # noqa: E402
 from gateway.offline_queue import OfflineQueue, QueueCapacityError, admission_priority, HIGH  # noqa: E402
 from gateway.ownership import OwnershipManager  # noqa: E402
@@ -138,6 +139,7 @@ class Gateway:
 
         # Connected B / C nodes, keyed by node id.
         self.connections: dict[str, asyncio.StreamWriter] = {}
+        self.sensor_boots = {}
         # Every socket handed to us by the TCP server (B, C and the peer).
         self.inbound_writers: set = set()
         self.server_writer: asyncio.StreamWriter | None = None
@@ -363,6 +365,7 @@ class Gateway:
         if accepted:
             self.registry.touch(node_id)
             self.connections[node_id] = writer
+            self.sensor_boots[node_id] = message.payload.get("boot_id")
             node_log(self.gateway_id, f"{node_id} registered (owner={entry.owner_gateway}, generation={entry.generation})")
         else:
             self.metrics.inc("registration_rejected")
@@ -413,11 +416,28 @@ class Gateway:
             message = await self.sensor_queue.get()
             try:
                 await self._process_sensor_message(message)
+            except (MessageError, ValueError, sqlite3.Error, OSError) as exc:
+                self.metrics.inc("sensor_processing_failures")
+                node_log(self.gateway_id, f"sensor processing failed: {exc}")
             finally:
                 self.sensor_queue.task_done()
 
     async def _process_sensor_message(self, message: Message) -> None:
         payload = message.payload
+        reliable = payload.get("delivery_contract") == CONTRACT
+        identity = digest = None
+        if reliable:
+            try:
+                identity, digest = identity_and_digest(message)
+                if self.offline_queue.path == ":memory:":
+                    raise ValueError("durable sensor ACK requires a file-backed outbox")
+            except (MessageError, ValueError) as exc:
+                self.metrics.inc("sensor_durable_rejected")
+                node_log(self.gateway_id, str(exc))
+                return
+        elif "delivery_contract" in payload:
+            self.metrics.inc("sensor_durable_rejected")
+            return
         data = payload.get("data", {})
         if not isinstance(data, dict):
             node_log(self.gateway_id, f"invalid sensor payload from {message.source}")
@@ -435,17 +455,23 @@ class Gateway:
         received_at = time.time()
         record["timestamp"] = received_at if physical else message.timestamp
         record["received_at"] = received_at
-        for key in ("node_mode", "boot_id", "sample_seq", "device_monotonic_ms", "timestamp_source", "sampling", "health", "health_score", "fault_flags", "physical_read_ok", "test_injected", "severity"):
+        for key in ("node_mode", "boot_id", "sample_seq", "device_monotonic_ms", "timestamp_source", "sampling", "health", "health_score", "fault_flags", "physical_read_ok", "test_injected", "severity", "sample_id", "importance", "policy_version", "delivery_contract"):
             if key in payload:
                 record[key] = payload[key]
-        fresh = self.sequences.accept(message)
+        fresh = self.sequences.accept(message) if not reliable else self.offline_queue.sensor_is_fresh(identity)
+        if reliable:
+            age = payload.get("delivery_age_ms")
+            # Recovered/old buffered history is not a fresh actuator input.
+            usable = usable and (number(age) and 0 <= age <= 5000 and
+                payload.get("boot_id") == self.sensor_boots.get(message.source))
         if not fresh:
             usable = False
             self.metrics.inc("reordered_or_duplicate_samples")
         record["usable_for_control"] = usable
 
         node_log(self.gateway_id, f"received {message.type} from {message.source}")
-        self.metrics.inc("sensor_messages")
+        if not reliable:
+            self.metrics.inc("sensor_messages")
 
         if message.type == ALERT:
             raw_reasons = payload.get("reasons", [])
@@ -455,8 +481,7 @@ class Gateway:
                 f"sensor {message.source} health = {health_state} -> control decision skipped"
                 + (f" ({'; '.join(reasons)})" if reasons else ""),
             )
-            await self.upload_queue.put(
-                Message(
+            upload = Message(
                     type=ALERT,
                     source=self.gateway_id,
                     target="SERVER",
@@ -472,7 +497,11 @@ class Gateway:
                         "message": "; ".join(reasons) or payload.get("message", "sensor alert"),
                     },
                 )
-            )
+            if reliable:
+                upload.payload.update({k: payload[k] for k in ("sample_id", "boot_id", "sample_seq", "device_monotonic_ms", "importance", "policy_version", "delivery_contract")})
+                await self._admit_sensor_upload(message, upload, identity, digest)
+            else:
+                await self.upload_queue.put(upload)
             return
 
         # Server down or not: upload attempts continue, the farm keeps working.
@@ -483,9 +512,14 @@ class Gateway:
                 "health_state": health_state,
             }
         )
-        await self.upload_queue.put(
-            Message(type=SENSOR_DATA, source=self.gateway_id, target="SERVER", message_id=message.message_id, sequence=message.sequence, payload={"record": record})
-        )
+        upload = Message(type=SENSOR_DATA, source=self.gateway_id, target="SERVER",
+                         message_id=message.message_id, sequence=message.sequence, payload={"record": record})
+        if reliable:
+            if not await self._admit_sensor_upload(message, upload, identity, digest):
+                return
+            self.sequences.accept(message)
+        else:
+            await self.upload_queue.put(upload)
 
         if not usable:
             node_log(self.gateway_id, f"sensor {message.source} unusable for control -> decision skipped")
@@ -535,6 +569,26 @@ class Gateway:
         # the queue carries ``(message, is_retry)``: a retransmission must not
         # be mistaken for a new command, or it would reset its own retry budget
         await self.command_queue.put((command, False))
+
+    async def _admit_sensor_upload(self, incoming, upload, identity, digest):
+        from server.validation import validate_server_upload
+        try:
+            validate_server_upload(upload)
+            admitted = self.offline_queue.admit_sensor(upload, identity, digest)
+        except (MessageError, ValueError, sqlite3.Error, OSError) as exc:
+            self.metrics.inc("sensor_durable_rejected")
+            node_log(self.gateway_id, f"sensor durable admission rejected: {exc}")
+            return False
+        self._request_flush()
+        writer = self.connections.get(incoming.source)
+        if writer is not None:
+            await send_message(writer, Message(type=PERSISTED_ACK, source=self.gateway_id,
+                target=incoming.source, payload={"ack_message_id": identity, "persisted": True,
+                "scope": "GATEWAY_OUTBOX", "delivery_contract": CONTRACT}))
+        self.metrics.inc("sensor_durable_admitted" if admitted else "sensor_durable_duplicates")
+        if admitted:
+            self.metrics.inc("sensor_messages")
+        return admitted
 
     # -- Task 2: upload to the cloud server --------------------------------
 
