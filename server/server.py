@@ -65,6 +65,9 @@ class Server:
         self.db = Database(db_path)
         self.policy_interval = policy_interval
         self.policy_version = policy_version
+        self.policy = dict(config.DEFAULT_POLICY)
+        self.policy_available = False
+        self.policy_error = None
         self.clients: dict[str, asyncio.StreamWriter] = {}
         self.metrics = Counters()
         self.dedup: Deduplicator | None = None
@@ -76,6 +79,12 @@ class Server:
     # -- lifecycle ---------------------------------------------------------
 
     async def start(self) -> None:
+        try:
+            self.policy_version, self.policy = self.db.load_policy(self.policy_version, self.policy)
+            self.policy_available = True
+        except (ValueError, sqlite3.Error) as exc:
+            self.policy_error = str(exc)
+            node_log(NODE_ID, f'policy publication disabled: {exc}')
         self.db.init_schema()
         self.dedup = Deduplicator(self.db.conn,auto_commit=False)
         self._server = await asyncio.start_server(self._handle_gateway, self.host, self.port)
@@ -275,22 +284,33 @@ class Server:
             await self._broadcast_policy()
 
     async def _broadcast_policy(self) -> None:
-        if not self.clients:
+        if not self.clients or not self.policy_available:
             return
         policy = Message(
             type=SERVER_POLICY,
             source=NODE_ID,
             target="*",
-            payload={"policy_version": self.policy_version, **config.DEFAULT_POLICY},
+            payload={"policy_version": self.policy_version, **self.policy},
         )
         for gateway_id, writer in list(self.clients.items()):
             try:
                 await send_message(writer, policy)
             except (ConnectionResetError, BrokenPipeError, RuntimeError):
                 self.clients.pop(gateway_id, None)
-        self.policy_version += 1
         node_log(NODE_ID, f"SERVER_POLICY v{policy.payload['policy_version']} pushed to "
                           f"{', '.join(sorted(self.clients)) or 'no gateway'}")
+
+    def update_policy(self, changes):
+        """Commit a real configuration change before publishing its new version."""
+        from common.protocol import validate_policy
+        if not self.policy_available:raise ValueError(self.policy_error or 'policy state unavailable')
+        if 'policy_version' in changes:raise ValueError('version is allocated by the durable policy store')
+        candidate = validate_policy(changes, self.policy)
+        if candidate == self.policy:return False
+        version = self.policy_version + 1
+        self.db.update_policy(version, candidate, self.policy_version)
+        self.policy_version, self.policy = version, candidate
+        return True
 
 
 # --------------------------------------------------------------------------
