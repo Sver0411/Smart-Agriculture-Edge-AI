@@ -26,9 +26,12 @@ class StateStore:
 
     def load(self, namespace, *, validator=None, allow_previous=False):
         with closing(sqlite3.connect(self.path)) as conn, conn:
-            rows = conn.execute('SELECT payload, checksum, updated_at FROM checkpoints WHERE namespace=? ORDER BY slot', (namespace,)).fetchall()
+            rows = conn.execute('SELECT slot, payload, checksum, updated_at FROM checkpoints WHERE namespace=? ORDER BY slot', (namespace,)).fetchall()
         if not rows:return None
-        for raw, checksum, updated_at in rows[:2 if allow_previous else 1]:
+        # Losing slot 0 must not silently promote a stale epoch/intent window.
+        # Only policy explicitly opts into recovery from the previous slot.
+        candidates = [row for row in rows if row[0] in ((0, 1) if allow_previous else (0,))]
+        for slot, raw, checksum, updated_at in candidates:
             try:
                 if checksum != self.digest(raw):raise StateError('checksum mismatch')
                 value = json.loads(raw)

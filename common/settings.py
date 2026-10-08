@@ -128,6 +128,9 @@ def profile_settings(profile="simulation"):
         positive(value, "reconnect backoff")
     positive(cloud["connect_timeout_s"], "connect timeout")
     positive(cloud["critical_retry_cooldown_s"], "critical retry cooldown")
+    replay_interval = cloud["replay_interval_s"]
+    if type(replay_interval) not in (int, float) or not math.isfinite(replay_interval) or replay_interval < 0:
+        raise ValueError("replay interval must be a finite nonnegative number")
     return {**profile_cfg, "node": candidate["node"]}
 
 

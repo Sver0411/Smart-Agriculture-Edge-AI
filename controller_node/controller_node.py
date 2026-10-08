@@ -269,7 +269,13 @@ class ControllerNode:
                 allowed, reason = False, "STATE_UNAVAILABLE"
         if allowed:
             try:
+                previous_ids = set(self.recent_commands.entries)
                 self.recent_commands.begin(command_id)
+                # Trim only IDs durably evicted as completed. Unresolved
+                # intents stay in both guards, including across a reboot.
+                self.guard.executed_command_ids.difference_update(
+                    previous_ids - set(self.recent_commands.entries)
+                )
                 self.guard.executed_command_ids.add(command_id)
             except (StateError, sqlite3.Error, OSError) as exc:
                 self.guard.persistence_fault = True
