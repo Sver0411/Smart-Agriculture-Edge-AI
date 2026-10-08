@@ -1,4 +1,5 @@
 #include "b1.h"
+#include "b1_deep_sleep.h"
 #include "b1_lora_network.h"
 #include "esp_log.h"
 #include "b1_storage.h"
@@ -20,7 +21,12 @@ void app_main(void)
         printf("B1_DELIVERY {\"event\":\"STORAGE_INIT_FAILED_PRESERVED\"}\n");
         return;
     }
+#if CONFIG_B1_DEEP_SLEEP_EXPERIMENTAL
+    xTaskCreate(b1_deep_sleep_task,"b1_deep",24576,NULL,5,NULL);
+    return;
+#else
     b1_new_boot_identity();
+#endif
     b1_runtime_init();
     size_t psram_runtime = 0;
 #if CONFIG_SPIRAM

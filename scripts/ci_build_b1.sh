@@ -24,6 +24,9 @@ if [[ "$profile" == lora-prototype || "$profile" == deep-sleep-experimental ]]; 
     grep -q '^CONFIG_B1_USE_E220=y$' "$output/sdkconfig"
     grep -q '^CONFIG_B1_E220_EXPECTED_REGISTERS="[^"]\+"$' "$output/sdkconfig"
 fi
+if [[ "$profile" == deep-sleep-experimental ]]; then
+    grep -q '^CONFIG_B1_DEEP_SLEEP_EXPERIMENTAL=y$' "$output/sdkconfig"
+fi
 idf.py -C "$project" -B "$output/build" size 2>&1 | tee "$output/size.log"
 python - "$output/build/smart_agriculture_b1.bin" "$output/manifest.json" "$profile" <<'PY'
 import hashlib,json,pathlib,sys

@@ -4,6 +4,7 @@
 #include "b1_e220.h"
 #include "b1_registration.h"
 #include "b1_transport.h"
+#include "b1_deep_sleep.h"
 #include "esp_random.h"
 #include "esp_timer.h"
 #include "mbedtls/sha256.h"
@@ -207,6 +208,11 @@ static bool register_radio(const char *gateway, uint64_t deadline) {
   printf("B1_RADIO "
          "{\"event\":\"REGISTER_RESULT\",\"result\":%d,\"generation\":%lu}\n",
          result, (unsigned long)registration.generation);
+#if CONFIG_B1_DEEP_SLEEP_EXPERIMENTAL
+  if (result==B1_REG_ACCEPTED || result==B1_REG_NOT_OWNER) {
+    if(!b1_sleep_epoch_commit(registration.generation,registration.owner))return false;
+  }
+#endif
   return result == B1_REG_ACCEPTED;
 }
 static bool send_record(const b1_record_t *record, uint64_t deadline) {
@@ -282,7 +288,10 @@ bool b1_lora_run_window(uint32_t budget) {
         cJSON_AddTrueToObject(cJSON_GetObjectItemCaseSensitive(m,"payload"),"accepted");
         registered = b1_registration_reply(&registration,m,registration.owner)==B1_REG_ACCEPTED;
       }
-      ack(m);
+#if CONFIG_B1_DEEP_SLEEP_EXPERIMENTAL
+      if(!b1_sleep_epoch_commit(registration.generation,registration.owner))registered=false;
+#endif
+      if(registered)ack(m);
       cJSON_Delete(m);
     }
     if (!b1_queue_pending_count())

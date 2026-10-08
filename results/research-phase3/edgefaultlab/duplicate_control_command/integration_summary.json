@@ -1,0 +1,23 @@
+{
+  "assertions": [
+    {
+      "description": "a command_id is executed at most once",
+      "detail": "20 distinct payload.command_id value(s) in 20 matching message(s)",
+      "passed": true
+    },
+    {
+      "description": "commands still run at all",
+      "detail": "observed 20 message(s) matching [payload.status='EXECUTED', type='CONTROL_RESULT']",
+      "passed": true
+    },
+    {
+      "description": "no unsafe execution was reported",
+      "detail": "no message matching [payload.reason='UNSAFE_EXECUTION', type='CONTROL_RESULT'] was ever delivered",
+      "passed": true
+    }
+  ],
+  "exit_code": 0,
+  "external_revision": "c7248239f456cc877114ca1e67c5949fb4a7b958",
+  "scenario": "duplicate_control_command",
+  "status": "PASS"
+}
