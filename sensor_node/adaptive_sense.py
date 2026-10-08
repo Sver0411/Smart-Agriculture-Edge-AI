@@ -68,15 +68,30 @@ class AdaptiveSense:
             self.settings["fault_interval_s"]=slow
             self.settings["degraded_interval_s"]=slow
         self.core=AdaptiveScheduler(self.settings)
+        self._confirmed_time=None
+        self._confirmed_sequence=None
         self._untrusted=False
         self._health=None
         self.notifier = FaultNotifier(self.settings["fault_reminder_s"])
         self.relevance = ControlRelevanceGate(self.settings['control_relevance']['margins'])
 
-    def mark_reported(self, sample, trust):
+    def mark_reported(self, sample, trust, *, timestamp=None, sequence=None):
+        # Call only at the transport's declared confirmation/admission boundary.
+        # Async reliable callers supply acquisition time and sequence; legacy
+        # synchronous runtime uses the current sample time. New boot = new adapter.
+        timestamp=self.core.now if timestamp is None else timestamp
+        if not numeric(timestamp) or (sequence is not None and (type(sequence) is not int or not 1 <= sequence <= 0xffffffff)):
+            raise ValueError("invalid confirmed sample identity/time")
+        if self._confirmed_time is not None and timestamp < self._confirmed_time:
+            return False
+        if sequence is not None and self._confirmed_sequence is not None and sequence <= self._confirmed_sequence:
+            return False
+        self._confirmed_time=timestamp
+        if sequence is not None:self._confirmed_sequence=sequence
         self.relevance.mark_reported(sample, self.relevance.trusted_channels(trust))
         if trust.get('state') == 'HEALTHY' and trust.get('usable_for_control'):
-            self.core.record_reported(self.core.now, {k:float(v) for k,v in sample.items() if numeric(v)})
+            self.core.record_reported(timestamp, {k:float(v) for k,v in sample.items() if numeric(v)})
+        return True
 
     def update(self, sample, trust, timestamp):
         if not numeric(timestamp):
@@ -97,10 +112,17 @@ class AdaptiveSense:
                     "control_relevant_change":relevant['control_relevant_change'],
                     "upload_reasons":(["SENSOR_FAULT"] if notification is not None else [])+relevant['reasons']}
         if self._untrusted:
+            baseline=(self.core._last_upload_t,dict(self.core._last_upload_values))
             self.core=AdaptiveScheduler(self.settings, time=timestamp)
+            self.core._last_upload_t,self.core._last_upload_values=baseline
             self._untrusted=False
         values={k:v for k,v in sample.items() if k in self.settings["adaptive"]["channels"] and numeric(v)}
+        baseline=(self.core._last_upload_t,dict(self.core._last_upload_values))
         decision=asdict(self.core.update(timestamp,values))
+        self.core._last_upload_t,self.core._last_upload_values=baseline
+        if baseline[0] is None and self.core.up_first_sample:
+            decision["upload_requested"]=True
+            if "FIRST_SAMPLE" not in decision["upload_reasons"]:decision["upload_reasons"].append("FIRST_SAMPLE")
         decision['control_relevant_change'] = relevant['control_relevant_change']
         decision['upload_reasons'].extend(relevant['reasons'])
         if changed:decision['upload_reasons'].append('HEALTH_CHANGE')

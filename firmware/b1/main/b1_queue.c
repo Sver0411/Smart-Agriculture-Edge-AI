@@ -10,7 +10,11 @@ static bool has_confirmed;
 static uint32_t confirmed_seq;
 static b1_record_t building; /* protected by backend mutex; never persist pointers */
 
-bool b1_queue_init(void) { return b1_storage_init(&outbox); }
+bool b1_queue_init(void) {
+    bool ok=b1_storage_init(&outbox);
+    if(ok) { has_confirmed=false; confirmed_seq=0; memset(&confirmed,0,sizeof(confirmed)); }
+    return ok; /* boot initialization, before tasks start */
+}
 
 static bool capture(void *context, const char *type, cJSON *payload)
 {
@@ -68,6 +72,7 @@ static void remember_confirmed(const b1_record_t *r)
 {
     if (strcmp(r->boot_id, b1_boot_id) != 0 || r->sequence <= confirmed_seq) return;
     cJSON *root=cJSON_Parse(r->wire);
+    if(!cJSON_IsObject(root)) { cJSON_Delete(root); return; }
     cJSON *p=cJSON_GetObjectItemCaseSensitive(root,"payload");
     cJSON *data=cJSON_GetObjectItemCaseSensitive(p,"data");
     cJSON *temp=cJSON_GetObjectItemCaseSensitive(data,"temperature");
@@ -112,10 +117,13 @@ bool b1_queue_take_confirmed(b1_sample_t *sample)
 void b1_queue_stats(void)
 {
     b1_storage_lock();
+    unsigned quarantined=0;
+    for(unsigned i=0;i<B1_OUTBOX_CAPACITY;i++)quarantined+=outbox.entries[i].quarantined;
     printf("B1_DELIVERY {\"event\":\"STATS\",\"pending\":%u,\"acknowledged\":%lu,\"retries\":%lu,"
-           "\"exhausted\":%lu,\"rejected\":%lu,\"storage_failures\":%lu}\n",
+           "\"exhausted\":%lu,\"rejected\":%lu,\"storage_failures\":%lu,\"probes\":%lu,\"boot_attempts\":%llu,\"quarantined\":%u}\n",
            b1_outbox_count(&outbox), (unsigned long)outbox.acknowledged,
            (unsigned long)outbox.retries, (unsigned long)outbox.exhausted,
-           (unsigned long)outbox.rejected, (unsigned long)outbox.storage_failures);
+           (unsigned long)outbox.rejected, (unsigned long)outbox.storage_failures,
+           (unsigned long)outbox.probes, (unsigned long long)outbox.boot_attempts,quarantined);
     b1_storage_unlock();
 }
