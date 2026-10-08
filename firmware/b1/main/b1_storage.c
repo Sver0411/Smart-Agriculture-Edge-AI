@@ -1,5 +1,6 @@
 #include "b1.h"
 #include "b1_storage.h"
+#include "b1_store_backend.h"
 #include "nvs.h"
 #include "esp_mac.h"
 #include "esp_random.h"
@@ -14,43 +15,34 @@ static SemaphoreHandle_t mutex;
 void b1_storage_lock(void) { xSemaphoreTake(mutex, portMAX_DELAY); }
 void b1_storage_unlock(void) { xSemaphoreGive(mutex); }
 
-bool b1_storage_save(void *context, unsigned slot, const b1_record_t *record)
-{
-    (void)context;
-    char key[8]; snprintf(key, sizeof(key), "q%02u", slot);
-    esp_err_t err;
-    if (record) {
-        size_t size = offsetof(b1_record_t, wire) + strlen(record->wire) + 1;
-        err = nvs_set_blob(handle, key, record, size);
-    } else {
-        err = nvs_erase_key(handle, key);
-        if (err == ESP_ERR_NVS_NOT_FOUND) return true;
-    }
-    if (err == ESP_OK) err = nvs_commit(handle);
-    if (err != ESP_OK)
-        printf("B1_DELIVERY {\"event\":\"STORAGE_FAILURE\",\"slot\":%u,\"code\":%d}\n", slot, err);
-    return err == ESP_OK;
+static b1_store_result_t result(esp_err_t err) {
+    if(err==ESP_OK)return B1_STORE_OK;
+    if(err==ESP_ERR_NVS_NOT_FOUND)return B1_STORE_MISSING;
+    printf("B1_DELIVERY {\"event\":\"STORAGE_FAILURE\",\"code\":%d}\n",err);
+    return B1_STORE_ERROR;
 }
+static void key_for(unsigned slot,char key[8]) { snprintf(key,8,"q%02u",slot); }
+static b1_store_result_t read_blob(void *ctx,unsigned slot,unsigned char *p,size_t *n) {
+    (void)ctx;char key[8];key_for(slot,key);return result(nvs_get_blob(handle,key,p,n));
+}
+static b1_store_result_t write_blob(void *ctx,unsigned slot,const unsigned char *p,size_t n) {
+    (void)ctx;char key[8];key_for(slot,key);return result(nvs_set_blob(handle,key,p,n));
+}
+static b1_store_result_t remove_blob(void *ctx,unsigned slot) {
+    (void)ctx;char key[8];key_for(slot,key);return result(nvs_erase_key(handle,key));
+}
+static b1_store_result_t commit_blob(void *ctx) { (void)ctx;return result(nvs_commit(handle)); }
+static b1_store_backend_t backend={.read=read_blob,.write=write_blob,.remove=remove_blob,.commit=commit_blob};
 
-bool b1_storage_init(b1_outbox_t *q)
-{
-    mutex = xSemaphoreCreateMutex();
-    if (!mutex || nvs_open("b1_delivery", NVS_READWRITE, &handle) != ESP_OK) return false;
-    b1_outbox_init(q, b1_storage_save, NULL);
-    static b1_record_t record;
-    for (unsigned slot = 0; slot < B1_OUTBOX_CAPACITY; slot++) {
-        char key[8]; snprintf(key, sizeof(key), "q%02u", slot);
-        size_t size = sizeof(record);
-        memset(&record, 0, sizeof(record));
-        esp_err_t err = nvs_get_blob(handle, key, &record, &size);
-        if (err == ESP_ERR_NVS_NOT_FOUND) continue;
-        if (err != ESP_OK || size <= offsetof(b1_record_t, wire) ||
-            size > sizeof(record) || !b1_outbox_restore(q, slot, &record)) {
-            printf("B1_DELIVERY {\"event\":\"CORRUPT_OR_INCOMPATIBLE_CHECKPOINT\",\"slot\":%u}\n", slot);
-            return false; /* preserve evidence; never auto-erase */
-        }
-    }
-    return true;
+bool b1_storage_save(void *context,unsigned slot,const b1_record_t *r) {
+    (void)context;return b1_backend_save(&backend,slot,r);
+}
+bool b1_storage_init(b1_outbox_t *q) {
+    mutex=xSemaphoreCreateMutex();
+    if(!mutex||nvs_open("b1_delivery",NVS_READWRITE,&handle)!=ESP_OK)return false;
+    bool ok=b1_backend_load(&backend,q);
+    if(!ok)printf("B1_DELIVERY {\"event\":\"CORRUPT_OR_INCOMPATIBLE_CHECKPOINT\"}\n");
+    return ok; /* never erase on corruption or incompatibility */
 }
 
 void b1_new_boot_identity(void)

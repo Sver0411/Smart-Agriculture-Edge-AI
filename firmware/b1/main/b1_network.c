@@ -1,5 +1,6 @@
 #include "b1.h"
 #include "b1_transport.h"
+#include "b1_retry.h"
 #include "sdkconfig.h"
 #include "cJSON.h"
 #include "esp_event.h"
@@ -10,6 +11,7 @@
 #include "lwip/sockets.h"
 #include "freertos/event_groups.h"
 #include <errno.h>
+#include <fcntl.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,6 +22,7 @@ static EventGroupHandle_t wifi_group;
 static uint32_t highest_generation = 1;
 static char owner[3] = "A1";
 static bool has_owner;
+static b1_link_retry_t link_retry;
 
 static uint64_t uptime_ms(void) { return (uint64_t)(esp_timer_get_time() / 1000); }
 
@@ -27,7 +30,6 @@ static void wifi_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
     if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
         xEventGroupClearBits(wifi_group, WIFI_CONNECTED);
-        esp_wifi_connect();
     } else if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP) {
         xEventGroupSetBits(wifi_group, WIFI_CONNECTED);
         b1_stats.wifi_connects++;
@@ -54,7 +56,6 @@ static void wifi_start(void)
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &config));
     ESP_ERROR_CHECK(esp_wifi_start());
     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_MIN_MODEM));
-    ESP_ERROR_CHECK(esp_wifi_connect());
 }
 
 static int connect_gateway(const char *name)
@@ -74,7 +75,21 @@ static int connect_gateway(const char *name)
         struct timeval timeout = {.tv_sec = 2};
         setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
         setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
-        if (connect(fd, addr->ai_addr, addr->ai_addrlen) == 0) break;
+        int flags=fcntl(fd,F_GETFL,0);
+        bool connected=false;
+        if (flags>=0 && fcntl(fd,F_SETFL,flags|O_NONBLOCK)==0) {
+            int rc=connect(fd,addr->ai_addr,addr->ai_addrlen);
+            if (rc==0) connected=true;
+            else if (errno==EINPROGRESS) {
+                fd_set writable;FD_ZERO(&writable);FD_SET(fd,&writable);
+                struct timeval wait={.tv_sec=2};
+                int error=0;socklen_t length=sizeof(error);
+                connected=select(fd+1,NULL,&writable,NULL,&wait)>0 &&
+                    getsockopt(fd,SOL_SOCKET,SO_ERROR,&error,&length)==0 && error==0;
+            }
+            if (fcntl(fd,F_SETFL,flags)<0) connected=false;
+        }
+        if (connected) break;
         close(fd);
         fd = -1;
     }
@@ -91,12 +106,14 @@ static bool send_json(int fd, cJSON *root)
     size_t len = strlen(json);
     bool ok = len < 4095;
     size_t sent = 0;
+    uint64_t deadline=uptime_ms()+2000;
     while (ok && sent < len) {
+        if (uptime_ms()>=deadline) { ok=false;break; }
         int n = send(fd, json + sent, len - sent, 0);
         if (n <= 0) { ok = false; break; }
         sent += n;
     }
-    if (ok) ok = send(fd, "\n", 1, 0) == 1;
+    if (ok) ok = uptime_ms()<deadline && send(fd, "\n", 1, 0) == 1;
     cJSON_free(json);
     return ok;
 }
@@ -209,7 +226,7 @@ static void receive_durable_ack(cJSON *in)
     if (cJSON_IsString(id) && cJSON_IsString(scope) && strcmp(scope->valuestring,"GATEWAY_OUTBOX")==0 &&
         cJSON_IsString(contract) && strcmp(contract->valuestring,"gateway-durable-v1")==0 &&
         cJSON_IsTrue(cJSON_GetObjectItemCaseSensitive(p,"persisted")))
-        b1_queue_ack(id->valuestring);
+        if (b1_queue_ack(id->valuestring)) b1_link_confirmed(&link_retry);
 }
 
 static void log_stats(void)
@@ -234,8 +251,14 @@ void b1_network_task(void *arg)
     wifi_start();
     uint64_t last_stats = 0;
     while (true) {
-        if (!(xEventGroupWaitBits(wifi_group, WIFI_CONNECTED, pdFALSE, pdTRUE,
-                                  pdMS_TO_TICKS(3000)) & WIFI_CONNECTED)) continue;
+        if (!b1_link_ready(&link_retry,uptime_ms())) { vTaskDelay(pdMS_TO_TICKS(1000));continue; }
+        if (!(xEventGroupGetBits(wifi_group)&WIFI_CONNECTED)) {
+            // Event callbacks only report state; retries use the same bounded scheduler.
+            esp_wifi_connect();
+            if (!(xEventGroupWaitBits(wifi_group,WIFI_CONNECTED,pdFALSE,pdTRUE,pdMS_TO_TICKS(3000))&WIFI_CONNECTED)) {
+                b1_link_failed(&link_retry,uptime_ms());continue;
+            }
+        }
         char candidate[3];
         strlcpy(candidate, owner, sizeof(candidate));
         int fd = connect_gateway(candidate);
@@ -243,11 +266,11 @@ void b1_network_task(void *arg)
             strlcpy(candidate, strcmp(owner, "A1") == 0 ? "A2" : "A1", sizeof(candidate));
             fd = connect_gateway(candidate);
         }
-        if (fd < 0) { vTaskDelay(pdMS_TO_TICKS(1000)); continue; }
+        if (fd < 0) { b1_link_failed(&link_retry,uptime_ms());continue; }
         rx_buffer_t rx = {0};
         if (!register_node(fd, candidate, &rx)) {
             close(fd);
-            vTaskDelay(pdMS_TO_TICKS(500));
+            b1_link_failed(&link_retry,uptime_ms());
             continue;
         }
         if (strcmp(candidate, "A2") == 0) b1_stats.gateway_failovers++;
@@ -279,6 +302,6 @@ void b1_network_task(void *arg)
         printf("B1_NET {\"event\":\"DISCONNECTED\",\"gateway\":\"%s\",\"monotonic_ms\":%llu}\n",
                candidate, (unsigned long long)uptime_ms());
         close(fd);
-        vTaskDelay(pdMS_TO_TICKS(300));
+        b1_link_failed(&link_retry,uptime_ms());
     }
 }

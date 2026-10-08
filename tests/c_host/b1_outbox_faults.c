@@ -57,8 +57,9 @@ int main(void) {
         assert(b1_outbox_next(&q,now+1)==-1);
         b1_outbox_tick(&q,now+B1_ACK_TIMEOUT_MS);
     }
-    assert(b1_outbox_next(&q,10000000)==-1);assert(q.exhausted==1);
-    assert(q.retries==4 && writes==before && b1_outbox_count(&q)==1);
+    assert(q.retries==4 && writes==before);
+    assert(b1_outbox_next(&q,10000000)>=0);assert(q.exhausted==1);
+    assert(q.retries==5 && writes==before && b1_outbox_count(&q)==1);
     ack(3,'S'); /* late valid receipt can still release the parked record */
     /* Overflow never evicts already admitted critical data; reserve four. */
     for (unsigned n=10;n<22;n++) {r=sample(n,false,false);assert(b1_outbox_admit(&q,&r));}
