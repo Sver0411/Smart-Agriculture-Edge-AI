@@ -1,0 +1,23 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.1.1, pluggy-1.6.0 -- /tmp/agri-phase123-py312/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI
+configfile: pytest.ini
+collecting ... collected 14 items
+
+tests/test_b1_wire_e2e.py::test_firmware_wire_lost_ack_retry_is_one_cloud_sample PASSED [  7%]
+tests/test_branch_integration_review.py::test_missing_current_epoch_never_implicitly_loads_previous_slot PASSED [ 14%]
+tests/test_branch_integration_review.py::test_missing_controller_epoch_disables_execution PASSED [ 21%]
+tests/test_branch_integration_review.py::test_missing_gateway_epoch_disables_control PASSED [ 28%]
+tests/test_branch_integration_review.py::test_missing_current_command_window_cannot_forget_recent_intent PASSED [ 35%]
+tests/test_branch_integration_review.py::test_policy_can_explicitly_restore_previous_slot PASSED [ 42%]
+tests/test_branch_integration_review.py::test_controller_live_id_window_matches_durable_bound PASSED [ 50%]
+tests/test_branch_integration_review.py::test_invalid_replay_interval_is_rejected_at_config_load[-1] PASSED [ 57%]
+tests/test_branch_integration_review.py::test_invalid_replay_interval_is_rejected_at_config_load[nan] PASSED [ 64%]
+tests/test_branch_integration_review.py::test_invalid_replay_interval_is_rejected_at_config_load[inf] PASSED [ 71%]
+tests/test_branch_integration_review.py::test_invalid_replay_interval_is_rejected_at_config_load[True] PASSED [ 78%]
+tests/test_branch_integration_review.py::test_invalid_replay_interval_is_rejected_at_config_load[slow] PASSED [ 85%]
+tests/test_branch_integration_review.py::test_invalid_replay_interval_is_rejected_at_config_load[None] PASSED [ 92%]
+tests/test_branch_integration_review.py::test_zero_replay_interval_remains_supported PASSED [100%]
+
+============================== 14 passed in 2.44s ==============================

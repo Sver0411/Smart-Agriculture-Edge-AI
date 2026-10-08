@@ -1,0 +1,5 @@
+EdgeFaultLab gateway_failover: PASS
+EdgeFaultLab server_outage: PASS
+EdgeFaultLab duplicate_control_command: PASS
+EdgeFaultLab stale_command: PASS
+EdgeFaultLab lost_command: PASS

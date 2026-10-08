@@ -1,0 +1,115 @@
+21:28:45 [C1] connected to gateway A1 (127.0.0.1)
+21:28:45 [C1] NODE_REGISTER sent to A1 (attempt 1)
+21:28:45 [C1] registered with A1 (generation=1)
+21:28:45 [C1] IRRIGATION command received (command_id=145f8ae77a27, duration=10s, generation=1)
+21:28:45 [C1] ACK sent (command_id=145f8ae77a27)
+21:28:45 [C1] safety check passed
+21:28:45 [C1] irrigation executed
+21:28:45 [C1] CONTROL_RESULT sent to A1
+21:28:45 [C1] IRRIGATION command received (command_id=d79429b5e087, duration=10s, generation=1)
+21:28:45 [C1] ACK sent (command_id=d79429b5e087)
+21:28:45 [C1] safety check passed
+21:28:45 [C1] irrigation executed
+21:28:45 [C1] CONTROL_RESULT sent to A1
+21:28:45 [C1] IRRIGATION command received (command_id=60f2d2dddb21, duration=10s, generation=1)
+21:28:45 [C1] ACK sent (command_id=60f2d2dddb21)
+21:28:45 [C1] safety check passed
+21:28:46 [C1] irrigation executed
+21:28:46 [C1] CONTROL_RESULT sent to A1
+21:28:46 [C1] IRRIGATION command received (command_id=eb671530c5cc, duration=10s, generation=1)
+21:28:46 [C1] ACK sent (command_id=eb671530c5cc)
+21:28:46 [C1] safety check passed
+21:28:46 [C1] irrigation executed
+21:28:46 [C1] CONTROL_RESULT sent to A1
+21:28:46 [C1] IRRIGATION command received (command_id=91418c78ff8f, duration=10s, generation=1)
+21:28:46 [C1] ACK sent (command_id=91418c78ff8f)
+21:28:46 [C1] safety check passed
+21:28:46 [C1] irrigation executed
+21:28:46 [C1] CONTROL_RESULT sent to A1
+21:28:47 [C1] IRRIGATION command received (command_id=b2de8ee93d97, duration=10s, generation=1)
+21:28:47 [C1] ACK sent (command_id=b2de8ee93d97)
+21:28:47 [C1] safety check passed
+21:28:47 [C1] irrigation executed
+21:28:47 [C1] CONTROL_RESULT sent to A1
+21:28:47 [C1] IRRIGATION command received (command_id=160dc5a8d8be, duration=10s, generation=1)
+21:28:47 [C1] ACK sent (command_id=160dc5a8d8be)
+21:28:47 [C1] safety check passed
+21:28:47 [C1] irrigation executed
+21:28:47 [C1] CONTROL_RESULT sent to A1
+21:28:47 [C1] IRRIGATION command received (command_id=160dc5a8d8be, duration=10s, generation=1)
+21:28:47 [C1] ACK sent (command_id=160dc5a8d8be)
+21:28:47 [C1] IRRIGATION command is a duplicate (command_id=160dc5a8d8be) - not executed again
+21:28:47 [C1] CONTROL_RESULT sent to A1
+21:28:48 [C1] IRRIGATION command received (command_id=615e711ad039, duration=10s, generation=1)
+21:28:48 [C1] ACK sent (command_id=615e711ad039)
+21:28:48 [C1] safety check passed
+21:28:48 [C1] irrigation executed
+21:28:48 [C1] CONTROL_RESULT sent to A1
+21:28:48 [C1] IRRIGATION command received (command_id=615e711ad039, duration=10s, generation=1)
+21:28:48 [C1] ACK sent (command_id=615e711ad039)
+21:28:48 [C1] IRRIGATION command is a duplicate (command_id=615e711ad039) - not executed again
+21:28:48 [C1] CONTROL_RESULT sent to A1
+21:28:48 [C1] IRRIGATION command received (command_id=d3497f53db9b, duration=10s, generation=1)
+21:28:48 [C1] ACK sent (command_id=d3497f53db9b)
+21:28:48 [C1] safety check passed
+21:28:48 [C1] irrigation executed
+21:28:48 [C1] CONTROL_RESULT sent to A1
+21:28:48 [C1] IRRIGATION command received (command_id=d3497f53db9b, duration=10s, generation=1)
+21:28:48 [C1] ACK sent (command_id=d3497f53db9b)
+21:28:48 [C1] IRRIGATION command is a duplicate (command_id=d3497f53db9b) - not executed again
+21:28:48 [C1] CONTROL_RESULT sent to A1
+21:28:49 [C1] IRRIGATION command received (command_id=ffdd559097c8, duration=10s, generation=1)
+21:28:49 [C1] ACK sent (command_id=ffdd559097c8)
+21:28:49 [C1] safety check passed
+21:28:49 [C1] irrigation executed
+21:28:49 [C1] CONTROL_RESULT sent to A1
+21:28:49 [C1] IRRIGATION command received (command_id=850a247db2be, duration=10s, generation=1)
+21:28:49 [C1] ACK sent (command_id=850a247db2be)
+21:28:49 [C1] safety check passed
+21:28:49 [C1] irrigation executed
+21:28:49 [C1] CONTROL_RESULT sent to A1
+21:28:50 [C1] IRRIGATION command received (command_id=71f723775d7d, duration=10s, generation=1)
+21:28:50 [C1] ACK sent (command_id=71f723775d7d)
+21:28:50 [C1] safety check passed
+21:28:50 [C1] irrigation executed
+21:28:50 [C1] CONTROL_RESULT sent to A1
+21:28:50 [C1] IRRIGATION command received (command_id=a65cf77974b1, duration=10s, generation=1)
+21:28:50 [C1] ACK sent (command_id=a65cf77974b1)
+21:28:50 [C1] safety check passed
+21:28:50 [C1] irrigation executed
+21:28:50 [C1] CONTROL_RESULT sent to A1
+21:28:52 [C1] IRRIGATION command received (command_id=c8b3b4aa57eb, duration=10s, generation=1)
+21:28:52 [C1] ACK sent (command_id=c8b3b4aa57eb)
+21:28:52 [C1] safety check passed
+21:28:52 [C1] irrigation executed
+21:28:52 [C1] CONTROL_RESULT sent to A1
+21:28:53 [C1] IRRIGATION command received (command_id=a9f8de1ae0c9, duration=10s, generation=1)
+21:28:53 [C1] ACK sent (command_id=a9f8de1ae0c9)
+21:28:53 [C1] safety check passed
+21:28:53 [C1] irrigation executed
+21:28:53 [C1] CONTROL_RESULT sent to A1
+21:28:53 [C1] IRRIGATION command received (command_id=dc5d6ffe44d1, duration=10s, generation=1)
+21:28:53 [C1] ACK sent (command_id=dc5d6ffe44d1)
+21:28:53 [C1] safety check passed
+21:28:53 [C1] irrigation executed
+21:28:53 [C1] CONTROL_RESULT sent to A1
+21:28:54 [C1] IRRIGATION command received (command_id=35cd5edec2d3, duration=10s, generation=1)
+21:28:54 [C1] ACK sent (command_id=35cd5edec2d3)
+21:28:54 [C1] safety check passed
+21:28:54 [C1] irrigation executed
+21:28:54 [C1] CONTROL_RESULT sent to A1
+21:28:55 [C1] IRRIGATION command received (command_id=db1b85ad9e71, duration=10s, generation=1)
+21:28:55 [C1] ACK sent (command_id=db1b85ad9e71)
+21:28:55 [C1] safety check passed
+21:28:55 [C1] irrigation executed
+21:28:55 [C1] CONTROL_RESULT sent to A1
+21:28:56 [C1] IRRIGATION command received (command_id=530b5638682a, duration=10s, generation=1)
+21:28:56 [C1] ACK sent (command_id=530b5638682a)
+21:28:56 [C1] safety check passed
+21:28:56 [C1] irrigation executed
+21:28:56 [C1] CONTROL_RESULT sent to A1
+21:28:57 [C1] IRRIGATION command received (command_id=12ea195d3ae6, duration=10s, generation=1)
+21:28:57 [C1] ACK sent (command_id=12ea195d3ae6)
+21:28:57 [C1] safety check passed
+21:28:57 [C1] irrigation executed
+21:28:57 [C1] CONTROL_RESULT sent to A1

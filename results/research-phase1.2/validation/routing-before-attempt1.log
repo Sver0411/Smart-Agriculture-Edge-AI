@@ -1,0 +1,9 @@
+/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase1.2/validation/routing-before.c:9:15: error: static declaration of 'strlcpy' follows non-static declaration
+    9 | static size_t strlcpy(char *d,const char *s,size_t n) { size_t z=strlen(s);if(n){size_t k=z<n-1?z:n-1;memcpy(d,s,k);d[k]=0;}return z; }
+      |               ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_string.h:202:9: note: previous declaration is here
+  202 | size_t   strlcpy(char *_LIBC_COUNT(__size) __dst, const char *__source, size_t __size);
+      |          ^
+1 error generated.
+
+exit_code=1

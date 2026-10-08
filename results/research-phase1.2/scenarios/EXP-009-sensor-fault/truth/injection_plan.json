@@ -1,0 +1,8 @@
+{
+  "disruptions": [],
+  "frame_faults": [],
+  "receipt_observations": [],
+  "scenario": "sensor-fault",
+  "seed": 42,
+  "sensor_fault": true
+}
