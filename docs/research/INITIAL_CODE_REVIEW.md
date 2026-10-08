@@ -47,3 +47,7 @@ The full A/B/C/Server system is the experimental platform; do not treat every co
 ## Review status
 
 This document is an **audit/backlog**, not an implementation or verification report. Source locations above are based on the new branch at its creation from `main`. Changes should be limited to `research`, tested before merging or declaring success.
+
+## Implementation follow-up
+
+The historical audit above is unchanged. The first research implementation and its actual verification evidence are documented in [PHASE1_DEVELOPMENT_REPORT.md](PHASE1_DEVELOPMENT_REPORT.md); remaining phases are explicitly pending.

@@ -6,7 +6,8 @@ import shutil
 import subprocess
 import time
 import pytest
-from common.messages import Message, NODE_REGISTER, SENSOR_DATA, PERSISTED_ACK, read_message, send_message
+from common.messages import Message, NODE_REGISTER, PERSISTED_ACK, read_message, send_message, transport_observer
+from experiments.metrics import TransportRecorder
 from gateway.gateway import Gateway
 from server.server import Server
 
@@ -21,9 +22,12 @@ def test_firmware_wire_lost_ack_retry_is_one_cloud_sample(tmp_path, monkeypatch)
         str(ROOT/'tests/c_host/b1_delivery_wire.c'),str(main/'b1_policy.c'),str(main/'b1_queue.c'),str(main/'b1_telemetry.c'),str(main/'b1_outbox.c'),
         str(trust/'sensor_trust.c'),str(adaptive/'adaptive_scheduler.c'),str(adaptive/'change_detector.c'),
         str(ROOT/'third_party/cjson/cJSON.c'),'-lm','-o',str(binary)],check=True)
-    messages=[Message.from_json(line) for line in subprocess.check_output([str(binary)],text=True).splitlines()]
+    wire=subprocess.check_output([str(binary)],text=True)
+    (tmp_path/'firmware-wire.jsonl').write_text(wire)
+    messages=[Message.from_json(line) for line in wire.splitlines()]
     assert [m.type for m in messages]==['SENSOR_DATA','SENSOR_DATA','ALERT']
     async def run():
+        recorder=TransportRecorder(); observer=transport_observer.set(recorder)
         s=Server(port=0,db_path=str(tmp_path/'server.db'));await s.start()
         g=Gateway('A1',port=0,server_port=s._server.sockets[0].getsockname()[1],peer_port=1,
                   queue_path=str(tmp_path/'gateway.db'))
@@ -59,4 +63,6 @@ def test_firmware_wire_lost_ack_retry_is_one_cloud_sample(tmp_path, monkeypatch)
             assert {json.loads(row['metadata_json'])['sample_seq'] for row in rows}=={1,2}
         finally:
             writer.close();await g.stop();await s.stop()
+            transport_observer.reset(observer)
+            (tmp_path/'events.jsonl').write_text(''.join(json.dumps(e,sort_keys=True)+'\n' for e in recorder.events))
     asyncio.run(run())

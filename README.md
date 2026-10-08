@@ -1,5 +1,7 @@
 # Smart Agriculture Edge AI v0.3.1
 
+`research` 第一阶段：B1 有界关键数据缓存、稳定消息身份与网关持久化 ACK；软件验证与硬件边界见 [开发报告](docs/research/PHASE1_DEVELOPMENT_REPORT.md)。
+
 **Reliability Hardening & Protocol Correctness**
 
 完整的分布式智慧农业软件系统：可信感知、自适应采样、可切换的边缘决策、安全控制、网关接管、离线历史回放和可执行故障实验。所有七个角色可以在单台电脑上运行，运行时仅依赖 Python 标准库。
