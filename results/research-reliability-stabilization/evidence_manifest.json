@@ -68,10 +68,33 @@
     "validation/final/validation-summary.json": "68f563d0190b140201f0d83542c14a38b8918b9f06e47b2600e876b3f59c7ebe",
     "validation/historical_inventory_reviewed.json": "fda516e97d9c59f10c5e828d77d6e373a0c4d3e35bb81fa914b0724893fbcc9d",
     "validation/historical_inventory_summary.json": "3891a1538ac7268af112da5186740ea49bb32a5e874eaf750e23469348273446",
+    "validation/monitor-followup/ci-artifact-index.json": "ba0dc824f8ab294969fa379cfa1481158ef6c91d29798386ab16c7b99d5d03b1",
+    "validation/monitor-followup/ci-idf-deep-sleep-experimental-manifest.json": "9f9669b8aae7c6cd666ae7bbabe9355fa9861f44415afcfc0dfa79992acaa23d",
+    "validation/monitor-followup/ci-idf-lab-manifest.json": "e45ef5e3ddb7ca4a2648f658a87e006d9c970aa3101552df1e8f90f980d0ff71",
+    "validation/monitor-followup/ci-idf-light-sleep-manifest.json": "a1eac73f23176460782282b7fc331f87fbc46060c41ecace56bf1073ff0a9794",
+    "validation/monitor-followup/ci-idf-lora-prototype-manifest.json": "fcf4b93c060a4b5f36b2967ea8f2d2a2eefbe1cf87b6b93eb2bf70e0f920578f",
+    "validation/monitor-followup/ci-pr-312-source-manifest.json": "84d1abda2f615d81122184c0efdcd3a6256e44078bbd5dc5f78e924c4e0d0498",
+    "validation/monitor-followup/ci-pr-jobs.json": "4825de0660a63dd9e92188afbabdfde57573a2bc605e69c0de4e528ca3ee4763",
+    "validation/monitor-followup/ci-push-310-source-manifest.json": "8a830fccc8129098a5ddfdf30274295d65fa49c573db8b4b6334942bc7dd2212",
+    "validation/monitor-followup/ci-push-312-source-manifest.json": "817ce3385536c9aae81c07709a41d00d691bfe4842a9a073ab87cbdac3367115",
+    "validation/monitor-followup/ci-push-jobs.json": "6cf6d993056b38697e35b139e2ecbfdf325f0860863d4ae0737ee87137854600",
+    "validation/monitor-followup/command_status.json": "e9a7742a47543b61d98b5399b6f67509772a101244a77e540f8ce036dfa43fe6",
+    "validation/monitor-followup/comparison-summary.json": "f5a0c771746a5dabe923bf2e3e7284fe24dea51a55d7aa2d6fbeb2d267197c90",
+    "validation/monitor-followup/external-summary.json": "55073dedaaf1f5ebb2d44c640c13e7d68005551254779989df8e0fa093a4d539",
+    "validation/monitor-followup/integration-summary.json": "8f849f42034d3833f724078cb478e6b1f71e31146ecac22973538d7ff174d043",
+    "validation/monitor-followup/lora-summary.json": "78e1a57d162c1d29e43ab683c8bd8a75d4d406063c57796bf577694d52434998",
+    "validation/monitor-followup/paused-partition-repeats.log": "20342b5549c8dc5c8b078bb4a96d466d5094914abe97baccd39156e1c16736fd",
+    "validation/monitor-followup/pytest-3.10.log": "487a3d36d3d52f8222dfa17f55399f795a5aed9121d767ed2b8f9b61dc51fa1b",
+    "validation/monitor-followup/pytest-3.12.log": "065531606506944394abb833a2c762cfd8ee80515adb9511fd2e3e84e054f42d",
+    "validation/monitor-followup/repeats-summary.json": "d6d0b66f538c5729308baa5e0bea9b25a89dc48889479abc1ad89fc376b2f902",
+    "validation/monitor-followup/snapshot-summary.json": "3d51023fe35bedab51ab00aae51d414da43dba1ae46f16db747bdec23008fcc3",
+    "validation/monitor-followup/source_manifest.json": "592e9d45beda6bbb76669ae4b9ac6dd92b5d530a91537ab5fa7fb5115904cc9f",
+    "validation/monitor-followup/tcp-summary.json": "bb691f0a11e70622bfea7d2dbd9fa7c7d1712136a7cd5f1742da796de802d9c4",
+    "validation/monitor-followup/validation-summary.json": "4d28dcb0b351d394bd0a69eb2587acfaf42263d7f8190ab8a29e2d6acc511cbd",
     "validation/monitor-pause-focused.log": "2bd4a44989e45e8602de62b3ed5f852e62d433be5761e50b57e4b44aa9be0d36"
   },
-  "tested_revision": "2e3280b17b7a4edc139aee7afaf1a671b856a993",
-  "validation_summary": "validation/final/validation-summary.json",
+  "tested_revision": "206d0da5929f1bec7c4e59ddc3a2398e1687cb85",
+  "validation_summary": "validation/monitor-followup/validation-summary.json",
   "successful_ci_runs": [
     {
       "id": 37823781299,
@@ -79,6 +102,14 @@
     },
     {
       "id": 37824116529,
+      "event": "pull_request"
+    },
+    {
+      "id": 37828226734,
+      "event": "push"
+    },
+    {
+      "id": 37828235464,
       "event": "pull_request"
     }
   ],

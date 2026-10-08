@@ -1,0 +1,106 @@
+{
+  "tested_revision": "206d0da5929f1bec7c4e59ddc3a2398e1687cb85",
+  "dirty": false,
+  "local_toolchain": {
+    "python": "3.12.14",
+    "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)"
+  },
+  "pytest": {
+    "3.10": {
+      "passed": 587,
+      "seconds": 91.89,
+      "python": "3.10.21"
+    },
+    "3.12": {
+      "passed": 587,
+      "seconds": 86.9,
+      "python": "3.12.14"
+    }
+  },
+  "experiments": {
+    "tcp": {
+      "passed": 20,
+      "total": 20
+    },
+    "repeats": {
+      "passed": 20,
+      "total": 20
+    },
+    "lora": {
+      "passed": 20,
+      "total": 20
+    },
+    "comparison": {
+      "passed": 56,
+      "total": 56,
+      "delivery_status": {
+        "COMPLETE": 43,
+        "INCOMPLETE": 13
+      }
+    },
+    "snapshot": {
+      "passed": 19,
+      "total": 19,
+      "oracle_observations": 2800
+    },
+    "integration": {
+      "passed": 10,
+      "total": 10
+    },
+    "external": {
+      "passed": 5,
+      "total": 5
+    }
+  },
+  "paused_partition_repeats": {
+    "passed": 10,
+    "total": 10
+  },
+  "firmware": [
+    {
+      "revision": "206d0da5929f1bec7c4e59ddc3a2398e1687cb85",
+      "dirty": false,
+      "idf": "v5.4.4",
+      "compiler": "xtensa-esp-elf-gcc (crosstool-NG esp-14.2.0_20260121) 14.2.0",
+      "profile": "lab",
+      "binary_bytes": 831152,
+      "sha256": "9a641d14791c11ce82af7660b69ab2e13b757d057df847ec7dfde5456a47086a",
+      "sdkconfig_sha256": "6088072e09e6d96a7f41c3380d5c8a5a06ecbae08d943b2b5baed032ccf25d61"
+    },
+    {
+      "revision": "206d0da5929f1bec7c4e59ddc3a2398e1687cb85",
+      "dirty": false,
+      "idf": "v5.4.4",
+      "compiler": "xtensa-esp-elf-gcc (crosstool-NG esp-14.2.0_20260121) 14.2.0",
+      "profile": "light-sleep",
+      "binary_bytes": 848736,
+      "sha256": "846aab3966881e197db79cb2d6284149a690c6dea0091be5617f29d659c9dfc3",
+      "sdkconfig_sha256": "4e87849d979f317a7dfa7f2f4e9862d1130cda677b6c6a82abd4154d9ea6524c"
+    },
+    {
+      "revision": "206d0da5929f1bec7c4e59ddc3a2398e1687cb85",
+      "dirty": false,
+      "idf": "v5.4.4",
+      "compiler": "xtensa-esp-elf-gcc (crosstool-NG esp-14.2.0_20260121) 14.2.0",
+      "profile": "lora-prototype",
+      "binary_bytes": 329120,
+      "sha256": "95578840effa52dcbca39a97c843fb18218acea258492318753818f53629b590",
+      "sdkconfig_sha256": "bb3a09c710d0fecb1a75ac287522e894b992cf6b90c7d936df148753929d8832"
+    },
+    {
+      "revision": "206d0da5929f1bec7c4e59ddc3a2398e1687cb85",
+      "dirty": false,
+      "idf": "v5.4.4",
+      "compiler": "xtensa-esp-elf-gcc (crosstool-NG esp-14.2.0_20260121) 14.2.0",
+      "profile": "deep-sleep-experimental",
+      "binary_bytes": 350464,
+      "sha256": "e3674e55bca09431a27cef5a57035f1b897ecd11850716e527c855ec8c912940",
+      "sdkconfig_sha256": "b74d684aab2c5973da6e3af4f0bb7e8fc66e7fd49236a877cec6dc245ecc28ad"
+    }
+  ],
+  "successful_ci_runs": [
+    37828226734,
+    37828235464
+  ],
+  "hardware": "NOT RUN / PENDING HARDWARE VALIDATION"
+}

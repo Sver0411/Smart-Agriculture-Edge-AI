@@ -1,0 +1,280 @@
+[
+  {
+    "name": "pytest-3.10",
+    "command": [
+      "/tmp/agri-phase123-py310/bin/python",
+      "-m",
+      "pytest",
+      "tests/",
+      "-q",
+      "-o",
+      "faulthandler_timeout=60",
+      "--basetemp",
+      "/tmp/agri-stabilization-monitor-verified/pytest-temp-3.10"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 92.11
+  },
+  {
+    "name": "pytest-3.12",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "pytest",
+      "tests/",
+      "-q",
+      "-o",
+      "faulthandler_timeout=60",
+      "--basetemp",
+      "/tmp/agri-stabilization-monitor-verified/pytest-temp-3.12"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 87.08
+  },
+  {
+    "name": "paused-partition-0",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_stabilization_reproductions.py::test_one_way_partition_recovers_after_actual_event_loop_pause",
+      "-q",
+      "--basetemp",
+      "/tmp/agri-stabilization-monitor-verified/pause-temp-0"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 4.89
+  },
+  {
+    "name": "paused-partition-1",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_stabilization_reproductions.py::test_one_way_partition_recovers_after_actual_event_loop_pause",
+      "-q",
+      "--basetemp",
+      "/tmp/agri-stabilization-monitor-verified/pause-temp-1"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 4.82
+  },
+  {
+    "name": "paused-partition-2",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_stabilization_reproductions.py::test_one_way_partition_recovers_after_actual_event_loop_pause",
+      "-q",
+      "--basetemp",
+      "/tmp/agri-stabilization-monitor-verified/pause-temp-2"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 4.83
+  },
+  {
+    "name": "paused-partition-3",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_stabilization_reproductions.py::test_one_way_partition_recovers_after_actual_event_loop_pause",
+      "-q",
+      "--basetemp",
+      "/tmp/agri-stabilization-monitor-verified/pause-temp-3"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 4.83
+  },
+  {
+    "name": "paused-partition-4",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_stabilization_reproductions.py::test_one_way_partition_recovers_after_actual_event_loop_pause",
+      "-q",
+      "--basetemp",
+      "/tmp/agri-stabilization-monitor-verified/pause-temp-4"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 4.84
+  },
+  {
+    "name": "paused-partition-5",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_stabilization_reproductions.py::test_one_way_partition_recovers_after_actual_event_loop_pause",
+      "-q",
+      "--basetemp",
+      "/tmp/agri-stabilization-monitor-verified/pause-temp-5"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 4.83
+  },
+  {
+    "name": "paused-partition-6",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_stabilization_reproductions.py::test_one_way_partition_recovers_after_actual_event_loop_pause",
+      "-q",
+      "--basetemp",
+      "/tmp/agri-stabilization-monitor-verified/pause-temp-6"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 4.84
+  },
+  {
+    "name": "paused-partition-7",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_stabilization_reproductions.py::test_one_way_partition_recovers_after_actual_event_loop_pause",
+      "-q",
+      "--basetemp",
+      "/tmp/agri-stabilization-monitor-verified/pause-temp-7"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 4.83
+  },
+  {
+    "name": "paused-partition-8",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_stabilization_reproductions.py::test_one_way_partition_recovers_after_actual_event_loop_pause",
+      "-q",
+      "--basetemp",
+      "/tmp/agri-stabilization-monitor-verified/pause-temp-8"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 4.85
+  },
+  {
+    "name": "paused-partition-9",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_stabilization_reproductions.py::test_one_way_partition_recovers_after_actual_event_loop_pause",
+      "-q",
+      "--basetemp",
+      "/tmp/agri-stabilization-monitor-verified/pause-temp-9"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 4.85
+  },
+  {
+    "name": "tcp",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.runner",
+      "--all",
+      "--output",
+      "/tmp/agri-stabilization-monitor-verified/tcp"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 58.02
+  },
+  {
+    "name": "repeats",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.reliability_stabilization",
+      "--output",
+      "/tmp/agri-stabilization-monitor-verified/repeats"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 66.44
+  },
+  {
+    "name": "lora",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.runner",
+      "--all",
+      "--transport",
+      "simulated-lora",
+      "--output",
+      "/tmp/agri-stabilization-monitor-verified/lora"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 57.89
+  },
+  {
+    "name": "comparison",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.lora_harness",
+      "--seed",
+      "42",
+      "--output",
+      "/tmp/agri-stabilization-monitor-verified/comparison"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 29.71
+  },
+  {
+    "name": "snapshot",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.snapshot_harness",
+      "--output",
+      "/tmp/agri-stabilization-monitor-verified/snapshot"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 3.78
+  },
+  {
+    "name": "integration",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.phase123_integration",
+      "--seed",
+      "42",
+      "--output",
+      "/tmp/agri-stabilization-monitor-verified/integration"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 17.12
+  },
+  {
+    "name": "external",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.edgefaultlab",
+      "--edgefaultlab-root",
+      "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.external/edgefaultlab",
+      "--output",
+      "/tmp/agri-stabilization-monitor-verified/external"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 60.24
+  },
+  {
+    "name": "inventory",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.evidence_inventory",
+      "--output",
+      "/tmp/agri-stabilization-monitor-verified/inventory.json"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 1.47
+  }
+]
