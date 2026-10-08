@@ -4,7 +4,7 @@ import json
 import subprocess
 import pytest
 ROOT=Path(__file__).resolve().parents[1]
-CASES=[f'continuity-{m}' for m in ('healthy','event','range','missing','stuck','drift','spike')]+['unknown-time','sequence','epoch','truncated','bit-corruption','version','profile','state-capacity','clock-overflow','lease']
+CASES=[f'continuity-{m}' for m in ('healthy','event','range','missing','stuck','drift','spike')]+['unknown-time','sequence','epoch','truncated','bit-corruption','version','profile','state-capacity','clock-overflow','lease','counter-max','config-null']
 @pytest.fixture(scope='module')
 def snapshot_exe(tmp_path_factory):
     exe=tmp_path_factory.mktemp('snapshot')/'restore';main=ROOT/'firmware/b1/main';trust=ROOT/'firmware/b1/components/sensor_trust';adaptive=ROOT/'firmware/b1/components/adaptive_sense';radio=ROOT/'firmware/b1/components/agri_lora'

@@ -161,6 +161,7 @@ void b1_deep_sleep_task(void *arg) {
   if (!b1_sensor_shutdown() ||
       b1_e220_shutdown(CONFIG_B1_E220_AUX_TIMEOUT_MS) != ESP_OK)
     failure_backoff();
+  if(!GPIO_IS_VALID_OUTPUT_GPIO(CONFIG_B1_E220_M0_GPIO) || !GPIO_IS_VALID_OUTPUT_GPIO(CONFIG_B1_E220_M1_GPIO))failure_backoff();
   gpio_config_t radio_off = {.pin_bit_mask =
                                  (UINT64_C(1) << CONFIG_B1_E220_M0_GPIO) |
                                  (UINT64_C(1) << CONFIG_B1_E220_M1_GPIO),
@@ -177,7 +178,9 @@ void b1_deep_sleep_task(void *arg) {
       gpio_hold_en(CONFIG_B1_E220_M1_GPIO) != ESP_OK)
     failure_backoff();
   gpio_deep_sleep_hold_en();
-  identity.saved_ms = restored_clock + runtime_ms();
+  runtime=runtime_ms();
+  if(restored_clock>UINT64_MAX-runtime)failure_backoff();
+  identity.saved_ms = restored_clock + runtime;
   identity.planned_sleep_ms = sample.next_interval_ms;
   if (identity.planned_sleep_ms < CONFIG_B1_DEEP_MIN_SLEEP_MS)
     identity.planned_sleep_ms = CONFIG_B1_DEEP_MIN_SLEEP_MS;

@@ -1,0 +1,31 @@
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "8d4211bc2c83", "bytes": 160, "index_in_attempt": 0, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "8d4211bc2c83", "bytes": 160, "index_in_attempt": 1, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "8d4211bc2c83", "bytes": 78, "index_in_attempt": 2, "outcome": "MESSAGE_REASSEMBLED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "34a7c9dda814", "bytes": 160, "index_in_attempt": 0, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "34a7c9dda814", "bytes": 160, "index_in_attempt": 1, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "34a7c9dda814", "bytes": 142, "index_in_attempt": 2, "outcome": "MESSAGE_REASSEMBLED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 0, "corrupted": true, "outcome": "REJECTED", "reason": "CRC"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 1, "corrupted": true, "outcome": "REJECTED", "reason": "CRC"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 2, "corrupted": true, "outcome": "REJECTED", "reason": "CRC"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 3, "corrupted": true, "outcome": "REJECTED", "reason": "CRC"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 4, "corrupted": true, "outcome": "REJECTED", "reason": "CRC"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 5, "corrupted": true, "outcome": "REJECTED", "reason": "CRC"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 6, "corrupted": true, "outcome": "REJECTED", "reason": "CRC"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 7, "corrupted": true, "outcome": "REJECTED", "reason": "CRC"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 8, "corrupted": true, "outcome": "REJECTED", "reason": "CRC"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 9, "corrupted": true, "outcome": "REJECTED", "reason": "CRC"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 113, "index_in_attempt": 10, "corrupted": true, "outcome": "REJECTED", "reason": "CRC"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 0, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 1, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 2, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 3, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 4, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 5, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 6, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 7, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 8, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 160, "index_in_attempt": 9, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "B1-host-old-00000002-S", "bytes": 113, "index_in_attempt": 10, "outcome": "MESSAGE_REASSEMBLED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "c7942d1376cb", "bytes": 160, "index_in_attempt": 0, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "c7942d1376cb", "bytes": 160, "index_in_attempt": 1, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "c7942d1376cb", "bytes": 136, "index_in_attempt": 2, "outcome": "MESSAGE_REASSEMBLED"}

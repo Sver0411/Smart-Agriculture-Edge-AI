@@ -1,0 +1,9 @@
+{
+  "idf": "v5.4.4",
+  "target": "esp32s3",
+  "profile": "deep-sleep-experimental",
+  "binary_bytes": 350448,
+  "sha256": "00c98b8de0711b0b03d9ae9517d2f2b815da01928a23b546868e29acf8166185",
+  "configuration": "original fresh public profile sdkconfig, incremental rebuild after final source audit",
+  "sdkconfig_sha256": "b74d684aab2c5973da6e3af4f0bb7e8fc66e7fd49236a877cec6dc245ecc28ad"
+}

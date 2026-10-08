@@ -3,6 +3,7 @@
 #include <limits.h>
 #include <math.h>
 #include <string.h>
+#include <float.h>
 bool b1_boot_lease_take(b1_sleep_identity_t *id, uint64_t high, bool rtc,
                         bool *reserve, uint64_t *counter) {
   if (!id || !reserve || !counter)
@@ -20,6 +21,8 @@ bool b1_boot_lease_take(b1_sleep_identity_t *id, uint64_t high, bool rtc,
 }
 _Static_assert(sizeof(float) == 4 && sizeof(double) == 8,
                "IEEE754 sizes required");
+_Static_assert(FLT_RADIX == 2 && FLT_MANT_DIG == 24 && DBL_MANT_DIG == 53,
+               "IEEE754 binary32/binary64 required");
 typedef struct {
   uint8_t *out;
   const uint8_t *in;
@@ -97,7 +100,7 @@ static void trust_config(cursor_t *c, sensor_trust_config_t *p) {
 /* Configuration fingerprint includes all mathematical parameters and ladder
  * CONTENTS, never pointer addresses. Dynamic control threshold is state below.
  */
-static uint32_t fingerprint(b1_policy_t *p) {
+static bool fingerprint(b1_policy_t *p, uint32_t *hash) {
   uint8_t buf[512];
   cursor_t c = {.out = buf, .n = sizeof(buf), .ok = true};
   trust_config(&c, &p->temperature.config);
@@ -123,8 +126,8 @@ static uint32_t fingerprint(b1_policy_t *p) {
   for (unsigned i = 0; i < 3; i++) {
     size_t n = p->as_config.ladder_len[i];
     size16(&c, &n);
-    if (n > 16)
-      return 0;
+    if (n == 0 || n > 16 || !p->as_config.ladders[i])
+      return false;
     integer(&c, &p->as_config.ladder_confirm[i]);
     for (size_t j = 0; j < n; j++) {
       float v = p->as_config.ladders[i][j];
@@ -142,7 +145,8 @@ static uint32_t fingerprint(b1_policy_t *p) {
   f32(&c, &p->fault_interval_s);
   f32(&c, &p->degraded_interval_s);
   f32(&c, &p->fault_reminder_s);
-  return c.ok ? al_crc32(buf, c.at) : 0;
+  if(!c.ok)return false;
+  *hash=al_crc32(buf,c.at);return true;
 }
 static void trust_state(cursor_t *c, sensor_trust_t *p) {
   boolean(c, &p->initialised);
@@ -175,7 +179,8 @@ static void trust_state(cursor_t *c, sensor_trust_t *p) {
   p->last_result.state = (sensor_health_state_t)state;
   u32(c, &p->last_result.fault_flags);
   if (!p->initialised || p->consecutive_invalid < 0 ||
-      p->spike_confirmed_count < 0 || p->drift_streak < 0 ||
+      p->spike_confirmed_count < 0 || p->spike_confirmed_count == INT_MAX ||
+      p->drift_streak < 0 || p->drift_streak == INT_MAX ||
       p->drift_direction < -1 || p->drift_direction > 1 || state > 2 ||
       p->last_result.health_score < 0 || p->last_result.health_score > 100 ||
       (p->last_result.fault_flags & ~FAULT_ALL))
@@ -241,7 +246,7 @@ static void state(cursor_t *c, b1_policy_t *p, b1_sleep_identity_t *id) {
   }
   uint64_t samples = p->scheduler.n_samples;
   u64(c, &samples);
-  if (samples > ULONG_MAX)
+  if (samples >= ULONG_MAX)
     c->ok = false;
   p->scheduler.n_samples = (unsigned long)samples;
   f64(c, &p->scheduler.last_upload_t);
@@ -325,7 +330,9 @@ bool b1_snapshot_encode(const b1_policy_t *p, const b1_sleep_identity_t *id,
   word(&c, 0x53413142, 4);
   word(&c, B1_SNAPSHOT_VERSION, 2);
   word(&c, 0, 2);
-  word(&c, fingerprint(&copy), 4);
+  uint32_t config_hash;
+  if(!fingerprint(&copy,&config_hash))return false;
+  word(&c,config_hash,4);
   word(&c, 0, 4);
   state(&c, &copy, &identity);
   if (!c.ok || !valid_time(&copy, &identity))
@@ -348,10 +355,12 @@ b1_restore_result_t b1_snapshot_restore(b1_policy_t *p, b1_sleep_identity_t *id,
   b1_policy_t temp;
   if (!b1_policy_init(&temp))
     return B1_RESTORE_REJECTED;
+  uint32_t config_hash;
+  if(!fingerprint(&temp,&config_hash))return B1_RESTORE_REJECTED;
   b1_sleep_identity_t identity = {0};
   cursor_t c = {.in = in, .n = n, .ok = true};
   if (word(&c, 0, 4) != 0x53413142 || word(&c, 0, 2) != B1_SNAPSHOT_VERSION ||
-      word(&c, 0, 2) != n || word(&c, 0, 4) != fingerprint(&temp) ||
+      word(&c, 0, 2) != n || word(&c, 0, 4) != config_hash ||
       word(&c, 0, 4) != checksum(in, n))
     return B1_RESTORE_REJECTED;
   state(&c, &temp, &identity);

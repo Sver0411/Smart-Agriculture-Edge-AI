@@ -1,0 +1,15 @@
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "159540e51424", "bytes": 160, "index_in_attempt": 0, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "159540e51424", "bytes": 160, "index_in_attempt": 1, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "159540e51424", "bytes": 77, "index_in_attempt": 2, "outcome": "MESSAGE_REASSEMBLED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "6492f3290e51", "bytes": 160, "index_in_attempt": 0, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "6492f3290e51", "bytes": 160, "index_in_attempt": 1, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "6492f3290e51", "bytes": 142, "index_in_attempt": 2, "outcome": "MESSAGE_REASSEMBLED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "ea625b1c0205", "bytes": 160, "index_in_attempt": 0, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "ea625b1c0205", "bytes": 160, "index_in_attempt": 1, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "B1", "destination": "A1", "logical_message_id": "ea625b1c0205", "bytes": 77, "index_in_attempt": 2, "outcome": "MESSAGE_REASSEMBLED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "d96d42031d4b", "bytes": 160, "index_in_attempt": 0, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "d96d42031d4b", "bytes": 160, "index_in_attempt": 1, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "d96d42031d4b", "bytes": 142, "index_in_attempt": 2, "outcome": "MESSAGE_REASSEMBLED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "70664f3fb5e2", "bytes": 160, "index_in_attempt": 0, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "70664f3fb5e2", "bytes": 160, "index_in_attempt": 1, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A1", "destination": "B1", "logical_message_id": "70664f3fb5e2", "bytes": 138, "index_in_attempt": 2, "outcome": "MESSAGE_REASSEMBLED"}

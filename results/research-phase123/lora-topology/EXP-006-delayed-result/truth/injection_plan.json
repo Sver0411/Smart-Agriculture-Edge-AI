@@ -1,0 +1,22 @@
+{
+  "disruptions": [],
+  "frame_faults": [
+    {
+      "action": "delay",
+      "delay_s": 0.8,
+      "match": {
+        "source": "C1",
+        "type": "CONTROL_RESULT"
+      }
+    }
+  ],
+  "receipt_observations": [
+    {
+      "action": "delay",
+      "message_id": "0e10e8430e54"
+    }
+  ],
+  "scenario": "delayed-result",
+  "seed": 42,
+  "sensor_fault": false
+}

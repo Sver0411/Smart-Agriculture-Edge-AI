@@ -1,0 +1,75 @@
+{
+  "scenario": "normal",
+  "question": "Do both zones complete B -> A -> C -> A -> Server?",
+  "status": "PASS",
+  "exit_code": 0,
+  "assertions": [
+    {
+      "description": "every sensor command preserves fixed zone membership",
+      "passed": true
+    },
+    {
+      "description": "no logical command reported executed twice on control link",
+      "passed": true
+    },
+    {
+      "description": "both sensor zones sampled",
+      "passed": true
+    },
+    {
+      "description": "C1 executes trusted control",
+      "passed": true
+    },
+    {
+      "description": "C2 zone continues",
+      "passed": true
+    },
+    {
+      "description": "server records sensor history",
+      "passed": true
+    },
+    {
+      "description": "planned frame fault exercised",
+      "passed": true
+    },
+    {
+      "description": "one-way A1\u2192A2 heartbeat loss forces A2 epoch advance and A1 standby via reverse link",
+      "passed": true
+    }
+  ],
+  "observations": {
+    "measurement_end_s": 3.8123209580007824,
+    "measurement_scope": "scenario traffic before asynchronous teardown",
+    "gateway_states": {
+      "A1": {
+        "gateway_id": "A1",
+        "role": "STANDBY",
+        "health": "ONLINE",
+        "generation": 1,
+        "peer_id": "A2",
+        "peer_health": "ONLINE",
+        "peer_generation": 2
+      },
+      "A2": {
+        "gateway_id": "A2",
+        "role": "ACTIVE",
+        "health": "ONLINE",
+        "generation": 2,
+        "peer_id": "A1",
+        "peer_health": "UNKNOWN",
+        "peer_generation": 0
+      }
+    },
+    "node_ownership": {
+      "B1": {
+        "owner": "A1",
+        "generation": 1
+      },
+      "B2": {
+        "owner": "A2",
+        "generation": 2
+      }
+    }
+  },
+  "case": "asymmetric-partition"
+}

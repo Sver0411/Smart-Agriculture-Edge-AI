@@ -1,0 +1,9 @@
+{
+  "idf": "v5.4.4",
+  "target": "esp32s3",
+  "profile": "lora-prototype",
+  "binary_bytes": 328560,
+  "sha256": "add59fb4705472f18ff8a5c905b11bed2b39995781b2821cea506984b841a107",
+  "configuration": "original fresh public profile sdkconfig, incremental rebuild after final source audit",
+  "sdkconfig_sha256": "bb3a09c710d0fecb1a75ac287522e894b992cf6b90c7d936df148753929d8832"
+}

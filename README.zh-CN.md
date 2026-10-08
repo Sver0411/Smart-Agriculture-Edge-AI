@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-`research` 第一阶段：B1 有界关键数据缓存、稳定消息身份与网关持久化 ACK；软件验证与硬件边界见 [开发报告](docs/research/PHASE1_DEVELOPMENT_REPORT.md)。
+`research` 分支已加入网关注册与新鲜度补强、有界 LoRa 协议及 B1 E220 UART 适配、默认关闭的 Deep Sleep 快照路径。可复现软件结果与仍待实测的硬件项目见 [集成报告](docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md)。
 
 **Reliability Hardening & Protocol Correctness**
 

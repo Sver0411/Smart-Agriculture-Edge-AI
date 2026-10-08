@@ -10,7 +10,7 @@ on:
 jobs:
   software:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -28,6 +28,18 @@ jobs:
       - name: Complete topology software scenarios
         if: matrix.python == '3.12'
         run: python -m experiments.runner --all --output "$RUNNER_TEMP/smart-agriculture/software"
+      - name: All scenarios over host simulated LoRa
+        if: matrix.python == '3.12'
+        run: python -m experiments.runner --all --transport simulated-lora --output "$RUNNER_TEMP/smart-agriculture/lora-topology"
+      - name: Seeded radio delivery comparisons (including incomplete deliveries)
+        if: matrix.python == '3.12'
+        run: python -m experiments.lora_harness --seed 42 --output "$RUNNER_TEMP/smart-agriculture/lora-comparison"
+      - name: Actual C algorithm sleep-restore oracle
+        if: matrix.python == '3.12'
+        run: python -m experiments.snapshot_harness --output "$RUNNER_TEMP/smart-agriculture/snapshot"
+      - name: Ten cross-phase integration scenarios
+        if: matrix.python == '3.12'
+        run: python -m experiments.phase123_integration --seed 42 --output "$RUNNER_TEMP/smart-agriculture/phase123"
       - name: Checkout independent EdgeFaultLab at reviewed revision
         if: matrix.python == '3.12'
         uses: actions/checkout@v4
@@ -56,7 +68,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        profile: [lab, light-sleep]
+        profile: [lab, light-sleep, lora-prototype, deep-sleep-experimental]
     steps:
       - uses: actions/checkout@v4
       - name: Build ESP32-S3 using public defaults only

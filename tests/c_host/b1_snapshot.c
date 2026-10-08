@@ -2,6 +2,7 @@
 #include "agri_lora.h"
 #include <assert.h>
 #include <math.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -171,6 +172,10 @@ static void bounds(const char *mode) {
   } else if (!strcmp(mode, "state-capacity")) {
     p.temperature.window_count = 65;
     assert(!b1_snapshot_encode(&p, &id, raw, sizeof(raw), &n));
+  } else if (!strcmp(mode,"counter-max")) {
+    p.temperature.spike_confirmed_count=INT_MAX;assert(!b1_snapshot_encode(&p,&id,raw,sizeof(raw),&n));
+  } else if (!strcmp(mode,"config-null")) {
+    p.as_config.ladders[0]=NULL;assert(!b1_snapshot_encode(&p,&id,raw,sizeof(raw),&n));
   } else if (!strcmp(mode, "clock-overflow")) {
     assert(b1_snapshot_restore(&q, &out, raw, n, 3, true, UINT64_MAX, &now) ==
            B1_RESTORE_REJECTED);

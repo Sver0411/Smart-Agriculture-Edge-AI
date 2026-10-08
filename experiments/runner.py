@@ -37,7 +37,7 @@ def ports(count):
 def write_json(path,data):
     path.write_text(json.dumps(data,indent=2,sort_keys=True,allow_nan=False)+'\n')
 
-async def run_scenario(name,output,seed=42,duration=None,transport="tcp",lora_options=None):
+async def run_scenario(name,output,seed=42,duration=None,transport="tcp",lora_options=None,extra_fault_rules=None):
     if name not in CATALOG:raise ValueError(f'unknown scenario {name}')
     out=Path(output);out.mkdir(parents=True,exist_ok=False)
     raw=out/'raw';raw.mkdir();results=out/'results';results.mkdir();truth=out/'truth';truth.mkdir()
@@ -72,6 +72,9 @@ async def run_scenario(name,output,seed=42,duration=None,transport="tcp",lora_op
     if name=='lost-result':rules=[{'action':'drop','count':1000,'match':{'type':'CONTROL_RESULT','source':'C1'}}]
     if name=='persisted-ack-loss':rules=[{'action':'drop','match':{'type':'PERSISTED_ACK','target':'A1'}}]
     if name=='reordered-messages':rules=[{'action':'reorder','count':2,'match':{'type':'SENSOR_DATA','source':'B1'}}]
+    rules.extend(deepcopy(extra_fault_rules or []))
+    cfg["additional_fault_rules"]=extra_fault_rules or []
+    write_json(out/"config.json",cfg)
     faults=FrameFaults(rules,seed)
     async def inject(writer,message):
         handled=await faults(writer,message)

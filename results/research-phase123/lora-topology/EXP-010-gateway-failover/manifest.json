@@ -1,0 +1,13 @@
+{
+  "config_sha256": "f2080a398594c838decd6100eb8675ee650b15a008095c7e29e6440df78f62cd",
+  "dirty_scope": "source files; generated software-v0.3 and software-v0.3.1 evidence excluded",
+  "input_mode": "software-simulation",
+  "raw_sha256": "9b6eb9e47c6196d0849b9efc5f7760750caf23d352e73958dcb130d909bed247",
+  "revision": "1cb84fbe5ba46eb81ff649cdfc8af6111c642838",
+  "scenario": "gateway-failover",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "PASS",
+  "verification": "host-tested",
+  "working_tree_dirty": true
+}

@@ -1,0 +1,532 @@
+{
+  "total": 10,
+  "passed": 10,
+  "runs": [
+    {
+      "status": "PASS",
+      "case": "stable-sleep",
+      "assertions": [
+        {
+          "description": "trusted elapsed restore avoids upload and synthetic onset in stable real C policy",
+          "passed": true
+        }
+      ],
+      "metrics": {}
+    },
+    {
+      "status": "PASS",
+      "case": "event-loss-ack",
+      "assertions": [
+        {
+          "description": "loss/damage has no fabricated durable confirmation or control admission",
+          "passed": true
+        },
+        {
+          "description": "real gateway committed receipt precedes ACK, actual C confirmed_seq advances to2 only after matching ACK",
+          "passed": true
+        },
+        {
+          "description": "one immutable logical sample stored once at gateway and server",
+          "passed": true
+        }
+      ],
+      "metrics": {
+        "logical_attempts": 5,
+        "fragments_sent": 31,
+        "simulated_frame_bytes": 4742,
+        "reassembled": 4,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 11,
+        "gateway_receipts": 1,
+        "server_samples": 1,
+        "decision_calls": 1
+      }
+    },
+    {
+      "status": "PASS",
+      "case": "high-sleep-retry",
+      "assertions": [
+        {
+          "description": "loss/damage has no fabricated durable confirmation or control admission",
+          "passed": true
+        },
+        {
+          "description": "old boot HIGH retry deduplicates and retires evidence without advancing fresh baseline",
+          "passed": true
+        },
+        {
+          "description": "one immutable logical sample stored once at gateway and server",
+          "passed": true
+        }
+      ],
+      "metrics": {
+        "logical_attempts": 8,
+        "fragments_sent": 40,
+        "simulated_frame_bytes": 6064,
+        "reassembled": 7,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 3,
+        "gateway_receipts": 1,
+        "server_samples": 1,
+        "decision_calls": 1
+      }
+    },
+    {
+      "scenario": "gateway-failover",
+      "question": "Does A2 take over and synchronize sensor/controller generation?",
+      "status": "PASS",
+      "exit_code": 0,
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        },
+        {
+          "description": "C-restored HIGH history cannot control after A2 takeover",
+          "passed": true
+        },
+        {
+          "description": "new boot fresh data passes A2\u2192LoRa\u2192C1 guard and executes once",
+          "passed": true
+        },
+        {
+          "description": "old A1 epoch is rejected and C1 retains A2 owner",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "recovery_time_s": 0.6114349170020432,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "status": "REJECTED",
+          "reason": "STALE_GENERATION"
+        },
+        "measurement_end_s": 3.035304791003,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "role": "ACTIVE",
+            "health": "ONLINE",
+            "generation": 1,
+            "peer_id": "A2",
+            "peer_health": "ONLINE",
+            "peer_generation": 1
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "role": "ACTIVE",
+            "health": "ONLINE",
+            "generation": 2,
+            "peer_id": "A1",
+            "peer_health": "ONLINE",
+            "peer_generation": 1
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "owner": "A2",
+            "generation": 2
+          },
+          "B2": {
+            "owner": "A2",
+            "generation": 2
+          }
+        }
+      },
+      "case": "failover-freshness"
+    },
+    {
+      "scenario": "gateway-recovery",
+      "question": "Does recovered A1 enter STANDBY?",
+      "status": "PASS",
+      "exit_code": 0,
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "recovered gateway standby",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "recovery_time_s": 0.6632932920038002,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "status": "REJECTED",
+          "reason": "STALE_GENERATION"
+        },
+        "measurement_end_s": 3.5843295000013313,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "role": "STANDBY",
+            "health": "ONLINE",
+            "generation": 1,
+            "peer_id": "A2",
+            "peer_health": "ONLINE",
+            "peer_generation": 2
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "role": "ACTIVE",
+            "health": "ONLINE",
+            "generation": 2,
+            "peer_id": "A1",
+            "peer_health": "ONLINE",
+            "peer_generation": 1
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "owner": "A2",
+            "generation": 2
+          },
+          "B2": {
+            "owner": "A2",
+            "generation": 2
+          }
+        }
+      },
+      "case": "recovery-fencing"
+    },
+    {
+      "status": "PASS",
+      "case": "fragment-corruption",
+      "assertions": [
+        {
+          "description": "loss/damage has no fabricated durable confirmation or control admission",
+          "passed": true
+        },
+        {
+          "description": "one immutable logical sample stored once at gateway and server",
+          "passed": true
+        }
+      ],
+      "metrics": {
+        "logical_attempts": 5,
+        "fragments_sent": 31,
+        "simulated_frame_bytes": 4742,
+        "reassembled": 4,
+        "duplicates": 0,
+        "rejected": 11,
+        "dropped": 0,
+        "gateway_receipts": 1,
+        "server_samples": 1,
+        "decision_calls": 1
+      }
+    },
+    {
+      "status": "PASS",
+      "case": "queue-age",
+      "assertions": [
+        {
+          "description": "unknown/expired age is durably historical and cannot create a new controller command",
+          "passed": true
+        },
+        {
+          "description": "one immutable logical sample stored once at gateway and server",
+          "passed": true
+        }
+      ],
+      "metrics": {
+        "logical_attempts": 5,
+        "fragments_sent": 15,
+        "simulated_frame_bytes": 2176,
+        "reassembled": 5,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "gateway_receipts": 1,
+        "server_samples": 1,
+        "decision_calls": 0
+      }
+    },
+    {
+      "status": "PASS",
+      "case": "corrupt-snapshot",
+      "assertions": [
+        {
+          "description": "corrupt RTC rejected while real v2 HIGH checkpoint retains original identity",
+          "passed": true
+        },
+        {
+          "description": "unknown/expired age is durably historical and cannot create a new controller command",
+          "passed": true
+        },
+        {
+          "description": "one immutable logical sample stored once at gateway and server",
+          "passed": true
+        }
+      ],
+      "metrics": {
+        "logical_attempts": 4,
+        "fragments_sent": 20,
+        "simulated_frame_bytes": 3032,
+        "reassembled": 4,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "gateway_receipts": 1,
+        "server_samples": 1,
+        "decision_calls": 0
+      }
+    },
+    {
+      "scenario": "queue-replay",
+      "question": "Do 250 queued messages replay without any new telemetry trigger?",
+      "status": "PASS",
+      "exit_code": 0,
+      "assertions": [
+        {
+          "description": "history queued durably",
+          "passed": true
+        },
+        {
+          "description": "local control executes during outage",
+          "passed": true
+        },
+        {
+          "description": "all offline queues drained",
+          "passed": true
+        },
+        {
+          "description": "250 logical queued samples stored",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "measurement_end_s": 4.328663041997061,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "role": "ACTIVE",
+            "health": "ONLINE",
+            "generation": 1,
+            "peer_id": "A2",
+            "peer_health": "ONLINE",
+            "peer_generation": 1
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "role": "ACTIVE",
+            "health": "ONLINE",
+            "generation": 1,
+            "peer_id": "A1",
+            "peer_health": "ONLINE",
+            "peer_generation": 1
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "owner": "A1",
+            "generation": 1
+          },
+          "B2": {
+            "owner": "A2",
+            "generation": 1
+          }
+        }
+      },
+      "case": "server-replay"
+    },
+    {
+      "scenario": "normal",
+      "question": "Do both zones complete B -> A -> C -> A -> Server?",
+      "status": "PASS",
+      "exit_code": 0,
+      "assertions": [
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        },
+        {
+          "description": "planned frame fault exercised",
+          "passed": true
+        },
+        {
+          "description": "one-way A1\u2192A2 heartbeat loss forces A2 epoch advance and A1 standby via reverse link",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "measurement_end_s": 3.8123209580007824,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "role": "STANDBY",
+            "health": "ONLINE",
+            "generation": 1,
+            "peer_id": "A2",
+            "peer_health": "ONLINE",
+            "peer_generation": 2
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "role": "ACTIVE",
+            "health": "ONLINE",
+            "generation": 2,
+            "peer_id": "A1",
+            "peer_health": "UNKNOWN",
+            "peer_generation": 0
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "owner": "A1",
+            "generation": 1
+          },
+          "B2": {
+            "owner": "A2",
+            "generation": 2
+          }
+        }
+      },
+      "case": "asymmetric-partition"
+    }
+  ],
+  "partition_scope": "tested fault schedule and controller epoch fencing; no arbitrary partition consensus guarantee"
+}

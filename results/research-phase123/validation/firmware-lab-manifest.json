@@ -1,0 +1,9 @@
+{
+  "idf": "v5.4.4",
+  "target": "esp32s3",
+  "profile": "lab",
+  "binary_bytes": 831152,
+  "sha256": "521ecc26df2776aef8421f7b7413701316d153190052a86c3c26979c7949b763",
+  "configuration": "original fresh public profile sdkconfig, incremental rebuild after final source audit",
+  "sdkconfig_sha256": "6088072e09e6d96a7f41c3380d5c8a5a06ecbae08d943b2b5baed032ccf25d61"
+}

@@ -1,0 +1,38 @@
+stable-sleep PASS
+00:43:32 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase123/scenarios-attempt1/event-loss-ack/server.db)
+00:43:32 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:43:32 [A1] connected to server 127.0.0.1:52248
+00:43:32 [A1] offline queue empty
+00:43:32 [A1] B1 registered (owner=A1, generation=1)
+00:43:32 [SERVER] gateway A1 connected
+00:43:32 [A1] received SENSOR_DATA from B1
+00:43:32 [A1] edge decision = VENTILATION (temperature 32.5 > 32.0)
+00:43:32 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=2)
+00:43:32 [SERVER] sensor data stored (B1 soil=None% temp=32.5C)
+00:43:32 [A1] B1 disconnected
+00:43:32 [SERVER] gateway A1 disconnected
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/experiments/phase123_integration.py", line 112, in <module>
+    p=argparse.ArgumentParser();p.add_argument('--output',required=True);p.add_argument('--seed',type=int,default=42);a=p.parse_args();raise SystemExit(asyncio.run(run_all(a.output,a.seed)))
+                                                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/experiments/phase123_integration.py", line 107, in run_all
+    else:result=await basic_case(case,output/case,seed,exe)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/experiments/phase123_integration.py", line 79, in basic_case
+    c_run(exe,'ack',out,ack.payload['ack_message_id'])
+  File "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/experiments/phase123_integration.py", line 24, in c_run
+    assert result.returncode==0,result.stderr
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: Assertion failed: (b1_queue_ack(argv[i])), function main, file b1_phase123.c, line 158.
+
