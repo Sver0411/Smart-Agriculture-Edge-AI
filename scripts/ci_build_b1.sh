@@ -34,10 +34,10 @@ binary=pathlib.Path(sys.argv[1])
 pathlib.Path(sys.argv[2]).write_text(json.dumps({'idf':'v5.4.4','target':'esp32s3','profile':sys.argv[3],
     'binary_bytes':binary.stat().st_size,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),
     'sdkconfig_sha256':hashlib.sha256(pathlib.Path(sys.argv[4]).read_bytes()).hexdigest(),
-    'revision':subprocess.check_output(['git','-C',sys.argv[5],'rev-parse','HEAD'],text=True).strip(),
-    'dirty':bool(subprocess.check_output(['git','-C',sys.argv[5],'status','--porcelain'],text=True)),
+    'revision':subprocess.check_output(['git','-c','safe.directory='+sys.argv[5],'-C',sys.argv[5],'rev-parse','HEAD'],text=True).strip(),
+    'dirty':bool(subprocess.check_output(['git','-c','safe.directory='+sys.argv[5],'-C',sys.argv[5],'status','--porcelain'],text=True)),
     'compiler':subprocess.check_output(['xtensa-esp32s3-elf-gcc','--version'],text=True).splitlines()[0],
     'source_sha256':{p:hashlib.sha256((pathlib.Path(sys.argv[5])/p).read_bytes()).hexdigest()
-        for p in subprocess.check_output(['git','-C',sys.argv[5],'ls-files','firmware/b1','third_party','scripts/ci_build_b1.sh'],text=True).splitlines()
+        for p in subprocess.check_output(['git','-c','safe.directory='+sys.argv[5],'-C',sys.argv[5],'ls-files','firmware/b1','third_party','scripts/ci_build_b1.sh'],text=True).splitlines()
         if (pathlib.Path(sys.argv[5])/p).is_file()}},indent=2)+'\n')
 PY
