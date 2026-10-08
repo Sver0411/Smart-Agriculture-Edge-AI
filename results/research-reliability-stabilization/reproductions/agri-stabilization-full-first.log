@@ -1,0 +1,333 @@
+..............................................................F......... [ 13%]
+........................................................................ [ 26%]
+........................................................................ [ 39%]
+........................................................................ [ 52%]
+.....................................................F.................. [ 65%]
+........F............................................................... [ 78%]
+........................................................................ [ 92%]
+...........................................                              [100%]
+=================================== FAILURES ===================================
+_____________ test_controller_live_id_window_matches_durable_bound _____________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-119/test_controller_live_id_window0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x102e409b0>
+
+    def test_controller_live_id_window_matches_durable_bound(tmp_path, monkeypatch):
+        monkeypatch.setitem(settings.SETTINGS["controller"], "recent_command_capacity", 2)
+    
+        async def run():
+            guard = SafetyGuard(store=StateStore(tmp_path / "controller.db"),
+                                cooldown={"IRRIGATION": 0, "VENTILATION": 0})
+            controller = ControllerNode("C1", safety_guard=guard, time_scale=0)
+            for i in range(5):
+                command = Message(type=CONTROL_COMMAND, source="A1", target="C1",
+                                  payload={"command_id": f"bounded-{i}", "type": "IRRIGATION",
+                                           "duration": 1, "gateway_generation": 1})
+                assert (await controller.process_command(command))["status"] == "EXECUTED"
+            assert guard.executed_command_ids == set(controller.recent_commands.entries)
+            assert guard.executed_command_ids == {"bounded-3", "bounded-4"}
+            assert (await controller.process_command(command))["status"] == "DUPLICATE"
+            assert controller.metrics.get("executed") == 5
+    
+>       asyncio.run(run())
+
+tests/test_branch_integration_review.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def run():
+        guard = SafetyGuard(store=StateStore(tmp_path / "controller.db"),
+                            cooldown={"IRRIGATION": 0, "VENTILATION": 0})
+        controller = ControllerNode("C1", safety_guard=guard, time_scale=0)
+        for i in range(5):
+            command = Message(type=CONTROL_COMMAND, source="A1", target="C1",
+                              payload={"command_id": f"bounded-{i}", "type": "IRRIGATION",
+                                       "duration": 1, "gateway_generation": 1})
+>           assert (await controller.process_command(command))["status"] == "EXECUTED"
+E           AssertionError: assert 'UNKNOWN' == 'EXECUTED'
+E             
+E             - EXECUTED
+E             + UNKNOWN
+
+tests/test_branch_integration_review.py:85: AssertionError
+----------------------------- Captured stdout call -----------------------------
+01:43:22 [C1] IRRIGATION command received (command_id=bounded-0, duration=1s, generation=1)
+01:43:22 [C1] safety check passed
+01:43:22 [C1] irrigation executed
+01:43:22 [C1] CONTROL_RESULT EXECUTED
+01:43:22 [C1] IRRIGATION command received (command_id=bounded-1, duration=1s, generation=1)
+01:43:22 [C1] safety check passed
+01:43:22 [C1] irrigation executed
+01:43:22 [C1] CONTROL_RESULT EXECUTED
+01:43:22 [C1] IRRIGATION command received (command_id=bounded-2, duration=1s, generation=1)
+01:43:22 [C1] command intent could not be persisted: result delivery capacity full
+01:43:22 [C1] IRRIGATION command rejected: STATE_UNAVAILABLE
+01:43:22 [C1] result retained as uncertain intent: result delivery capacity full
+____________________ test_actual_asymmetric_heartbeat_loss _____________________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-119/test_actual_asymmetric_heartbe0')
+
+    def test_actual_asymmetric_heartbeat_loss(tmp_path):
+        result=asyncio.run(run_scenario('normal',tmp_path/'asymmetric',42,duration=3,transport='simulated-lora',extra_fault_rules=[{'action':'drop','count':10000,'match':{'type':'HEARTBEAT','source':'A1','target':'A2'}}]))
+>       assert result['status']=='PASS'
+E       AssertionError: assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+tests/test_phase123_integration.py:16: AssertionError
+----------------------------- Captured stdout call -----------------------------
+01:44:02 [SERVER] listening on 127.0.0.1:61859 (sqlite: /private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-119/test_actual_asymmetric_heartbe0/asymmetric/server.db)
+01:44:02 [A1] gateway started on 127.0.0.1:61860 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+01:44:02 [A2] gateway started on 127.0.0.1:61861 (sensor=B2, controller=C2, peer=A1, generation=1, role=ACTIVE)
+01:44:02 [A1] connected to server 127.0.0.1:61859
+01:44:02 [A1] offline queue empty
+01:44:02 [SERVER] gateway A1 connected
+01:44:02 [A2] connected to server 127.0.0.1:61859
+01:44:02 [A2] offline queue empty
+01:44:02 [A2] peer link established with A1
+01:44:02 [A2] heartbeat -> A1
+01:44:02 [SERVER] gateway A2 connected
+01:44:02 [A1] A2 is online
+01:44:02 [A1] peer link established with A2
+01:44:02 [A1] heartbeat -> A2
+01:44:02 [A2] heartbeat -> A1
+01:44:02 [A1] heartbeat -> A2
+01:44:02 [A2] heartbeat -> A1
+01:44:02 [A1] heartbeat -> A2
+01:44:03 [A2] heartbeat -> A1
+01:44:03 [A1] heartbeat -> A2
+01:44:03 [A2] heartbeat -> A1
+01:44:03 [A1] heartbeat -> A2
+01:44:03 [A2] heartbeat -> A1
+01:44:03 [A1] heartbeat -> A2
+01:44:03 [A2] FAILOVER A1 -> OFFLINE
+01:44:03 [A2] taking ownership of B1
+01:44:03 [A2] taking ownership of C1
+01:44:03 [A2] ownership generation = 1 -> 2
+01:44:03 [A2] heartbeat -> A1
+01:44:03 [A2] awaiting server durable receipt, ALERT queued locally (depth=1)
+01:44:03 [A1] peer ownership generation = 2 (mine 1) - entering STANDBY
+01:44:03 [SERVER] alert stored (GATEWAY_FAILOVER: takeover from A1)
+01:44:03 [A2] offline queue empty
+01:44:03 [A1] heartbeat -> A2
+01:44:03 [A2] heartbeat -> A1
+01:44:03 [A1] heartbeat -> A2
+01:44:03 [A2] heartbeat -> A1
+01:44:03 [A1] heartbeat -> A2
+01:44:03 [A2] heartbeat -> A1
+01:44:03 [SERVER] SERVER_POLICY v1 pushed to A1, A2
+01:44:03 [A1] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:44:03 [A1] edge autonomy intact: policy is advisory, control stays local
+01:44:03 [A2] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+01:44:03 [A2] edge autonomy intact: policy is advisory, control stays local
+01:44:03 [A1] heartbeat -> A2
+01:44:03 [A2] heartbeat -> A1
+01:44:03 [A1] heartbeat -> A2
+01:44:03 [A2] heartbeat -> A1
+01:44:03 [A1] heartbeat -> A2
+01:44:03 [A2] heartbeat -> A1
+01:44:04 [A1] heartbeat -> A2
+01:44:04 [A2] heartbeat -> A1
+01:44:04 [A1] heartbeat -> A2
+01:44:04 [A2] heartbeat -> A1
+01:44:04 [SERVER] SERVER_POLICY v1 pushed to A1, A2
+01:44:04 [A1] SERVER_POLICY v1 ignored (already at v1)
+01:44:04 [A2] SERVER_POLICY v1 ignored (already at v1)
+01:44:04 [A1] heartbeat -> A2
+01:44:04 [A2] heartbeat -> A1
+01:44:04 [A1] heartbeat -> A2
+01:44:04 [A2] heartbeat -> A1
+01:44:04 [A1] heartbeat -> A2
+01:44:04 [A2] heartbeat -> A1
+01:44:04 [A1] heartbeat -> A2
+01:44:04 [A2] heartbeat -> A1
+01:44:04 [A1] heartbeat -> A2
+01:44:04 [A2] heartbeat -> A1
+01:44:04 [SERVER] SERVER_POLICY v1 pushed to A1, A2
+01:44:04 [A1] SERVER_POLICY v1 ignored (already at v1)
+01:44:04 [A2] SERVER_POLICY v1 ignored (already at v1)
+01:44:04 [A1] heartbeat -> A2
+01:44:04 [A2] heartbeat -> A1
+01:44:04 [A1] heartbeat -> A2
+01:44:04 [A2] heartbeat -> A1
+01:44:04 [A1] heartbeat -> A2
+01:44:04 [A2] heartbeat -> A1
+01:44:05 [A1] heartbeat -> A2
+01:44:05 [A2] heartbeat -> A1
+01:44:05 [A1] heartbeat -> A2
+01:44:05 [A2] heartbeat -> A1
+01:44:05 [SERVER] SERVER_POLICY v1 pushed to A1, A2
+01:44:05 [A1] SERVER_POLICY v1 ignored (already at v1)
+01:44:05 [A2] SERVER_POLICY v1 ignored (already at v1)
+01:44:05 [A1] heartbeat -> A2
+01:44:05 [A2] heartbeat -> A1
+01:44:05 [A1] heartbeat -> A2
+01:44:05 [A2] heartbeat -> A1
+01:44:05 [A1] heartbeat -> A2
+01:44:05 [A2] heartbeat -> A1
+01:44:05 [A1] heartbeat -> A2
+01:44:05 [A2] heartbeat -> A1
+01:44:05 [A1] heartbeat -> A2
+01:44:05 [A2] heartbeat -> A1
+01:44:05 [SERVER] SERVER_POLICY v1 pushed to A1, A2
+01:44:05 [A1] SERVER_POLICY v1 ignored (already at v1)
+01:44:05 [A2] SERVER_POLICY v1 ignored (already at v1)
+01:44:05 [SERVER] gateway A1 disconnected
+01:44:05 [SERVER] gateway A2 disconnected
+__________ test_audit_storage_failure_does_not_drop_controller_result __________
+
+fut = <coroutine object Queue.get at 0x10376d7e0>, timeout = 0.5
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        If the task suppresses the cancellation and returns a value instead,
+        that value is returned.
+    
+        This function is a coroutine.
+        """
+        # The special case for timeout <= 0 is for the following case:
+        #
+        # async def test_waitfor():
+        #     func_started = False
+        #
+        #     async def func():
+        #         nonlocal func_started
+        #         func_started = True
+        #
+        #     try:
+        #         await asyncio.wait_for(func(), 0)
+        #     except asyncio.TimeoutError:
+        #         assert not func_started
+        #     else:
+        #         assert False
+        #
+        # asyncio.run(test_waitfor())
+    
+    
+        if timeout is not None and timeout <= 0:
+            fut = ensure_future(fut)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise TimeoutError from exc
+    
+        async with timeouts.timeout(timeout):
+>           return await fut
+                   ^^^^^^^^^
+
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/tasks.py:520: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <BoundedQueue at 0x1048b8860 maxsize=128>
+
+    async def get(self):
+        """Remove and return an item from the queue.
+    
+        If queue is empty, wait until an item is available.
+        """
+        while self.empty():
+            getter = self._get_loop().create_future()
+            self._getters.append(getter)
+            try:
+>               await getter
+E               asyncio.exceptions.CancelledError
+
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/queues.py:158: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-119/test_audit_storage_failure_doe0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1048b9910>
+
+    def test_audit_storage_failure_does_not_drop_controller_result(tmp_path,monkeypatch):
+        import sqlite3
+        from common.messages import Message,CONTROL_RESULT
+        async def run():
+            g=Gateway('A1',queue_path=str(tmp_path/'q.db'))
+            def fail(*args):raise sqlite3.OperationalError('audit disk failure')
+            monkeypatch.setattr(g.offline_queue,'audit_command_outcome',fail)
+            task=asyncio.create_task(g.task_control_result())
+            try:
+                await g.result_queue.put(Message(type=CONTROL_RESULT,source='C1',target='A1',
+                    payload={'command_id':'known','status':'EXECUTED'}))
+                result=await asyncio.wait_for(g.upload_queue.get(),.5)
+                assert result.type==CONTROL_RESULT and result.payload['status']=='EXECUTED'
+                assert g.metrics.get('sensor_audit_failures')==1
+            finally:
+                task.cancel();await asyncio.gather(task,return_exceptions=True);g.offline_queue.close()
+>       asyncio.run(run())
+
+tests/test_receipt_lifecycle.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+tests/test_receipt_lifecycle.py:126: in run
+    result=await asyncio.wait_for(g.upload_queue.get(),.5)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/tasks.py:519: in wait_for
+    async with timeouts.timeout(timeout):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Timeout [expired]>
+exc_type = <class 'asyncio.exceptions.CancelledError'>
+exc_val = CancelledError(), exc_tb = <traceback object at 0x1048a1e40>
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> Optional[bool]:
+        assert self._state in (_State.ENTERED, _State.EXPIRING)
+    
+        if self._timeout_handler is not None:
+            self._timeout_handler.cancel()
+            self._timeout_handler = None
+    
+        if self._state is _State.EXPIRING:
+            self._state = _State.EXPIRED
+    
+            if self._task.uncancel() <= self._cancelling and exc_type is exceptions.CancelledError:
+                # Since there are no new cancel requests, we're
+                # handling this.
+>               raise TimeoutError from exc_val
+E               TimeoutError
+
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/timeouts.py:115: TimeoutError
+=========================== short test summary info ============================
+FAILED tests/test_branch_integration_review.py::test_controller_live_id_window_matches_durable_bound
+FAILED tests/test_phase123_integration.py::test_actual_asymmetric_heartbeat_loss
+FAILED tests/test_receipt_lifecycle.py::test_audit_storage_failure_does_not_drop_controller_result
+3 failed, 544 passed in 86.63s (0:01:26)

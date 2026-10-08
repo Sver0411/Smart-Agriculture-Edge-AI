@@ -76,9 +76,12 @@ class OfflineQueue:
     """A durable FIFO of messages that still need to reach the server."""
 
     def __init__(self, path: str = ":memory:", max_messages=None, max_payload_bytes=None,
-                 reserved_messages=None, reserved_payload_bytes=None, max_sensor_receipts=100000):
+                 reserved_messages=None, reserved_payload_bytes=None, max_sensor_receipts=100000, max_result_receipts=100000):
         if type(max_sensor_receipts) is not int or max_sensor_receipts < 1:
             raise ValueError("receipt limit must be positive")
+        if type(max_result_receipts) is not int or max_result_receipts < 1:
+            raise ValueError('result receipt limit must be positive')
+        self.max_result_receipts = max_result_receipts
         self.max_sensor_receipts = max_sensor_receipts
         self.receipt_capacity_rejected = 0
         self.path = path
@@ -217,7 +220,7 @@ class OfflineQueue:
             if row:
                 if row[0] != digest:raise ValueError('result identity conflict')
                 return False
-            if self.conn.execute('SELECT COUNT(*) FROM result_receipts').fetchone()[0] >= self.max_sensor_receipts:
+            if self.conn.execute('SELECT COUNT(*) FROM result_receipts').fetchone()[0] >= self.max_result_receipts:
                 raise QueueCapacityError('result receipt ledger full')
             self._enqueue(message)
             self.conn.execute('INSERT INTO result_receipts VALUES (?,?,?)',
@@ -297,4 +300,6 @@ class OfflineQueue:
                 "max_messages":self.max_messages, "max_payload_bytes":self.max_payload_bytes,
                 "reserved_messages":self.reserved_messages,"reserved_payload_bytes":self.reserved_payload_bytes,
                 "admission_rejected":self.rejected,"admission_rejected_high":self.rejected_high,
-                "admission_rejected_normal":self.rejected_normal,"sensor_receipts":self.receipt_stats()}
+                "admission_rejected_normal":self.rejected_normal,"sensor_receipts":self.receipt_stats(),
+                "result_receipts":{"count":self.conn.execute("SELECT COUNT(*) FROM result_receipts").fetchone()[0],
+                                   "limit":self.max_result_receipts}}

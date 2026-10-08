@@ -28,9 +28,16 @@ if [[ "$profile" == deep-sleep-experimental ]]; then
     grep -q '^CONFIG_B1_DEEP_SLEEP_EXPERIMENTAL=y$' "$output/sdkconfig"
 fi
 idf.py -C "$project" -B "$output/build" size 2>&1 | tee "$output/size.log"
-python - "$output/build/smart_agriculture_b1.bin" "$output/manifest.json" "$profile" <<'PY'
-import hashlib,json,pathlib,sys
+python - "$output/build/smart_agriculture_b1.bin" "$output/manifest.json" "$profile" "$output/sdkconfig" "$root" <<'PY'
+import hashlib,json,pathlib,sys,subprocess
 binary=pathlib.Path(sys.argv[1])
 pathlib.Path(sys.argv[2]).write_text(json.dumps({'idf':'v5.4.4','target':'esp32s3','profile':sys.argv[3],
-    'binary_bytes':binary.stat().st_size,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest()},indent=2)+'\n')
+    'binary_bytes':binary.stat().st_size,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),
+    'sdkconfig_sha256':hashlib.sha256(pathlib.Path(sys.argv[4]).read_bytes()).hexdigest(),
+    'revision':subprocess.check_output(['git','-C',sys.argv[5],'rev-parse','HEAD'],text=True).strip(),
+    'dirty':bool(subprocess.check_output(['git','-C',sys.argv[5],'status','--porcelain'],text=True)),
+    'compiler':subprocess.check_output(['xtensa-esp32s3-elf-gcc','--version'],text=True).splitlines()[0],
+    'source_sha256':{p:hashlib.sha256((pathlib.Path(sys.argv[5])/p).read_bytes()).hexdigest()
+        for p in subprocess.check_output(['git','-C',sys.argv[5],'ls-files','firmware/b1','third_party','scripts/ci_build_b1.sh'],text=True).splitlines()
+        if (pathlib.Path(sys.argv[5])/p).is_file()}},indent=2)+'\n')
 PY

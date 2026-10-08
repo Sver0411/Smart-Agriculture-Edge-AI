@@ -3,6 +3,7 @@
 python -m experiments.runner --all --output results/software-v0.3
 """
 import argparse
+from datetime import datetime, timezone
 import asyncio
 from collections import Counter
 from copy import deepcopy
@@ -77,7 +78,7 @@ async def run_scenario(name,output,seed=42,duration=None,transport="tcp",lora_op
     write_json(out/"config.json",cfg)
     faults=FrameFaults(rules,seed)
     async def inject(writer,message):
-        handled=await faults(writer,message)
+        handled=await faults(writer,message) if setup_complete else False
         if name=='persisted-ack-loss' and handled and message.type=='PERSISTED_ACK':
             ack_id=message.payload['ack_message_id']
             retained=any(m.message_id==ack_id for _,m in gateways['A1'].offline_queue.peek(1000))
@@ -88,6 +89,7 @@ async def run_scenario(name,output,seed=42,duration=None,transport="tcp",lora_op
         if not handled and radio is not None:
             handled = await radio(writer, message)
         return handled
+    setup_complete = False
     inter=transport_interceptor.set(inject)
     server=Server(port=sp,db_path=str(out/'server.db'),policy_interval=0.5)
     servers=[server];gateways={};gateway_history=[];nodes={};tasks=[];node_tasks={};assertions=[];observations={};disruptions=[]
@@ -136,6 +138,7 @@ async def run_scenario(name,output,seed=42,duration=None,transport="tcp",lora_op
             n._candidates=lambda n=n:[(x,'127.0.0.1',gateway_ports[x]) for x in [n.owner_gateway or n.primary_gateway]+[x for x in ('A1','A2') if x!=(n.owner_gateway or n.primary_gateway)]]
             if name=='registration-race' and id=='B1':n.primary_gateway='A2'
             nodes[id]=n;task=asyncio.create_task(n.run());tasks.append(task);node_tasks[id]=task
+        setup_complete = True
         await asyncio.sleep(0.8)
         if name=='registration-race':
             wrong=[e for e in recorder.events if e['event']=='delivered' and e['message']['type']=='NODE_REGISTER_ACK'
@@ -344,7 +347,7 @@ async def run_all(output,seed=42,names=None,transport="tcp",lora_options=None):
     return 0 if all(s['exit_code']==0 for s in summaries) else 1
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--scenario',choices=CATALOG);p.add_argument('--all',action='store_true');p.add_argument('--output',required=True);p.add_argument('--seed',type=int,default=42);p.add_argument('--transport',choices=['tcp','simulated-lora'],default='tcp');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--scenario',choices=CATALOG);p.add_argument('--all',action='store_true');p.add_argument('--output',default='.research-runs/topology-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'));p.add_argument('--seed',type=int,default=42);p.add_argument('--transport',choices=['tcp','simulated-lora'],default='tcp');a=p.parse_args()
     if not a.all and not a.scenario:p.error('specify --all or --scenario')
     raise SystemExit(asyncio.run(run_all(a.output,a.seed,None if a.all else [a.scenario],transport=a.transport)))
 if __name__=='__main__':main()

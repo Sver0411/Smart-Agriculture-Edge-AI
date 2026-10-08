@@ -4,6 +4,8 @@
 
 The `research` branch now includes hardened gateway registration and freshness checks, a bounded LoRa protocol with a B1 E220 UART adapter, and an opt-in Deep Sleep snapshot path. See the [integration report](docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md) for reproducible software evidence and hardware items still awaiting measurement.
 
+Current stabilization adds durable controller-result receipts, restart-safe policy versions, explicit sensor confirmation modes and notified E220 scheduling. Secure deployment remains disabled until every field/cloud link authenticates. See the [stabilization report](docs/research/RELIABILITY_STABILIZATION_REPORT.md) for validation status.
+
 **Reliability Hardening & Protocol Correctness**
 
 A distributed smart agriculture system that brings together trustworthy sensing, adaptive sampling, interchangeable edge decision engines, guarded control, gateway takeover, offline history replay, and reproducible fault experiments. All seven roles can run on a single computer. The node runtimes require only the Python standard library.

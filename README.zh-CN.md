@@ -4,6 +4,8 @@
 
 `research` 分支已加入网关注册与新鲜度补强、有界 LoRa 协议及 B1 E220 UART 适配、默认关闭的 Deep Sleep 快照路径。可复现软件结果与仍待实测的硬件项目见 [集成报告](docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md)。
 
+本轮稳定化加入控制结果持久化确认、策略版本重启恢复、显式传感器确认模式与 E220 通知调度。各现场及云端链路完成认证前，安全部署模式保持禁用。验证状态见 [稳定化报告](docs/research/RELIABILITY_STABILIZATION_REPORT.md)。
+
 **Reliability Hardening & Protocol Correctness**
 
 完整的分布式智慧农业软件系统：可信感知、自适应采样、可切换的边缘决策、安全控制、网关接管、离线历史回放和可执行故障实验。所有七个角色可以在单台电脑上运行，运行时仅依赖 Python 标准库。

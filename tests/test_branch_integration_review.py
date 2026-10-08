@@ -83,6 +83,13 @@ def test_controller_live_id_window_matches_durable_bound(tmp_path, monkeypatch):
                               payload={"command_id": f"bounded-{i}", "type": "IRRIGATION",
                                        "duration": 1, "gateway_generation": 1})
             assert (await controller.process_command(command))["status"] == "EXECUTED"
+            # Result delivery now protects completed entries until the gateway
+            # durably confirms them; this test exercises eviction after ACK.
+            raw = next(iter(controller.recent_commands.pending_results.values()))
+            assert controller._accept_result_ack(Message(type='PERSISTED_ACK', source='A1', target='C1',
+                payload={'ack_message_id':raw['message_id'], 'scope':'CONTROL_RESULTS',
+                    'persisted':True, 'delivery_contract':'controller-result-durable-v1',
+                    'result_state':'RESULT_DURABLY_STORED'}), 'A1')
         assert guard.executed_command_ids == set(controller.recent_commands.entries)
         assert guard.executed_command_ids == {"bounded-3", "bounded-4"}
         assert (await controller.process_command(command))["status"] == "DUPLICATE"

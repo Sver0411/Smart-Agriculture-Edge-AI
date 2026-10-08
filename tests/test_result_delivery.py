@@ -132,3 +132,22 @@ def test_unconfirmed_results_cannot_be_evicted(tmp_path):
     assert store.acknowledge_result(m.message_id)
     store.begin('b')
     assert list(store.entries)==['b']
+
+
+def test_capacity_backpressure_can_recover_after_real_ack(tmp_path,monkeypatch):
+    from common import settings
+    monkeypatch.setitem(settings.SETTINGS['controller'],'recent_command_capacity',1)
+    async def scenario():
+        c=controller(tmp_path);await c.process_command(command())
+        second=command();second.message_id='second';second.payload['command_id']='second'
+        assert (await c.process_command(second))['status']=='REJECTED'
+        assert c.metrics.get('executed')==1 and not c.guard.persistence_fault
+        m=pending(c)
+        p={'ack_message_id':m.message_id,'scope':'CONTROL_RESULTS','persisted':True,
+           'delivery_contract':CONTRACT,'result_state':'RESULT_DURABLY_STORED'}
+        assert not c._accept_result_ack(Message(type='ACK',source='A1',target='C1',payload=p),'A1')
+        assert c._accept_result_ack(Message(type=PERSISTED_ACK,source='A1',target='C1',payload=p),'A1')
+        c.guard.cooldown['IRRIGATION']=0
+        assert (await c.process_command(second))['status']=='EXECUTED'
+        assert c.metrics.get('executed')==2
+    asyncio.run(scenario())

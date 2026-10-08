@@ -316,9 +316,10 @@ void b1_lora_network_task(void *arg) {
   while (true) {
     unsigned before = b1_queue_pending_count();
     if (b1_radio_schedule_due(&schedule, now_ms(), before != 0)) {
+      uint32_t confirmed_before = b1_queue_acknowledged_count();
       b1_lora_run_window(10000); /* This task is the only ordinary UART owner. */
       unsigned after = b1_queue_pending_count();
-      b1_radio_schedule_finish(&schedule, now_ms(), after != 0, after < before);
+      b1_radio_schedule_finish(&schedule, now_ms(), after != 0, b1_queue_acknowledged_count() != confirmed_before);
     }
     uint32_t delay = b1_radio_schedule_wait(&schedule, now_ms(), b1_queue_pending_count()!=0);
     TickType_t wait = delay == UINT32_MAX ? portMAX_DELAY : pdMS_TO_TICKS(delay);

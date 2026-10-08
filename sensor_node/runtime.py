@@ -27,7 +27,7 @@ class SensorRuntime:
         self.trust = SensorTrust(settings['trust_channels'])
         self.scheduler = AdaptiveSense(settings=settings)
         self.notifications = FaultNotifier(settings['fault_reminder_s'])
-        self.samples = self.messages = 0
+        self.samples = self.messages = self.backpressure = 0
         self.report_window = None
         if delivery_mode not in ('legacy-write','gateway-durable'):raise ValueError('unknown delivery mode')
         if delivery_mode == 'gateway-durable':
@@ -55,7 +55,7 @@ class SensorRuntime:
                 high=bool(schedule.get('detected_event') or schedule.get('control_relevant_change') or
                           'HEALTH_CHANGE' in schedule['upload_reasons'] or 'FIRST_SAMPLE' in schedule['upload_reasons'])
                 try:self.report_window.admit(prepare_report(m,timestamp,high=high),reading,trust,timestamp)
-                except StateError:pass # baseline stays unconfirmed; next sample can retry the change
+                except StateError:self.backpressure += 1 # baseline stays unconfirmed; next sample retries the change
             outgoing=self.report_window.due(timestamp,self.owner_gateway)
         if schedule['upload_requested'] and not self.report_window or outgoing or notification is not None:
             try:

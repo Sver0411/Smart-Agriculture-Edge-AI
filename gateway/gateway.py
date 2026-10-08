@@ -1080,6 +1080,8 @@ class Gateway:
                          message_id=message.message_id, timestamp=message.timestamp, payload=payload)
         try:
             if reliable:
+                from server.validation import validate_server_upload
+                validate_server_upload(upload)
                 if self.offline_queue.path == ':memory:':
                     raise ValueError('durable result ACK requires file-backed SQLite')
                 await self._result_status(message, 'RESULT_RECEIVED')

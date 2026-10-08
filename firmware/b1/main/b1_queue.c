@@ -139,3 +139,10 @@ void b1_queue_stats(void)
 }
 
 unsigned b1_queue_pending_count(void){b1_storage_lock();unsigned n=b1_outbox_count(&outbox);b1_storage_unlock();return n;}
+
+uint32_t b1_queue_acknowledged_count(void) {
+    b1_storage_lock();
+    uint32_t count=outbox.acknowledged;
+    b1_storage_unlock();
+    return count;
+}

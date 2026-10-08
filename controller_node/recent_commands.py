@@ -10,6 +10,9 @@ from common.messages import Message
 
 CONTRACT = 'controller-result-durable-v1'
 
+class ResultBackpressure(StateError):
+    pass
+
 class RecentCommandStore:
     def __init__(self, store=None, capacity=64):
         if type(capacity) is not int or not 1 <= capacity <= 1024:
@@ -59,7 +62,7 @@ class RecentCommandStore:
         protected = {m['payload']['command_id'] for m in self.pending_results.values()}
         while len(entries) > self.capacity:
             victim = next((cid for cid,row in entries.items() if row['state'] == 'COMPLETED' and cid not in protected), None)
-            if victim is None:raise StateError('recent command window full of unconfirmed outcomes')
+            if victim is None:raise ResultBackpressure('recent command window full of unconfirmed outcomes')
             del entries[victim]
 
     def _save(self, entries, pending):
@@ -73,7 +76,7 @@ class RecentCommandStore:
         if command_id in self.entries:raise StateError('command already admitted')
         # Reserve result capacity before permitting an actuator execution.
         if self.store and len(self.pending_results) >= self.capacity:
-            raise StateError('result delivery capacity full')
+            raise ResultBackpressure('result delivery capacity full')
         candidate = deepcopy(self.entries)
         candidate[command_id] = {'command_id':command_id,'state':'INTENT','result':None,
                                  'context': context}
@@ -95,7 +98,7 @@ class RecentCommandStore:
             if message.message_id in pending and pending[message.message_id] != raw:
                 raise StateError('result identity conflict')
             if message.message_id not in pending and len(pending) >= self.capacity:
-                raise StateError('result delivery capacity full')
+                raise ResultBackpressure('result delivery capacity full')
             pending[message.message_id] = raw
         return pending
 

@@ -1,0 +1,109 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+______________ test_executed_result_survives_restart_before_send _______________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-116/test_executed_result_survives_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1064e65a0>
+
+    def test_executed_result_survives_restart_before_send(tmp_path, monkeypatch):
+        async def scenario():
+            path=tmp_path/'controller.db'
+            c=ControllerNode('C1', state_path=str(path),time_scale=0)
+            assert c.guard.set_ownership('A1',1)
+            async def lose_result(writer,message):
+                if message.type == 'CONTROL_RESULT': raise BrokenPipeError('crash before send')
+            monkeypatch.setattr('controller_node.controller_node.send_message',lose_result)
+            command=Message(type=CONTROL_COMMAND,source='A1',target='C1',message_id='cmd',
+                payload={'command_id':'cmd','type':'IRRIGATION','duration':1,'gateway_generation':1})
+            try: await c.process_command(command,object())
+            except BrokenPipeError: pass
+            recovered=ControllerNode('C1',state_path=str(path),time_scale=0)
+            assert recovered.recent_commands.pending_results
+            assert next(iter(recovered.recent_commands.pending_results.values()))['payload']['status']=='EXECUTED'
+>       asyncio.run(scenario())
+
+tests/test_stabilization_reproductions.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def scenario():
+        path=tmp_path/'controller.db'
+        c=ControllerNode('C1', state_path=str(path),time_scale=0)
+        assert c.guard.set_ownership('A1',1)
+        async def lose_result(writer,message):
+            if message.type == 'CONTROL_RESULT': raise BrokenPipeError('crash before send')
+        monkeypatch.setattr('controller_node.controller_node.send_message',lose_result)
+        command=Message(type=CONTROL_COMMAND,source='A1',target='C1',message_id='cmd',
+            payload={'command_id':'cmd','type':'IRRIGATION','duration':1,'gateway_generation':1})
+        try: await c.process_command(command,object())
+        except BrokenPipeError: pass
+        recovered=ControllerNode('C1',state_path=str(path),time_scale=0)
+>       assert recovered.recent_commands.pending_results
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'RecentCommandStore' object has no attribute 'pending_results'
+
+tests/test_stabilization_reproductions.py:24: AttributeError
+----------------------------- Captured stdout call -----------------------------
+01:37:11 [C1] IRRIGATION command received (command_id=cmd, duration=1s, generation=1)
+01:37:11 [C1] ACK sent (command_id=cmd)
+01:37:11 [C1] safety check passed
+01:37:11 [C1] irrigation executed
+___________________ test_server_restart_retains_version_100 ____________________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-116/test_server_restart_retains_ve0')
+
+    def test_server_restart_retains_version_100(tmp_path):
+        async def scenario():
+            path=str(tmp_path/'server.db')
+            s=Server(port=0,db_path=path,policy_version=100)
+            await s.start()
+            d=EdgeDecider(store=StateStore(tmp_path/'gateway.db'))
+            assert d.update_policy({'policy_version':100,**s.policy})[0]
+            await s.stop()
+            s=Server(port=0,db_path=path)
+            await s.start()
+            try:
+                s.update_policy({'soil_moisture_threshold':18})
+                assert s.policy_version==101
+                assert d.update_policy({'policy_version':s.policy_version,**s.policy})[0]
+            finally: await s.stop()
+>       asyncio.run(scenario())
+
+tests/test_stabilization_reproductions.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def scenario():
+        path=str(tmp_path/'server.db')
+        s=Server(port=0,db_path=path,policy_version=100)
+        await s.start()
+        d=EdgeDecider(store=StateStore(tmp_path/'gateway.db'))
+>       assert d.update_policy({'policy_version':100,**s.policy})[0]
+                                                       ^^^^^^^^
+E       AttributeError: 'Server' object has no attribute 'policy'
+
+tests/test_stabilization_reproductions.py:35: AttributeError
+----------------------------- Captured stdout call -----------------------------
+01:37:11 [SERVER] listening on 127.0.0.1:0 (sqlite: /private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-116/test_server_restart_retains_ve0/server.db)
+=========================== short test summary info ============================
+FAILED tests/test_stabilization_reproductions.py::test_executed_result_survives_restart_before_send
+FAILED tests/test_stabilization_reproductions.py::test_server_restart_retains_version_100
+2 failed in 0.18s

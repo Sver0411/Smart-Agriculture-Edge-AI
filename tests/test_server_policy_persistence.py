@@ -56,7 +56,7 @@ def test_failed_write_preserves_live_and_durable_head(tmp_path,monkeypatch):
     asyncio.run(scenario())
 
 
-@pytest.mark.parametrize('damage',['old_schema','deleted_head','checksum','version'])
+@pytest.mark.parametrize('damage',['old_schema','deleted_head','checksum','version','positive_version'])
 def test_unrecoverable_publication_state_fails_closed(tmp_path,damage,monkeypatch):
     async def scenario():
         path=str(tmp_path/'s.db')
@@ -67,7 +67,8 @@ def test_unrecoverable_publication_state_fails_closed(tmp_path,damage,monkeypatc
             with sqlite3.connect(path) as conn:
                 if damage=='deleted_head':conn.execute('DELETE FROM server_policy')
                 elif damage=='checksum':conn.execute("UPDATE server_policy SET checksum='bad'")
-                else:conn.execute('UPDATE server_policy SET version=-1')
+                elif damage=='version':conn.execute('UPDATE server_policy SET version=-1')
+                else:conn.execute('UPDATE server_policy SET version=99')
         s=Server(port=0,db_path=path);await s.start();sent=[]
         async def send(w,m):sent.append(m)
         monkeypatch.setattr('server.server.send_message',send)

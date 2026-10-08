@@ -151,7 +151,7 @@ class Database:
         if row is None:raise ValueError('policy version unavailable: authoritative restoration required')
         version, raw, checksum = row
         from common.protocol import integer, validate_policy
-        if not integer(version, 1) or hashlib.sha256(raw.encode()).hexdigest() != checksum:
+        if not integer(version, 1) or hashlib.sha256(f'{version}:{raw}'.encode()).hexdigest() != checksum:
             raise ValueError('corrupt policy head; refusing version rollback')
         policy = json.loads(raw)
         if set(policy) != set(initial_policy):raise ValueError('incomplete policy head')
@@ -159,7 +159,7 @@ class Database:
 
     def _write_policy(self, version, policy, *, insert=False, expected_version=None):
         raw = json.dumps(policy, sort_keys=True, separators=(',', ':'), allow_nan=False)
-        digest = hashlib.sha256(raw.encode()).hexdigest()
+        digest = hashlib.sha256(f'{version}:{raw}'.encode()).hexdigest()
         if insert:
             self.conn.execute('INSERT INTO server_policy VALUES (1,?,?,?)', (version, raw, digest))
         else:

@@ -42,7 +42,7 @@ from common.messages import (  # noqa: E402
 )
 from common.reliability import Counters  # noqa: E402
 from controller_node.safety_guard import DUPLICATE_COMMAND_ID, SafetyGuard  # noqa: E402
-from controller_node.recent_commands import RecentCommandStore, CONTRACT
+from controller_node.recent_commands import RecentCommandStore, CONTRACT, ResultBackpressure
 from common.state_store import StateError
 from common.settings import SETTINGS
 
@@ -288,6 +288,9 @@ class ControllerNode:
                     previous_ids - set(self.recent_commands.entries)
                 )
                 self.guard.executed_command_ids.add(command_id)
+            except ResultBackpressure:
+                allowed, reason = False, 'RESULT_BACKPRESSURE'
+                self.metrics.inc('result_backpressure')
             except (StateError, sqlite3.Error, OSError) as exc:
                 self.guard.persistence_fault = True
                 allowed, reason = False, "STATE_UNAVAILABLE"
@@ -355,6 +358,9 @@ class ControllerNode:
                 outgoing = self._result_message(original, message.source)
             try:
                 self.recent_commands.queue_result(outgoing)
+            except ResultBackpressure:
+                self.metrics.inc('result_backpressure')
+                return result
             except (StateError, sqlite3.Error, OSError) as exc:
                 self.guard.persistence_fault = True
                 self.metrics.inc('result_persistence_failures')
@@ -386,7 +392,9 @@ class ControllerNode:
         try:
             for row in self.recent_commands.entries.values():
                 ctx = row.get('context')
-                if row['state'] == 'INTENT' and ctx:
+                if row['state'] == 'INTENT' and ctx and not any(
+                        m['payload']['command_id'] == row['command_id']
+                        for m in self.recent_commands.pending_results.values()):
                     result = {'command_id': row['command_id'], 'command_type':ctx['command_type'],
                               'generation':ctx['generation'], 'status':'UNKNOWN',
                               'reason':'INTERRUPTED_EXECUTION'}
@@ -396,7 +404,7 @@ class ControllerNode:
 
     def _accept_result_ack(self, message, gateway_id):
         p = message.payload
-        if (self.recent_commands is None or message.source != gateway_id or
+        if (self.recent_commands is None or message.type != "PERSISTED_ACK" or message.source != gateway_id or
                 message.target != self.node_id or p.get('persisted') is not True or
                 p.get('scope') != 'CONTROL_RESULTS' or p.get('delivery_contract') != CONTRACT or
                 p.get('result_state') != 'RESULT_DURABLY_STORED'):
