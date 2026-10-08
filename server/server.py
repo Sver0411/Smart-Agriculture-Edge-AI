@@ -59,7 +59,10 @@ class Server:
         db_path: str = config.DEFAULT_DB_PATH,
         policy_interval: float = config.SERVER_POLICY_INTERVAL,
         policy_version: int = config.INITIAL_POLICY_VERSION,
+        profile: str = "simulation",
     ):
+        from common.deployment_security import require_lab_profile
+        require_lab_profile(profile)
         self.host = host
         self.port = port
         self.db = Database(db_path)
@@ -324,6 +327,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--port", type=int, default=config.SERVER_PORT)
     parser.add_argument("--db", default=config.DEFAULT_DB_PATH)
     parser.add_argument("--policy-interval", type=float, default=config.SERVER_POLICY_INTERVAL)
+    parser.add_argument("--profile", choices=("simulation", "lab", "deployment"), default="simulation")
     return parser.parse_args(argv)
 
 
@@ -333,6 +337,7 @@ async def _run(args: argparse.Namespace) -> None:
         port=args.port,
         db_path=args.db,
         policy_interval=args.policy_interval,
+        profile=args.profile,
     )
     await server.start()
     try:

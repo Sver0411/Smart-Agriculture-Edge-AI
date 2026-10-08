@@ -101,6 +101,8 @@ class Gateway:
         peer_security_mode: str = "lab",
         peer_key: bytes | None = None,
     ):
+        from common.deployment_security import require_lab_profile
+        require_lab_profile(profile, peer_mode=peer_security_mode, peer_key=peer_key)
         if gateway_id not in config.GATEWAY_PORTS:
             raise ValueError(f"unknown gateway id: {gateway_id!r}")
 
@@ -372,7 +374,7 @@ class Gateway:
                     p = message.payload
                     if p.get("peer_handshake") == "HELLO" and message.target == self.gateway_id:
                         client = p.get("client")
-                        if not isinstance(client, str) or len(client) != 32:
+                        if not peer_security.valid_nonce(client):
                             continue
                         challenge = peer_security.proof(source, self.gateway_id, client, peer_security.nonce())
                         response = {"peer_handshake": "CHALLENGE", **challenge}
@@ -413,7 +415,7 @@ class Gateway:
                     body["payload"] = {k: v for k, v in p.items() if k != "peer_auth"}
                     valid = (session is not None and source == self.peer_id and message.target == self.gateway_id and
                              p.get("peer_session") == session["session"] and
-                             integer(p.get("peer_sequence"), 1) and p["peer_sequence"] > session["sequence"] and
+                             integer(p.get("peer_sequence"), 1) and p["peer_sequence"] <= 0xffffffff and p["peer_sequence"] > session["sequence"] and
                              (self.peer_security_mode == "lab" or
                               peer_security.verify(self.peer_key, body, p.get("peer_auth"))))
                     if valid and self._on_peer_heartbeat(message):
@@ -1067,7 +1069,8 @@ class Gateway:
             message.source in config.GATEWAY_OF_CONTROLLER and isinstance(command_id, str) and
             1 <= len(command_id) <= 256 and payload.get('status') in
             ('EXECUTED','REJECTED','DUPLICATE','UNKNOWN') and entry is not None and
-            integer(generation, 1) and generation <= entry.generation)
+            ((not reliable and generation is None) or
+                integer(generation, 1) and generation <= entry.generation))
         if not valid:
             self.metrics.inc('malformed_results')
             if reliable:await self._result_status(message, 'RESULT_REJECTED', 'INVALID_RESULT')
@@ -1093,11 +1096,14 @@ class Gateway:
                     return True
             else:
                 await self._submit_upload(upload)
-            self.offline_queue.audit_command_outcome(command_id, 'RESULT_' + payload['status'])
         except (ValueError, sqlite3.Error, OSError) as exc:
             self.metrics.inc('result_durable_rejected')
             if reliable:await self._result_status(message, 'RESULT_REJECTED', str(exc))
             return False
+        try:
+            self.offline_queue.audit_command_outcome(command_id, 'RESULT_' + payload['status'])
+        except sqlite3.Error:
+            self.metrics.inc('sensor_audit_failures')
         outcome = self.outcomes.result(command_id)
         if outcome == 'late':self.metrics.inc('late_results')
         self.metrics.inc('results_received')
@@ -1142,6 +1148,7 @@ class Gateway:
                     node_log(self.gateway_id, f"heartbeat -> {self.peer_id}")
                 except (ConnectionResetError, BrokenPipeError, RuntimeError):
                     node_log(self.gateway_id, f"heartbeat to {self.peer_id} failed, reconnecting")
+                    self.peer_writer.close()
                     self.peer_writer = None
 
             # ... and let the cloud server keep a record of our liveness too.
@@ -1167,7 +1174,7 @@ class Gateway:
             if reply is None or reply.source != self.peer_id or reply.target != self.gateway_id or reply.payload.get("peer_handshake") != "CHALLENGE":
                 raise ValueError("invalid peer challenge")
             session = reply.payload.get("session")
-            if not isinstance(session, str) or len(session) != 32 or reply.payload.get("client") != client:
+            if not peer_security.valid_nonce(session) or reply.payload.get("client") != client:
                 raise ValueError("invalid peer session")
             body = peer_security.proof(self.gateway_id, self.peer_id, client, session)
             if self.peer_security_mode == "hmac" and not peer_security.verify(self.peer_key, {"purpose": "CHALLENGE", **body}, reply.payload.get("server_auth")):
@@ -1331,7 +1338,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--peer-port", type=int, default=None)
     parser.add_argument("--engine", choices=("rule","logistic","tree","mlp"), default="rule")
     parser.add_argument("--queue-db", default=None, help="store-and-forward sqlite file")
-    parser.add_argument("--profile", choices=("simulation", "lab", "deployment"), default="simulation", help="cloud reconnect/replay profile; field transport is still host TCP")
+    parser.add_argument("--profile", choices=("simulation", "lab", "deployment"), default="simulation", help="lab/simulation runtime; deployment is refused until all links authenticate")
     parser.add_argument("--peer-security-mode", choices=("lab","hmac"), default="lab")
     parser.add_argument("--peer-key-file", help="out-of-band >=32-byte shared key; never committed")
     parser.add_argument("--queue-capacity", type=int, default=128)

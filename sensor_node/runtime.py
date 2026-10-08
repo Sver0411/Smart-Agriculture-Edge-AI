@@ -14,6 +14,9 @@ from sensor_node.telemetry import sensor_payload
 
 class SensorRuntime:
     def __init__(self, node_id, source, transport, owner_gateway, generation, profile='deployment', *, physical=False):
+        if physical:
+            from common.deployment_security import DeploymentUnavailable
+            raise DeploymentUnavailable("physical runtime requires authenticated field transport; current adapter is host-only")
         self.node_id = node_id
         self.source = source
         self.transport = transport

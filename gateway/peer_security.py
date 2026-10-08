@@ -25,3 +25,7 @@ def verify(key, body, supplied):
 
 def proof(source, target, client, session):
     return {"source": source, "target": target, "client": client, "session": session}
+
+
+def valid_nonce(value):
+    return isinstance(value, str) and len(value) == 32 and all(c in "0123456789abcdef" for c in value)

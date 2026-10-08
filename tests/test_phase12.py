@@ -43,7 +43,7 @@ def test_all_internal_queues_are_bounded():
     g.offline_queue.close()
 
 
-@pytest.mark.parametrize("bad", ["replay", "auth", "session", "target", "generation", "pair"])
+@pytest.mark.parametrize("bad", ["replay", "auth", "session", "target", "generation", "pair", "source", "sequence_zero", "sequence_bool", "sequence_overflow"])
 def test_deployment_hmac_rejects_invalid_heartbeats(bad):
     from gateway import peer_security as ps
     from common.messages import send_message, read_message
@@ -70,8 +70,12 @@ def test_deployment_hmac_rejects_invalid_heartbeats(bad):
             if bad=="auth":m.payload["peer_auth"]="0"*64
             if bad=="session":m.payload["peer_session"]="0"*32
             if bad=="target":m.target="SERVER"
+            if bad=="source":m.source="A1"
+            if bad=="sequence_zero":m.payload["peer_sequence"]=0
+            if bad=="sequence_bool":m.payload["peer_sequence"]=True
+            if bad=="sequence_overflow":m.payload["peer_sequence"]=0x100000000
             if bad=="pair":m.payload["ownership"]={"B1":{"owner_gateway":"A2","generation":2}}
-            if bad in ("generation","pair"):
+            if bad in ("generation","pair","source","sequence_zero","sequence_bool","sequence_overflow"):
                 m.payload.pop("peer_auth");m.payload["peer_auth"]=ps.tag(key,m.to_dict())
             await send_message(w,m);await asyncio.sleep(.01)
             assert g.peer_last_seen==seen and g.ownership.role=="STANDBY"

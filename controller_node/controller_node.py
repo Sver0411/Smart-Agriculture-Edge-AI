@@ -62,7 +62,10 @@ class ControllerNode:
         safety_guard: SafetyGuard | None = None,
         time_scale: float = config.SIMULATION_TIME_SCALE,
         state_path: str | None = None,
+        profile: str = "simulation",
     ):
+        from common.deployment_security import require_lab_profile
+        require_lab_profile(profile)
         if node_id not in config.GATEWAY_OF_CONTROLLER:
             raise ValueError(f"unknown controller node id: {node_id!r}")
 
@@ -435,12 +438,13 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--startup-delay", type=float, default=0, help="software experiment process startup delay")
     parser.add_argument("--port", type=int, default=None)
     parser.add_argument("--state-db", default=None, help="host generation checkpoint; default controller_ID.state.db")
+    parser.add_argument("--profile", choices=("simulation", "lab", "deployment"), default="simulation")
     return parser.parse_args(argv)
 
 
 async def _run(args: argparse.Namespace) -> None:
     node = ControllerNode(node_id=args.id, gateway_host=args.host, gateway_port=args.port,
-                          state_path=args.state_db or f"controller_{args.id}.state.db")
+                          state_path=args.state_db or f"controller_{args.id}.state.db", profile=args.profile)
     if args.gateway:
         node.primary_gateway = args.gateway
         node.gateway_id = args.gateway
