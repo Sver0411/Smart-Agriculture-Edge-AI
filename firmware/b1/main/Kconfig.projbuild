@@ -40,4 +40,36 @@ menu "Physical B1 configuration"
     config B1_TEST_FAULT_INJECTION
         bool "Inject out-of-range temperature AFTER physical read (test only)"
         default n
+    config B1_USE_E220
+        bool "Experimental E220 transport instead of Wi-Fi/TCP"
+        default n
+    config B1_E220_TX_GPIO
+        int "E220 UART TX GPIO"
+        default 17
+    config B1_E220_RX_GPIO
+        int "E220 UART RX GPIO"
+        default 18
+    config B1_E220_M0_GPIO
+        int "E220 M0 GPIO"
+        default 10
+    config B1_E220_M1_GPIO
+        int "E220 M1 GPIO"
+        default 11
+    config B1_E220_AUX_GPIO
+        int "E220 AUX GPIO"
+        default 12
+    config B1_E220_UART_BAUD
+        int "Commissioned UART baud (8N1)"
+        default 9600
+    config B1_E220_AUX_TIMEOUT_MS
+        int "AUX operation timeout (ms)"
+        range 100 5000
+        default 2000
+    config B1_E220_FRAME_MTU
+        int "Application frame bytes (verify module subpacket setting)"
+        range 96 200
+        default 160
+    config B1_E220_EXPECTED_REGISTERS
+        string "Exact commissioned 00..07 register hex (16 chars; mandatory)"
+        default ""
 endmenu

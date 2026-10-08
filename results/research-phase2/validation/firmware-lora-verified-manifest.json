@@ -1,0 +1,7 @@
+{
+  "idf": "v5.4.4",
+  "target": "esp32s3",
+  "profile": "lora-prototype",
+  "binary_bytes": 328656,
+  "sha256": "8f977aa6b892e818aaefbfc0e7ee4feb727664d0dfb331f7f2542681a166363e"
+}

@@ -1,0 +1,212 @@
+{
+  "_note": "Smart Agriculture Edge AI integration: every CONTROL_COMMAND sent to C1 is delivered twice. C1 must execute each command_id exactly once. Edit every 'cwd' to point at your checkout.",
+  "assertions": [
+    {
+      "assert": "unique",
+      "description": "a command_id is executed at most once",
+      "key": "payload.command_id",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "payload.status": "EXECUTED",
+        "type": "CONTROL_RESULT"
+      }
+    },
+    {
+      "assert": "message_count",
+      "description": "commands still run at all",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "payload.status": "EXECUTED",
+        "type": "CONTROL_RESULT"
+      },
+      "min": 1
+    },
+    {
+      "assert": "never",
+      "description": "no unsafe execution was reported",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "payload.reason": "UNSAFE_EXECUTION",
+        "type": "CONTROL_RESULT"
+      }
+    }
+  ],
+  "duration": 12,
+  "faults": [
+    {
+      "action": "duplicate",
+      "at": 2,
+      "copies": 1,
+      "count": 3,
+      "id": "duplicate-command",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "type": "CONTROL_COMMAND"
+      }
+    }
+  ],
+  "links": [
+    {
+      "listen": "127.0.0.1:64255",
+      "name": "gateways_to_server",
+      "upstream": "127.0.0.1:64260"
+    },
+    {
+      "listen": "127.0.0.1:64256",
+      "name": "nodes_to_gateway_a1",
+      "upstream": "127.0.0.1:64259"
+    },
+    {
+      "listen": "127.0.0.1:64257",
+      "name": "nodes_to_gateway_a2",
+      "upstream": "127.0.0.1:64261"
+    }
+  ],
+  "name": "smart agriculture - duplicate control command",
+  "processes": [
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "server.server",
+        "--port",
+        "64260",
+        "--db",
+        "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/duplicate_control_command/efl_server.db"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/duplicate_control_command/config.json"
+      },
+      "name": "server"
+    },
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "gateway.gateway",
+        "--id",
+        "A1",
+        "--port",
+        "64259",
+        "--server-port",
+        "64255",
+        "--peer-port",
+        "64257",
+        "--queue-db",
+        "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/duplicate_control_command/efl_queue_a1.db"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/duplicate_control_command/config.json"
+      },
+      "name": "gateway_a1"
+    },
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "gateway.gateway",
+        "--id",
+        "A2",
+        "--port",
+        "64261",
+        "--server-port",
+        "64255",
+        "--peer-port",
+        "64256",
+        "--queue-db",
+        "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/duplicate_control_command/efl_queue_a2.db"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/duplicate_control_command/config.json"
+      },
+      "name": "gateway_a2"
+    },
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "sensor_node.sensor_node",
+        "--id",
+        "B1",
+        "--gateway",
+        "A1",
+        "--sample-interval",
+        "0.2",
+        "--seed",
+        "42"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/duplicate_control_command/config.json"
+      },
+      "name": "sensor_b1"
+    },
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "controller_node.controller_node",
+        "--id",
+        "C1",
+        "--gateway",
+        "A1",
+        "--state-db",
+        "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/duplicate_control_command/controller_c1.state.db"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/duplicate_control_command/config.json"
+      },
+      "name": "controller_c1"
+    },
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "sensor_node.sensor_node",
+        "--id",
+        "B2",
+        "--gateway",
+        "A2",
+        "--sample-interval",
+        "0.2",
+        "--seed",
+        "43"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/duplicate_control_command/config.json"
+      },
+      "name": "sensor_b2"
+    },
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "controller_node.controller_node",
+        "--id",
+        "C2",
+        "--gateway",
+        "A2",
+        "--state-db",
+        "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/duplicate_control_command/controller_c2.state.db"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/duplicate_control_command/config.json"
+      },
+      "name": "controller_c2"
+    }
+  ],
+  "seed": 42
+}

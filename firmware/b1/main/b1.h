@@ -22,3 +22,5 @@ bool b1_queue_ack(const char *message_id);
 void b1_queue_stats(void);
 bool b1_queue_take_confirmed(b1_sample_t *sample);
 const char *b1_policy_version(void);
+
+unsigned b1_queue_pending_count(void);

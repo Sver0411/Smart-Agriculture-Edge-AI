@@ -1,0 +1,210 @@
+{
+  "_note": "Smart Agriculture Edge AI integration: commands are aged by 30 seconds before they reach the controller. C1 (TTL 10s, generation and idempotency checks) must refuse them. Edit every 'cwd' to point at your checkout.",
+  "assertions": [
+    {
+      "assert": "never",
+      "description": "no aged command was executed",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "payload.status": "EXECUTED",
+        "type": "CONTROL_RESULT"
+      }
+    },
+    {
+      "assert": "message_count",
+      "description": "the controller refused the aged command",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "payload.status": "REJECTED",
+        "type": "CONTROL_RESULT"
+      },
+      "min": 1
+    },
+    {
+      "assert": "never",
+      "description": "the refusal was clean, not a safety violation",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "payload.reason": "UNSAFE_EXECUTION",
+        "type": "CONTROL_RESULT"
+      }
+    }
+  ],
+  "duration": 12,
+  "faults": [
+    {
+      "action": "timestamp_offset",
+      "at": 0,
+      "id": "age-commands",
+      "link": "nodes_to_gateway_a1",
+      "match": {
+        "type": "CONTROL_COMMAND"
+      },
+      "offset_ms": -30000
+    }
+  ],
+  "links": [
+    {
+      "listen": "127.0.0.1:64482",
+      "name": "gateways_to_server",
+      "upstream": "127.0.0.1:64486"
+    },
+    {
+      "listen": "127.0.0.1:64483",
+      "name": "nodes_to_gateway_a1",
+      "upstream": "127.0.0.1:64485"
+    },
+    {
+      "listen": "127.0.0.1:64484",
+      "name": "nodes_to_gateway_a2",
+      "upstream": "127.0.0.1:64487"
+    }
+  ],
+  "name": "smart agriculture - stale command",
+  "processes": [
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "server.server",
+        "--port",
+        "64486",
+        "--db",
+        "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/stale_command/efl_server.db"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/stale_command/config.json"
+      },
+      "name": "server"
+    },
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "gateway.gateway",
+        "--id",
+        "A1",
+        "--port",
+        "64485",
+        "--server-port",
+        "64482",
+        "--peer-port",
+        "64484",
+        "--queue-db",
+        "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/stale_command/efl_queue_a1.db"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/stale_command/config.json"
+      },
+      "name": "gateway_a1"
+    },
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "gateway.gateway",
+        "--id",
+        "A2",
+        "--port",
+        "64487",
+        "--server-port",
+        "64482",
+        "--peer-port",
+        "64483",
+        "--queue-db",
+        "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/stale_command/efl_queue_a2.db"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/stale_command/config.json"
+      },
+      "name": "gateway_a2"
+    },
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "sensor_node.sensor_node",
+        "--id",
+        "B1",
+        "--gateway",
+        "A1",
+        "--sample-interval",
+        "0.2",
+        "--seed",
+        "42"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/stale_command/config.json"
+      },
+      "name": "sensor_b1"
+    },
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "controller_node.controller_node",
+        "--id",
+        "C1",
+        "--gateway",
+        "A1",
+        "--state-db",
+        "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/stale_command/controller_c1.state.db"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/stale_command/config.json"
+      },
+      "name": "controller_c1"
+    },
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "sensor_node.sensor_node",
+        "--id",
+        "B2",
+        "--gateway",
+        "A2",
+        "--sample-interval",
+        "0.2",
+        "--seed",
+        "43"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/stale_command/config.json"
+      },
+      "name": "sensor_b2"
+    },
+    {
+      "command": [
+        "/tmp/agri-phase123-py312/bin/python",
+        "-u",
+        "-m",
+        "controller_node.controller_node",
+        "--id",
+        "C2",
+        "--gateway",
+        "A2",
+        "--state-db",
+        "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/stale_command/controller_c2.state.db"
+      ],
+      "cwd": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI",
+      "env": {
+        "SMART_AGRICULTURE_CONFIG": "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/results/research-phase2/edgefaultlab/stale_command/config.json"
+      },
+      "name": "controller_c2"
+    }
+  ],
+  "seed": 42
+}

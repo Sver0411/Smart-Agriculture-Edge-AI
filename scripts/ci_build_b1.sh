@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-profile=${1:?lab or light-sleep}
+profile=${1:?lab, light-sleep, lora-prototype or deep-sleep-experimental}
 output=${2:?absolute isolated output directory}
-case "$profile" in lab|light-sleep) ;; *) exit 2 ;; esac
+case "$profile" in lab|light-sleep|lora-prototype|deep-sleep-experimental) ;; *) exit 2 ;; esac
 case "$output" in /*) ;; *) echo 'Output must be absolute'; exit 2 ;; esac
 root=$(cd "$(dirname "$0")/.." && pwd)
 project="$root/firmware/b1"
@@ -19,6 +19,10 @@ if [[ "$profile" == light-sleep ]]; then
     grep -q '^CONFIG_B1_LIGHT_SLEEP=y$' "$output/sdkconfig"
     grep -q '^CONFIG_PM_ENABLE=y$' "$output/sdkconfig"
     grep -q '^CONFIG_FREERTOS_USE_TICKLESS_IDLE=y$' "$output/sdkconfig"
+fi
+if [[ "$profile" == lora-prototype || "$profile" == deep-sleep-experimental ]]; then
+    grep -q '^CONFIG_B1_USE_E220=y$' "$output/sdkconfig"
+    grep -q '^CONFIG_B1_E220_EXPECTED_REGISTERS="[^"]\+"$' "$output/sdkconfig"
 fi
 idf.py -C "$project" -B "$output/build" size 2>&1 | tee "$output/size.log"
 python - "$output/build/smart_agriculture_b1.bin" "$output/manifest.json" "$profile" <<'PY'

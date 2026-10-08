@@ -127,3 +127,5 @@ void b1_queue_stats(void)
            (unsigned long)outbox.probes, (unsigned long long)outbox.boot_attempts,quarantined);
     b1_storage_unlock();
 }
+
+unsigned b1_queue_pending_count(void){b1_storage_lock();unsigned n=b1_outbox_count(&outbox);b1_storage_unlock();return n;}

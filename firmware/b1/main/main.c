@@ -1,4 +1,5 @@
 #include "b1.h"
+#include "b1_lora_network.h"
 #include "esp_log.h"
 #include "b1_storage.h"
 #include "esp_system.h"
@@ -28,5 +29,9 @@ void app_main(void)
     printf("B1_BEGIN {\"boot_id\":\"%s\",\"queue_capacity\":16,\"heap_after_boot\":%lu,\"psram_runtime_bytes\":%lu}\n",
         b1_boot_id, (unsigned long)esp_get_free_heap_size(), (unsigned long)psram_runtime);
     xTaskCreate(b1_sensor_task, "b1_sensor", 12288, NULL, 5, NULL);
+#if CONFIG_B1_USE_E220
+    xTaskCreate(b1_lora_network_task, "b1_lora", 16384, NULL, 5, NULL);
+#else
     xTaskCreate(b1_network_task, "b1_network", 16384, NULL, 5, NULL);
+#endif
 }

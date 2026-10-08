@@ -37,11 +37,18 @@ def ports(count):
 def write_json(path,data):
     path.write_text(json.dumps(data,indent=2,sort_keys=True,allow_nan=False)+'\n')
 
-async def run_scenario(name,output,seed=42,duration=None):
+async def run_scenario(name,output,seed=42,duration=None,transport="tcp",lora_options=None):
     if name not in CATALOG:raise ValueError(f'unknown scenario {name}')
     out=Path(output);out.mkdir(parents=True,exist_ok=False)
     raw=out/'raw';raw.mkdir();results=out/'results';results.mkdir();truth=out/'truth';truth.mkdir()
+    if transport not in ("tcp", "simulated-lora"):
+        raise ValueError("host transport must be tcp or simulated-lora")
+    radio = None
+    if transport == "simulated-lora":
+        from common.lora.transport import SimulatedLoRa
+        radio = SimulatedLoRa(seed=seed, **(lora_options or {}))
     cfg=deepcopy(SETTINGS);cfg['experiment']['seed']=seed
+    cfg['field_transport'] = {"mode": transport, "lora": lora_options or {}, "physical_RF": False}
     sp,p1,p2=ports(3);gateway_ports={'A1':p1,'A2':p2}
     cfg['system']['SERVER_PORT']=sp;cfg['system']['GATEWAY_PORTS']=gateway_ports
     cfg['runtime_overrides']={'gateway':{'heartbeat_interval':0.1,'heartbeat_timeout':0.6,
@@ -75,6 +82,8 @@ async def run_scenario(name,output,seed=42,duration=None):
             faults.events[-1].update(queue_retained=retained,commit_observed=committed)
             recorder('persistence_boundary',Message(type='PERSISTED_ACK',source='SERVER',target='A1',
                 payload={**message.payload,'queue_retained':retained,'commit_observed':committed}))
+        if not handled and radio is not None:
+            handled = await radio(writer, message)
         return handled
     inter=transport_interceptor.set(inject)
     server=Server(port=sp,db_path=str(out/'server.db'),policy_interval=0.5)
@@ -292,6 +301,9 @@ async def run_scenario(name,output,seed=42,duration=None):
         transport_observer.reset(obs);transport_interceptor.reset(inter)
     (raw/'events.jsonl').write_text(''.join(json.dumps(e,sort_keys=True,allow_nan=False)+'\n' for e in recorder.events))
     write_json(truth/'injection_plan.json',{'scenario':name,'seed':seed,'frame_faults':rules,'disruptions':disruptions,'receipt_observations':faults.events,'sensor_fault':name=='sensor-fault'})
+    if radio is not None:
+        write_json(results/'lora_metrics.json', radio.metrics)
+        (raw/'lora_events.jsonl').write_text(''.join(json.dumps(e,sort_keys=True)+'\n' for e in radio.events))
     code=0 if assertions and all(a['passed'] for a in assertions) else 1
     summary={'scenario':name,'question':CATALOG[name],'status':'PASS' if code==0 else 'FAIL','exit_code':code,'assertions':assertions,'observations':observations}
     write_json(results/'summary.json',summary)
@@ -303,16 +315,16 @@ async def run_scenario(name,output,seed=42,duration=None):
     (results/'report.md').write_text(f"# {name}: {summary['status']}\n\n{CATALOG[name]}\n\n"+'\n'.join(f"- {'PASS' if a['passed'] else 'FAIL'}: {a['description']}" for a in assertions)+'\n')
     return summary
 
-async def run_all(output,seed=42,names=None):
+async def run_all(output,seed=42,names=None,transport="tcp",lora_options=None):
     summaries=[]
     for index,name in enumerate(names or CATALOG,1):
-        summary=await run_scenario(name,Path(output)/f'EXP-{index:03}-{name}',seed)
+        summary=await run_scenario(name,Path(output)/f'EXP-{index:03}-{name}',seed,transport=transport,lora_options=lora_options)
         print(f"{name}: {summary['status']}",flush=True);summaries.append(summary)
     write_json(Path(output)/'suite_summary.json',{'scenarios':summaries,'passed':sum(s['exit_code']==0 for s in summaries),'total':len(summaries)})
     return 0 if all(s['exit_code']==0 for s in summaries) else 1
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--scenario',choices=CATALOG);p.add_argument('--all',action='store_true');p.add_argument('--output',required=True);p.add_argument('--seed',type=int,default=42);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--scenario',choices=CATALOG);p.add_argument('--all',action='store_true');p.add_argument('--output',required=True);p.add_argument('--seed',type=int,default=42);p.add_argument('--transport',choices=['tcp','simulated-lora'],default='tcp');a=p.parse_args()
     if not a.all and not a.scenario:p.error('specify --all or --scenario')
-    raise SystemExit(asyncio.run(run_all(a.output,a.seed,None if a.all else [a.scenario])))
+    raise SystemExit(asyncio.run(run_all(a.output,a.seed,None if a.all else [a.scenario],transport=a.transport)))
 if __name__=='__main__':main()
