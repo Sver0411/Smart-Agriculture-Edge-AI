@@ -49,9 +49,10 @@
     "external_edgefaultlab_total": 5,
     "hardware_tested": false,
     "firmware_rebuilt_in_this_review": false,
-    "remote_ci": "pending main push",
+    "remote_ci": "PASS; main source 002e26a",
     "evidence": "results/main-integration-review/validation/summary.json",
-    "manifest": "results/main-integration-review/validation/source-manifest.json"
+    "manifest": "results/main-integration-review/validation/source-manifest.json",
+    "remote_ci_url": "https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37734482845"
   },
   "previous_local_validation": {
     "python314_tests": 298,

@@ -39,5 +39,21 @@
   "hardware_tested": false,
   "firmware_rebuilt_in_this_review": false,
   "device_resource_metrics": null,
-  "remote_ci": null
+  "remote_ci": {
+    "run_id": 37734482845,
+    "url": "https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37734482845",
+    "head_sha": "002e26a86bdb35099fc95f9f183749d8ae09d167",
+    "status": "completed",
+    "conclusion": "success",
+    "tests_per_python": 350,
+    "python_matrix": [
+      "3.10",
+      "3.12"
+    ],
+    "internal_scenarios_passed": 20,
+    "external_edgefaultlab_passed": 5,
+    "metadata": "validation/main-ci.json",
+    "log": "validation/main-ci.log"
+  },
+  "main_integrated_commit": "002e26a86bdb35099fc95f9f183749d8ae09d167"
 }

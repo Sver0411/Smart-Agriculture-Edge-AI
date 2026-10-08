@@ -55,6 +55,12 @@ Python 版本为 3.10.21 / 3.12.14 / 3.14.7。完整执行参数、进程耗时�
 
 源码 SHA-256、tested source commit、seed42 和外部 EdgeFaultLab revision 见 [source manifest](../results/main-integration-review/validation/source-manifest.json)。EdgeFaultLab 固定在 `c7248239f456cc877114ca1e67c5949fb4a7b958`，与现有 CI 一致。
 
+## Main 与 GitHub CI
+
+主线以 fast-forward 整合到 `002e26a`，已推送 GitHub；所有审查分支均为该主线的祖先，没有遗留独有提交。[GitHub CI 37734482845](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37734482845) 对这一主线提交实际执行并 **全部通过**：Python 3.10/3.12 各 350 项，Python 3.12 的 20 个内部场景与 5 个外部故障场景通过。
+
+远端原始 [run metadata](../results/main-integration-review/validation/main-ci.json) 和 [完整日志](../results/main-integration-review/validation/main-ci.log) 已归档。CI 回执后的提交仅更新报告、验证状态和结果记录；运行源码/配置/测试与 `002e26a` 一致，source manifest 仍可核验，不将后续文档提交描述为一次新的 CI 执行。
+
 ## 边界
 
 本轮只有软件测试和软件故障注入，没有烧录、串口、LoRa RF、实物执行器或功耗实验。开发线中 lab/deployment ESP-IDF 编译及此前失败记录保留原日期与范围，不算本轮新硬件结果。
