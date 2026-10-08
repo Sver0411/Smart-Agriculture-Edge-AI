@@ -48,3 +48,28 @@ jobs:
             ${{ runner.temp }}/pytest
             ${{ runner.temp }}/smart-agriculture
           if-no-files-found: warn
+
+  firmware:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container: espressif/idf:v5.4.4
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [lab, light-sleep]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ESP32-S3 using public defaults only
+        shell: bash
+        run: |
+          . "$IDF_PATH/export.sh"
+          bash scripts/ci_build_b1.sh "${{ matrix.profile }}" "$RUNNER_TEMP/b1-${{ matrix.profile }}"
+      - name: Preserve compile and size evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-esp32s3-idf5.4.4-${{ matrix.profile }}
+          path: |
+            ${{ runner.temp }}/b1-${{ matrix.profile }}/*.log
+            ${{ runner.temp }}/b1-${{ matrix.profile }}/manifest.json
+          if-no-files-found: warn

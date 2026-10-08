@@ -1,0 +1,6 @@
+# Synthetic compile-only values keep the complete Wi-Fi/TCP path in the image.
+# Never copy a developer's sdkconfig or deploy these values to a device.
+CONFIG_B1_WIFI_SSID="CI_COMPILE_ONLY"
+CONFIG_B1_WIFI_PASSWORD=""
+CONFIG_B1_A1_HOST="192.0.2.1"
+CONFIG_B1_A2_HOST="192.0.2.2"
