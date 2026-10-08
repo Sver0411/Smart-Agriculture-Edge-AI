@@ -23,6 +23,7 @@ void app_main(void)
     snprintf(b1_boot_id, sizeof(b1_boot_id), "%08lx", (unsigned long)esp_random());
     b1_queue = xQueueCreate(16, sizeof(b1_sample_t));
     if (!b1_queue) abort();
+    b1_runtime_init();
     size_t psram_runtime = 0;
 #if CONFIG_SPIRAM
     psram_runtime = esp_psram_get_size();

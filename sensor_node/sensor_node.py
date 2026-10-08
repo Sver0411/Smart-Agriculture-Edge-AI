@@ -92,9 +92,12 @@ class SensorNode:
         fast_interval: float | None = None,
         keepalive_interval: float = config.NODE_STATUS_INTERVAL,
         history_size: int = 8,
+        profile: str = "simulation",
     ):
         if node_id not in config.GATEWAY_OF_SENSOR:
             raise ValueError(f"unknown sensor node id: {node_id!r}")
+        if profile not in ("simulation", "lab"):
+            raise ValueError("SensorNode is the host TCP simulator; use deployment policy with a duty-cycled transport runtime")
 
         self.node_id = node_id
         self.gateway_host = gateway_host
@@ -116,9 +119,11 @@ class SensorNode:
         self.sample_sequence = 0
 
         self.boot_id = uuid.uuid4().hex[:12]
-        self.trust = SensorTrust()
-        self.fault_notifier = FaultNotifier()
-        self.scheduler = AdaptiveSense(slow=slow_interval, fast=fast_interval)
+        from common.settings import node_settings
+        settings = node_settings(profile)
+        self.trust = SensorTrust(settings["trust_channels"])
+        self.fault_notifier = FaultNotifier(settings["fault_reminder_s"])
+        self.scheduler = AdaptiveSense(settings=settings, slow=slow_interval, fast=fast_interval)
         self.history: list[dict] = []
         self._stopping = False
 
@@ -288,16 +293,14 @@ class SensorNode:
             state = trust["state"]
             self.metrics.inc("sensor_samples")
             self.metrics.inc({"HEALTHY":"trusted_samples", "DEGRADED":"degraded_samples", "FAULT":"fault_samples"}[state])
-            wire_reading = {k:(v if type(v) in (int,float) and math.isfinite(v) else None) for k,v in reading.items()}
-            payload = {"data": wire_reading, "health_state": state,
-                       "boot_id":self.boot_id, "sample_seq":self.sample_sequence,
-                       "health_score": trust["health_score"], "fault_flags": trust["fault_flags"],
-                       "health": trust["channels"], "sampling":schedule, "usable_for_control": trust["usable_for_control"]}
+            from sensor_node.telemetry import sensor_payload
+            payload = sensor_payload(reading, trust, schedule, self.boot_id, self.sample_sequence)
             if schedule["upload_requested"]:
                 await send_message(writer, Message(type=SENSOR_DATA, source=self.node_id,
                     target=self.owner_gateway or self.gateway_id, payload=payload,
                     sequence=self.sample_sequence, generation=self.generation, protocol_version=1))
                 self.metrics.inc("sensor_messages")
+                self.scheduler.mark_reported(reading, trust)
             notification = self.fault_notifier.update(trust)
             if notification is not None:
                 await send_message(writer, Message(type=ALERT, source=self.node_id,
@@ -329,6 +332,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--port", type=int, default=None)
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--sample-interval", type=float, default=None, help="accelerated software sampling base interval")
+    parser.add_argument("--profile", choices=("simulation", "lab"), default="simulation")
     parser.add_argument(
         "--inject-fault",
         type=int,
@@ -342,6 +346,7 @@ def parse_args(argv=None) -> argparse.Namespace:
 async def _run(args: argparse.Namespace) -> None:
     node = SensorNode(
         node_id=args.id,
+        profile=args.profile,
         slow_interval=args.sample_interval, fast_interval=args.sample_interval,
         gateway_host=args.host,
         gateway_port=args.port,

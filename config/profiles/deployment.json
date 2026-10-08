@@ -1,0 +1,59 @@
+{
+  "name": "deployment",
+  "purpose": "engineering defaults; requires field calibration",
+  "sensor_runtime": "duty-cycled-radio-planned",
+  "node": {
+    "sampling": {
+      "min_interval": 60,
+      "default_interval": 1200,
+      "max_interval": 2400
+    },
+    "adaptive": {
+      "ladders": {
+        "stable": [
+          1200,
+          2400
+        ],
+        "active": [
+          600,
+          300
+        ],
+        "alert": [
+          300,
+          120,
+          60
+        ]
+      },
+      "analyzer": {
+        "variety_window_s": 3600,
+        "roc_window_s": 1200,
+        "baseline_tau_s": 7200
+      },
+      "event_min_duration_s": 120,
+      "upload": {
+        "heartbeat_s": 21600
+      }
+    },
+    "fault_interval_s": 1200,
+    "degraded_interval_s": 600,
+    "fault_reminder_s": 21600,
+    "control_relevance": {
+      "margins": {
+        "soil_moisture": 2,
+        "temperature": 0.5
+      }
+    }
+  },
+  "connectivity": {
+    "backoff_s": [
+      5,
+      15,
+      30,
+      60,
+      300
+    ],
+    "connect_timeout_s": 3,
+    "critical_retry_cooldown_s": 300,
+    "replay_interval_s": 0.2
+  }
+}

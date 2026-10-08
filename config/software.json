@@ -185,7 +185,13 @@
     },
     "fault_interval_s": 20,
     "degraded_interval_s": 10,
-    "fault_reminder_s": 300.0
+    "fault_reminder_s": 300.0,
+    "control_relevance": {
+      "margins": {
+        "soil_moisture": 0,
+        "temperature": 0
+      }
+    }
   },
   "policy": {
     "soil_moisture_threshold": 25.0,
@@ -199,5 +205,14 @@
     "heartbeat_interval_s": 0.1,
     "heartbeat_timeout_s": 0.6,
     "duration_s": 4
+  },
+  "offline_queue": {
+    "max_messages": 10000,
+    "max_payload_bytes": 16777216,
+    "reserved_messages": 1000,
+    "reserved_payload_bytes": 1677722
+  },
+  "controller": {
+    "recent_command_capacity": 64
   }
 }

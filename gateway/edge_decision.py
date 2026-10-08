@@ -45,11 +45,31 @@ class EdgeDecider:
     thresholds in place.
     """
 
-    def __init__(self, policy: dict | None = None, policy_version: int = 0, engine="rule", artifact=None):
+    def __init__(self, policy: dict | None = None, policy_version: int = 0, engine="rule", artifact=None, store=None):
         from ai.engines import create_engine
         self.engine = create_engine(engine, artifact)
         self.policy = {**config.DEFAULT_POLICY, **(policy or {})}
         self.policy_version = policy_version
+        self.store = store
+        self.policy_recovery = "compiled-default"
+        if store:
+            from common.state_store import StateError
+            from common.protocol import validate_policy
+            def validate(saved):
+                if type(saved["policy_version"]) is not int or saved["policy_version"] < 0:
+                    raise StateError("invalid saved policy version")
+                if set(saved["policy"]) != set(config.DEFAULT_POLICY):
+                    raise StateError("incomplete saved policy")
+                validate_policy({**saved["policy"], "policy_version": saved["policy_version"]}, config.DEFAULT_POLICY)
+            try:
+                saved = store.load("policy", validator=validate, allow_previous=True)
+            except StateError:
+                saved = None
+                self.policy_recovery = "invalid-checkpoint; compiled-default"
+            if saved:
+                self.policy = dict(saved["policy"])
+                self.policy_version = saved["policy_version"]
+                self.policy_recovery = "last-known-good"
 
     def update_policy(self, payload: dict) -> tuple[bool, dict]:
         """Apply a policy push; return ``(applied, policy)``.
@@ -62,6 +82,11 @@ class EdgeDecider:
         version = payload.get("policy_version")
         if version is not None and version <= self.policy_version:
             return False, dict(self.policy)
+        if self.store:
+            # Validate -> commit checkpoint -> activate. Failed writes leave
+            # the in-memory last-known-good policy untouched.
+            self.store.save("policy", {"policy_version": self.policy_version if version is None else version,
+                                       "policy": candidate})
         self.policy = candidate
         if version is not None:self.policy_version = version
         return True, dict(self.policy)

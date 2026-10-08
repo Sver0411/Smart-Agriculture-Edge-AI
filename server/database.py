@@ -117,6 +117,9 @@ class Database:
         alert_columns = {row[1] for row in self.conn.execute("PRAGMA table_info(alert)")}
         if "metadata_json" not in alert_columns:
             self.conn.execute("ALTER TABLE alert ADD COLUMN metadata_json TEXT")
+        heartbeat_columns = {row[1] for row in self.conn.execute("PRAGMA table_info(gateway_heartbeat)")}
+        if "metadata_json" not in heartbeat_columns:
+            self.conn.execute("ALTER TABLE gateway_heartbeat ADD COLUMN metadata_json TEXT")
         self._commit()
         return self
 
@@ -173,12 +176,13 @@ class Database:
         peer_id: str | None = None,
         peer_status: str | None = None,
         message_id: str | None = None,
+        metadata: dict | None = None,
     ) -> int:
         cur = self.conn.execute(
             """
             INSERT INTO gateway_heartbeat (
-                message_id, gateway_id, peer_id, timestamp, status, peer_status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                message_id, gateway_id, peer_id, timestamp, status, peer_status, created_at, metadata_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 message_id,
@@ -188,6 +192,7 @@ class Database:
                 status,
                 peer_status,
                 time.time(),
+                json.dumps(metadata or {}, allow_nan=False),
             ),
         )
         self._commit()

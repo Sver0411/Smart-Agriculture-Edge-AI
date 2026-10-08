@@ -39,6 +39,7 @@ NOT_OWNER = "NOT_OWNER"
 INVALID_DURATION = "INVALID_DURATION"
 DURATION_EXCEEDED = "DURATION_EXCEEDED"
 COOLDOWN = "COOLDOWN"
+STATE_UNAVAILABLE = "STATE_UNAVAILABLE"
 
 
 class SafetyGuard:
@@ -49,6 +50,7 @@ class SafetyGuard:
         max_duration: dict | None = None,
         cooldown: dict | None = None,
         command_ttl: float = config.COMMAND_TTL,
+        store=None,
     ):
         self.max_duration = {**config.MAX_DURATION, **(max_duration or {})}
         self.cooldown = {**config.COOLDOWN, **(cooldown or {})}
@@ -60,6 +62,26 @@ class SafetyGuard:
         # Ownership: which gateway may drive us, and at which epoch.
         self.owner_gateway: str | None = None
         self.current_generation: int = config.INITIAL_GENERATION
+        self.store = store
+        self.persistence_fault = False
+        if store:
+            from common.state_store import StateError
+            import sqlite3
+            def validate(saved):
+                if type(saved["highest_generation"]) is not int or saved["highest_generation"] < 1:
+                    raise StateError("invalid controller epoch")
+                if saved["owner_gateway"] not in (None, *config.GATEWAY_PORTS):
+                    raise StateError("invalid controller owner")
+            try:
+                saved = store.load("controller", validator=validate)
+                if saved:
+                    self.current_generation = saved["highest_generation"]
+                    self.owner_gateway = saved["owner_gateway"]
+                    # Monotonic timestamps cannot be restored across boots.
+                    # Conservatively wait a full cooldown after a restart.
+                    self.last_executed = {label:time.monotonic() for label in self.cooldown}
+            except (StateError, sqlite3.Error, OSError):
+                self.persistence_fault = True
 
     # -- ownership ---------------------------------------------------------
 
@@ -68,6 +90,16 @@ class SafetyGuard:
         if (type(generation) is not int or generation < self.current_generation or
                 (generation == self.current_generation and self.owner_gateway not in (None, owner_gateway))):
             return False
+        if self.persistence_fault:
+            return False
+        if self.store:
+            import sqlite3
+            try:
+                self.store.save("controller", {"highest_generation":generation, "owner_gateway":owner_gateway,
+                                                "restart_actuator_state":"OFF", "restart_cooldown":"full"})
+            except (sqlite3.Error, OSError):
+                self.persistence_fault = True
+                return False
         self.owner_gateway = owner_gateway
         self.current_generation = int(generation)
         return True
@@ -94,6 +126,8 @@ class SafetyGuard:
         elapsed_now = (monotonic_now if monotonic_now is not None else
                        time.monotonic() if now is None else now)
         now = time.time() if now is None else now
+        if self.persistence_fault:
+            return False, STATE_UNAVAILABLE
 
         # 1. message / command validity
         if not isinstance(command_type,str) or command_type not in self.max_duration:

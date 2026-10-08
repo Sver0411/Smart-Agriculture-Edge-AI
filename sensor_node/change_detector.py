@@ -1,16 +1,8 @@
-"""Change-score computation — the single Python implementation of
-`docs/change_score_spec.md` sections 1-5.
+"""Bounded streaming EMA / STD / mean ROC change score.
 
-Both the live scheduling policy (:mod:`simulator.adaptive`) and the offline
-event detector (:mod:`simulator.events`) call :class:`ChangeAnalyzer`. There is
-exactly one implementation of the EMA / STD / ROC score in the Python code base,
-so the simulator cannot disagree with itself. v0.1 had two copies that used
-different ROC definitions (mean over the variety window vs max over the variety
-window).
-
-The same equations are implemented in C in `firmware/main/change_detector.c`.
-`tests/test_parity_python_c.py` compiles that C file for the host and compares
-the two on a shared fixture.
+Frozen AdaptiveSense reuse with the agriculture configuration adapter. The
+Python/C shared fixtures are in tests/test_upload_parity.py; source attribution
+and local adaptations are recorded in third_party/adaptive_sense.
 """
 
 from __future__ import annotations
@@ -46,6 +38,7 @@ class AnalyzerConfig:
     baseline_tau_s: float
     event_threshold: float
     event_min_duration_s: float
+    history_capacity: int = 64
 
     def enabled(self) -> Tuple[ChannelConfig, ...]:
         return tuple(c for c in self.channels if c.use)
@@ -68,7 +61,7 @@ class ChangeAnalyzer:
         self.cfg = config
         self._cfs = config.by_name()
         self._hist: Dict[str, Deque[Tuple[float, float]]] = {
-            name: deque() for name in self._cfs
+            name: deque(maxlen=config.history_capacity) for name in self._cfs
         }
         self._ema: Dict[str, Optional[float]] = {name: None for name in self._cfs}
         self._last_t: Dict[str, Optional[float]] = {name: None for name in self._cfs}

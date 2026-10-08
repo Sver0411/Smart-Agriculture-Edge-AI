@@ -1,4 +1,5 @@
 #include "b1.h"
+#include "b1_transport.h"
 #include "sdkconfig.h"
 #include "cJSON.h"
 #include "esp_event.h"
@@ -9,15 +10,16 @@
 #include "lwip/sockets.h"
 #include "freertos/event_groups.h"
 #include <errno.h>
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
 #define WIFI_CONNECTED BIT0
 static EventGroupHandle_t wifi_group;
-static uint32_t message_counter;
 static uint32_t highest_generation = 1;
 static char owner[3] = "A1";
+static bool has_owner;
 
 static uint64_t uptime_ms(void) { return (uint64_t)(esp_timer_get_time() / 1000); }
 
@@ -51,6 +53,7 @@ static void wifi_start(void)
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &config));
     ESP_ERROR_CHECK(esp_wifi_start());
+    ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_MIN_MODEM));
     ESP_ERROR_CHECK(esp_wifi_connect());
 }
 
@@ -78,21 +81,6 @@ static int connect_gateway(const char *name)
     freeaddrinfo(addresses);
     if (fd >= 0) b1_stats.gateway_connects++;
     return fd;
-}
-
-static cJSON *envelope(const char *type, const char *target, cJSON *payload)
-{
-    cJSON *root = cJSON_CreateObject();
-    char id[32];
-    snprintf(id, sizeof(id), "B1-%s-%08lx", b1_boot_id, (unsigned long)++message_counter);
-    cJSON_AddStringToObject(root, "type", type);
-    cJSON_AddStringToObject(root, "source", "B1");
-    cJSON_AddStringToObject(root, "target", target);
-    // The envelope carries uptime seconds. Gateway uses receipt wall time for physical B1.
-    cJSON_AddNumberToObject(root, "timestamp", uptime_ms() / 1000.0);
-    cJSON_AddStringToObject(root, "message_id", id);
-    cJSON_AddItemToObject(root, "payload", payload);
-    return root;
 }
 
 static bool send_json(int fd, cJSON *root)
@@ -137,15 +125,19 @@ static bool accept_ownership(cJSON *message, const char *gateway)
     cJSON *payload = cJSON_GetObjectItemCaseSensitive(message, "payload");
     cJSON *generation = cJSON_GetObjectItemCaseSensitive(payload, "generation");
     cJSON *new_owner = cJSON_GetObjectItemCaseSensitive(payload, "owner_gateway");
-    if (!cJSON_IsNumber(generation) || !cJSON_IsString(new_owner) ||
+    if (!cJSON_IsNumber(generation) || !isfinite(generation->valuedouble) ||
+        generation->valuedouble < 1 || generation->valuedouble > UINT32_MAX ||
+        floor(generation->valuedouble) != generation->valuedouble || !cJSON_IsString(new_owner) ||
         strcmp(new_owner->valuestring, gateway) != 0) return false;
     if (generation->valuedouble < highest_generation) {
         printf("B1_NET {\"event\":\"STALE_GENERATION\",\"gateway\":\"%s\",\"generation\":%d,\"current\":%lu}\n",
                gateway, generation->valueint, (unsigned long)highest_generation);
         return false;
     }
-    highest_generation = generation->valueint;
+    if (has_owner && generation->valuedouble == highest_generation && strcmp(owner, gateway) != 0) return false;
+    highest_generation = (uint32_t)generation->valuedouble;
     strlcpy(owner, gateway, sizeof(owner));
+    has_owner = true;
     printf("B1_NET {\"event\":\"REGISTERED\",\"gateway\":\"%s\",\"generation\":%lu,\"monotonic_ms\":%llu}\n",
            owner, (unsigned long)highest_generation, (unsigned long long)uptime_ms());
     return true;
@@ -158,8 +150,9 @@ static bool register_node(int fd, const char *gateway, rx_buffer_t *rx)
         cJSON_AddStringToObject(payload, "node_id", "B1");
         cJSON_AddStringToObject(payload, "node_type", "SENSOR");
         cJSON_AddStringToObject(payload, "node_mode", "physical");
+        cJSON_AddNumberToObject(payload, "generation", highest_generation);
         b1_stats.registration_attempts++;
-        if (!send_json(fd, envelope("NODE_REGISTER", gateway, payload))) return false;
+        if (!send_json(fd, b1_envelope("NODE_REGISTER", gateway, payload, uptime_ms() / 1000.0))) return false;
         uint64_t deadline = uptime_ms() + 2000;
         while (uptime_ms() < deadline) {
             int result = receive_line(fd, rx, 100);
@@ -183,55 +176,10 @@ static bool register_node(int fd, const char *gateway, rx_buffer_t *rx)
     return false;
 }
 
-static cJSON *health_json(sensor_health_result_t health)
+static bool tcp_send_payload(void *context, const char *type, cJSON *payload)
 {
-    cJSON *obj = cJSON_CreateObject();
-    cJSON_AddNumberToObject(obj, "score", health.health_score);
-    cJSON_AddStringToObject(obj, "state", sensor_trust_state_name(health.state));
-    cJSON_AddNumberToObject(obj, "flags", health.fault_flags);
-    return obj;
-}
-
-static bool transmit_sample(int fd, const b1_sample_t *s)
-{
-    cJSON *payload = cJSON_CreateObject();
-    cJSON_AddStringToObject(payload, "node_mode", "physical");
-    cJSON_AddStringToObject(payload, "timestamp_source", "device_uptime");
-    cJSON_AddStringToObject(payload, "boot_id", b1_boot_id);
-    cJSON_AddNumberToObject(payload, "sample_seq", s->seq);
-    cJSON_AddNumberToObject(payload, "device_monotonic_ms", (double)s->monotonic_ms);
-    cJSON_AddBoolToObject(payload, "usable_for_control", s->usable);
-    cJSON_AddBoolToObject(payload, "physical_read_ok", s->valid);
-    cJSON_AddBoolToObject(payload, "test_injected", s->injected);
-    cJSON_AddStringToObject(payload, "health_state", !s->usable ? "FAULT" :
-        (s->temp_health.state == SENSOR_STATE_DEGRADED || s->hum_health.state == SENSOR_STATE_DEGRADED) ? "DEGRADED" : "HEALTHY");
-    cJSON *data = cJSON_AddObjectToObject(payload, "data");
-    if (s->valid) {
-        cJSON_AddNumberToObject(data, "temperature", s->temperature);
-        cJSON_AddNumberToObject(data, "humidity", s->humidity);
-    }
-    cJSON *health = cJSON_AddObjectToObject(payload, "health");
-    cJSON_AddItemToObject(health, "temperature", health_json(s->temp_health));
-    cJSON_AddItemToObject(health, "humidity", health_json(s->hum_health));
-    cJSON *sampling = cJSON_AddObjectToObject(payload, "sampling");
-    cJSON_AddNumberToObject(sampling, "next_interval_ms", s->next_interval_ms);
-    cJSON_AddNumberToObject(sampling, "score", s->score);
-    cJSON_AddStringToObject(sampling, "mode", s->mode);
-    cJSON_AddStringToObject(sampling, "reason", s->reason);
-    if (!send_json(fd, envelope("SENSOR_DATA", owner, payload))) return false;
-    b1_stats.sensor_messages++;
-    if (!s->usable || s->temp_health.state == SENSOR_STATE_DEGRADED ||
-        s->hum_health.state == SENSOR_STATE_DEGRADED) {
-        cJSON *alert = cJSON_CreateObject();
-        cJSON_AddStringToObject(alert, "alert_type", "SENSOR_FAULT");
-        cJSON_AddStringToObject(alert, "sensor_node_id", "B1");
-        cJSON_AddStringToObject(alert, "health_state", s->usable ? "DEGRADED" : "FAULT");
-        cJSON_AddStringToObject(alert, "message", s->injected ? "integration fault injection" : "sensor health anomaly");
-        cJSON_AddNumberToObject(alert, "sample_seq", s->seq);
-        if (!send_json(fd, envelope("ALERT", owner, alert))) return false;
-        b1_stats.alerts++;
-    }
-    return true;
+    int fd = *(int *)context;
+    return send_json(fd, b1_envelope(type, owner, payload, uptime_ms() / 1000.0));
 }
 
 static void log_stats(void)
@@ -280,15 +228,17 @@ void b1_network_task(void *arg)
                 cJSON *in = cJSON_Parse(rx.line);
                 cJSON *type = cJSON_GetObjectItemCaseSensitive(in, "type");
                 cJSON *source = cJSON_GetObjectItemCaseSensitive(in, "source");
+                cJSON *target = cJSON_GetObjectItemCaseSensitive(in, "target");
                 if (cJSON_IsString(type) && cJSON_IsString(source) &&
                     strcmp(source->valuestring, candidate) == 0 &&
+                    cJSON_IsString(target) && strcmp(target->valuestring, "B1") == 0 &&
                     strcmp(type->valuestring, "NODE_STATUS") == 0) {
                     if (!accept_ownership(in, candidate)) connected = false;
                 }
                 cJSON_Delete(in);
             }
             b1_sample_t sample;
-            if (xQueueReceive(b1_queue, &sample, 0) == pdTRUE && !transmit_sample(fd, &sample)) {
+            if (xQueueReceive(b1_queue, &sample, 0) == pdTRUE && !b1_transmit_sample(&(b1_transport_t){.context = &fd, .send = tcp_send_payload}, &sample)) {
                 // Preserve the failed sample if space remains; queue is volatile and bounded.
                 if (xQueueSendToFront(b1_queue, &sample, 0) != pdTRUE) b1_stats.local_queue_drops++;
                 break;

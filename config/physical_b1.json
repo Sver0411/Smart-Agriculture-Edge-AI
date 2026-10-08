@@ -1,0 +1,42 @@
+{
+  "trust_channels": {
+    "temperature": {
+      "min_value": -40,
+      "max_value": 85,
+      "stuck_epsilon": 0.01,
+      "stuck_window": 20,
+      "spike_threshold": 3,
+      "drift_window": 24,
+      "drift_threshold": 0.01,
+      "missing_limit": 3
+    },
+    "humidity": {
+      "min_value": 0,
+      "max_value": 100,
+      "stuck_epsilon": 0.1,
+      "stuck_window": 20,
+      "spike_threshold": 10,
+      "drift_window": 24,
+      "drift_threshold": 0.1,
+      "missing_limit": 3
+    }
+  },
+  "adaptive": {
+    "channels": {
+      "temperature": {
+        "noise_floor": 0.15,
+        "use": true
+      },
+      "humidity": {
+        "noise_floor": 0.8,
+        "use": true
+      },
+      "soil_moisture": {
+        "use": false
+      },
+      "light": {
+        "use": false
+      }
+    }
+  }
+}

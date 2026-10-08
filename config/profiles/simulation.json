@@ -1,0 +1,59 @@
+{
+  "name": "simulation",
+  "purpose": "host protocol / lab integration",
+  "sensor_runtime": "tcp-integration",
+  "node": {
+    "sampling": {
+      "min_interval": 5,
+      "default_interval": 20,
+      "max_interval": 60
+    },
+    "adaptive": {
+      "ladders": {
+        "stable": [
+          20,
+          40,
+          60
+        ],
+        "active": [
+          15,
+          10,
+          5
+        ],
+        "alert": [
+          5
+        ]
+      },
+      "analyzer": {
+        "variety_window_s": 120,
+        "roc_window_s": 40,
+        "baseline_tau_s": 120
+      },
+      "event_min_duration_s": 10,
+      "upload": {
+        "heartbeat_s": 60
+      }
+    },
+    "fault_interval_s": 20,
+    "degraded_interval_s": 10,
+    "fault_reminder_s": 300,
+    "control_relevance": {
+      "margins": {
+        "soil_moisture": 0,
+        "temperature": 0
+      }
+    }
+  },
+  "connectivity": {
+    "backoff_s": [
+      0.2,
+      0.5,
+      1,
+      2,
+      5
+    ],
+    "connect_timeout_s": 3,
+    "critical_retry_cooldown_s": 300,
+    "replay_interval_s": 0
+  }
+}

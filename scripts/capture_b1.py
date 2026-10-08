@@ -13,7 +13,7 @@ import serial
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SAMPLE_FIELDS = ("seq", "monotonic_ms", "read_ok", "temperature", "humidity",
                  "injected", "temp_health", "temp_flags", "hum_health", "hum_flags",
-                 "usable", "score", "mode", "next_interval_ms", "reason", "min_free_heap")
+                 "usable", "score", "mode", "upload_requested", "detected_event", "next_interval_ms", "reason", "min_free_heap")
 NET_FIELDS = ("event", "gateway", "generation", "monotonic_ms", "address", "sda", "scl", "ok")
 
 

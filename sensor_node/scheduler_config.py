@@ -8,4 +8,5 @@ def confirmations(cfg,state):
 def analyzer_config(cfg):
     a=cfg["adaptive"]
     return AnalyzerConfig(channels=tuple(ChannelConfig(name=k,**c) for k,c in a["channels"].items()),
+        history_capacity=min(64, int(a["analyzer"]["variety_window_s"] / cfg["sampling"]["min_interval"]) + 2),
         **a["analyzer"], event_threshold=a["event_threshold"], event_min_duration_s=a["event_min_duration_s"])

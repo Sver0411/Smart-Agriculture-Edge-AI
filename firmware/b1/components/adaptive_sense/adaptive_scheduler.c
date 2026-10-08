@@ -116,7 +116,7 @@ void as_update(as_t *s, double timestamp,
     const as_config_t *cfg = s->cfg;
     s->n_samples++;
 
-    const bool event_onset = event && !s->prev_event_active;
+    const bool event_onset = event != s->prev_event_active;
 
     /* ---- state machine ---- */
     const as_state_t prev_state = s->state;
@@ -133,25 +133,25 @@ void as_update(as_t *s, double timestamp,
     s->last_interval = new_interval;
 
     /* ---- upload policy (spec section 8) ---- */
-    bool upload = false;
+    uint32_t reasons = 0;
 
     if (cfg->up_first_sample && s->n_samples == 1) {
-        upload = true;
+        reasons |= UP_FIRST_SAMPLE;
     }
-    if (!upload && cfg->up_on_event && event_onset) {
-        upload = true;
+    if (cfg->up_on_event && event_onset) {
+        reasons |= event ? UP_EVENT_ONSET : UP_EVENT_RECOVERY;
     }
-    if (!upload && cfg->up_on_state_change && state_changed) {
-        upload = true;
+    if (cfg->up_on_state_change && state_changed) {
+        reasons |= UP_STATE_CHANGE;
     }
-    if (!upload && cfg->up_on_interval_change && interval_changed) {
-        upload = true;
+    if (cfg->up_on_interval_change && interval_changed) {
+        reasons |= UP_INTERVAL_CHANGE;
     }
-    if (!upload && cfg->heartbeat_s > 0.0f && s->has_uploaded &&
+    if (cfg->heartbeat_s > 0.0f && s->has_uploaded &&
         (timestamp - s->last_upload_t) >= (double)cfg->heartbeat_s) {
-        upload = true;
+        reasons |= UP_PERIODIC_HEARTBEAT;
     }
-    if (!upload && cfg->delta_threshold > 0.0f) {
+    if (cfg->delta_threshold > 0.0f) {
         for (int c = 0; c < AS_NUM_CHANNELS; c++) {
             if (!cfg->delta_channel_use[c]) {
                 continue;
@@ -163,7 +163,7 @@ void as_update(as_t *s, double timestamp,
             if (noise <= 0.0f) {
                 continue;
             }
-            if (!s->has_uploaded) {
+            if (!s->has_uploaded || !s->last_upload_valid[c]) {
                 continue;
             }
             /* Normalised delta, exactly as in simulator/adaptive.py. v0.1
@@ -173,15 +173,19 @@ void as_update(as_t *s, double timestamp,
             const float normalized =
                 fabsf(values[c] - s->last_upload_values[c]) / noise;
             if (normalized >= cfg->delta_threshold) {
-                upload = true;
+                reasons |= UP_MEANINGFUL_DELTA;
                 break;
             }
         }
     }
 
+    const bool upload = reasons != 0;
     if (upload) {
         memcpy(s->last_upload_values, values,
                sizeof(float) * (size_t)AS_NUM_CHANNELS);
+        for (int c = 0; c < AS_NUM_CHANNELS; c++) {
+            s->last_upload_valid[c] = valid == NULL || valid[c];
+        }
         s->last_upload_t = timestamp;
         s->has_uploaded = true;
     }
@@ -192,5 +196,6 @@ void as_update(as_t *s, double timestamp,
     out->interval_s = new_interval;
     out->detected_event = event;
     out->upload_requested = upload;
+    out->upload_reasons = reasons;
     out->score = score;
 }

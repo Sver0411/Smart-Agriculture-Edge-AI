@@ -101,8 +101,8 @@ class OwnershipManager:
             return self.role
         if self.peer_generation > self.generation:
             self.role = config.STANDBY
-        else:
-            self.role = config.ACTIVE
+        # Once demoted, stay STANDBY. Only a formal timeout takeover can
+        # establish a new epoch; an equal/stale heartbeat is never failback.
         return self.role
 
     def as_dict(self) -> dict:

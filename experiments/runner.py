@@ -13,6 +13,7 @@ import socket
 import subprocess
 import time
 from common.settings import SETTINGS,config_hash
+from common import config
 from common.messages import (Message,SENSOR_DATA,CONTROL_COMMAND,transport_observer,transport_interceptor)
 from controller_node.controller_node import ControllerNode
 from controller_node.safety_guard import SafetyGuard
@@ -49,6 +50,8 @@ async def run_scenario(name,output,seed=42,duration=None):
                   'B1_start':{'soil_moisture':10,'temperature':25},'B2_start':{'soil_moisture':50,'temperature':36}},
         'controller':{'cooldown':{'IRRIGATION':0,'VENTILATION':0},'time_scale':0},
         'server':{'policy_interval':0.5},'settling_s':0.8,'observation_s':duration if duration is not None else 1.6,
+        'replay_completion_timeout_s':10,
+        'profile':'simulation', 'cloud_backoff_s':[0.2,0.5,1,2,5],
         'wrong_initial_gateway':'A2' if name=='registration-race' else None,
         'controller_initially_offline':'C1' if name=='controller-unavailable' else None}
     write_json(out/'config.json',cfg)
@@ -186,7 +189,14 @@ async def run_scenario(name,output,seed=42,duration=None):
             check('history queued durably',sum(g.offline_queue.count() for g in gateways.values())>0)
             check('local control executes during outage',sum(n.metrics.get('executed') for id,n in nodes.items() if id.startswith('C'))>before)
             server=Server(port=sp,db_path=str(out/'server.db'),policy_interval=0.5);servers.append(server);await server.start()
-            await asyncio.sleep(2.5)
+            # Observe persisted completion, not an assumed host I/O throughput.
+            deadline=time.monotonic()+cfg['runtime_overrides']['replay_completion_timeout_s']
+            while time.monotonic()<deadline:
+                drained=all(g.offline_queue.count()==0 for g in gateways.values())
+                committed=(name!='queue-replay' or server.db.conn.execute(
+                    "SELECT COUNT(*) FROM sensor_data WHERE message_id LIKE ?",(f'queue-{seed}-%',)).fetchone()[0]==250)
+                if drained and committed:break
+                await asyncio.sleep(0.01)
             check('all offline queues drained',all(g.offline_queue.count()==0 for g in gateways.values()))
             if name=='queue-replay':
                 count=server.db.conn.execute("SELECT COUNT(*) FROM sensor_data WHERE message_id LIKE ?",(f'queue-{seed}-%',)).fetchone()[0]
@@ -203,6 +213,16 @@ async def run_scenario(name,output,seed=42,duration=None):
             observations['result']=result;check('expired command rejected',result.get('reason')=='EXPIRED')
         await asyncio.sleep(duration if duration is not None else 1.6)
         delivered=[e for e in recorder.events if e['event']=='delivered']
+        controls=[e['message'] for e in delivered if e['message']['type']=='CONTROL_COMMAND'
+                  and e['message']['target'] in ('C1','C2')]
+        check('every sensor command preserves fixed zone membership', any('sensor_node_id' in m['payload'] for m in controls) and all(
+            config.CONTROLLER_OF_SENSOR[m['payload']['sensor_node_id']] == m['target']
+            for m in controls if 'sensor_node_id' in m['payload']))
+        if name in ('gateway-failover','gateway-recovery','stale-generation'):
+            check('A2 drives C1 from B1 after takeover',any(m['source']=='A2' and m['target']=='C1'
+                and m['payload'].get('sensor_node_id')=='B1' for m in controls))
+            check('A2 continues driving C2 from B2',any(m['source']=='A2' and m['target']=='C2'
+                and m['payload'].get('sensor_node_id')=='B2' for m in controls))
         executed=[e['message']['payload']['command_id'] for e in delivered if e['message']['type']=='CONTROL_RESULT' and e['message']['target'] in ('A1','A2') and e['message']['payload'].get('status')=='EXECUTED']
         check('no logical command reported executed twice on control link',len(executed)==len(set(executed)))
         check('both sensor zones sampled',all(nodes[x].metrics.get('sensor_samples')>0 for x in ('B1','B2')))

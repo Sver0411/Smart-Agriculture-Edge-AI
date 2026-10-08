@@ -72,6 +72,27 @@ def validate_settings(cfg):
         positive(n[key], key)
     for key,v in cfg["policy"].items():
         positive(v,key)
+    for key in ("max_messages", "max_payload_bytes"):
+        if type(cfg["offline_queue"][key]) is not int or cfg["offline_queue"][key] < 1:
+            raise ValueError("invalid outbox bound")
+    for reserve, total in (("reserved_messages", "max_messages"), ("reserved_payload_bytes", "max_payload_bytes")):
+        value = cfg["offline_queue"][reserve]
+        if type(value) is not int or not 0 <= value < cfg["offline_queue"][total]:
+            raise ValueError("invalid critical reserve")
+    capacity = cfg["controller"]["recent_command_capacity"]
+    if type(capacity) is not int or not 1 <= capacity <= 1024:
+        raise ValueError("invalid recent command window")
+    if set(n["control_relevance"]["margins"]) != {"soil_moisture", "temperature"}:
+        raise ValueError("control threshold margins require soil and temperature")
+    for value in n["control_relevance"]["margins"].values():
+        if type(value) not in (int,float) or not math.isfinite(value) or value < 0:
+            raise ValueError("invalid control threshold margin")
+    for key in ("upload_first_sample", "on_event", "on_state_change", "on_interval_change"):
+        if type(a["upload"][key]) is not bool:raise ValueError("invalid upload switch")
+    for key in ("heartbeat_s", "delta_threshold"):
+        value = a["upload"][key]
+        if type(value) not in (int, float) or not math.isfinite(value) or value < 0:
+            raise ValueError("invalid upload threshold")
     return cfg
 
 def load_settings(path=None):
@@ -83,5 +104,37 @@ def config_hash(cfg):
 
 SETTINGS = load_settings()
 
-def node_settings():
-    return deepcopy(SETTINGS["node"])
+def merge_settings(base, overrides):
+    result = deepcopy(base)
+    for key, value in overrides.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key] = merge_settings(result[key], value)
+        else:
+            result[key] = deepcopy(value)
+    return result
+
+
+def profile_settings(profile="simulation"):
+    if profile not in ("simulation", "lab", "deployment"):
+        raise ValueError("unknown runtime profile")
+    path = CONFIG_PATH.parent / "profiles" / (profile + ".json")
+    profile_cfg = json.loads(path.read_text())
+    candidate = merge_settings(SETTINGS, {"node": profile_cfg["node"]})
+    validate_settings(candidate)
+    cloud = profile_cfg["connectivity"]
+    if not cloud["backoff_s"]:
+        raise ValueError("empty reconnect backoff")
+    for value in cloud["backoff_s"]:
+        positive(value, "reconnect backoff")
+    positive(cloud["connect_timeout_s"], "connect timeout")
+    positive(cloud["critical_retry_cooldown_s"], "critical retry cooldown")
+    return {**profile_cfg, "node": candidate["node"]}
+
+
+def node_settings(profile=None, *, physical=False):
+    result = deepcopy(SETTINGS["node"]) if profile is None else profile_settings(profile)["node"]
+    if physical:
+        overrides = json.loads((CONFIG_PATH.parent / "physical_b1.json").read_text())
+        result = merge_settings(result, overrides)
+        result["trust_channels"] = {k: result["trust_channels"][k] for k in ("temperature", "humidity")}
+    return result

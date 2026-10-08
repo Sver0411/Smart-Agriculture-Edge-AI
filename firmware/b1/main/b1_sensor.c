@@ -5,6 +5,7 @@
 #include "esp_system.h"
 #include "sdkconfig.h"
 #include <stdio.h>
+#include <math.h>
 #include <string.h>
 
 #define SHT30_ADDR 0x44
@@ -75,7 +76,9 @@ void b1_sensor_task(void *arg)
 #endif
         b1_policy_update(&policy, &s);
         b1_stats.sensor_samples++;
-        char temp_text[24], hum_text[24];
+        char temp_text[24], hum_text[24], score_text[24];
+        if (isfinite(s.score)) snprintf(score_text, sizeof(score_text), "%.3f", s.score);
+        else strlcpy(score_text, "null", sizeof(score_text));
         if (s.valid) {
             snprintf(temp_text, sizeof(temp_text), "%.3f", s.temperature);
             snprintf(hum_text, sizeof(hum_text), "%.3f", s.humidity);
@@ -87,22 +90,19 @@ void b1_sensor_task(void *arg)
                "\"temperature\":%s,\"humidity\":%s,\"injected\":%s,"
                "\"temp_health\":\"%s\",\"temp_flags\":%lu,"
                "\"hum_health\":\"%s\",\"hum_flags\":%lu,"
-               "\"usable\":%s,\"score\":%.3f,\"mode\":\"%s\","
+               "\"usable\":%s,\"score\":%s,\"mode\":\"%s\","
+               "\"upload_requested\":%s,\"detected_event\":%s,"
                "\"next_interval_ms\":%lu,\"reason\":\"%s\",\"min_free_heap\":%lu}\n",
                (unsigned long)s.seq, (unsigned long long)s.monotonic_ms,
                s.valid ? "true" : "false", temp_text, hum_text,
                s.injected ? "true" : "false",
                sensor_trust_state_name(s.temp_health.state), (unsigned long)s.temp_health.fault_flags,
                sensor_trust_state_name(s.hum_health.state), (unsigned long)s.hum_health.fault_flags,
-               s.usable ? "true" : "false", s.score, s.mode,
+               s.usable ? "true" : "false", score_text, s.mode,
+               s.upload_requested ? "true" : "false", s.detected_event ? "true" : "false",
                (unsigned long)s.next_interval_ms, s.reason,
                (unsigned long)esp_get_minimum_free_heap_size());
-        if (xQueueSend(b1_queue, &s, 0) != pdTRUE) {
-            b1_sample_t discarded;
-            xQueueReceive(b1_queue, &discarded, 0);
-            b1_stats.local_queue_drops++;
-            xQueueSend(b1_queue, &s, 0);
-        }
+        if (b1_queue_sample(&s)) b1_policy_mark_reported(&policy, &s);
         vTaskDelay(pdMS_TO_TICKS(s.next_interval_ms));
     }
 }

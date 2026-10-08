@@ -1,11 +1,9 @@
 """AdaptiveSense policy: adaptive sampling scheduler.
 
-Normative implementation of `docs/change_score_spec.md` sections 1-9. The
-identical equations are implemented in C in
-`firmware/main/change_detector.c` (score) and
-`firmware/main/adaptive_scheduler.c` (state machine, ladder, upload policy);
-`tests/test_parity_python_c.py` compiles the C policy for the host and compares
-the two implementations on a shared fixture.
+Adapted from the frozen upstream implementation (third_party/adaptive_sense).
+The C counterpart is firmware/b1/components/adaptive_sense; shared trace tests
+live in tests/test_upload_parity.py. Local deployment semantics are documented
+in docs/DEPLOYMENT_SEMANTICS.md.
 
 The scheduler receives one measured value per channel at irregular times and
 decides:
@@ -115,6 +113,7 @@ class Decision:
     detected_event: bool
     upload_requested: bool
     channel_scores: Dict[str, float] = field(default_factory=dict)
+    upload_reasons: List[str] = field(default_factory=list)
 
 
 class AdaptiveScheduler:
@@ -197,22 +196,23 @@ class AdaptiveScheduler:
         event_onset: bool,
         state_changed: bool,
         interval_changed: bool,
-    ) -> bool:
+    ) -> List[str]:
         """Spec section 8."""
+        reasons = []
         if self.up_first_sample and self._n_samples == 1:
-            return True
+            reasons.append("FIRST_SAMPLE")
         if self.up_on_event and event_onset:
-            return True
+            reasons.append("EVENT_ONSET" if self.analyzer.event_active else "EVENT_RECOVERY")
         if self.up_on_state_change and state_changed:
-            return True
+            reasons.append("STATE_CHANGE")
         if self.up_on_interval_change and interval_changed:
-            return True
+            reasons.append("INTERVAL_CHANGE")
         if (
             self.heartbeat > 0.0
             and self._last_upload_t is not None
             and (self.now - self._last_upload_t) >= self.heartbeat
         ):
-            return True
+            reasons.append("PERIODIC_HEARTBEAT")
         if self.delta_threshold > 0.0:
             for cf in self.analyzer.cfg.channels:
                 if not cf.use or cf.name not in values:
@@ -222,19 +222,26 @@ class AdaptiveScheduler:
                     continue
                 normalized = abs(float(values[cf.name]) - last_up) / cf.noise_floor
                 if normalized >= self.delta_threshold:
-                    return True
-        return False
+                    reasons.append("MEANINGFUL_DELTA")
+                    break
+        return reasons
 
     # ------------------------------------------------------------------ #
     # public API
     # ------------------------------------------------------------------ #
+    def record_reported(self, timestamp, values):
+        """Record successful adapter admission, including wrapper-only triggers."""
+        self._last_upload_t = timestamp
+        self._last_upload_values = dict(values)
+
     def update(self, timestamp: float, values: Dict[str, float]) -> Decision:
         """Feed one measured sample into the scheduler and get a decision."""
         self.now = float(timestamp)
         self._n_samples += 1
 
         score, channel_scores, event_active = self.analyzer.update(self.now, values)
-        event_onset = event_active and not self._prev_event_active
+        # Both confirmed onset and recovery carry useful information.
+        event_onset = event_active != self._prev_event_active
 
         prev_state = self.state
         self.state = self._next_state(score, prev_state)
@@ -246,9 +253,10 @@ class AdaptiveScheduler:
         interval_changed = not math.isclose(new_interval, self._last_interval)
         self._interval = new_interval
 
-        upload = self._upload_decision(
+        reasons = self._upload_decision(
             values, event_onset, state_changed, interval_changed
         )
+        upload = bool(reasons)
         if upload:
             self._last_upload_t = self.now
             self._last_upload_values = {k: float(v) for k, v in values.items()}
@@ -265,6 +273,7 @@ class AdaptiveScheduler:
             detected_event=event_active,
             upload_requested=upload,
             channel_scores=channel_scores,
+            upload_reasons=reasons,
         )
 
     @property

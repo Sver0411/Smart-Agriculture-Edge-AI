@@ -23,9 +23,20 @@ menu "Physical B1 configuration"
     config B1_SCL_GPIO
         int "SHT30 SCL GPIO"
         default 9
-    config B1_LAB_MODE
-        bool "Accelerated laboratory intervals"
-        default y
+    choice B1_PROFILE
+        prompt "Sampling / upload timing profile (transport remains integration Wi-Fi)"
+        default B1_LAB_MODE
+        config B1_LAB_MODE
+            bool "lab: accelerated hardware integration"
+        config B1_SIMULATION_MODE
+            bool "simulation: host-equivalent seconds"
+        config B1_DEPLOYMENT_MODE
+            bool "deployment: minutes, engineering defaults only"
+    endchoice
+    config B1_LIGHT_SLEEP
+        bool "Opt-in automatic light sleep (RAM retained; current unmeasured)"
+        depends on PM_ENABLE && FREERTOS_USE_TICKLESS_IDLE
+        default n
     config B1_TEST_FAULT_INJECTION
         bool "Inject out-of-range temperature AFTER physical read (test only)"
         default n

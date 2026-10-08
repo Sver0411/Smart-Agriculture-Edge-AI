@@ -6,4 +6,4 @@ Imported files: `firmware/main/change_detector.{c,h}` and `firmware/main/adaptiv
 
 License: MIT, preserved in this directory.
 
-Semantic changes: none. B1's `b1_policy.c` supplies integration parameters. Laboratory time constants and interval ladders are accelerated; they are integration settings, not a new algorithm or deployment claim.
+Local changes in the deployment realignment: upload on confirmed event recovery as well as onset; retain a per-channel last-upload validity mask so newly available channels do not compare against zero. Host parity tests cover these adaptations. B1's `b1_policy.c` supplies integration parameters. Laboratory time constants and interval ladders are accelerated; they are integration settings, not a new algorithm or deployment claim.

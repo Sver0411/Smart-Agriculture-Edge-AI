@@ -236,6 +236,7 @@ class Server:
                 peer_id=payload.get("peer_id"),
                 peer_status=payload.get("peer_status"),
                 message_id=message_id,
+                metadata=payload,
             )
             self.metrics.inc("heartbeats")
 

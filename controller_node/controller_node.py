@@ -20,6 +20,7 @@ import argparse
 import asyncio
 import pathlib
 import sys
+import sqlite3
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
@@ -39,6 +40,9 @@ from common.messages import (  # noqa: E402
 )
 from common.reliability import Counters  # noqa: E402
 from controller_node.safety_guard import DUPLICATE_COMMAND_ID, SafetyGuard  # noqa: E402
+from controller_node.recent_commands import RecentCommandStore
+from common.state_store import StateError
+from common.settings import SETTINGS
 
 EXECUTED = "EXECUTED"
 REJECTED = "REJECTED"
@@ -55,6 +59,7 @@ class ControllerNode:
         gateway_port: int | None = None,
         safety_guard: SafetyGuard | None = None,
         time_scale: float = config.SIMULATION_TIME_SCALE,
+        state_path: str | None = None,
     ):
         if node_id not in config.GATEWAY_OF_CONTROLLER:
             raise ValueError(f"unknown controller node id: {node_id!r}")
@@ -67,7 +72,15 @@ class ControllerNode:
         # otherwise it walks the candidate list, current owner first.
         self.preferred_gateway = None
         self.fixed_port = gateway_port
-        self.guard = safety_guard or SafetyGuard()
+        from common.state_store import StateStore
+        self.guard = safety_guard or SafetyGuard(store=StateStore(state_path) if state_path else None)
+        self.recent_commands = None
+        try:
+            self.recent_commands = RecentCommandStore(self.guard.store, SETTINGS['controller']['recent_command_capacity'])
+            self.guard.executed_command_ids.update(self.recent_commands.entries)
+        except (StateError, sqlite3.Error, OSError) as exc:
+            self.guard.persistence_fault = True
+            node_log(node_id, f'recent command state unavailable; DO NOT EXECUTE: {exc}')
         self.time_scale = time_scale
         self.metrics = Counters()
         self._command_lock = asyncio.Lock()
@@ -251,6 +264,19 @@ class ControllerNode:
         )
 
         if allowed:
+            # Remember a higher accepted epoch before any actuator execution.
+            if generation is not None and not self.guard.set_ownership(message.source, generation):
+                allowed, reason = False, "STATE_UNAVAILABLE"
+        if allowed:
+            try:
+                self.recent_commands.begin(command_id)
+                self.guard.executed_command_ids.add(command_id)
+            except (StateError, sqlite3.Error, OSError) as exc:
+                self.guard.persistence_fault = True
+                allowed, reason = False, "STATE_UNAVAILABLE"
+                self.metrics.inc('command_persistence_failures')
+                node_log(self.node_id, f'command intent could not be persisted: {exc}')
+        if allowed:
             node_log(self.node_id, "safety check passed")
             await asyncio.sleep(max(0.05, float(duration) * self.time_scale))
             self.guard.commit(
@@ -268,6 +294,14 @@ class ControllerNode:
                 "generation": generation,
                 "status": EXECUTED,
             }
+            try:
+                self.recent_commands.complete(command_id, result)
+            except (StateError, sqlite3.Error, OSError) as exc:
+                # Durable INTENT still guards against replay after reboot.
+                self.guard.persistence_fault = True
+                self.metrics.inc('command_persistence_failures')
+                result.update(status='UNKNOWN',reason='STATE_UNAVAILABLE')
+                node_log(self.node_id, f'command result could not be persisted: {exc}')
         elif reason == DUPLICATE_COMMAND_ID:
             # Idempotency: a retried command must never run the actuator twice.
             self.metrics.inc("duplicates")
@@ -325,11 +359,13 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--startup-delay", type=float, default=0, help="software experiment process startup delay")
     parser.add_argument("--port", type=int, default=None)
+    parser.add_argument("--state-db", default=None, help="host generation checkpoint; default controller_ID.state.db")
     return parser.parse_args(argv)
 
 
 async def _run(args: argparse.Namespace) -> None:
-    node = ControllerNode(node_id=args.id, gateway_host=args.host, gateway_port=args.port)
+    node = ControllerNode(node_id=args.id, gateway_host=args.host, gateway_port=args.port,
+                          state_path=args.state_db or f"controller_{args.id}.state.db")
     if args.gateway:
         node.primary_gateway = args.gateway
         node.gateway_id = args.gateway

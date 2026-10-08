@@ -17,12 +17,22 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define AS_NUM_CHANNELS 4
+
+enum {
+    UP_FIRST_SAMPLE = 1u << 0, UP_EVENT_ONSET = 1u << 1,
+    UP_EVENT_RECOVERY = 1u << 2, UP_STATE_CHANGE = 1u << 3,
+    UP_INTERVAL_CHANGE = 1u << 4, UP_PERIODIC_HEARTBEAT = 1u << 5,
+    UP_MEANINGFUL_DELTA = 1u << 6, UP_HEALTH_CHANGE = 1u << 7,
+    UP_SENSOR_FAULT = 1u << 8, UP_SENSOR_RECOVERY = 1u << 9,
+    UP_CONTROL_THRESHOLD_CROSSING = 1u << 10, UP_CONTROL_MARGIN_ENTRY = 1u << 11
+};
 
 typedef enum {
     AS_STABLE = 0,
@@ -65,6 +75,7 @@ typedef struct {
     float interval_s;       /* chosen interval for the NEXT sample */
     bool  detected_event;   /* event active at this sample */
     bool  upload_requested; /* this sample should be transmitted */
+    uint32_t upload_reasons;
     float score;            /* normalised instability score */
 } as_decision_t;
 
@@ -81,6 +92,7 @@ typedef struct {
     double last_upload_t;
     bool   has_uploaded;
     float  last_upload_values[AS_NUM_CHANNELS];
+    bool   last_upload_valid[AS_NUM_CHANNELS];
 
     float last_interval;
     bool  prev_event_active;

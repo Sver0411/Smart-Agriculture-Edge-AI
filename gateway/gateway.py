@@ -54,9 +54,13 @@ from common.messages import (  # noqa: E402
 from common.reliability import AckTracker, COMMAND_DELIVERY_FAILED, Counters, CommandOutcomes
 from common.protocol import SequenceGuard, integer  # noqa: E402
 from gateway.edge_decision import EdgeDecider  # noqa: E402
-from gateway.offline_queue import OfflineQueue  # noqa: E402
+from gateway.offline_queue import OfflineQueue, QueueCapacityError, admission_priority, HIGH  # noqa: E402
 from gateway.ownership import OwnershipManager  # noqa: E402
 from gateway.registry import NodeRegistry  # noqa: E402
+from common.settings import profile_settings
+from common.state_store import StateStore, StateError
+from gateway.connectivity import Connectivity
+import sqlite3
 
 # Message types worth keeping while the uplink is down.
 QUEUEABLE_TYPES = (SENSOR_DATA, CONTROL_COMMAND, CONTROL_RESULT, ALERT)
@@ -85,6 +89,8 @@ class Gateway:
         random_seed: int = 42,
         result_timeout: float = 15.0,
         receipt_timeout: float = config.SERVER_RECEIPT_TIMEOUT,
+        profile: str = "simulation",
+        state_path: str | None = None,
     ):
         if gateway_id not in config.GATEWAY_PORTS:
             raise ValueError(f"unknown gateway id: {gateway_id!r}")
@@ -111,10 +117,16 @@ class Gateway:
         self.drop_command_rate = drop_command_rate
         self.duplicate_command = duplicate_command
 
-        self.decider = EdgeDecider(engine=decision_engine)
+        self.profile = profile_settings(profile)
+        self.connectivity = Connectivity(self.profile["connectivity"])
+        self.state_store = StateStore(state_path or (queue_path + ".state.db")) if state_path or queue_path and queue_path != ":memory:" else None
+        self.decider = EdgeDecider(engine=decision_engine, store=self.state_store)
         self.registry = NodeRegistry()
         self.ownership = OwnershipManager(gateway_id, self.peer_id, self.registry)
         self._seed_registry()
+        self.persistence_fault = False
+        self._recovery_pending = False
+        self._restore_ownership()
         self.tracker = AckTracker()
         self.outcomes = CommandOutcomes(result_timeout)
         self.sequences = SequenceGuard()
@@ -148,8 +160,59 @@ class Gateway:
         self._tasks: list[asyncio.Task] = []
         self._stopping = False
         self._standby_logged = False
+        self._cloud_flush = None
+        self.outbox_alert_state = None
 
     # -- lifecycle ---------------------------------------------------------
+
+    def _restore_ownership(self):
+        if self.state_store is None:
+            return
+        def validate(saved):
+            if saved["gateway_id"] != self.gateway_id or not integer(saved["generation"], 1):
+                raise StateError("invalid gateway epoch")
+            if saved["role"] not in (config.ACTIVE, config.STANDBY) or not integer(saved["peer_generation"]):
+                raise StateError("invalid gateway role / peer epoch")
+            if set(saved["ownership"]) != set(self.registry.entries):
+                raise StateError("incomplete ownership checkpoint")
+            for node, row in saved["ownership"].items():
+                if row["owner_gateway"] not in config.GATEWAY_PORTS or not integer(row["generation"], 1):
+                    raise StateError("invalid node owner / epoch")
+                if row["owner_gateway"] == self.gateway_id and row["generation"] != saved["generation"]:
+                    raise StateError("inconsistent local epoch")
+            for sensor, controller in config.CONTROLLER_OF_SENSOR.items():
+                if saved["ownership"][sensor] != saved["ownership"][controller]:
+                    raise StateError("zone pair ownership mismatch")
+        try:
+            saved = self.state_store.load("ownership", validator=validate)
+            if saved:
+                self.ownership.generation = saved["generation"]
+                self.ownership.peer_generation = saved["peer_generation"]
+                self._saved_role = saved["role"]
+                self.ownership.role = config.STANDBY
+                self._recovery_pending = True
+                for node, row in saved["ownership"].items():
+                    self.registry.transfer([node], row["owner_gateway"], row["generation"])
+            else:
+                self._persist_ownership()
+        except (StateError, sqlite3.Error, OSError) as exc:
+            self.persistence_fault = True
+            self.ownership.role = config.STANDBY
+            node_log(self.gateway_id, f"ownership checkpoint unavailable; STANDBY: {exc}")
+
+    def _persist_ownership(self):
+        if self.state_store is None or self.persistence_fault:
+            return
+        try:
+            self.state_store.save("ownership", {
+                "gateway_id": self.gateway_id, "generation": self.ownership.generation,
+                "peer_generation": self.ownership.peer_generation, "role": self.ownership.role,
+                "ownership": {node: {"owner_gateway": entry.owner_gateway, "generation": entry.generation}
+                              for node, entry in self.registry.entries.items()}})
+        except (sqlite3.Error, OSError) as exc:
+            self.persistence_fault = True
+            self.ownership.role = config.STANDBY
+            node_log(self.gateway_id, f"epoch could not be persisted; STANDBY: {exc}")
 
     async def start(self) -> None:
         self.peer_started_at = time.monotonic()
@@ -194,6 +257,9 @@ class Gateway:
         for task in self._tasks:
             task.cancel()
         await asyncio.gather(*self._tasks, return_exceptions=True)
+        if self._cloud_flush is not None:
+            self._cloud_flush.cancel()
+            await asyncio.gather(self._cloud_flush, return_exceptions=True)
 
         # Stop accepting, then close every socket we still hold so that the
         # ``_handle_client`` coroutines can finish.  (Since Python 3.12
@@ -325,6 +391,13 @@ class Gateway:
         role = self.ownership.observe_peer(
             config.ONLINE, message.payload.get("generation")
         )
+        if self._recovery_pending:
+            if (not self.persistence_fault and self._saved_role == config.ACTIVE and
+                    self.ownership.peer_generation <= self.ownership.generation):
+                self.ownership.role = config.ACTIVE
+            self._recovery_pending = False
+            role = self.ownership.role
+        self._persist_ownership()
         if role == config.STANDBY and not self._standby_logged:
             self._standby_logged = True
             node_log(
@@ -362,7 +435,7 @@ class Gateway:
         received_at = time.time()
         record["timestamp"] = received_at if physical else message.timestamp
         record["received_at"] = received_at
-        for key in ("node_mode", "boot_id", "sample_seq", "device_monotonic_ms", "timestamp_source", "sampling", "health", "health_score", "fault_flags", "physical_read_ok", "test_injected"):
+        for key in ("node_mode", "boot_id", "sample_seq", "device_monotonic_ms", "timestamp_source", "sampling", "health", "health_score", "fault_flags", "physical_read_ok", "test_injected", "severity"):
             if key in payload:
                 record[key] = payload[key]
         fresh = self.sequences.accept(message)
@@ -395,6 +468,7 @@ class Gateway:
                         "fault_signature": payload.get("fault_signature"), "notification": payload.get("notification"),
                         "sensor_node_id": message.source,
                         "health_state": health_state,
+                        "severity": payload.get("severity"),
                         "message": "; ".join(reasons) or payload.get("message", "sensor alert"),
                     },
                 )
@@ -456,6 +530,7 @@ class Gateway:
         )
         command.payload["command_id"] = command.message_id
         command.payload["gateway_generation"] = self.ownership.generation
+        command.payload["sensor_node_id"] = message.source
         node_log(self.gateway_id, f"edge decision = {decision['type']} ({decision.get('reason')})")
         # the queue carries ``(message, is_retry)``: a retransmission must not
         # be mistaken for a new command, or it would reset its own retry budget
@@ -466,13 +541,28 @@ class Gateway:
     async def task_upload(self) -> None:
         while not self._stopping:
             message = await self.upload_queue.get()
-            await self._deliver(message)
+            try:
+                await self._deliver(message)
+            except (sqlite3.Error, OSError) as exc:
+                self.metrics.inc("outbox_storage_failures")
+                node_log(self.gateway_id, f"outbox storage failed: {exc}")
+            except QueueCapacityError as exc:
+                self.metrics.inc("outbox_admission_rejected")
+                self.outbox_alert_state = {"state":"CAPACITY_REJECTED", "message_id":message.message_id,
+                                           "priority":"HIGH" if admission_priority(message) == HIGH else "NORMAL"}
+                node_log(self.gateway_id, str(exc))
+            finally:
+                self.upload_queue.task_done()
 
     async def _deliver(self, message: Message) -> None:
         if message.type in QUEUEABLE_TYPES:
             # Always durable before transmission, even when the link is online.
             self._queue_locally(message, "awaiting server durable receipt")
-            await self._flush_offline_queue()
+            record = message.payload.get("record", {})
+            severity = message.payload.get("severity") or (record.get("severity") if isinstance(record, dict) else None)
+            if severity == "CRITICAL":
+                self.connectivity.request_critical_retry()
+            self._request_flush()
             return
         writer = self.server_writer
         if writer is not None:
@@ -489,6 +579,20 @@ class Gateway:
         self.offline_queue.enqueue(message)
         self.metrics.inc("queue_enqueued")
         node_log(self.gateway_id, f"{cause}, {message.type} queued locally (depth={self.offline_queue.count()})")
+
+    def _request_flush(self):
+        if self.server_writer is not None and (self._cloud_flush is None or self._cloud_flush.done()):
+            self._cloud_flush = asyncio.create_task(self._flush_offline_queue())
+            self._cloud_flush.add_done_callback(self._flush_finished)
+
+    def _flush_finished(self, task):
+        if task.cancelled():return
+        error = task.exception()
+        if error is not None:
+            self.metrics.inc("outbox_replay_failures")
+            node_log(self.gateway_id, f"outbox replay failed: {error}")
+            writer, self.server_writer = self.server_writer, None
+            if writer is not None:getattr(writer, "close", lambda: None)()
 
     def _handle_persisted_ack(self, message, writer) -> bool:
         ack_id = message.payload.get("ack_message_id")
@@ -523,11 +627,14 @@ class Gateway:
                         # This row is removed only after this message's committed receipt.
                         self.offline_queue.delete(queue_id)
                         self.metrics.inc("queue_replayed")
+                        self.connectivity.confirmed(backlog=self.offline_queue.count() > 0)
+                        await asyncio.sleep(self.profile["connectivity"]["replay_interval_s"])
                     except (OSError, RuntimeError, asyncio.TimeoutError):
                         if self.server_writer is writer:
                             self.server_writer = None
                         getattr(writer, "close", lambda: None)()
                         self.metrics.inc("server_receipt_failures")
+                        self.connectivity.connected(backlog=True)
                         return
                     finally:
                         self._receipt_waiters.pop(message.message_id, None)
@@ -541,17 +648,19 @@ class Gateway:
             writer = None
             try:
                 reader, writer = await asyncio.wait_for(
-                    asyncio.open_connection(self.server_host, self.server_port), timeout=3.0
+                    asyncio.open_connection(self.server_host, self.server_port), timeout=self.profile["connectivity"]["connect_timeout_s"]
                 )
             except (OSError, asyncio.TimeoutError):
-                if self.server_writer is None:
-                    node_log(self.gateway_id, "server not reachable, retrying in 2s")
-                await asyncio.sleep(2.0)
+                delay = self.connectivity.failed()
+                self.metrics.inc("cloud_connect_failures")
+                node_log(self.gateway_id, f"cloud {self.connectivity.state}; retry in {delay:g}s")
+                await self.connectivity.wait_retry(delay)
                 continue
 
             self.server_writer = writer
+            self.connectivity.connected(backlog=self.offline_queue.count() > 0)
             node_log(self.gateway_id, f"connected to server {self.server_host}:{self.server_port}")
-            flush = asyncio.create_task(self._flush_offline_queue())
+            self._request_flush()
             try:
                 if self.server_writer is writer:
                     while not self._stopping:
@@ -564,7 +673,7 @@ class Gateway:
                             await send_message(writer, message.ack(self.gateway_id))
                             try:
                                 self._apply_policy(message)
-                            except MessageError as exc:
+                            except (MessageError, OSError, sqlite3.Error) as exc:
                                 self.metrics.inc("invalid_policies")
                                 node_log(self.gateway_id,f"policy rejected: {exc}")
                         else:
@@ -574,15 +683,22 @@ class Gateway:
             finally:
                 if self.server_writer is writer:
                     self.server_writer = None
-                flush.cancel()
-                await asyncio.gather(flush, return_exceptions=True)
+                if self._cloud_flush is not None:
+                    self._cloud_flush.cancel()
+                    await asyncio.gather(self._cloud_flush, return_exceptions=True)
                 writer.close()
 
-            await asyncio.sleep(2.0)
+            delay = self.connectivity.failed()
+            await self.connectivity.wait_retry(delay)
 
     def _apply_policy(self, message: Message) -> None:
+        if message.source != "SERVER" or message.target not in (self.gateway_id, "*"):
+            raise MessageError("invalid policy route")
+        if not integer(message.payload.get("policy_version")):
+            raise MessageError("server policy requires a version")
         version = message.payload.get("policy_version", 0)
         applied, policy = self.decider.update_policy(message.payload)
+        self.connectivity.confirmed(backlog=self.offline_queue.count() > 0)
         if not applied:
             node_log(
                 self.gateway_id,
@@ -735,9 +851,12 @@ class Gateway:
                 "role": self.ownership.role,
                 "ownership": {entry.node_id: {"owner_gateway": entry.owner_gateway, "generation": entry.generation}
                               for entry in self.registry.owned_by(self.gateway_id)},
+                "connectivity": self.connectivity.state,
+                "offline_queue": self.offline_queue.stats(),
+                "outbox_alert_state": self.outbox_alert_state,
             }
 
-            if self.peer_writer is not None:
+            if self.peer_writer is not None and not self.persistence_fault:
                 message = Message(
                     type=HEARTBEAT,
                     source=self.gateway_id,
@@ -801,6 +920,8 @@ class Gateway:
         epoch and the controllers have to refuse it.  That is what turns a
         "dead gateway" into a "deposed gateway" for the rest of the system.
         """
+        if self.persistence_fault:
+            return self.ownership.generation
         node_ids = [entry.node_id for entry in self.registry.owned_by(self.peer_id)]
 
         previous = self.ownership.generation
@@ -814,6 +935,13 @@ class Gateway:
         # that had already re-registered with us while the peer was dying.
         mine = sorted(entry.node_id for entry in self.registry.owned_by(self.gateway_id))
         self.registry.transfer(mine, self.gateway_id, generation)
+        self._recovery_pending = False
+        self._persist_ownership()
+        if self.persistence_fault:
+            return generation
+        self.upload_queue.put_nowait(Message(type=ALERT,source=self.gateway_id,target="SERVER",
+            payload={"alert_type":"GATEWAY_FAILOVER","generation":generation,"message":f"takeover from {self.peer_id}",
+                     "nodes":mine}))
         for node_id, writer in list(self.connections.items()):
             if node_id in mine:
                 asyncio.create_task(self._notify_ownership(writer, node_id, generation))
@@ -903,6 +1031,8 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--peer-port", type=int, default=None)
     parser.add_argument("--engine", choices=("rule","logistic","tree","mlp"), default="rule")
     parser.add_argument("--queue-db", default=None, help="store-and-forward sqlite file")
+    parser.add_argument("--profile", choices=("simulation", "lab", "deployment"), default="simulation", help="cloud reconnect/replay profile; field transport is still host TCP")
+    parser.add_argument("--state-db", default=None, help="policy / ownership checkpoint (defaults beside outbox)")
     return parser.parse_args(argv)
 
 
@@ -917,6 +1047,8 @@ async def _run(args: argparse.Namespace) -> None:
         peer_host=args.peer_host,
         peer_port=args.peer_port,
         queue_path=args.queue_db or config.gateway_queue_path(args.id),
+        profile=args.profile,
+        state_path=args.state_db,
     )
     await gateway.start()
     try:

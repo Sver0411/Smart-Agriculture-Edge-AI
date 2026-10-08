@@ -1,6 +1,6 @@
 {
-  "release": "v0.3.1 Reliability Hardening & Protocol Correctness",
-  "date": "2026-10-04",
+  "release": "v0.3.1 + Deployment Semantics & Edge Autonomy Realignment",
+  "date": "2026-10-06",
   "new_software": {
     "SensorTrust": "host-tested; shared C reference fixture",
     "AdaptiveSense": "host-tested; software scenarios",
@@ -12,9 +12,63 @@
     "ControlTrustGate": "host-tested; action dependencies and strict learned input",
     "FaultNotifications": "host-tested; transition/reminder/recovery",
     "ElapsedClocks": "host-tested; wall-clock-jump regressions",
-    "TaskLifecycle": "host-tested; legacy cancellation race regression"
+    "TaskLifecycle": "host-tested; legacy cancellation race regression",
+    "UploadDecisionParity": "host-tested; 56 checks, including C/Python control crossings, reasons, failed admission and unrelated sensor fault",
+    "DeploymentProfiles": "host-tested; shared JSON and generated C parameters",
+    "FieldTransport": "designed; host-tested wake/send/sleep mock; E220 adapter pending",
+    "LowPowerRuntime": "firmware-implemented; opt-in light sleep compiled; no new hardware/power evidence",
+    "CloudConnectivity": "host-tested; bounded profile backoff and critical retry cooldown",
+    "LastKnownGoodPolicy": "host-tested; validate/persist/activate and corrupt-policy fallback",
+    "RestartEpochs": "host-tested; gateway/controller SQLite checkpoints; NVS pending",
+    "BoundedOfflineQueue": "host-tested; HIGH/NORMAL count+byte reserve; explicit rejection without eviction; physical disk/WAL quota pending",
+    "CloudHeartbeatMetadata": "host-tested; ownership/connectivity/outbox history",
+    "Dashboard": "designed; HTTP/frontend pending",
+    "FieldLearning": "designed; dataset/GPU/registry pending; synthetic tools are not agricultural validation",
+    "ControlRelevantUpload": "host-tested; bidirectional trusted crossings/margin, admission-aware baseline; physical C temperature parity",
+    "RecentCommandPersistence": "host-tested; bounded durable INTENT/result before simulated actuation, corruption fail closed; ESP32 NVS pending",
+    "ZoneOrientedUplink": "designed; host-tested ownership model; no E220 codec",
+    "FieldFreshness": "designed; host-tested receiver monotonic window/session/sequence model; legacy TCP wall-clock TTL unchanged"
   },
   "hardware_tested_in_this_release": false,
-  "firmware_built_in_this_release": false,
-  "device_resource_metrics": null
+  "firmware_built_in_this_release": true,
+  "device_resource_metrics": null,
+  "historical_release_verification": {
+    "release": "v0.3.1 Reliability Hardening & Protocol Correctness",
+    "date": "2026-10-04",
+    "hardware_tested_in_this_release": false,
+    "firmware_built_in_this_release": false
+  },
+  "current_local_validation": {
+    "iteration": "Final five semantic patches",
+    "python314_tests": 337,
+    "python310_tests": 337,
+    "python310_final_runner_scenarios": 20,
+    "python310_stage": "full tests before experimental observation barrier; final scenarios after barrier",
+    "internal_scenarios_passed": 20,
+    "internal_scenarios_total": 20,
+    "firmware_build_profiles": [
+      "lab",
+      "deployment+PM+tickless+light-sleep"
+    ],
+    "hardware_tested": false,
+    "external_edgefaultlab": "not rerun in this small patch",
+    "remote_ci": "not run",
+    "evidence": "results/final-five-patches/validation/summary.json",
+    "manifest": "results/final-five-patches/validation/manifest.json"
+  },
+  "previous_local_validation": {
+    "python314_tests": 298,
+    "python310_tests": 298,
+    "internal_scenarios_passed": 20,
+    "internal_scenarios_total": 20,
+    "firmware_build_profiles": [
+      "lab",
+      "deployment+light-sleep"
+    ],
+    "external_edgefaultlab": "not run; clone network failure",
+    "remote_ci": "not run",
+    "evidence": "results/deployment-realignment/validation/summary.json",
+    "manifest": "results/deployment-realignment/validation/manifest.json",
+    "historical_hardware": "results/v0.3/README.md; unchanged HW1 scope"
+  }
 }
