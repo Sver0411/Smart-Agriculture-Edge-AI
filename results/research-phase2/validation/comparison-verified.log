@@ -1,0 +1,1332 @@
+00:15:17 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/normal/reliable/server.db)
+00:15:17 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:17 [A1] connected to server 127.0.0.1:62535
+00:15:17 [A1] offline queue empty
+00:15:17 [A1] B1 registered (owner=A1, generation=1)
+00:15:17 [A1] received SENSOR_DATA from B1
+00:15:17 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:17 [SERVER] gateway A1 connected
+00:15:17 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:17 [A1] offline queue empty
+00:15:17 [A1] received SENSOR_DATA from B1
+00:15:17 [A1] sensor B1 unusable for control -> decision skipped
+00:15:17 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:17 [A1] offline queue empty
+00:15:17 [A1] received ALERT from B1
+00:15:17 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:17 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:17 [A1] offline queue empty
+00:15:18 [SERVER] gateway A1 disconnected
+normal reliable PASS COMPLETE
+00:15:18 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/normal/no-retry/server.db)
+00:15:18 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:18 [A1] connected to server 127.0.0.1:62540
+00:15:18 [A1] offline queue empty
+00:15:18 [A1] B1 registered (owner=A1, generation=1)
+00:15:18 [A1] received SENSOR_DATA from B1
+00:15:18 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:18 [SERVER] gateway A1 connected
+00:15:18 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:18 [A1] offline queue empty
+00:15:18 [A1] received SENSOR_DATA from B1
+00:15:18 [A1] sensor B1 unusable for control -> decision skipped
+00:15:18 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:18 [A1] offline queue empty
+00:15:18 [A1] received ALERT from B1
+00:15:18 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:18 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:18 [A1] offline queue empty
+00:15:18 [SERVER] gateway A1 disconnected
+normal no-retry PASS COMPLETE
+00:15:18 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/normal/fixed-retry/server.db)
+00:15:18 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:18 [A1] connected to server 127.0.0.1:62545
+00:15:18 [A1] offline queue empty
+00:15:18 [A1] B1 registered (owner=A1, generation=1)
+00:15:18 [A1] received SENSOR_DATA from B1
+00:15:18 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:18 [SERVER] gateway A1 connected
+00:15:18 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:18 [A1] offline queue empty
+00:15:18 [A1] received SENSOR_DATA from B1
+00:15:18 [A1] sensor B1 unusable for control -> decision skipped
+00:15:18 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:18 [A1] offline queue empty
+00:15:18 [A1] received ALERT from B1
+00:15:18 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:18 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:18 [A1] offline queue empty
+00:15:18 [A1] received SENSOR_DATA from B1
+00:15:18 [A1] offline queue empty
+00:15:18 [A1] received SENSOR_DATA from B1
+00:15:18 [A1] offline queue empty
+00:15:18 [A1] received ALERT from B1
+00:15:18 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:18 [A1] offline queue empty
+00:15:18 [A1] received SENSOR_DATA from B1
+00:15:18 [A1] offline queue empty
+00:15:18 [A1] received SENSOR_DATA from B1
+00:15:18 [A1] offline queue empty
+00:15:18 [A1] received ALERT from B1
+00:15:18 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:18 [A1] offline queue empty
+00:15:19 [SERVER] gateway A1 disconnected
+normal fixed-retry PASS COMPLETE
+00:15:19 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/normal/event-priority/server.db)
+00:15:19 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:19 [A1] connected to server 127.0.0.1:62551
+00:15:19 [A1] offline queue empty
+00:15:19 [A1] B1 registered (owner=A1, generation=1)
+00:15:19 [A1] received SENSOR_DATA from B1
+00:15:19 [A1] sensor B1 unusable for control -> decision skipped
+00:15:19 [SERVER] gateway A1 connected
+00:15:19 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:19 [A1] offline queue empty
+00:15:19 [A1] received ALERT from B1
+00:15:19 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:19 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:19 [A1] offline queue empty
+00:15:19 [A1] received SENSOR_DATA from B1
+00:15:19 [A1] sensor B1 unusable for control -> decision skipped
+00:15:19 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:19 [A1] offline queue empty
+00:15:19 [SERVER] gateway A1 disconnected
+normal event-priority PASS COMPLETE
+00:15:19 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/packet-loss/reliable/server.db)
+00:15:19 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:19 [A1] connected to server 127.0.0.1:62556
+00:15:19 [A1] offline queue empty
+00:15:19 [A1] B1 registered (owner=A1, generation=1)
+00:15:19 [SERVER] gateway A1 connected
+00:15:19 [A1] received SENSOR_DATA from B1
+00:15:19 [A1] sensor B1 unusable for control -> decision skipped
+00:15:19 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:19 [A1] offline queue empty
+00:15:19 [A1] received ALERT from B1
+00:15:19 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:19 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:19 [A1] offline queue empty
+00:15:19 [A1] received SENSOR_DATA from B1
+00:15:19 [A1] sensor B1 unusable for control -> decision skipped
+00:15:19 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:19 [A1] offline queue empty
+00:15:19 [SERVER] gateway A1 disconnected
+packet-loss reliable PASS COMPLETE
+00:15:19 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/packet-loss/no-retry/server.db)
+00:15:19 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:19 [A1] connected to server 127.0.0.1:62561
+00:15:19 [A1] offline queue empty
+00:15:19 [A1] B1 registered (owner=A1, generation=1)
+00:15:19 [SERVER] gateway A1 connected
+00:15:19 [A1] received SENSOR_DATA from B1
+00:15:19 [A1] sensor B1 unusable for control -> decision skipped
+00:15:19 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:19 [A1] offline queue empty
+00:15:20 [A1] received ALERT from B1
+00:15:20 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:20 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:20 [A1] offline queue empty
+00:15:20 [SERVER] gateway A1 disconnected
+packet-loss no-retry PASS INCOMPLETE
+00:15:20 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/packet-loss/fixed-retry/server.db)
+00:15:20 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:20 [A1] connected to server 127.0.0.1:62566
+00:15:20 [A1] offline queue empty
+00:15:20 [A1] B1 registered (owner=A1, generation=1)
+00:15:20 [SERVER] gateway A1 connected
+00:15:20 [A1] received SENSOR_DATA from B1
+00:15:20 [A1] sensor B1 unusable for control -> decision skipped
+00:15:20 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:20 [A1] offline queue empty
+00:15:20 [A1] received ALERT from B1
+00:15:20 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:20 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:20 [A1] offline queue empty
+00:15:20 [A1] received SENSOR_DATA from B1
+00:15:20 [A1] sensor B1 unusable for control -> decision skipped
+00:15:20 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:20 [A1] offline queue empty
+00:15:20 [A1] received SENSOR_DATA from B1
+00:15:20 [A1] offline queue empty
+00:15:20 [A1] received ALERT from B1
+00:15:20 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:20 [A1] offline queue empty
+00:15:20 [A1] received SENSOR_DATA from B1
+00:15:20 [A1] offline queue empty
+00:15:20 [A1] received ALERT from B1
+00:15:20 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:20 [A1] offline queue empty
+00:15:20 [SERVER] gateway A1 disconnected
+packet-loss fixed-retry PASS COMPLETE
+00:15:21 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/packet-loss/event-priority/server.db)
+00:15:21 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:21 [A1] connected to server 127.0.0.1:62571
+00:15:21 [A1] offline queue empty
+00:15:21 [A1] B1 registered (owner=A1, generation=1)
+00:15:21 [A1] received ALERT from B1
+00:15:21 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:21 [SERVER] gateway A1 connected
+00:15:21 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:21 [A1] offline queue empty
+00:15:21 [A1] received SENSOR_DATA from B1
+00:15:21 [A1] sensor B1 unusable for control -> decision skipped
+00:15:21 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:21 [A1] offline queue empty
+00:15:21 [A1] received SENSOR_DATA from B1
+00:15:21 [A1] sensor B1 unusable for control -> decision skipped
+00:15:21 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:21 [A1] offline queue empty
+00:15:21 [SERVER] gateway A1 disconnected
+packet-loss event-priority PASS COMPLETE
+00:15:21 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/ack-loss/reliable/server.db)
+00:15:21 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:21 [A1] connected to server 127.0.0.1:62576
+00:15:21 [A1] offline queue empty
+00:15:21 [A1] B1 registered (owner=A1, generation=1)
+00:15:21 [A1] received SENSOR_DATA from B1
+00:15:21 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:21 [SERVER] gateway A1 connected
+00:15:21 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:21 [A1] offline queue empty
+00:15:21 [A1] received SENSOR_DATA from B1
+00:15:21 [A1] sensor B1 unusable for control -> decision skipped
+00:15:21 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:21 [A1] offline queue empty
+00:15:21 [A1] received ALERT from B1
+00:15:21 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:21 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:21 [A1] offline queue empty
+00:15:21 [A1] received SENSOR_DATA from B1
+00:15:21 [A1] offline queue empty
+00:15:21 [A1] received ALERT from B1
+00:15:21 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:21 [A1] offline queue empty
+00:15:21 [A1] received SENSOR_DATA from B1
+00:15:21 [A1] offline queue empty
+00:15:21 [A1] received ALERT from B1
+00:15:21 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:21 [A1] offline queue empty
+00:15:21 [A1] received SENSOR_DATA from B1
+00:15:21 [A1] offline queue empty
+00:15:22 [A1] received ALERT from B1
+00:15:22 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:22 [A1] offline queue empty
+00:15:22 [A1] received SENSOR_DATA from B1
+00:15:22 [A1] offline queue empty
+00:15:22 [A1] received ALERT from B1
+00:15:22 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:22 [A1] offline queue empty
+00:15:22 [SERVER] gateway A1 disconnected
+ack-loss reliable PASS INCOMPLETE
+00:15:22 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/ack-loss/no-retry/server.db)
+00:15:22 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:22 [A1] connected to server 127.0.0.1:62584
+00:15:22 [A1] offline queue empty
+00:15:22 [A1] B1 registered (owner=A1, generation=1)
+00:15:22 [SERVER] gateway A1 connected
+00:15:22 [A1] received SENSOR_DATA from B1
+00:15:22 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:22 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:22 [A1] offline queue empty
+00:15:22 [A1] received SENSOR_DATA from B1
+00:15:22 [A1] sensor B1 unusable for control -> decision skipped
+00:15:22 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:22 [A1] offline queue empty
+00:15:22 [A1] received ALERT from B1
+00:15:22 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:22 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:22 [A1] offline queue empty
+00:15:22 [SERVER] gateway A1 disconnected
+ack-loss no-retry PASS INCOMPLETE
+00:15:22 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/ack-loss/fixed-retry/server.db)
+00:15:22 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:22 [A1] connected to server 127.0.0.1:62589
+00:15:22 [A1] offline queue empty
+00:15:22 [A1] B1 registered (owner=A1, generation=1)
+00:15:22 [A1] received SENSOR_DATA from B1
+00:15:22 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:22 [SERVER] gateway A1 connected
+00:15:22 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:22 [A1] offline queue empty
+00:15:22 [A1] received SENSOR_DATA from B1
+00:15:22 [A1] sensor B1 unusable for control -> decision skipped
+00:15:22 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:22 [A1] offline queue empty
+00:15:22 [A1] received ALERT from B1
+00:15:22 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:22 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:22 [A1] offline queue empty
+00:15:22 [A1] received SENSOR_DATA from B1
+00:15:22 [A1] offline queue empty
+00:15:22 [A1] received SENSOR_DATA from B1
+00:15:22 [A1] offline queue empty
+00:15:23 [A1] received ALERT from B1
+00:15:23 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:23 [A1] offline queue empty
+00:15:23 [A1] received SENSOR_DATA from B1
+00:15:23 [A1] offline queue empty
+00:15:23 [A1] received SENSOR_DATA from B1
+00:15:23 [A1] offline queue empty
+00:15:23 [A1] received ALERT from B1
+00:15:23 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:23 [A1] offline queue empty
+00:15:23 [SERVER] gateway A1 disconnected
+ack-loss fixed-retry PASS INCOMPLETE
+00:15:23 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/ack-loss/event-priority/server.db)
+00:15:23 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:23 [A1] connected to server 127.0.0.1:62594
+00:15:23 [A1] offline queue empty
+00:15:23 [A1] B1 registered (owner=A1, generation=1)
+00:15:23 [SERVER] gateway A1 connected
+00:15:23 [A1] received SENSOR_DATA from B1
+00:15:23 [A1] sensor B1 unusable for control -> decision skipped
+00:15:23 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:23 [A1] offline queue empty
+00:15:23 [A1] received ALERT from B1
+00:15:23 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:23 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:23 [A1] offline queue empty
+00:15:23 [A1] received SENSOR_DATA from B1
+00:15:23 [A1] sensor B1 unusable for control -> decision skipped
+00:15:23 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:23 [A1] offline queue empty
+00:15:23 [A1] received SENSOR_DATA from B1
+00:15:23 [A1] offline queue empty
+00:15:23 [A1] received SENSOR_DATA from B1
+00:15:23 [A1] offline queue empty
+00:15:23 [A1] received SENSOR_DATA from B1
+00:15:23 [A1] offline queue empty
+00:15:23 [A1] received SENSOR_DATA from B1
+00:15:23 [A1] offline queue empty
+00:15:24 [SERVER] gateway A1 disconnected
+ack-loss event-priority PASS INCOMPLETE
+00:15:24 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/duplication/reliable/server.db)
+00:15:24 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:24 [A1] connected to server 127.0.0.1:62599
+00:15:24 [A1] offline queue empty
+00:15:24 [A1] B1 registered (owner=A1, generation=1)
+00:15:24 [SERVER] gateway A1 connected
+00:15:24 [A1] received SENSOR_DATA from B1
+00:15:24 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:24 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:24 [A1] offline queue empty
+00:15:24 [A1] received SENSOR_DATA from B1
+00:15:24 [A1] sensor B1 unusable for control -> decision skipped
+00:15:24 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:24 [A1] offline queue empty
+00:15:24 [A1] received ALERT from B1
+00:15:24 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:24 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:24 [A1] offline queue empty
+00:15:24 [SERVER] gateway A1 disconnected
+duplication reliable PASS COMPLETE
+00:15:24 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/duplication/no-retry/server.db)
+00:15:24 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:24 [A1] connected to server 127.0.0.1:62604
+00:15:24 [A1] offline queue empty
+00:15:24 [A1] B1 registered (owner=A1, generation=1)
+00:15:24 [SERVER] gateway A1 connected
+00:15:24 [A1] received SENSOR_DATA from B1
+00:15:24 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:24 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:24 [A1] offline queue empty
+00:15:24 [A1] received SENSOR_DATA from B1
+00:15:24 [A1] sensor B1 unusable for control -> decision skipped
+00:15:24 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:24 [A1] offline queue empty
+00:15:24 [A1] received ALERT from B1
+00:15:24 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:24 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:24 [A1] offline queue empty
+00:15:24 [SERVER] gateway A1 disconnected
+duplication no-retry PASS COMPLETE
+00:15:24 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/duplication/fixed-retry/server.db)
+00:15:24 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:24 [A1] connected to server 127.0.0.1:62609
+00:15:24 [A1] offline queue empty
+00:15:24 [A1] B1 registered (owner=A1, generation=1)
+00:15:24 [SERVER] gateway A1 connected
+00:15:24 [A1] received SENSOR_DATA from B1
+00:15:24 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:24 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:24 [A1] offline queue empty
+00:15:24 [A1] received SENSOR_DATA from B1
+00:15:24 [A1] sensor B1 unusable for control -> decision skipped
+00:15:24 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:24 [A1] offline queue empty
+00:15:24 [A1] received ALERT from B1
+00:15:24 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:24 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:24 [A1] offline queue empty
+00:15:25 [A1] received SENSOR_DATA from B1
+00:15:25 [A1] offline queue empty
+00:15:25 [A1] received SENSOR_DATA from B1
+00:15:25 [A1] offline queue empty
+00:15:25 [A1] received ALERT from B1
+00:15:25 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:25 [A1] offline queue empty
+00:15:25 [A1] received SENSOR_DATA from B1
+00:15:25 [A1] offline queue empty
+00:15:25 [A1] received SENSOR_DATA from B1
+00:15:25 [A1] offline queue empty
+00:15:25 [A1] received ALERT from B1
+00:15:25 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:25 [A1] offline queue empty
+00:15:25 [SERVER] gateway A1 disconnected
+duplication fixed-retry PASS COMPLETE
+00:15:25 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/duplication/event-priority/server.db)
+00:15:25 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:25 [A1] connected to server 127.0.0.1:62615
+00:15:25 [A1] offline queue empty
+00:15:25 [A1] B1 registered (owner=A1, generation=1)
+00:15:25 [A1] received SENSOR_DATA from B1
+00:15:25 [A1] sensor B1 unusable for control -> decision skipped
+00:15:25 [SERVER] gateway A1 connected
+00:15:25 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:25 [A1] offline queue empty
+00:15:25 [A1] received ALERT from B1
+00:15:25 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:25 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:25 [A1] offline queue empty
+00:15:25 [A1] received SENSOR_DATA from B1
+00:15:25 [A1] sensor B1 unusable for control -> decision skipped
+00:15:25 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:25 [A1] offline queue empty
+00:15:25 [SERVER] gateway A1 disconnected
+duplication event-priority PASS COMPLETE
+00:15:25 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/reordering/reliable/server.db)
+00:15:25 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:25 [A1] connected to server 127.0.0.1:62621
+00:15:25 [A1] offline queue empty
+00:15:25 [A1] B1 registered (owner=A1, generation=1)
+00:15:25 [SERVER] gateway A1 connected
+00:15:25 [A1] received SENSOR_DATA from B1
+00:15:25 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:25 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:25 [A1] offline queue empty
+00:15:25 [A1] received SENSOR_DATA from B1
+00:15:25 [A1] sensor B1 unusable for control -> decision skipped
+00:15:25 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:25 [A1] offline queue empty
+00:15:25 [A1] received ALERT from B1
+00:15:25 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:25 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:25 [A1] offline queue empty
+00:15:26 [SERVER] gateway A1 disconnected
+reordering reliable PASS COMPLETE
+00:15:26 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/reordering/no-retry/server.db)
+00:15:26 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:26 [A1] connected to server 127.0.0.1:62627
+00:15:26 [A1] offline queue empty
+00:15:26 [A1] B1 registered (owner=A1, generation=1)
+00:15:26 [SERVER] gateway A1 connected
+00:15:26 [A1] received SENSOR_DATA from B1
+00:15:26 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:26 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:26 [A1] offline queue empty
+00:15:26 [A1] received SENSOR_DATA from B1
+00:15:26 [A1] sensor B1 unusable for control -> decision skipped
+00:15:26 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:26 [A1] offline queue empty
+00:15:26 [A1] received ALERT from B1
+00:15:26 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:26 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:26 [A1] offline queue empty
+00:15:26 [SERVER] gateway A1 disconnected
+reordering no-retry PASS COMPLETE
+00:15:26 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/reordering/fixed-retry/server.db)
+00:15:26 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:26 [A1] connected to server 127.0.0.1:62633
+00:15:26 [A1] offline queue empty
+00:15:26 [A1] B1 registered (owner=A1, generation=1)
+00:15:26 [A1] received SENSOR_DATA from B1
+00:15:26 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:26 [SERVER] gateway A1 connected
+00:15:26 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:26 [A1] offline queue empty
+00:15:26 [A1] received SENSOR_DATA from B1
+00:15:26 [A1] sensor B1 unusable for control -> decision skipped
+00:15:26 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:26 [A1] offline queue empty
+00:15:26 [A1] received ALERT from B1
+00:15:26 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:26 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:26 [A1] offline queue empty
+00:15:26 [A1] received SENSOR_DATA from B1
+00:15:26 [A1] offline queue empty
+00:15:26 [A1] received SENSOR_DATA from B1
+00:15:26 [A1] offline queue empty
+00:15:26 [A1] received ALERT from B1
+00:15:26 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:26 [A1] offline queue empty
+00:15:26 [A1] received SENSOR_DATA from B1
+00:15:26 [A1] offline queue empty
+00:15:26 [A1] received SENSOR_DATA from B1
+00:15:26 [A1] offline queue empty
+00:15:27 [A1] received ALERT from B1
+00:15:27 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:27 [A1] offline queue empty
+00:15:27 [SERVER] gateway A1 disconnected
+reordering fixed-retry PASS COMPLETE
+00:15:27 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/reordering/event-priority/server.db)
+00:15:27 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:27 [A1] connected to server 127.0.0.1:62645
+00:15:27 [A1] offline queue empty
+00:15:27 [A1] B1 registered (owner=A1, generation=1)
+00:15:27 [A1] received SENSOR_DATA from B1
+00:15:27 [A1] sensor B1 unusable for control -> decision skipped
+00:15:27 [SERVER] gateway A1 connected
+00:15:27 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:27 [A1] offline queue empty
+00:15:27 [A1] received ALERT from B1
+00:15:27 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:27 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:27 [A1] offline queue empty
+00:15:27 [A1] received SENSOR_DATA from B1
+00:15:27 [A1] sensor B1 unusable for control -> decision skipped
+00:15:27 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:27 [A1] offline queue empty
+00:15:27 [SERVER] gateway A1 disconnected
+reordering event-priority PASS COMPLETE
+00:15:27 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/latency/reliable/server.db)
+00:15:27 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:27 [A1] connected to server 127.0.0.1:62650
+00:15:27 [A1] offline queue empty
+00:15:27 [A1] B1 registered (owner=A1, generation=1)
+00:15:27 [A1] received SENSOR_DATA from B1
+00:15:27 [SERVER] gateway A1 connected
+00:15:27 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:27 [A1] offline queue empty
+00:15:27 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:27 [A1] received SENSOR_DATA from B1
+00:15:27 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:27 [A1] offline queue empty
+00:15:27 [A1] sensor B1 unusable for control -> decision skipped
+00:15:27 [A1] received ALERT from B1
+00:15:27 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:27 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:27 [A1] offline queue empty
+00:15:27 [SERVER] gateway A1 disconnected
+latency reliable PASS COMPLETE
+00:15:27 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/latency/no-retry/server.db)
+00:15:27 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:27 [A1] connected to server 127.0.0.1:62655
+00:15:27 [A1] offline queue empty
+00:15:27 [A1] B1 registered (owner=A1, generation=1)
+00:15:27 [A1] received SENSOR_DATA from B1
+00:15:27 [SERVER] gateway A1 connected
+00:15:27 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:27 [A1] offline queue empty
+00:15:27 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:28 [A1] received SENSOR_DATA from B1
+00:15:28 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:28 [A1] offline queue empty
+00:15:28 [A1] sensor B1 unusable for control -> decision skipped
+00:15:28 [A1] received ALERT from B1
+00:15:28 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:28 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:28 [A1] offline queue empty
+00:15:28 [SERVER] gateway A1 disconnected
+latency no-retry PASS COMPLETE
+00:15:28 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/latency/fixed-retry/server.db)
+00:15:28 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:28 [A1] connected to server 127.0.0.1:62661
+00:15:28 [A1] offline queue empty
+00:15:28 [SERVER] gateway A1 connected
+00:15:28 [A1] B1 registered (owner=A1, generation=1)
+00:15:28 [A1] received SENSOR_DATA from B1
+00:15:28 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:28 [A1] offline queue empty
+00:15:28 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:28 [A1] received SENSOR_DATA from B1
+00:15:28 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:28 [A1] offline queue empty
+00:15:28 [A1] sensor B1 unusable for control -> decision skipped
+00:15:28 [A1] received ALERT from B1
+00:15:28 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:28 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:28 [A1] offline queue empty
+00:15:28 [A1] received SENSOR_DATA from B1
+00:15:28 [A1] offline queue empty
+00:15:28 [A1] received SENSOR_DATA from B1
+00:15:28 [A1] offline queue empty
+00:15:28 [A1] received ALERT from B1
+00:15:28 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:28 [A1] offline queue empty
+00:15:28 [A1] received SENSOR_DATA from B1
+00:15:28 [A1] offline queue empty
+00:15:28 [A1] received SENSOR_DATA from B1
+00:15:28 [A1] offline queue empty
+00:15:28 [A1] received ALERT from B1
+00:15:28 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:28 [A1] offline queue empty
+00:15:29 [SERVER] gateway A1 disconnected
+latency fixed-retry PASS COMPLETE
+00:15:29 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/latency/event-priority/server.db)
+00:15:29 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:29 [A1] connected to server 127.0.0.1:62667
+00:15:29 [A1] offline queue empty
+00:15:29 [A1] B1 registered (owner=A1, generation=1)
+00:15:29 [A1] received SENSOR_DATA from B1
+00:15:29 [SERVER] gateway A1 connected
+00:15:29 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:29 [A1] offline queue empty
+00:15:29 [A1] sensor B1 unusable for control -> decision skipped
+00:15:29 [A1] received ALERT from B1
+00:15:29 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:29 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:29 [A1] offline queue empty
+00:15:29 [A1] received SENSOR_DATA from B1
+00:15:29 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:29 [A1] offline queue empty
+00:15:29 [A1] sensor B1 unusable for control -> decision skipped
+00:15:29 [SERVER] gateway A1 disconnected
+latency event-priority PASS COMPLETE
+00:15:29 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/fragment-corruption/reliable/server.db)
+00:15:29 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:29 [A1] connected to server 127.0.0.1:62672
+00:15:29 [A1] offline queue empty
+00:15:29 [A1] B1 registered (owner=A1, generation=1)
+00:15:29 [SERVER] gateway A1 connected
+00:15:29 [A1] received SENSOR_DATA from B1
+00:15:29 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:29 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:29 [A1] offline queue empty
+00:15:29 [A1] received ALERT from B1
+00:15:29 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:29 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:29 [A1] offline queue empty
+00:15:29 [A1] received SENSOR_DATA from B1
+00:15:29 [A1] offline queue empty
+00:15:29 [A1] received SENSOR_DATA from B1
+00:15:29 [A1] sensor B1 unusable for control -> decision skipped
+00:15:29 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:29 [A1] offline queue empty
+00:15:30 [SERVER] gateway A1 disconnected
+fragment-corruption reliable PASS COMPLETE
+00:15:30 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/fragment-corruption/no-retry/server.db)
+00:15:30 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:30 [A1] connected to server 127.0.0.1:62677
+00:15:30 [A1] offline queue empty
+00:15:30 [A1] B1 registered (owner=A1, generation=1)
+00:15:30 [A1] received SENSOR_DATA from B1
+00:15:30 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:30 [SERVER] gateway A1 connected
+00:15:30 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:30 [A1] offline queue empty
+00:15:30 [A1] received ALERT from B1
+00:15:30 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:30 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:30 [A1] offline queue empty
+00:15:30 [SERVER] gateway A1 disconnected
+fragment-corruption no-retry PASS INCOMPLETE
+00:15:30 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/fragment-corruption/fixed-retry/server.db)
+00:15:30 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:30 [A1] connected to server 127.0.0.1:62682
+00:15:30 [A1] offline queue empty
+00:15:30 [A1] B1 registered (owner=A1, generation=1)
+00:15:30 [A1] received SENSOR_DATA from B1
+00:15:30 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:30 [SERVER] gateway A1 connected
+00:15:30 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:30 [A1] offline queue empty
+00:15:30 [A1] received ALERT from B1
+00:15:30 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:30 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:30 [A1] offline queue empty
+00:15:30 [A1] received SENSOR_DATA from B1
+00:15:30 [A1] offline queue empty
+00:15:30 [A1] received SENSOR_DATA from B1
+00:15:30 [A1] sensor B1 unusable for control -> decision skipped
+00:15:30 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:30 [A1] offline queue empty
+00:15:30 [A1] received ALERT from B1
+00:15:30 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:30 [A1] offline queue empty
+00:15:30 [A1] received SENSOR_DATA from B1
+00:15:30 [A1] offline queue empty
+00:15:30 [A1] received SENSOR_DATA from B1
+00:15:30 [A1] offline queue empty
+00:15:31 [A1] received ALERT from B1
+00:15:31 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:31 [A1] offline queue empty
+00:15:31 [SERVER] gateway A1 disconnected
+fragment-corruption fixed-retry PASS COMPLETE
+00:15:31 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/fragment-corruption/event-priority/server.db)
+00:15:31 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:31 [A1] connected to server 127.0.0.1:62687
+00:15:31 [A1] offline queue empty
+00:15:31 [A1] B1 registered (owner=A1, generation=1)
+00:15:31 [SERVER] gateway A1 connected
+00:15:31 [A1] received SENSOR_DATA from B1
+00:15:31 [A1] sensor B1 unusable for control -> decision skipped
+00:15:31 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:31 [A1] offline queue empty
+00:15:31 [A1] received ALERT from B1
+00:15:31 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:31 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:31 [A1] offline queue empty
+00:15:31 [A1] received SENSOR_DATA from B1
+00:15:31 [A1] sensor B1 unusable for control -> decision skipped
+00:15:31 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:31 [A1] offline queue empty
+00:15:31 [A1] received SENSOR_DATA from B1
+00:15:31 [A1] offline queue empty
+00:15:31 [SERVER] gateway A1 disconnected
+fragment-corruption event-priority PASS COMPLETE
+00:15:31 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/partial-delivery/reliable/server.db)
+00:15:31 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:31 [A1] connected to server 127.0.0.1:62692
+00:15:31 [A1] offline queue empty
+00:15:31 [A1] B1 registered (owner=A1, generation=1)
+00:15:31 [A1] received ALERT from B1
+00:15:31 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:31 [SERVER] gateway A1 connected
+00:15:31 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:31 [A1] offline queue empty
+00:15:31 [A1] received SENSOR_DATA from B1
+00:15:31 [A1] sensor B1 unusable for control -> decision skipped
+00:15:31 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:31 [A1] offline queue empty
+00:15:31 [A1] received SENSOR_DATA from B1
+00:15:31 [A1] sensor B1 unusable for control -> decision skipped
+00:15:31 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:31 [A1] offline queue empty
+00:15:31 [A1] received ALERT from B1
+00:15:31 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:31 [A1] offline queue empty
+00:15:32 [A1] received SENSOR_DATA from B1
+00:15:32 [A1] offline queue empty
+00:15:32 [A1] received ALERT from B1
+00:15:32 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:32 [A1] offline queue empty
+00:15:32 [SERVER] SERVER_POLICY v1 pushed to A1
+00:15:32 [A1] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+00:15:32 [A1] edge autonomy intact: policy is advisory, control stays local
+00:15:32 [SERVER] gateway A1 disconnected
+partial-delivery reliable PASS INCOMPLETE
+00:15:32 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/partial-delivery/no-retry/server.db)
+00:15:32 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:32 [A1] connected to server 127.0.0.1:62700
+00:15:32 [A1] offline queue empty
+00:15:32 [A1] B1 registered (owner=A1, generation=1)
+00:15:32 [A1] received ALERT from B1
+00:15:32 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:32 [SERVER] gateway A1 connected
+00:15:32 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:32 [A1] offline queue empty
+00:15:33 [SERVER] gateway A1 disconnected
+partial-delivery no-retry PASS INCOMPLETE
+00:15:33 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/partial-delivery/fixed-retry/server.db)
+00:15:33 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:33 [A1] connected to server 127.0.0.1:62705
+00:15:33 [A1] offline queue empty
+00:15:33 [A1] B1 registered (owner=A1, generation=1)
+00:15:33 [A1] received ALERT from B1
+00:15:33 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:33 [SERVER] gateway A1 connected
+00:15:33 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:33 [A1] offline queue empty
+00:15:33 [A1] received SENSOR_DATA from B1
+00:15:33 [A1] sensor B1 unusable for control -> decision skipped
+00:15:33 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:33 [A1] offline queue empty
+00:15:33 [A1] received SENSOR_DATA from B1
+00:15:33 [A1] sensor B1 unusable for control -> decision skipped
+00:15:33 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:33 [A1] offline queue empty
+00:15:33 [A1] received ALERT from B1
+00:15:33 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:33 [A1] offline queue empty
+00:15:33 [A1] received SENSOR_DATA from B1
+00:15:33 [A1] offline queue empty
+00:15:33 [A1] received ALERT from B1
+00:15:33 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:33 [A1] offline queue empty
+00:15:33 [SERVER] gateway A1 disconnected
+partial-delivery fixed-retry PASS INCOMPLETE
+00:15:33 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/partial-delivery/event-priority/server.db)
+00:15:33 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:33 [A1] connected to server 127.0.0.1:62710
+00:15:33 [A1] offline queue empty
+00:15:33 [A1] B1 registered (owner=A1, generation=1)
+00:15:33 [A1] received SENSOR_DATA from B1
+00:15:33 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:33 [SERVER] gateway A1 connected
+00:15:33 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:33 [A1] offline queue empty
+00:15:34 [A1] received SENSOR_DATA from B1
+00:15:34 [A1] sensor B1 unusable for control -> decision skipped
+00:15:34 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:34 [A1] offline queue empty
+00:15:34 [A1] received SENSOR_DATA from B1
+00:15:34 [A1] offline queue empty
+00:15:34 [A1] received SENSOR_DATA from B1
+00:15:34 [A1] offline queue empty
+00:15:34 [A1] received SENSOR_DATA from B1
+00:15:34 [A1] offline queue empty
+00:15:34 [A1] received ALERT from B1
+00:15:34 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:34 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:34 [A1] offline queue empty
+00:15:34 [SERVER] gateway A1 disconnected
+partial-delivery event-priority PASS INCOMPLETE
+00:15:34 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/receiver-restart/reliable/server.db)
+00:15:34 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:34 [A1] connected to server 127.0.0.1:62716
+00:15:34 [A1] offline queue empty
+00:15:34 [A1] B1 registered (owner=A1, generation=1)
+00:15:34 [SERVER] gateway A1 connected
+00:15:34 [A1] received SENSOR_DATA from B1
+00:15:34 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:34 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:34 [A1] offline queue empty
+00:15:34 [A1] received SENSOR_DATA from B1
+00:15:34 [A1] sensor B1 unusable for control -> decision skipped
+00:15:34 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:34 [A1] offline queue empty
+00:15:34 [A1] received ALERT from B1
+00:15:34 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:34 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:34 [A1] offline queue empty
+00:15:35 [SERVER] gateway A1 disconnected
+receiver-restart reliable PASS COMPLETE
+00:15:35 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/receiver-restart/no-retry/server.db)
+00:15:35 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:35 [A1] connected to server 127.0.0.1:62721
+00:15:35 [A1] offline queue empty
+00:15:35 [A1] B1 registered (owner=A1, generation=1)
+00:15:35 [A1] received SENSOR_DATA from B1
+00:15:35 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:35 [SERVER] gateway A1 connected
+00:15:35 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:35 [A1] offline queue empty
+00:15:35 [A1] received SENSOR_DATA from B1
+00:15:35 [A1] sensor B1 unusable for control -> decision skipped
+00:15:35 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:35 [A1] offline queue empty
+00:15:35 [A1] received ALERT from B1
+00:15:35 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:35 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:35 [A1] offline queue empty
+00:15:35 [SERVER] gateway A1 disconnected
+receiver-restart no-retry PASS COMPLETE
+00:15:35 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/receiver-restart/fixed-retry/server.db)
+00:15:35 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:35 [A1] connected to server 127.0.0.1:62726
+00:15:35 [A1] offline queue empty
+00:15:35 [A1] B1 registered (owner=A1, generation=1)
+00:15:35 [A1] received SENSOR_DATA from B1
+00:15:35 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:35 [SERVER] gateway A1 connected
+00:15:35 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:35 [A1] offline queue empty
+00:15:35 [A1] received SENSOR_DATA from B1
+00:15:35 [A1] sensor B1 unusable for control -> decision skipped
+00:15:35 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:35 [A1] offline queue empty
+00:15:35 [A1] received ALERT from B1
+00:15:35 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:35 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:35 [A1] offline queue empty
+00:15:35 [A1] received SENSOR_DATA from B1
+00:15:35 [A1] offline queue empty
+00:15:35 [A1] received SENSOR_DATA from B1
+00:15:35 [A1] offline queue empty
+00:15:35 [A1] received ALERT from B1
+00:15:35 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:35 [A1] offline queue empty
+00:15:35 [A1] received SENSOR_DATA from B1
+00:15:35 [A1] offline queue empty
+00:15:35 [A1] received SENSOR_DATA from B1
+00:15:35 [A1] offline queue empty
+00:15:35 [A1] received ALERT from B1
+00:15:35 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:35 [A1] offline queue empty
+00:15:36 [SERVER] gateway A1 disconnected
+receiver-restart fixed-retry PASS COMPLETE
+00:15:36 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/receiver-restart/event-priority/server.db)
+00:15:36 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:36 [A1] connected to server 127.0.0.1:62731
+00:15:36 [A1] offline queue empty
+00:15:36 [A1] B1 registered (owner=A1, generation=1)
+00:15:36 [A1] received SENSOR_DATA from B1
+00:15:36 [A1] sensor B1 unusable for control -> decision skipped
+00:15:36 [SERVER] gateway A1 connected
+00:15:36 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:36 [A1] offline queue empty
+00:15:36 [A1] received ALERT from B1
+00:15:36 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:36 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:36 [A1] offline queue empty
+00:15:36 [A1] received SENSOR_DATA from B1
+00:15:36 [A1] sensor B1 unusable for control -> decision skipped
+00:15:36 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:36 [A1] offline queue empty
+00:15:36 [SERVER] gateway A1 disconnected
+receiver-restart event-priority PASS COMPLETE
+00:15:36 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/link-outage/reliable/server.db)
+00:15:36 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:36 [A1] connected to server 127.0.0.1:62736
+00:15:36 [A1] offline queue empty
+00:15:36 [A1] B1 registered (owner=A1, generation=1)
+00:15:36 [A1] received SENSOR_DATA from B1
+00:15:36 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:36 [SERVER] gateway A1 connected
+00:15:36 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:36 [A1] offline queue empty
+00:15:36 [A1] received SENSOR_DATA from B1
+00:15:36 [A1] sensor B1 unusable for control -> decision skipped
+00:15:36 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:36 [A1] offline queue empty
+00:15:36 [A1] received ALERT from B1
+00:15:36 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:36 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:36 [A1] offline queue empty
+00:15:37 [SERVER] gateway A1 disconnected
+link-outage reliable PASS COMPLETE
+00:15:37 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/link-outage/no-retry/server.db)
+00:15:37 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:37 [A1] connected to server 127.0.0.1:62741
+00:15:37 [A1] offline queue empty
+00:15:37 [A1] B1 registered (owner=A1, generation=1)
+link-outage no-retry PASS INCOMPLETE
+00:15:37 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/link-outage/fixed-retry/server.db)
+00:15:37 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:37 [A1] connected to server 127.0.0.1:62749
+00:15:37 [A1] offline queue empty
+00:15:37 [A1] B1 registered (owner=A1, generation=1)
+00:15:37 [A1] received SENSOR_DATA from B1
+00:15:37 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:37 [SERVER] gateway A1 connected
+00:15:37 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:37 [A1] offline queue empty
+00:15:37 [A1] received SENSOR_DATA from B1
+00:15:37 [A1] sensor B1 unusable for control -> decision skipped
+00:15:37 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:37 [A1] offline queue empty
+00:15:37 [A1] received ALERT from B1
+00:15:37 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:37 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:37 [A1] offline queue empty
+00:15:37 [A1] received SENSOR_DATA from B1
+00:15:37 [A1] offline queue empty
+00:15:37 [A1] received SENSOR_DATA from B1
+00:15:37 [A1] offline queue empty
+00:15:37 [A1] received ALERT from B1
+00:15:37 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:37 [A1] offline queue empty
+00:15:38 [SERVER] gateway A1 disconnected
+link-outage fixed-retry PASS COMPLETE
+00:15:38 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/link-outage/event-priority/server.db)
+00:15:38 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:38 [A1] connected to server 127.0.0.1:62754
+00:15:38 [A1] offline queue empty
+00:15:38 [A1] B1 registered (owner=A1, generation=1)
+00:15:38 [SERVER] gateway A1 connected
+00:15:38 [A1] received SENSOR_DATA from B1
+00:15:38 [A1] sensor B1 unusable for control -> decision skipped
+00:15:38 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:38 [A1] offline queue empty
+00:15:38 [A1] received ALERT from B1
+00:15:38 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:38 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:38 [A1] offline queue empty
+00:15:38 [A1] received SENSOR_DATA from B1
+00:15:38 [A1] sensor B1 unusable for control -> decision skipped
+00:15:38 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:38 [A1] offline queue empty
+00:15:38 [SERVER] gateway A1 disconnected
+link-outage event-priority PASS COMPLETE
+00:15:38 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/gateway-failover/reliable/server.db)
+00:15:38 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:38 [A1] connected to server 127.0.0.1:62760
+00:15:38 [A1] offline queue empty
+00:15:38 [A1] B1 registered (owner=A1, generation=1)
+00:15:38 [A1] B1 disconnected
+00:15:38 [A2] taking ownership of B1
+00:15:38 [A2] taking ownership of C1
+00:15:38 [A2] ownership generation = 1 -> 2
+00:15:38 [A2] gateway started on 127.0.0.1:0 (sensor=B2, controller=C2, peer=A1, generation=2, role=ACTIVE)
+00:15:38 [A2] awaiting server durable receipt, ALERT queued locally (depth=1)
+00:15:38 [A2] connected to server 127.0.0.1:62760
+00:15:38 [A2] B1 registered (owner=A2, generation=2)
+00:15:38 [SERVER] gateway A2 connected
+00:15:38 [SERVER] alert stored (GATEWAY_FAILOVER: takeover from A1)
+00:15:38 [A2] received SENSOR_DATA from B1
+00:15:38 [A2] sensor B1 unusable for control -> decision skipped
+00:15:38 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:38 [A2] offline queue empty
+00:15:38 [A2] received SENSOR_DATA from B1
+00:15:38 [A2] sensor B1 unusable for control -> decision skipped
+00:15:38 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:38 [A2] offline queue empty
+00:15:38 [A2] received ALERT from B1
+00:15:38 [A2] sensor B1 health = FAULT -> control decision skipped
+00:15:38 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:38 [A2] offline queue empty
+00:15:38 [SERVER] gateway A2 disconnected
+gateway-failover reliable PASS COMPLETE
+00:15:38 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/gateway-failover/no-retry/server.db)
+00:15:38 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:38 [A1] connected to server 127.0.0.1:62769
+00:15:38 [A1] offline queue empty
+00:15:38 [A1] B1 registered (owner=A1, generation=1)
+00:15:38 [SERVER] gateway A1 connected
+00:15:38 [A1] B1 disconnected
+00:15:38 [A2] taking ownership of B1
+00:15:38 [A2] taking ownership of C1
+00:15:38 [A2] ownership generation = 1 -> 2
+00:15:38 [SERVER] gateway A1 disconnected
+00:15:38 [A2] gateway started on 127.0.0.1:0 (sensor=B2, controller=C2, peer=A1, generation=2, role=ACTIVE)
+00:15:38 [A2] awaiting server durable receipt, ALERT queued locally (depth=1)
+00:15:38 [A2] connected to server 127.0.0.1:62769
+00:15:38 [A2] B1 registered (owner=A2, generation=2)
+00:15:38 [SERVER] gateway A2 connected
+00:15:38 [SERVER] alert stored (GATEWAY_FAILOVER: takeover from A1)
+00:15:38 [A2] received SENSOR_DATA from B1
+00:15:38 [A2] sensor B1 unusable for control -> decision skipped
+00:15:38 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:38 [A2] offline queue empty
+00:15:39 [A2] received SENSOR_DATA from B1
+00:15:39 [A2] sensor B1 unusable for control -> decision skipped
+00:15:39 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:39 [A2] offline queue empty
+00:15:39 [A2] received ALERT from B1
+00:15:39 [A2] sensor B1 health = FAULT -> control decision skipped
+00:15:39 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:39 [A2] offline queue empty
+00:15:39 [SERVER] gateway A2 disconnected
+gateway-failover no-retry PASS COMPLETE
+00:15:39 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/gateway-failover/fixed-retry/server.db)
+00:15:39 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:39 [A1] connected to server 127.0.0.1:62778
+00:15:39 [A1] offline queue empty
+00:15:39 [A1] B1 registered (owner=A1, generation=1)
+00:15:39 [SERVER] gateway A1 connected
+00:15:39 [A1] B1 disconnected
+00:15:39 [A2] taking ownership of B1
+00:15:39 [A2] taking ownership of C1
+00:15:39 [A2] ownership generation = 1 -> 2
+00:15:39 [SERVER] gateway A1 disconnected
+00:15:39 [A2] gateway started on 127.0.0.1:0 (sensor=B2, controller=C2, peer=A1, generation=2, role=ACTIVE)
+00:15:39 [A2] awaiting server durable receipt, ALERT queued locally (depth=1)
+00:15:39 [A2] connected to server 127.0.0.1:62778
+00:15:39 [A2] B1 registered (owner=A2, generation=2)
+00:15:39 [SERVER] gateway A2 connected
+00:15:39 [SERVER] alert stored (GATEWAY_FAILOVER: takeover from A1)
+00:15:39 [A2] received SENSOR_DATA from B1
+00:15:39 [A2] sensor B1 unusable for control -> decision skipped
+00:15:39 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:39 [A2] offline queue empty
+00:15:39 [A2] received SENSOR_DATA from B1
+00:15:39 [A2] sensor B1 unusable for control -> decision skipped
+00:15:39 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:39 [A2] offline queue empty
+00:15:39 [A2] received ALERT from B1
+00:15:39 [A2] sensor B1 health = FAULT -> control decision skipped
+00:15:39 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:39 [A2] offline queue empty
+00:15:39 [A2] received SENSOR_DATA from B1
+00:15:39 [A2] offline queue empty
+00:15:39 [A2] received SENSOR_DATA from B1
+00:15:39 [A2] offline queue empty
+00:15:39 [A2] received ALERT from B1
+00:15:39 [A2] sensor B1 health = FAULT -> control decision skipped
+00:15:39 [A2] offline queue empty
+00:15:39 [A2] received SENSOR_DATA from B1
+00:15:39 [A2] offline queue empty
+00:15:39 [A2] received SENSOR_DATA from B1
+00:15:39 [A2] offline queue empty
+00:15:39 [A2] received ALERT from B1
+00:15:39 [A2] sensor B1 health = FAULT -> control decision skipped
+00:15:39 [A2] offline queue empty
+00:15:40 [SERVER] gateway A2 disconnected
+gateway-failover fixed-retry PASS COMPLETE
+00:15:40 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/gateway-failover/event-priority/server.db)
+00:15:40 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:40 [A1] connected to server 127.0.0.1:62787
+00:15:40 [A1] offline queue empty
+00:15:40 [A1] B1 registered (owner=A1, generation=1)
+00:15:40 [SERVER] gateway A1 connected
+00:15:40 [A1] B1 disconnected
+00:15:40 [A2] taking ownership of B1
+00:15:40 [A2] taking ownership of C1
+00:15:40 [A2] ownership generation = 1 -> 2
+00:15:40 [SERVER] gateway A1 disconnected
+00:15:40 [A2] gateway started on 127.0.0.1:0 (sensor=B2, controller=C2, peer=A1, generation=2, role=ACTIVE)
+00:15:40 [A2] awaiting server durable receipt, ALERT queued locally (depth=1)
+00:15:40 [A2] connected to server 127.0.0.1:62787
+00:15:40 [A2] B1 registered (owner=A2, generation=2)
+00:15:40 [SERVER] gateway A2 connected
+00:15:40 [SERVER] alert stored (GATEWAY_FAILOVER: takeover from A1)
+00:15:40 [A2] received SENSOR_DATA from B1
+00:15:40 [A2] sensor B1 unusable for control -> decision skipped
+00:15:40 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:40 [A2] offline queue empty
+00:15:40 [A2] received ALERT from B1
+00:15:40 [A2] sensor B1 health = FAULT -> control decision skipped
+00:15:40 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:40 [A2] offline queue empty
+00:15:40 [A2] received SENSOR_DATA from B1
+00:15:40 [A2] sensor B1 unusable for control -> decision skipped
+00:15:40 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:40 [A2] offline queue empty
+00:15:40 [SERVER] gateway A2 disconnected
+gateway-failover event-priority PASS COMPLETE
+00:15:40 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/queue-saturation/reliable/server.db)
+00:15:40 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:40 [A1] connected to server 127.0.0.1:62796
+00:15:40 [A1] offline queue empty
+00:15:40 [A1] B1 registered (owner=A1, generation=1)
+00:15:40 [A1] received SENSOR_DATA from B1
+00:15:40 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:40 [SERVER] gateway A1 connected
+00:15:40 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:40 [A1] offline queue empty
+00:15:40 [A1] received SENSOR_DATA from B1
+00:15:40 [A1] sensor B1 unusable for control -> decision skipped
+00:15:40 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:40 [A1] offline queue empty
+00:15:40 [A1] received ALERT from B1
+00:15:40 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:40 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:40 [A1] offline queue empty
+00:15:40 [SERVER] gateway A1 disconnected
+queue-saturation reliable PASS COMPLETE
+00:15:40 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/queue-saturation/no-retry/server.db)
+00:15:40 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:40 [A1] connected to server 127.0.0.1:62801
+00:15:40 [A1] offline queue empty
+00:15:40 [A1] B1 registered (owner=A1, generation=1)
+00:15:40 [SERVER] gateway A1 connected
+00:15:40 [A1] received SENSOR_DATA from B1
+00:15:40 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:40 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:40 [A1] offline queue empty
+00:15:40 [SERVER] gateway A1 disconnected
+queue-saturation no-retry PASS INCOMPLETE
+00:15:40 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/queue-saturation/fixed-retry/server.db)
+00:15:40 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:40 [A1] connected to server 127.0.0.1:62806
+00:15:40 [A1] offline queue empty
+00:15:40 [A1] B1 registered (owner=A1, generation=1)
+00:15:40 [SERVER] gateway A1 connected
+00:15:40 [A1] received SENSOR_DATA from B1
+00:15:40 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:40 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:40 [A1] offline queue empty
+00:15:40 [A1] received SENSOR_DATA from B1
+00:15:40 [A1] offline queue empty
+00:15:40 [A1] received SENSOR_DATA from B1
+00:15:40 [A1] offline queue empty
+00:15:41 [SERVER] gateway A1 disconnected
+queue-saturation fixed-retry PASS INCOMPLETE
+00:15:41 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/queue-saturation/event-priority/server.db)
+00:15:41 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:41 [A1] connected to server 127.0.0.1:62811
+00:15:41 [A1] offline queue empty
+00:15:41 [A1] B1 registered (owner=A1, generation=1)
+00:15:41 [A1] received SENSOR_DATA from B1
+00:15:41 [A1] sensor B1 unusable for control -> decision skipped
+00:15:41 [SERVER] gateway A1 connected
+00:15:41 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:41 [A1] offline queue empty
+00:15:41 [A1] received ALERT from B1
+00:15:41 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:41 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:41 [A1] offline queue empty
+00:15:41 [A1] received SENSOR_DATA from B1
+00:15:41 [A1] sensor B1 unusable for control -> decision skipped
+00:15:41 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:41 [A1] offline queue empty
+00:15:41 [SERVER] gateway A1 disconnected
+queue-saturation event-priority PASS COMPLETE
+00:15:41 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/old-generation/reliable/server.db)
+00:15:41 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:41 [A1] connected to server 127.0.0.1:62816
+00:15:41 [A1] offline queue empty
+00:15:41 [A1] B1 registered (owner=A1, generation=1)
+00:15:41 [A1] received SENSOR_DATA from B1
+00:15:41 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:41 [SERVER] gateway A1 connected
+00:15:41 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:41 [A1] offline queue empty
+00:15:41 [A1] received SENSOR_DATA from B1
+00:15:41 [A1] sensor B1 unusable for control -> decision skipped
+00:15:41 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:41 [A1] offline queue empty
+00:15:41 [A1] received ALERT from B1
+00:15:41 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:41 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:41 [A1] offline queue empty
+00:15:41 [SERVER] gateway A1 disconnected
+old-generation reliable PASS COMPLETE
+00:15:41 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/old-generation/no-retry/server.db)
+00:15:41 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:41 [A1] connected to server 127.0.0.1:62821
+00:15:41 [A1] offline queue empty
+00:15:41 [A1] B1 registered (owner=A1, generation=1)
+00:15:41 [SERVER] gateway A1 connected
+00:15:41 [A1] received SENSOR_DATA from B1
+00:15:41 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:41 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:41 [A1] offline queue empty
+00:15:41 [A1] received SENSOR_DATA from B1
+00:15:41 [A1] sensor B1 unusable for control -> decision skipped
+00:15:41 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:41 [A1] offline queue empty
+00:15:41 [A1] received ALERT from B1
+00:15:41 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:41 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:41 [A1] offline queue empty
+00:15:41 [SERVER] gateway A1 disconnected
+old-generation no-retry PASS COMPLETE
+00:15:41 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/old-generation/fixed-retry/server.db)
+00:15:41 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:41 [A1] connected to server 127.0.0.1:62826
+00:15:41 [A1] offline queue empty
+00:15:41 [A1] B1 registered (owner=A1, generation=1)
+00:15:41 [SERVER] gateway A1 connected
+00:15:41 [A1] received SENSOR_DATA from B1
+00:15:41 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:41 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:41 [A1] offline queue empty
+00:15:42 [A1] received SENSOR_DATA from B1
+00:15:42 [A1] sensor B1 unusable for control -> decision skipped
+00:15:42 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:42 [A1] offline queue empty
+00:15:42 [A1] received ALERT from B1
+00:15:42 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:42 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:42 [A1] offline queue empty
+00:15:42 [A1] received SENSOR_DATA from B1
+00:15:42 [A1] offline queue empty
+00:15:42 [A1] received SENSOR_DATA from B1
+00:15:42 [A1] offline queue empty
+00:15:42 [A1] received ALERT from B1
+00:15:42 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:42 [A1] offline queue empty
+00:15:42 [A1] received SENSOR_DATA from B1
+00:15:42 [A1] offline queue empty
+00:15:42 [A1] received SENSOR_DATA from B1
+00:15:42 [A1] offline queue empty
+00:15:42 [A1] received ALERT from B1
+00:15:42 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:42 [A1] offline queue empty
+00:15:42 [SERVER] gateway A1 disconnected
+old-generation fixed-retry PASS COMPLETE
+00:15:42 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/old-generation/event-priority/server.db)
+00:15:42 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:42 [A1] connected to server 127.0.0.1:62835
+00:15:42 [A1] offline queue empty
+00:15:42 [A1] B1 registered (owner=A1, generation=1)
+00:15:42 [SERVER] gateway A1 connected
+00:15:42 [A1] received SENSOR_DATA from B1
+00:15:42 [A1] sensor B1 unusable for control -> decision skipped
+00:15:42 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:42 [A1] offline queue empty
+00:15:42 [A1] received ALERT from B1
+00:15:42 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:42 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:42 [A1] offline queue empty
+00:15:42 [A1] received SENSOR_DATA from B1
+00:15:42 [A1] sensor B1 unusable for control -> decision skipped
+00:15:42 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:42 [A1] offline queue empty
+00:15:43 [SERVER] gateway A1 disconnected
+old-generation event-priority PASS COMPLETE
+00:15:43 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/session-mismatch/reliable/server.db)
+00:15:43 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:43 [A1] connected to server 127.0.0.1:62840
+00:15:43 [A1] offline queue empty
+00:15:43 [A1] B1 registered (owner=A1, generation=1)
+00:15:43 [A1] received SENSOR_DATA from B1
+00:15:43 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:43 [SERVER] gateway A1 connected
+00:15:43 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:43 [A1] offline queue empty
+00:15:43 [A1] received SENSOR_DATA from B1
+00:15:43 [A1] sensor B1 unusable for control -> decision skipped
+00:15:43 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:43 [A1] offline queue empty
+00:15:43 [A1] received ALERT from B1
+00:15:43 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:43 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:43 [A1] offline queue empty
+00:15:43 [SERVER] gateway A1 disconnected
+session-mismatch reliable PASS COMPLETE
+00:15:43 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/session-mismatch/no-retry/server.db)
+00:15:43 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:43 [A1] connected to server 127.0.0.1:62845
+00:15:43 [A1] offline queue empty
+00:15:43 [A1] B1 registered (owner=A1, generation=1)
+00:15:43 [A1] received SENSOR_DATA from B1
+00:15:43 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:43 [SERVER] gateway A1 connected
+00:15:43 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:43 [A1] offline queue empty
+00:15:43 [A1] received SENSOR_DATA from B1
+00:15:43 [A1] sensor B1 unusable for control -> decision skipped
+00:15:43 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:43 [A1] offline queue empty
+00:15:43 [A1] received ALERT from B1
+00:15:43 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:43 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:43 [A1] offline queue empty
+00:15:43 [SERVER] gateway A1 disconnected
+session-mismatch no-retry PASS COMPLETE
+00:15:43 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/session-mismatch/fixed-retry/server.db)
+00:15:43 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:43 [A1] connected to server 127.0.0.1:62851
+00:15:43 [A1] offline queue empty
+00:15:43 [A1] B1 registered (owner=A1, generation=1)
+00:15:43 [A1] received SENSOR_DATA from B1
+00:15:43 [A1] edge decision = NONE (soil=None%, temp=25C)
+00:15:43 [SERVER] gateway A1 connected
+00:15:43 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:43 [A1] offline queue empty
+00:15:43 [A1] received SENSOR_DATA from B1
+00:15:43 [A1] sensor B1 unusable for control -> decision skipped
+00:15:43 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:43 [A1] offline queue empty
+00:15:43 [A1] received ALERT from B1
+00:15:43 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:43 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:43 [A1] offline queue empty
+00:15:43 [A1] received SENSOR_DATA from B1
+00:15:43 [A1] offline queue empty
+00:15:43 [A1] received SENSOR_DATA from B1
+00:15:43 [A1] offline queue empty
+00:15:44 [A1] received ALERT from B1
+00:15:44 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:44 [A1] offline queue empty
+00:15:44 [A1] received SENSOR_DATA from B1
+00:15:44 [A1] offline queue empty
+00:15:44 [A1] received SENSOR_DATA from B1
+00:15:44 [A1] offline queue empty
+00:15:44 [A1] received ALERT from B1
+00:15:44 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:44 [A1] offline queue empty
+00:15:44 [SERVER] gateway A1 disconnected
+session-mismatch fixed-retry PASS COMPLETE
+00:15:44 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-verified/session-mismatch/event-priority/server.db)
+00:15:44 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+00:15:44 [A1] connected to server 127.0.0.1:62856
+00:15:44 [A1] offline queue empty
+00:15:44 [A1] B1 registered (owner=A1, generation=1)
+00:15:44 [SERVER] gateway A1 connected
+00:15:44 [A1] received SENSOR_DATA from B1
+00:15:44 [A1] sensor B1 unusable for control -> decision skipped
+00:15:44 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+00:15:44 [A1] offline queue empty
+00:15:44 [A1] received ALERT from B1
+00:15:44 [A1] sensor B1 health = FAULT -> control decision skipped
+00:15:44 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+00:15:44 [A1] offline queue empty
+00:15:44 [A1] received SENSOR_DATA from B1
+00:15:44 [A1] sensor B1 unusable for control -> decision skipped
+00:15:44 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+00:15:44 [A1] offline queue empty
+00:15:44 [SERVER] gateway A1 disconnected
+session-mismatch event-priority PASS COMPLETE

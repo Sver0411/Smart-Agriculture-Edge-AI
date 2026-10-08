@@ -1,0 +1,33 @@
+{
+  "seed": 42,
+  "driver": "actual C SensorTrust/AdaptiveSense/B1 policy",
+  "cases": [
+    "continuity-healthy",
+    "continuity-event",
+    "continuity-range",
+    "continuity-missing",
+    "continuity-stuck",
+    "continuity-drift",
+    "continuity-spike",
+    "unknown-time",
+    "sequence",
+    "epoch",
+    "truncated",
+    "bit-corruption",
+    "version",
+    "profile",
+    "state-capacity",
+    "clock-overflow",
+    "lease",
+    "counter-max",
+    "config-null"
+  ],
+  "sample_interval_ms": 1000,
+  "snapshot_schema": 1,
+  "units": {
+    "time": "logical algorithm ms",
+    "bytes": "serialized snapshot bytes"
+  },
+  "hardware_RTC": false,
+  "measured_power": false
+}

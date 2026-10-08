@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "case": "stable-sleep",
+  "assertions": [
+    {
+      "description": "trusted elapsed restore avoids upload and synthetic onset in stable real C policy",
+      "passed": true
+    }
+  ],
+  "metrics": {}
+}

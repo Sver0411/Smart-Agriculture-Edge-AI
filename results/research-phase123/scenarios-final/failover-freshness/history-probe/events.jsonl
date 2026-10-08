@@ -1,0 +1,7 @@
+{"event": "frame_send", "source": "A2", "destination": "C1", "logical_message_id": "8d30753b20b1", "bytes": 160, "index_in_attempt": 0, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A2", "destination": "C1", "logical_message_id": "8d30753b20b1", "bytes": 160, "index_in_attempt": 1, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A2", "destination": "C1", "logical_message_id": "8d30753b20b1", "bytes": 160, "index_in_attempt": 2, "outcome": "FRAME_ACCEPTED"}
+{"event": "frame_send", "source": "A2", "destination": "C1", "logical_message_id": "8d30753b20b1", "bytes": 115, "index_in_attempt": 3, "outcome": "MESSAGE_REASSEMBLED"}
+{"event": "HISTORICAL_SKIPPED", "message_id": "B1-host-old-00000002-S"}
+{"event": "FRESH_EXECUTED", "result": {"command_id": "8d30753b20b1", "command_type": "VENTILATION", "duration": 5, "generation": 2, "status": "EXECUTED"}}
+{"event": "STALE_REJECTED", "result": {"command_id": "old-probe", "command_type": "VENTILATION", "generation": 1, "status": "REJECTED", "reason": "STALE_GENERATION"}}

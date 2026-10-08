@@ -1,6 +1,7 @@
 #include "b1.h"
 #include "b1_transport.h"
 #include "b1_retry.h"
+#include "b1_registration.h"
 #include "sdkconfig.h"
 #include "cJSON.h"
 #include "esp_event.h"
@@ -19,9 +20,10 @@
 
 #define WIFI_CONNECTED BIT0
 static EventGroupHandle_t wifi_group;
-static uint32_t highest_generation = 1;
-static char owner[3] = "A1";
-static bool has_owner;
+static b1_registration_t registration = {.generation=1, .owner="A1"};
+#define highest_generation registration.generation
+#define owner registration.owner
+#define has_owner registration.confirmed
 static b1_link_retry_t link_retry;
 
 static uint64_t uptime_ms(void) { return (uint64_t)(esp_timer_get_time() / 1000); }
@@ -139,59 +141,42 @@ static int receive_line(int fd, rx_buffer_t *rx, int wait_ms)
 
 static bool accept_ownership(cJSON *message, const char *gateway)
 {
-    cJSON *payload = cJSON_GetObjectItemCaseSensitive(message, "payload");
-    cJSON *generation = cJSON_GetObjectItemCaseSensitive(payload, "generation");
-    cJSON *new_owner = cJSON_GetObjectItemCaseSensitive(payload, "owner_gateway");
-    if (!cJSON_IsNumber(generation) || !isfinite(generation->valuedouble) ||
-        generation->valuedouble < 1 || generation->valuedouble > UINT32_MAX ||
-        floor(generation->valuedouble) != generation->valuedouble || !cJSON_IsString(new_owner) ||
-        strcmp(new_owner->valuestring, gateway) != 0) return false;
-    if (generation->valuedouble < highest_generation) {
-        printf("B1_NET {\"event\":\"STALE_GENERATION\",\"gateway\":\"%s\",\"generation\":%d,\"current\":%lu}\n",
-               gateway, generation->valueint, (unsigned long)highest_generation);
-        return false;
-    }
-    if (has_owner && generation->valuedouble == highest_generation && strcmp(owner, gateway) != 0) return false;
-    highest_generation = (uint32_t)generation->valuedouble;
-    strlcpy(owner, gateway, sizeof(owner));
-    has_owner = true;
-    printf("B1_NET {\"event\":\"REGISTERED\",\"gateway\":\"%s\",\"generation\":%lu,\"monotonic_ms\":%llu}\n",
-           owner, (unsigned long)highest_generation, (unsigned long long)uptime_ms());
-    return true;
+    /* NODE_STATUS uses the same portable ownership validator. */
+    cJSON *copy=cJSON_Duplicate(message,true);
+    if (!copy) return false;
+    cJSON_ReplaceItemInObject(copy,"type",cJSON_CreateString("NODE_REGISTER_ACK"));
+    cJSON *body=cJSON_GetObjectItemCaseSensitive(copy,"payload");
+    cJSON_AddTrueToObject(body,"accepted");
+    bool ok=b1_registration_reply(&registration,copy,gateway)==B1_REG_ACCEPTED;
+    cJSON_Delete(copy);
+    return ok;
 }
 
-static bool register_node(int fd, const char *gateway, rx_buffer_t *rx)
+static b1_registration_result_t register_node(int fd, const char *gateway, rx_buffer_t *rx)
 {
-    for (int attempt = 0; attempt < 4; ++attempt) {
-        cJSON *payload = cJSON_CreateObject();
-        cJSON_AddStringToObject(payload, "node_id", "B1");
-        cJSON_AddStringToObject(payload, "node_type", "SENSOR");
-        cJSON_AddStringToObject(payload, "node_mode", "physical");
-        cJSON_AddStringToObject(payload, "boot_id", b1_boot_id);
-        cJSON_AddNumberToObject(payload, "generation", highest_generation);
-        b1_stats.registration_attempts++;
-        if (!send_json(fd, b1_envelope("NODE_REGISTER", gateway, payload, uptime_ms() / 1000.0))) return false;
-        uint64_t deadline = uptime_ms() + 2000;
-        while (uptime_ms() < deadline) {
-            int result = receive_line(fd, rx, 100);
-            if (result < 0) return false;
-            if (result == 0) continue;
-            cJSON *reply = cJSON_Parse(rx->line);
-            cJSON *type = cJSON_GetObjectItemCaseSensitive(reply, "type");
-            cJSON *source = cJSON_GetObjectItemCaseSensitive(reply, "source");
-            cJSON *target = cJSON_GetObjectItemCaseSensitive(reply, "target");
-            cJSON *body = cJSON_GetObjectItemCaseSensitive(reply, "payload");
-            cJSON *accepted = cJSON_GetObjectItemCaseSensitive(body, "accepted");
-            bool ack = cJSON_IsString(type) && strcmp(type->valuestring, "NODE_REGISTER_ACK") == 0 &&
-                cJSON_IsString(source) && strcmp(source->valuestring, gateway) == 0 &&
-                cJSON_IsString(target) && strcmp(target->valuestring, "B1") == 0 && cJSON_IsTrue(accepted);
-            bool valid = ack && accept_ownership(reply, gateway);
-            cJSON_Delete(reply);
-            if (valid) { b1_stats.registration_success++; return true; }
-            if (ack) return false;
-        }
+    cJSON *payload=cJSON_CreateObject();
+    cJSON_AddStringToObject(payload,"node_id","B1");
+    cJSON_AddStringToObject(payload,"node_type","SENSOR");
+    cJSON_AddStringToObject(payload,"node_mode","physical");
+    cJSON_AddStringToObject(payload,"boot_id",b1_boot_id);
+    cJSON_AddNumberToObject(payload,"generation",highest_generation);
+    b1_stats.registration_attempts++;
+    if (!send_json(fd,b1_envelope("NODE_REGISTER",gateway,payload,uptime_ms()/1000.0)))
+        return B1_REG_TRANSPORT_FAILURE;
+    uint64_t deadline=uptime_ms()+2000;
+    while (uptime_ms()<deadline) {
+        int rc=receive_line(fd,rx,100);
+        if (rc<0) return B1_REG_TRANSPORT_FAILURE;
+        if (!rc) continue;
+        cJSON *reply=cJSON_Parse(rx->line);
+        b1_registration_result_t result=b1_registration_reply(&registration,reply,gateway);
+        cJSON_Delete(reply);
+        printf("B1_NET {\"event\":\"REGISTER_RESULT\",\"result\":%d,\"gateway\":\"%s\",\"generation\":%lu}\n",
+               result,gateway,(unsigned long)highest_generation);
+        if (result==B1_REG_ACCEPTED) b1_stats.registration_success++;
+        return result;
     }
-    return false;
+    return B1_REG_TIMEOUT;
 }
 
 static bool send_record(int fd, const b1_record_t *r)
@@ -259,20 +244,22 @@ void b1_network_task(void *arg)
                 b1_link_failed(&link_retry,uptime_ms());continue;
             }
         }
-        char candidate[3];
-        strlcpy(candidate, owner, sizeof(candidate));
-        int fd = connect_gateway(candidate);
-        if (fd < 0) {
-            strlcpy(candidate, strcmp(owner, "A1") == 0 ? "A2" : "A1", sizeof(candidate));
-            fd = connect_gateway(candidate);
+        char candidate[3], preferred[3];
+        memcpy(preferred,owner,3);
+        int fd=-1;
+        rx_buffer_t rx={0};
+        /* Each candidate is tried at most once per bounded connection round.
+         * Successful TCP connect does not imply accepted registration. */
+        for (int attempt=0;attempt<2;++attempt) {
+            const char *name=attempt==0 ? preferred : (!strcmp(preferred,"A1") ? "A2" : "A1");
+            memcpy(candidate,name,3);
+            fd=connect_gateway(candidate);
+            if (fd<0) continue;
+            memset(&rx,0,sizeof(rx));
+            if (register_node(fd,candidate,&rx)==B1_REG_ACCEPTED) break;
+            close(fd);fd=-1;
         }
-        if (fd < 0) { b1_link_failed(&link_retry,uptime_ms());continue; }
-        rx_buffer_t rx = {0};
-        if (!register_node(fd, candidate, &rx)) {
-            close(fd);
-            b1_link_failed(&link_retry,uptime_ms());
-            continue;
-        }
+        if (fd<0) { b1_link_failed(&link_retry,uptime_ms());continue; }
         if (strcmp(candidate, "A2") == 0) b1_stats.gateway_failovers++;
         bool connected = true;
         while (connected && (xEventGroupGetBits(wifi_group) & WIFI_CONNECTED)) {

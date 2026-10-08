@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "assertions": [
+    {
+      "assertion": "old session rejected before business admission",
+      "passed": true
+    },
+    {
+      "assertion": "only original logical identities admitted",
+      "passed": true
+    },
+    {
+      "assertion": "receipt identities unique",
+      "passed": true
+    },
+    {
+      "assertion": "unknown/failed delivery has no fabricated ACK",
+      "passed": true
+    }
+  ],
+  "delivery_status": "COMPLETE",
+  "case": "session-mismatch",
+  "scheme": "event-priority"
+}

@@ -1,0 +1,45 @@
+.....................................................................Timeout (0:01:30)!
+Thread 0x00000001fcad62c0 (most recent call first):
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/selectors.py", line 562 in select
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py", line 1871 in _run_once
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py", line 603 in run_forever
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/base_events.py", line 636 in run_until_complete
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/asyncio/runners.py", line 44 in run
+  File "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/tests/test_control_specific_trust.py", line 46 in test_legacy_physical_channel_health_without_valid_flag_can_ventilate
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/python.py", line 167 in pytest_pyfunc_call
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/python.py", line 1707 in runtest
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/runner.py", line 184 in pytest_runtest_call
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/runner.py", line 250 in <lambda>
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/runner.py", line 361 in from_call
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/runner.py", line 249 in call_and_report
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/runner.py", line 139 in runtestprotocol
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/main.py", line 408 in pytest_runtestloop
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/main.py", line 384 in _main
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/main.py", line 330 in wrap_session
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/main.py", line 377 in pytest_cmdline_main
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/config/__init__.py", line 229 in _main
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/_pytest/config/__init__.py", line 253 in _console_main
+  File "/tmp/agri-phase123-py310/lib/python3.10/site-packages/pytest/__main__.py", line 9 in <module>
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/runpy.py", line 86 in _run_code
+  File "/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/runpy.py", line 196 in _run_module_as_main
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/Users/mac/.local/share/uv/python/cpython-3.10-macos-aarch64-none/lib/python3.10/selectors.py:562: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+69 passed in 153.83s (0:02:33)

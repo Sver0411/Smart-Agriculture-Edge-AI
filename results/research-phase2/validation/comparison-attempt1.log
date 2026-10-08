@@ -1,0 +1,44 @@
+21:56:38 [SERVER] listening on 127.0.0.1:0 (sqlite: results/research-phase2/comparison-attempt1/normal/reliable/server.db)
+21:56:38 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+21:56:38 [A1] connected to server 127.0.0.1:60294
+21:56:38 [A1] offline queue empty
+21:56:38 [A1] B1 registered (owner=A1, generation=1)
+21:56:38 [A1] received SENSOR_DATA from B1
+21:56:38 [A1] edge decision = NONE (soil=None%, temp=25C)
+21:56:38 [SERVER] gateway A1 connected
+21:56:38 [SERVER] sensor data stored (B1 soil=None% temp=25C)
+21:56:38 [A1] offline queue empty
+21:56:38 [A1] received SENSOR_DATA from B1
+21:56:38 [A1] sensor B1 unusable for control -> decision skipped
+21:56:38 [SERVER] sensor data stored (B1 soil=None% temp=150C)
+21:56:38 [A1] offline queue empty
+21:56:38 [A1] received ALERT from B1
+21:56:38 [A1] sensor B1 health = FAULT -> control decision skipped
+21:56:38 [SERVER] alert stored (SENSOR_FAULT: sensor health anomaly)
+21:56:38 [A1] offline queue empty
+21:56:38 [SERVER] gateway A1 disconnected
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/experiments/lora_harness.py", line 149, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/experiments/lora_harness.py", line 148, in main
+    raise SystemExit(asyncio.run(run_all(a.output,a.seed)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/experiments/lora_harness.py", line 135, in run_all
+    result=await run_case(case,scheme,seed,output/case/scheme,wire)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/experiments/lora_harness.py", line 106, in run_case
+    ids={row['identity'] for row in rows}
+         ~~~^^^^^^^^^^^^
+TypeError: tuple indices must be integers or slices, not str

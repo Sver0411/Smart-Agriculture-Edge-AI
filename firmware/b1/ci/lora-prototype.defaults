@@ -1,0 +1,6 @@
+CONFIG_B1_LAB_MODE=y
+CONFIG_B1_USE_E220=y
+# Illustrative PUBLIC readback only; commissioning must replace it and verify
+# transparent mode / RSSI disabled / module variant. No claim of factory values.
+CONFIG_B1_E220_EXPECTED_REGISTERS="0000620012000000"
+CONFIG_B1_E220_FRAME_MTU=160

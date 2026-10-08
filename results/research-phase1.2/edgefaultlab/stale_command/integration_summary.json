@@ -1,0 +1,23 @@
+{
+  "assertions": [
+    {
+      "description": "no aged command was executed",
+      "detail": "no message matching [payload.status='EXECUTED', type='CONTROL_RESULT'] was ever delivered",
+      "passed": true
+    },
+    {
+      "description": "the controller refused the aged command",
+      "detail": "observed 19 message(s) matching [payload.status='REJECTED', type='CONTROL_RESULT']",
+      "passed": true
+    },
+    {
+      "description": "the refusal was clean, not a safety violation",
+      "detail": "no message matching [payload.reason='UNSAFE_EXECUTION', type='CONTROL_RESULT'] was ever delivered",
+      "passed": true
+    }
+  ],
+  "exit_code": 0,
+  "external_revision": "c7248239f456cc877114ca1e67c5949fb4a7b958",
+  "scenario": "stale_command",
+  "status": "PASS"
+}

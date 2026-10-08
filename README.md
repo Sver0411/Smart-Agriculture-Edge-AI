@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-The first research phase on the `research` branch adds a bounded B1 buffer for critical data, stable message identities, and durable acknowledgements from the gateway. Its software evidence and hardware verification boundaries are documented in the [development report](docs/research/PHASE1_DEVELOPMENT_REPORT.md).
+The `research` branch now includes hardened gateway registration and freshness checks, a bounded LoRa protocol with a B1 E220 UART adapter, and an opt-in Deep Sleep snapshot path. See the [integration report](docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md) for reproducible software evidence and hardware items still awaiting measurement.
 
 **Reliability Hardening & Protocol Correctness**
 

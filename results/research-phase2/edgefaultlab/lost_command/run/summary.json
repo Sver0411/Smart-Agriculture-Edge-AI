@@ -1,0 +1,110 @@
+{
+  "run_id": "20261009-002020-9031c3",
+  "scenario": "smart agriculture - lost command",
+  "seed": 42,
+  "duration": 12.0,
+  "observed_duration": 12.017451,
+  "messages_received": 1073,
+  "messages_forwarded": 1072,
+  "messages_dropped": 1,
+  "messages_delayed": 0,
+  "messages_duplicated": 0,
+  "messages_reordered": 0,
+  "messages_mutated": 0,
+  "malformed_messages": 0,
+  "messages_too_large": 0,
+  "connections_opened": 9,
+  "connections_closed": 14,
+  "faults_activated": 1,
+  "faults_completed": 1,
+  "process_kills": 0,
+  "process_restarts": 0,
+  "assertions_passed": 3,
+  "assertions_failed": 0,
+  "recovery_time": 0.263998,
+  "recovery": [
+    {
+      "fault": "drop-first-command",
+      "action": "drop",
+      "disruption_event": "MESSAGE_DROPPED",
+      "disrupted_at": 0.530786,
+      "recovered_at": 0.794784,
+      "recovery_time": 0.263998,
+      "recovered_by": "the command is executed after the ACK timeout and retry"
+    }
+  ],
+  "assertions": [
+    {
+      "assert": "eventually",
+      "description": "the command is executed after the ACK timeout and retry",
+      "result": "PASS",
+      "detail": "matched [payload.status='EXECUTED', type='CONTROL_RESULT'] at 0.795s (window 0.000s..8.000s)"
+    },
+    {
+      "assert": "unique",
+      "description": "the retry executed the command exactly once",
+      "result": "PASS",
+      "detail": "18 distinct payload.command_id value(s) in 18 matching message(s)"
+    },
+    {
+      "assert": "message_count",
+      "description": "at least one command was sent",
+      "result": "PASS",
+      "detail": "observed 18 message(s) matching [type='CONTROL_COMMAND']"
+    }
+  ],
+  "processes": [
+    {
+      "process": "server",
+      "pid": 75544,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "gateway_a1",
+      "pid": 75545,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "gateway_a2",
+      "pid": 75546,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "sensor_b1",
+      "pid": 75547,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "controller_c1",
+      "pid": 75548,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "sensor_b2",
+      "pid": 75549,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    },
+    {
+      "process": "controller_c2",
+      "pid": 75550,
+      "running": false,
+      "restarts": 0,
+      "exit_code": -15
+    }
+  ],
+  "failures": [],
+  "result": "PASS",
+  "exit_code": 0
+}

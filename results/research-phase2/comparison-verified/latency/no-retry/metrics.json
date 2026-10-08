@@ -1,0 +1,45 @@
+{
+  "logical_attempts": 6,
+  "fragments_sent": 35,
+  "simulated_frame_bytes": 5462,
+  "reassembled": 6,
+  "duplicates": 0,
+  "rejected": 0,
+  "dropped": 0,
+  "logical_messages": 3,
+  "application_send_attempts": 3,
+  "gateway_durable_messages": 3,
+  "B_confirmed_messages": 3,
+  "effective_delivery_ratio": 1.0,
+  "confirmed_delivery_ratio": 1.0,
+  "host_elapsed_s": 0.3524866249936167,
+  "server_samples": 2,
+  "server_alerts": 1,
+  "failure_reasons": [],
+  "gateway_queues": {
+    "sensor": {
+      "depth": 0,
+      "capacity": 128,
+      "high_water": 1,
+      "max_wait_ms": 0.02341600338695571
+    },
+    "command": {
+      "depth": 0,
+      "capacity": 128,
+      "high_water": 0,
+      "max_wait_ms": 0.0
+    },
+    "result": {
+      "depth": 0,
+      "capacity": 128,
+      "high_water": 0,
+      "max_wait_ms": 0.0
+    },
+    "upload": {
+      "depth": 0,
+      "capacity": 128,
+      "high_water": 1,
+      "max_wait_ms": 0.10620799730531871
+    }
+  }
+}

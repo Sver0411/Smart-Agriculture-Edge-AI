@@ -1,0 +1,1 @@
+{"seed":42,"case":"event-loss-ack","kind":"host bridge driver error","observed":"restored C outbox correctly rejects ACK before total_attempts>0","fix":"bridge now marks the restored record as attempted before applying the actual gateway durable ACK","physical_hardware":false,"original_source":"bridge-before-ack-attempt.c","log":"integration-attempt1.log"}

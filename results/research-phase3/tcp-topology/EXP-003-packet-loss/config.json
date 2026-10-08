@@ -1,0 +1,268 @@
+{
+  "controller": {
+    "recent_command_capacity": 64
+  },
+  "experiment": {
+    "duration_s": 4,
+    "heartbeat_interval_s": 0.1,
+    "heartbeat_timeout_s": 0.6,
+    "sample_interval_s": 0.2,
+    "seed": 42
+  },
+  "field_transport": {
+    "lora": {},
+    "mode": "tcp",
+    "physical_RF": false
+  },
+  "node": {
+    "adaptive": {
+      "active_threshold": 6,
+      "analyzer": {
+        "baseline_tau_s": 120,
+        "roc_window_s": 40,
+        "variety_window_s": 120
+      },
+      "channels": {
+        "humidity": {
+          "noise_floor": 2,
+          "use": true
+        },
+        "light": {
+          "noise_floor": 100,
+          "use": true
+        },
+        "soil_moisture": {
+          "noise_floor": 1,
+          "use": true
+        },
+        "temperature": {
+          "noise_floor": 0.5,
+          "use": true
+        }
+      },
+      "event_min_duration_s": 10,
+      "event_threshold": 6,
+      "hysteresis_fraction": 0.2,
+      "ladder_confirmations": {
+        "active": 2,
+        "alert": 1,
+        "stable": 3
+      },
+      "ladders": {
+        "active": [
+          15,
+          10,
+          5
+        ],
+        "alert": [
+          5
+        ],
+        "stable": [
+          20,
+          40,
+          60
+        ]
+      },
+      "stable_threshold": 2,
+      "upload": {
+        "delta_threshold": 2,
+        "heartbeat_s": 60,
+        "on_event": true,
+        "on_interval_change": true,
+        "on_state_change": true,
+        "upload_first_sample": true
+      }
+    },
+    "control_relevance": {
+      "margins": {
+        "soil_moisture": 0,
+        "temperature": 0
+      }
+    },
+    "degraded_interval_s": 10,
+    "fault_interval_s": 20,
+    "fault_reminder_s": 300.0,
+    "sampling": {
+      "default_interval": 20,
+      "max_interval": 60,
+      "min_interval": 5
+    },
+    "trust_channels": {
+      "humidity": {
+        "drift_threshold": 0.2,
+        "drift_window": 24,
+        "max_value": 100.0,
+        "min_value": 0.0,
+        "missing_limit": 3,
+        "spike_threshold": 20,
+        "stuck_epsilon": 0.01,
+        "stuck_window": 20
+      },
+      "light": {
+        "drift_threshold": 100,
+        "drift_window": 24,
+        "max_value": 120000.0,
+        "min_value": 0.0,
+        "missing_limit": 3,
+        "spike_threshold": 10000,
+        "stuck_epsilon": 0.01,
+        "stuck_window": 20
+      },
+      "soil_moisture": {
+        "drift_threshold": 0.1,
+        "drift_window": 24,
+        "max_value": 100.0,
+        "min_value": 0.0,
+        "missing_limit": 3,
+        "spike_threshold": 20,
+        "stuck_epsilon": 0.01,
+        "stuck_window": 20
+      },
+      "temperature": {
+        "drift_threshold": 0.05,
+        "drift_window": 24,
+        "max_value": 60.0,
+        "min_value": -10.0,
+        "missing_limit": 3,
+        "spike_threshold": 5,
+        "stuck_epsilon": 0.01,
+        "stuck_window": 20
+      }
+    }
+  },
+  "offline_queue": {
+    "max_messages": 10000,
+    "max_payload_bytes": 16777216,
+    "reserved_messages": 1000,
+    "reserved_payload_bytes": 1677722
+  },
+  "policy": {
+    "irrigation_duration": 10,
+    "soil_moisture_threshold": 25.0,
+    "temperature_threshold": 32.0,
+    "ventilation_duration": 5
+  },
+  "runtime_overrides": {
+    "cloud_backoff_s": [
+      0.2,
+      0.5,
+      1,
+      2,
+      5
+    ],
+    "controller": {
+      "cooldown": {
+        "IRRIGATION": 0,
+        "VENTILATION": 0
+      },
+      "time_scale": 0
+    },
+    "controller_initially_offline": null,
+    "gateway": {
+      "command_ack_timeout": 0.12,
+      "heartbeat_interval": 0.1,
+      "heartbeat_timeout": 0.6,
+      "result_timeout": 0.4,
+      "server_receipt_timeout": 0.25
+    },
+    "observation_s": 1.6,
+    "profile": "simulation",
+    "replay_completion_timeout_s": 10,
+    "sensor": {
+      "B1_start": {
+        "soil_moisture": 10,
+        "temperature": 25
+      },
+      "B2_start": {
+        "soil_moisture": 50,
+        "temperature": 36
+      },
+      "fast_interval": 0.1,
+      "keepalive_interval": 0.1,
+      "slow_interval": 0.2
+    },
+    "server": {
+      "policy_interval": 0.5
+    },
+    "settling_s": 0.8,
+    "wrong_initial_gateway": null
+  },
+  "schema_version": 1,
+  "system": {
+    "ACK_TIMEOUT": 2.0,
+    "ACTIVE": "ACTIVE",
+    "COMMAND_TTL": 10.0,
+    "CONTROLLER": "CONTROLLER",
+    "CONTROLLER_OF": {
+      "A1": "C1",
+      "A2": "C2"
+    },
+    "CONTROLLER_OF_SENSOR": {
+      "B1": "C1",
+      "B2": "C2"
+    },
+    "COOLDOWN": {
+      "IRRIGATION": 60.0,
+      "VENTILATION": 30.0
+    },
+    "DEFAULT_DB_PATH": "smart_agriculture.db",
+    "FALLBACK_GATEWAYS": {
+      "A1": [
+        "A2"
+      ],
+      "A2": [
+        "A1"
+      ]
+    },
+    "GATEWAY_OF_CONTROLLER": {
+      "C1": "A1",
+      "C2": "A2"
+    },
+    "GATEWAY_OF_SENSOR": {
+      "B1": "A1",
+      "B2": "A2"
+    },
+    "GATEWAY_PORTS": {
+      "A1": 51122,
+      "A2": 51123
+    },
+    "GATEWAY_QUEUE_DB_TEMPLATE": "gateway_queue_{gateway_id}.db",
+    "HEARTBEAT_INTERVAL": 3.0,
+    "HEARTBEAT_TIMEOUT": 10.0,
+    "INITIAL_GENERATION": 1,
+    "INITIAL_POLICY_VERSION": 1,
+    "MAX_DURATION": {
+      "IRRIGATION": 30,
+      "VENTILATION": 30
+    },
+    "MAX_RETRIES": 3,
+    "NODE_STATUS_INTERVAL": 5.0,
+    "NODE_TIMEOUT": 15.0,
+    "OFFLINE": "OFFLINE",
+    "ONLINE": "ONLINE",
+    "PEER_OF": {
+      "A1": "A2",
+      "A2": "A1"
+    },
+    "RETRY_SCAN_INTERVAL": 0.2,
+    "SAMPLE_INTERVAL_FAST": 2.0,
+    "SAMPLE_INTERVAL_SLOW": 5.0,
+    "SENSOR": "SENSOR",
+    "SENSOR_OF": {
+      "A1": "B1",
+      "A2": "B2"
+    },
+    "SENSOR_OF_CONTROLLER": {
+      "C1": "B1",
+      "C2": "B2"
+    },
+    "SERVER_HOST": "127.0.0.1",
+    "SERVER_POLICY_FIRST_DELAY": 1.0,
+    "SERVER_POLICY_INTERVAL": 10.0,
+    "SERVER_PORT": 51121,
+    "SERVER_RECEIPT_TIMEOUT": 2.0,
+    "SIMULATION_TIME_SCALE": 0.2,
+    "STANDBY": "STANDBY",
+    "UNKNOWN": "UNKNOWN"
+  }
+}

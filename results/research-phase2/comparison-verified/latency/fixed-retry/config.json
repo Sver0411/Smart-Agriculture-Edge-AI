@@ -1,0 +1,19 @@
+{
+  "seed": 42,
+  "scheme": "fixed-retry",
+  "case": "latency",
+  "faults": {
+    "latency": 0.002
+  },
+  "transport": "fragmented host radio model on TCP carrier",
+  "mtu": 160,
+  "message_bound_bytes": 4096,
+  "fragment_bound": 64,
+  "attempt_limit": 3,
+  "ACK_wait_s": 0.05,
+  "units": {
+    "latency": "host seconds",
+    "bytes": "simulated UART/frame payload bytes"
+  },
+  "physical_RF": false
+}

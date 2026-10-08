@@ -1,0 +1,7 @@
+{
+  "idf": "v5.4.4",
+  "target": "esp32s3",
+  "profile": "deep-sleep-experimental",
+  "binary_bytes": 350384,
+  "sha256": "a128342bbcbfc1086696d86a5f744be7649c3a7607bac98a5b5a4f7b12e9c07a"
+}

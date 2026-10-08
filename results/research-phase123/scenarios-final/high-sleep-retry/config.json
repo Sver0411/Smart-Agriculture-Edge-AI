@@ -1,0 +1,10 @@
+{
+  "seed": 42,
+  "case": "high-sleep-retry",
+  "physical_hardware": false,
+  "transport": "host fragmented LoRa on TCP carrier",
+  "units": {
+    "time": "host seconds / logical C ms",
+    "bytes": "simulated frame bytes"
+  }
+}

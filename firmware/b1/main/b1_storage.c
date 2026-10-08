@@ -62,3 +62,17 @@ void b1_new_boot_identity(void)
         (unsigned long)esp_random(), (unsigned long)esp_random(),
         (unsigned long)esp_random(), (unsigned long)esp_random());
 }
+
+/* Reserve 256 committed boot counters at a time. RTC lease amortizes flash
+ * writes; a cold/invalid-RTC boot abandons the unused range before reuse. */
+#include "b1_snapshot.h"
+bool b1_sleep_boot_identity(b1_sleep_identity_t *id,bool rtc_valid) {
+ uint64_t high=0;esp_err_t err=nvs_get_u64(handle,"boot_counter",&high);
+ if(err!=ESP_OK && err!=ESP_ERR_NVS_NOT_FOUND)return false;
+ bool reserve;uint64_t counter;
+ if(!b1_boot_lease_take(id,high,rtc_valid && err==ESP_OK,&reserve,&counter))return false;
+ if(reserve && (nvs_set_u64(handle,"boot_counter",id->boot_counter_limit)!=ESP_OK || nvs_commit(handle)!=ESP_OK))return false;
+ uint8_t mac[6];
+ if(esp_read_mac(mac,ESP_MAC_WIFI_STA)!=ESP_OK)return false;
+ snprintf(b1_boot_id,B1_BOOT_ID_SIZE,"%02x%02x%02x%02x%02x%02x-%016llx-%08lx%08lx%08lx%08lx",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5],(unsigned long long)counter,(unsigned long)esp_random(),(unsigned long)esp_random(),(unsigned long)esp_random(),(unsigned long)esp_random());return true;
+}

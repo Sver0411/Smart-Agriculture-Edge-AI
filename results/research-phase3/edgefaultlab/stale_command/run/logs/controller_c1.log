@@ -1,0 +1,83 @@
+00:40:20 [C1] connected to gateway A1 (127.0.0.1)
+00:40:20 [C1] NODE_REGISTER sent to A1 (attempt 1)
+00:40:20 [C1] registered with A1 (generation=1)
+00:40:20 [C1] IRRIGATION command received (command_id=63bda5c1333c, duration=10s, generation=1)
+00:40:20 [C1] ACK sent (command_id=63bda5c1333c)
+00:40:20 [C1] IRRIGATION command rejected: EXPIRED
+00:40:20 [C1] CONTROL_RESULT sent to A1
+00:40:20 [C1] IRRIGATION command received (command_id=d9e7793b529a, duration=10s, generation=1)
+00:40:20 [C1] ACK sent (command_id=d9e7793b529a)
+00:40:20 [C1] IRRIGATION command rejected: EXPIRED
+00:40:20 [C1] CONTROL_RESULT sent to A1
+00:40:20 [C1] IRRIGATION command received (command_id=34eec36af685, duration=10s, generation=1)
+00:40:20 [C1] ACK sent (command_id=34eec36af685)
+00:40:20 [C1] IRRIGATION command rejected: EXPIRED
+00:40:20 [C1] CONTROL_RESULT sent to A1
+00:40:21 [C1] IRRIGATION command received (command_id=98fffea1951b, duration=10s, generation=1)
+00:40:21 [C1] ACK sent (command_id=98fffea1951b)
+00:40:21 [C1] IRRIGATION command rejected: EXPIRED
+00:40:21 [C1] CONTROL_RESULT sent to A1
+00:40:21 [C1] IRRIGATION command received (command_id=4c5f8000db84, duration=10s, generation=1)
+00:40:21 [C1] ACK sent (command_id=4c5f8000db84)
+00:40:21 [C1] IRRIGATION command rejected: EXPIRED
+00:40:21 [C1] CONTROL_RESULT sent to A1
+00:40:22 [C1] IRRIGATION command received (command_id=96b937b418c0, duration=10s, generation=1)
+00:40:22 [C1] ACK sent (command_id=96b937b418c0)
+00:40:22 [C1] IRRIGATION command rejected: EXPIRED
+00:40:22 [C1] CONTROL_RESULT sent to A1
+00:40:22 [C1] IRRIGATION command received (command_id=4e38ec302031, duration=10s, generation=1)
+00:40:22 [C1] ACK sent (command_id=4e38ec302031)
+00:40:22 [C1] IRRIGATION command rejected: EXPIRED
+00:40:22 [C1] CONTROL_RESULT sent to A1
+00:40:23 [C1] IRRIGATION command received (command_id=9817794cf700, duration=10s, generation=1)
+00:40:23 [C1] ACK sent (command_id=9817794cf700)
+00:40:23 [C1] IRRIGATION command rejected: EXPIRED
+00:40:23 [C1] CONTROL_RESULT sent to A1
+00:40:23 [C1] IRRIGATION command received (command_id=00622cb36774, duration=10s, generation=1)
+00:40:23 [C1] ACK sent (command_id=00622cb36774)
+00:40:23 [C1] IRRIGATION command rejected: EXPIRED
+00:40:23 [C1] CONTROL_RESULT sent to A1
+00:40:24 [C1] IRRIGATION command received (command_id=eada3a81f757, duration=10s, generation=1)
+00:40:24 [C1] ACK sent (command_id=eada3a81f757)
+00:40:24 [C1] IRRIGATION command rejected: EXPIRED
+00:40:24 [C1] CONTROL_RESULT sent to A1
+00:40:24 [C1] IRRIGATION command received (command_id=6cf58a71368f, duration=10s, generation=1)
+00:40:24 [C1] ACK sent (command_id=6cf58a71368f)
+00:40:24 [C1] IRRIGATION command rejected: EXPIRED
+00:40:24 [C1] CONTROL_RESULT sent to A1
+00:40:25 [C1] IRRIGATION command received (command_id=b7450bb5ad9d, duration=10s, generation=1)
+00:40:25 [C1] ACK sent (command_id=b7450bb5ad9d)
+00:40:25 [C1] IRRIGATION command rejected: EXPIRED
+00:40:25 [C1] CONTROL_RESULT sent to A1
+00:40:25 [C1] IRRIGATION command received (command_id=e2ccdf4f3f61, duration=10s, generation=1)
+00:40:25 [C1] ACK sent (command_id=e2ccdf4f3f61)
+00:40:25 [C1] IRRIGATION command rejected: EXPIRED
+00:40:25 [C1] CONTROL_RESULT sent to A1
+00:40:27 [C1] IRRIGATION command received (command_id=e46fe1fa2d6b, duration=10s, generation=1)
+00:40:27 [C1] ACK sent (command_id=e46fe1fa2d6b)
+00:40:27 [C1] IRRIGATION command rejected: EXPIRED
+00:40:27 [C1] CONTROL_RESULT sent to A1
+00:40:28 [C1] IRRIGATION command received (command_id=d10766d7051f, duration=10s, generation=1)
+00:40:28 [C1] ACK sent (command_id=d10766d7051f)
+00:40:28 [C1] IRRIGATION command rejected: EXPIRED
+00:40:28 [C1] CONTROL_RESULT sent to A1
+00:40:28 [C1] IRRIGATION command received (command_id=1da7469e92fb, duration=10s, generation=1)
+00:40:28 [C1] ACK sent (command_id=1da7469e92fb)
+00:40:28 [C1] IRRIGATION command rejected: EXPIRED
+00:40:28 [C1] CONTROL_RESULT sent to A1
+00:40:29 [C1] IRRIGATION command received (command_id=039b28ccc6b2, duration=10s, generation=1)
+00:40:29 [C1] ACK sent (command_id=039b28ccc6b2)
+00:40:29 [C1] IRRIGATION command rejected: EXPIRED
+00:40:29 [C1] CONTROL_RESULT sent to A1
+00:40:30 [C1] IRRIGATION command received (command_id=d83a17377a31, duration=10s, generation=1)
+00:40:30 [C1] ACK sent (command_id=d83a17377a31)
+00:40:30 [C1] IRRIGATION command rejected: EXPIRED
+00:40:30 [C1] CONTROL_RESULT sent to A1
+00:40:31 [C1] IRRIGATION command received (command_id=671d486163d0, duration=10s, generation=1)
+00:40:31 [C1] ACK sent (command_id=671d486163d0)
+00:40:31 [C1] IRRIGATION command rejected: EXPIRED
+00:40:31 [C1] CONTROL_RESULT sent to A1
+00:40:31 [C1] IRRIGATION command received (command_id=046b95ffc7de, duration=10s, generation=1)
+00:40:31 [C1] ACK sent (command_id=046b95ffc7de)
+00:40:31 [C1] IRRIGATION command rejected: EXPIRED
+00:40:31 [C1] CONTROL_RESULT sent to A1

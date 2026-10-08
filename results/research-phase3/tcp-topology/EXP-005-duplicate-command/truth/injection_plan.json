@@ -1,0 +1,21 @@
+{
+  "disruptions": [],
+  "frame_faults": [
+    {
+      "action": "duplicate",
+      "match": {
+        "target": "C1",
+        "type": "CONTROL_COMMAND"
+      }
+    }
+  ],
+  "receipt_observations": [
+    {
+      "action": "duplicate",
+      "message_id": "d199281ba95a"
+    }
+  ],
+  "scenario": "duplicate-command",
+  "seed": 42,
+  "sensor_fault": false
+}

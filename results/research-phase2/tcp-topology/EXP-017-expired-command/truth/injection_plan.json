@@ -1,0 +1,8 @@
+{
+  "disruptions": [],
+  "frame_faults": [],
+  "receipt_observations": [],
+  "scenario": "expired-command",
+  "seed": 42,
+  "sensor_fault": false
+}
