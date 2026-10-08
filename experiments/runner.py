@@ -212,6 +212,9 @@ async def run_scenario(name,output,seed=42,duration=None):
             result=await nodes['C1'].process_command(command('expired',timestamp=time.time()-30))
             observations['result']=result;check('expired command rejected',result.get('reason')=='EXPIRED')
         await asyncio.sleep(duration if duration is not None else 1.6)
+        recorder.freeze()
+        observations['measurement_end_s']=recorder.end-recorder.start
+        observations['measurement_scope']='scenario traffic before asynchronous teardown'
         delivered=[e for e in recorder.events if e['event']=='delivered']
         controls=[e['message'] for e in delivered if e['message']['type']=='CONTROL_COMMAND'
                   and e['message']['target'] in ('C1','C2')]
@@ -278,6 +281,7 @@ async def run_scenario(name,output,seed=42,duration=None):
     except Exception as exc:
         check('scenario runs without exception',False);observations['error']=f'{type(exc).__name__}: {exc}'
     finally:
+        recorder.freeze()
         await faults.close()
         for n in nodes.values():n.stop()
         for t in tasks:t.cancel()
