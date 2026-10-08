@@ -499,7 +499,8 @@ class Gateway:
                 )
             if reliable:
                 upload.payload.update({k: payload[k] for k in ("sample_id", "boot_id", "sample_seq", "device_monotonic_ms", "importance", "policy_version", "delivery_contract")})
-                await self._admit_sensor_upload(message, upload, identity, digest)
+                if await self._admit_sensor_upload(message, upload, identity, digest):
+                    self.offline_queue.audit_sensor_control(identity,"ALERT_ONLY")
             else:
                 await self.upload_queue.put(upload)
             return
@@ -522,10 +523,12 @@ class Gateway:
             await self.upload_queue.put(upload)
 
         if not usable:
+            if reliable:self.offline_queue.audit_sensor_control(identity,"SKIPPED_UNTRUSTED_OR_STALE")
             node_log(self.gateway_id, f"sensor {message.source} unusable for control -> decision skipped")
             self.metrics.inc("sensor_control_skipped")
             return
         if not any(field in record for field in ("soil_moisture", "temperature")):
+            if reliable:self.offline_queue.audit_sensor_control(identity,"SKIPPED_FIELDS")
             node_log(self.gateway_id, f"sensor {message.source}: insufficient sensor fields")
             self.metrics.inc("insufficient_sensor_fields")
             return
@@ -535,6 +538,7 @@ class Gateway:
         # taken over a foreign sensor commands that zone's controller.
         target_controller = config.CONTROLLER_OF_SENSOR.get(message.source, self.controller_id)
         if not self.ownership.may_control(target_controller):
+            if reliable:self.offline_queue.audit_sensor_control(identity,"SKIPPED_NOT_OWNER")
             if not self._standby_logged:
                 self._standby_logged = True
                 node_log(self.gateway_id, f"role={self.ownership.role} - local control disabled")
@@ -542,14 +546,17 @@ class Gateway:
 
         from ai.features import FeatureError
         started = time.perf_counter()
+        if reliable:self.offline_queue.audit_sensor_control(identity,"DECIDING")
         try:
             decision = self.decider.decide(record, trusted_channels=trusted)
         except FeatureError:
+            if reliable:self.offline_queue.audit_sensor_control(identity,"SKIPPED_FEATURES")
             self.metrics.inc("feature_rejected")
             return
         self.metrics.inc("decision_calls")
         self.metrics.inc("decision_latency_us", int((time.perf_counter()-started)*1_000_000))
         if decision is None:
+            if reliable:self.offline_queue.audit_sensor_control(identity,"NO_ACTION")
             node_log(
                 self.gateway_id,
                 f"edge decision = NONE (soil={record.get('soil_moisture')}%, temp={record.get('temperature')}C)",
@@ -565,6 +572,9 @@ class Gateway:
         command.payload["command_id"] = command.message_id
         command.payload["gateway_generation"] = self.ownership.generation
         command.payload["sensor_node_id"] = message.source
+        if reliable:
+            command.payload["sensor_receipt_identity"] = identity
+            self.offline_queue.audit_sensor_control(identity,"COMMAND_PLANNED",command.message_id)
         node_log(self.gateway_id, f"edge decision = {decision['type']} ({decision.get('reason')})")
         # the queue carries ``(message, is_retry)``: a retransmission must not
         # be mistaken for a new command, or it would reset its own retry budget
@@ -579,6 +589,12 @@ class Gateway:
             self.metrics.inc("sensor_durable_rejected")
             node_log(self.gateway_id, f"sensor durable admission rejected: {exc}")
             return False
+        capacity=self.offline_queue.receipt_stats()
+        if capacity["near_capacity"]:
+            self.metrics.inc("sensor_receipt_near_capacity")
+            if not getattr(self,"_receipt_warned",False):
+                node_log(self.gateway_id,f"sensor receipt ledger near capacity: {capacity['count']}/{capacity['limit']}; maintenance required")
+                self._receipt_warned=True
         self._request_flush()
         writer = self.connections.get(incoming.source)
         if writer is not None:
@@ -810,6 +826,9 @@ class Gateway:
             node_log(self.gateway_id, f"simulated command loss (command_id={command_id})")
             return
 
+        identity=payload.get("sensor_receipt_identity")
+        if identity:
+            self.offline_queue.audit_sensor_control(identity,"DISPATCH_UNCERTAIN",command_id)
         try:
             await send_message(writer, message)
         except (ConnectionResetError, BrokenPipeError, RuntimeError):
@@ -847,6 +866,8 @@ class Gateway:
         A failed retry may follow an executed command whose ACK was lost; its
         outcome is UNKNOWN. Neither outcome is queued for later execution.
         """
+        identity=message.payload.get("sensor_receipt_identity")
+        if identity:self.offline_queue.audit_sensor_control(identity,"NOT_DISPATCHED" if first_attempt else "DISPATCH_UNCERTAIN")
         self.tracker.discard(message.message_id)
         command_id = message.payload.get("command_id")
         self.outcomes.pending.pop(command_id, None)
@@ -869,6 +890,12 @@ class Gateway:
             if not isinstance(command_id,str) or not command_id:
                 self.metrics.inc("malformed_results")
                 continue
+            try:
+                self.offline_queue.audit_command_outcome(command_id,"RESULT_"+str(payload.get("status","UNKNOWN")))
+            except sqlite3.Error as exc:
+                # Leave audit as uncertain, but keep the original result path.
+                self.metrics.inc("sensor_audit_failures")
+                node_log(self.gateway_id,f"sensor command audit failed: {exc}")
             outcome = self.outcomes.result(command_id)
             if outcome == "late":self.metrics.inc("late_results")
             node_log(

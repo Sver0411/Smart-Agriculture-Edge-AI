@@ -10,6 +10,7 @@ replayed traffic.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import pathlib
 import sqlite3
@@ -56,6 +57,13 @@ CREATE TABLE IF NOT EXISTS sensor_receipts (
     digest TEXT NOT NULL,
     received_at REAL NOT NULL
 );
+CREATE TABLE IF NOT EXISTS sensor_control_audit (
+    identity TEXT PRIMARY KEY REFERENCES sensor_receipts(identity),
+    state TEXT NOT NULL,
+    command_id TEXT,
+    updated_at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sensor_audit_command ON sensor_control_audit(command_id);
 """
 
 
@@ -67,6 +75,7 @@ class OfflineQueue:
         if type(max_sensor_receipts) is not int or max_sensor_receipts < 1:
             raise ValueError("receipt limit must be positive")
         self.max_sensor_receipts = max_sensor_receipts
+        self.receipt_capacity_rejected = 0
         self.path = path
         self.conn: sqlite3.Connection | None = None
         self.enqueued = 0
@@ -111,6 +120,7 @@ class OfflineQueue:
         """Store a message for later delivery. Returns its queue id."""
         self.connect()
         with self.conn:
+            self.conn.execute("BEGIN IMMEDIATE")
             queue_id, inserted = self._enqueue(message)
         self.enqueued += inserted
         return queue_id
@@ -156,6 +166,8 @@ class OfflineQueue:
         """
         self.connect()
         with self.conn:
+            # Reserve the writer before capacity/dedup reads across processes.
+            self.conn.execute("BEGIN IMMEDIATE")
             row = self.conn.execute(
                 'SELECT digest FROM sensor_receipts WHERE identity=?', (identity,)).fetchone()
             if row is not None:
@@ -164,14 +176,60 @@ class OfflineQueue:
                 return False
             count = self.conn.execute('SELECT COUNT(*) FROM sensor_receipts').fetchone()[0]
             if count >= self.max_sensor_receipts:
-                raise QueueCapacityError('sensor receipt ledger full')
+                self.receipt_capacity_rejected += 1
+                raise QueueCapacityError('sensor receipt ledger full; identities retained')
             if self.conn.execute('SELECT 1 FROM gateway_queue WHERE message_id=?', (identity,)).fetchone():
                 raise ValueError('outbox identity exists without a matching receipt')
             self._enqueue(message)
             self.conn.execute('INSERT INTO sensor_receipts VALUES (?,?,?)',
                               (identity, digest, time.time()))
+            self.conn.execute("INSERT INTO sensor_control_audit VALUES (?,'RECEIVED',NULL,?)",
+                              (identity, time.time()))
         self.enqueued += 1
         return True
+
+    def receipt_stats(self):
+        self.connect()
+        count, size = self.conn.execute(
+            "SELECT COUNT(*),COALESCE(SUM(length(CAST(identity AS BLOB))+length(CAST(digest AS BLOB))+8),0) FROM sensor_receipts").fetchone()
+        # Logical content bytes, not SQLite file/WAL/allocator overhead.
+        return {"count": count, "logical_bytes": size, "limit": self.max_sensor_receipts,
+                "free": max(0, self.max_sensor_receipts-count),
+                "near_capacity": count*5 >= self.max_sensor_receipts*4,
+                "capacity_rejected": self.receipt_capacity_rejected}
+
+    def export_receipts(self):
+        """Read-only archive snapshot. No retirement handshake exists with B.
+
+        Backup is not proof a device cannot retry: this API never deletes rows.
+        Keep the database (including WAL) or use SQLite backup for recovery.
+        """
+        self.connect()
+        with self.conn:
+            rows = self.conn.execute('SELECT identity,digest,received_at FROM sensor_receipts ORDER BY identity').fetchall()
+        raw = json.dumps(rows, separators=(',', ':'), ensure_ascii=True)
+        return {"version": 1, "receipts": rows, "sha256": hashlib.sha256(raw.encode()).hexdigest(),
+                "retirement_allowed": False}
+
+    def sensor_audit(self, identity):
+        self.connect()
+        row = self.conn.execute('SELECT state,command_id,updated_at FROM sensor_control_audit WHERE identity=?', (identity,)).fetchone()
+        return {"state": "LEGACY_UNTRACKED"} if row is None else dict(zip(('state','command_id','updated_at'),row))
+
+    def audit_sensor_control(self, identity, state, command_id=None):
+        """Durable progress evidence only; never used to replay control."""
+        self.connect()
+        with self.conn:
+            cursor = self.conn.execute('UPDATE sensor_control_audit SET state=?,command_id=COALESCE(?,command_id),updated_at=? WHERE identity=?',
+                                       (state, command_id, time.time(), identity))
+            if cursor.rowcount != 1:
+                raise ValueError('control audit requires a new durable sensor receipt')
+
+    def audit_command_outcome(self, command_id, state):
+        self.connect()
+        with self.conn:
+            self.conn.execute('UPDATE sensor_control_audit SET state=?,updated_at=? WHERE command_id=?',
+                              (state,time.time(),command_id))
 
     # -- read side ---------------------------------------------------------
 
@@ -212,4 +270,4 @@ class OfflineQueue:
                 "max_messages":self.max_messages, "max_payload_bytes":self.max_payload_bytes,
                 "reserved_messages":self.reserved_messages,"reserved_payload_bytes":self.reserved_payload_bytes,
                 "admission_rejected":self.rejected,"admission_rejected_high":self.rejected_high,
-                "admission_rejected_normal":self.rejected_normal}
+                "admission_rejected_normal":self.rejected_normal,"sensor_receipts":self.receipt_stats()}
