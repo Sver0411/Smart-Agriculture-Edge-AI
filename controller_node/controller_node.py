@@ -21,6 +21,8 @@ import asyncio
 import pathlib
 import sys
 import sqlite3
+import hashlib
+import json
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
@@ -40,7 +42,7 @@ from common.messages import (  # noqa: E402
 )
 from common.reliability import Counters  # noqa: E402
 from controller_node.safety_guard import DUPLICATE_COMMAND_ID, SafetyGuard  # noqa: E402
-from controller_node.recent_commands import RecentCommandStore
+from controller_node.recent_commands import RecentCommandStore, CONTRACT
 from common.state_store import StateError
 from common.settings import SETTINGS
 
@@ -86,6 +88,7 @@ class ControllerNode:
         self._command_lock = asyncio.Lock()
 
         self._stopping = False
+        self._recover_interrupted_results()
 
     # -- candidate gateways ------------------------------------------------
 
@@ -126,6 +129,7 @@ class ControllerNode:
                 return
 
             keepalive = asyncio.create_task(self._keepalive(writer, gateway_id))
+            resend = asyncio.create_task(self._retry_results(writer, gateway_id))
             try:
                 while not self._stopping:
                     try:
@@ -137,13 +141,16 @@ class ControllerNode:
                         break
                     if message.type == CONTROL_COMMAND:
                         await self.process_command(message, writer)
+                    elif message.type == "PERSISTED_ACK":
+                        self._accept_result_ack(message, gateway_id)
                     elif message.type == NODE_STATUS:
                         self._adopt_ownership(message)
                     else:
                         node_log(self.node_id, f"ignored unexpected {message.type}")
             finally:
                 keepalive.cancel()
-                await asyncio.gather(keepalive, return_exceptions=True)
+                resend.cancel()
+                await asyncio.gather(keepalive, resend, return_exceptions=True)
         except (ConnectionResetError, BrokenPipeError, OSError, MessageError):
             node_log(self.node_id, f"connection to {gateway_id} lost, re-registering elsewhere")
         finally:
@@ -270,7 +277,8 @@ class ControllerNode:
         if allowed:
             try:
                 previous_ids = set(self.recent_commands.entries)
-                self.recent_commands.begin(command_id)
+                self.recent_commands.begin(command_id, {"source": message.source,
+                    "generation": generation, "command_type": command_type, "node_id": self.node_id})
                 # Trim only IDs durably evicted as completed. Unresolved
                 # intents stay in both guards, including across a reboot.
                 self.guard.executed_command_ids.difference_update(
@@ -301,7 +309,7 @@ class ControllerNode:
                 "status": EXECUTED,
             }
             try:
-                self.recent_commands.complete(command_id, result)
+                self.recent_commands.complete(command_id, result, self._result_message(result, message.source))
             except (StateError, sqlite3.Error, OSError) as exc:
                 # Durable INTENT still guards against replay after reboot.
                 self.guard.persistence_fault = True
@@ -333,21 +341,82 @@ class ControllerNode:
                 "reason": reason,
             }
 
+        outgoing = self._result_message(result, message.source)
+        if self.recent_commands and self.recent_commands.store:
+            # A repeated delivery of an admitted command reports the durable
+            # original outcome, not a second execution or a new result identity.
+            row = self.recent_commands.entries.get(command_id)
+            if reason == DUPLICATE_COMMAND_ID and row:
+                original = row.get('result') or {**result, 'status': 'UNKNOWN',
+                    'reason': 'INTERRUPTED_EXECUTION'}
+                outgoing = self._result_message(original, message.source)
+            try:
+                self.recent_commands.queue_result(outgoing)
+            except (StateError, sqlite3.Error, OSError) as exc:
+                self.guard.persistence_fault = True
+                self.metrics.inc('result_persistence_failures')
+                node_log(self.node_id, f'result retained as uncertain intent: {exc}')
+                return {**result, 'status': 'UNKNOWN', 'reason': 'STATE_UNAVAILABLE'}
         if writer is not None:
-            await send_message(
-                writer,
-                Message(
-                    type=CONTROL_RESULT,
-                    source=self.node_id,
-                    target=message.source,
-                    payload=result,
-                ),
-            )
+            await send_message(writer, outgoing)
             node_log(self.node_id, f"CONTROL_RESULT sent to {message.source}")
         else:
-            extra = f" ({result['reason']})" if result.get("reason") else ""
-            node_log(self.node_id, f"CONTROL_RESULT {result['status']}{extra}")
+            node_log(self.node_id, f"CONTROL_RESULT {result['status']}")
         return result
+
+    def _result_message(self, result, target):
+        reliable = self.recent_commands is not None and self.recent_commands.store is not None
+        if not reliable:
+            return Message(type=CONTROL_RESULT, source=self.node_id, target=target, payload=dict(result))
+        key = json.dumps([self.node_id, result.get('command_id'), result.get('generation'),
+                          result.get('status'), result.get('reason')], separators=(',', ':'))
+        identity = 'result-' + hashlib.sha256(key.encode()).hexdigest()
+        existing = self.recent_commands.pending_results.get(identity)
+        if existing:
+            return Message.from_dict(existing)
+        return Message(type=CONTROL_RESULT, source=self.node_id, target=target,
+            message_id=identity, payload={**result, 'delivery_contract': CONTRACT})
+
+    def _recover_interrupted_results(self):
+        if self.recent_commands is None or self.recent_commands.store is None:
+            return
+        try:
+            for row in self.recent_commands.entries.values():
+                ctx = row.get('context')
+                if row['state'] == 'INTENT' and ctx:
+                    result = {'command_id': row['command_id'], 'command_type':ctx['command_type'],
+                              'generation':ctx['generation'], 'status':'UNKNOWN',
+                              'reason':'INTERRUPTED_EXECUTION'}
+                    self.recent_commands.queue_result(self._result_message(result, ctx['source']))
+        except (StateError, sqlite3.Error, OSError):
+            self.guard.persistence_fault = True
+
+    def _accept_result_ack(self, message, gateway_id):
+        p = message.payload
+        if (self.recent_commands is None or message.source != gateway_id or
+                message.target != self.node_id or p.get('persisted') is not True or
+                p.get('scope') != 'CONTROL_RESULTS' or p.get('delivery_contract') != CONTRACT or
+                p.get('result_state') != 'RESULT_DURABLY_STORED'):
+            return False
+        try:
+            return self.recent_commands.acknowledge_result(p.get('ack_message_id'))
+        except (StateError, sqlite3.Error, OSError):
+            self.metrics.inc('result_ack_persistence_failures')
+            return False
+
+    async def _retry_results(self, writer, gateway_id):
+        delay = 1.0
+        while True:
+            if self.recent_commands:
+                for raw in list(self.recent_commands.pending_results.values()):
+                    message = Message.from_dict(raw)
+                    # Historical results may follow a new owner. They remain
+                    # audit evidence at the original epoch, never commands.
+                    message.target = gateway_id
+                    await send_message(writer, message)
+                    self.metrics.inc('result_retries')
+            await asyncio.sleep(delay)
+            delay = min(30.0, delay * 2)
 
     def stop(self) -> None:
         self._stopping = True

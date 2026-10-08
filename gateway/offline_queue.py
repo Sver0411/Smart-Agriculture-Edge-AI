@@ -64,6 +64,11 @@ CREATE TABLE IF NOT EXISTS sensor_control_audit (
     updated_at REAL NOT NULL
 );
 CREATE INDEX IF NOT EXISTS sensor_audit_command ON sensor_control_audit(command_id);
+CREATE TABLE IF NOT EXISTS result_receipts (
+    identity TEXT PRIMARY KEY,
+    digest TEXT NOT NULL,
+    received_at REAL NOT NULL
+);
 """
 
 
@@ -197,6 +202,28 @@ class OfflineQueue:
                 "free": max(0, self.max_sensor_receipts-count),
                 "near_capacity": count*5 >= self.max_sensor_receipts*4,
                 "capacity_rejected": self.receipt_capacity_rejected}
+
+    def admit_result(self, message, digest):
+        """One transaction commits audit receipt and cloud outbox.
+
+        Receipts survive cloud dequeue and gateway restart. Their bounded
+        ledger rejects admission at capacity rather than forget dedup history.
+        """
+        self.connect()
+        with self.conn:
+            self.conn.execute('BEGIN IMMEDIATE')
+            row = self.conn.execute('SELECT digest FROM result_receipts WHERE identity=?',
+                                    (message.message_id,)).fetchone()
+            if row:
+                if row[0] != digest:raise ValueError('result identity conflict')
+                return False
+            if self.conn.execute('SELECT COUNT(*) FROM result_receipts').fetchone()[0] >= self.max_sensor_receipts:
+                raise QueueCapacityError('result receipt ledger full')
+            self._enqueue(message)
+            self.conn.execute('INSERT INTO result_receipts VALUES (?,?,?)',
+                              (message.message_id, digest, time.time()))
+        self.enqueued += 1
+        return True
 
     def export_receipts(self):
         """Read-only archive snapshot. No retirement handshake exists with B.

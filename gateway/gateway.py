@@ -29,6 +29,8 @@ import math
 import sys
 import time
 import uuid
+import hashlib
+import json
 from common.bounded_queue import BoundedQueue
 from gateway import peer_security
 
@@ -311,7 +313,8 @@ class Gateway:
             self.metrics.inc("ingress_queue_rejected")
             await send_message(writer, Message(type=NODE_STATUS, source=self.gateway_id,
                 target=message.source, payload={"accepted": False, "reason": "QUEUE_FULL",
-                    "rejected_message_id": message.message_id, "persisted": False}))
+                    "rejected_message_id": message.message_id, "persisted": False,
+                    "result_state": "RESULT_REJECTED" if message.type == CONTROL_RESULT else None}))
 
     def _persist_congested_upload(self, message):
         try:
@@ -435,6 +438,7 @@ class Gateway:
                     await self._ingress_put(self.sensor_queue, message, writer)
                 elif message.type == CONTROL_RESULT:
                     self.registry.touch(source)
+                    message._result_writer = writer
                     await self._ingress_put(self.result_queue, message, writer)
                 else:
                     node_log(self.gateway_id, f"unexpected {message.type} from {source}")
@@ -1034,37 +1038,70 @@ class Gateway:
         while not self._stopping:
             message = await self.result_queue.get()
             try:
-                payload = dict(message.payload)
-                command_id = payload.get("command_id")
-                if not isinstance(command_id,str) or not command_id:
-                    self.metrics.inc("malformed_results")
-                    continue
-                try:
-                    self.offline_queue.audit_command_outcome(command_id,"RESULT_"+str(payload.get("status","UNKNOWN")))
-                except sqlite3.Error as exc:
-                    # Leave audit as uncertain, but keep the original result path.
-                    self.metrics.inc("sensor_audit_failures")
-                    node_log(self.gateway_id,f"sensor command audit failed: {exc}")
-                outcome = self.outcomes.result(command_id)
-                if outcome == "late":self.metrics.inc("late_results")
-                node_log(
-                    self.gateway_id,
-                    f"controller result received ({payload.get('command_type')} -> {payload.get('status')}"
-                    + (f", reason={payload.get('reason')}" if payload.get("reason") else "")
-                    + ")",
-                )
-                payload["controller_id"] = message.source
-                await self._submit_upload(
-                    Message(
-                        type=CONTROL_RESULT,
-                        source=self.gateway_id,
-                        target="SERVER",
-                        message_id=message.message_id,
-                        payload=payload,
-                    )
-                )
+                await self._process_control_result(message)
             finally:
                 self.result_queue.task_done()
+
+    async def _result_status(self, message, state, reason=None):
+        writer = getattr(message, '_result_writer', None) or self.connections.get(message.source)
+        if writer is None:return
+        from controller_node.recent_commands import CONTRACT
+        durable = state == 'RESULT_DURABLY_STORED'
+        try:
+            await send_message(writer, Message(type=PERSISTED_ACK if durable else NODE_STATUS,
+                source=self.gateway_id, target=message.source,
+                payload={'ack_message_id':message.message_id, 'result_state':state,
+                    'persisted':durable, 'scope':'CONTROL_RESULTS', 'delivery_contract':CONTRACT,
+                    'reason':reason}))
+        except (OSError, RuntimeError):
+            self.metrics.inc('result_ack_send_failures')
+
+    async def _process_control_result(self, message):
+        from controller_node.recent_commands import CONTRACT
+        payload = dict(message.payload)
+        reliable = payload.get('delivery_contract') == CONTRACT
+        command_id = payload.get('command_id')
+        entry = self.registry.get(message.source)
+        generation = payload.get('generation')
+        valid = (message.type == CONTROL_RESULT and message.target == self.gateway_id and
+            message.source in config.GATEWAY_OF_CONTROLLER and isinstance(command_id, str) and
+            1 <= len(command_id) <= 256 and payload.get('status') in
+            ('EXECUTED','REJECTED','DUPLICATE','UNKNOWN') and entry is not None and
+            integer(generation, 1) and generation <= entry.generation)
+        if not valid:
+            self.metrics.inc('malformed_results')
+            if reliable:await self._result_status(message, 'RESULT_REJECTED', 'INVALID_RESULT')
+            return False
+        payload['controller_id'] = message.source
+        upload = Message(type=CONTROL_RESULT, source=self.gateway_id, target='SERVER',
+                         message_id=message.message_id, timestamp=message.timestamp, payload=payload)
+        try:
+            if reliable:
+                if self.offline_queue.path == ':memory:':
+                    raise ValueError('durable result ACK requires file-backed SQLite')
+                await self._result_status(message, 'RESULT_RECEIVED')
+                # Route is allowed to change during takeover; result identity
+                # and content are immutable across that historical replay.
+                digest = hashlib.sha256(json.dumps({'source':message.source,
+                    'timestamp':message.timestamp, 'payload':payload}, sort_keys=True,
+                    separators=(',', ':'), allow_nan=False).encode()).hexdigest()
+                fresh = self.offline_queue.admit_result(upload, digest)
+                await self._result_status(message, 'RESULT_DURABLY_STORED')
+                self._request_flush()
+                if not fresh:
+                    self.metrics.inc('result_duplicates')
+                    return True
+            else:
+                await self._submit_upload(upload)
+            self.offline_queue.audit_command_outcome(command_id, 'RESULT_' + payload['status'])
+        except (ValueError, sqlite3.Error, OSError) as exc:
+            self.metrics.inc('result_durable_rejected')
+            if reliable:await self._result_status(message, 'RESULT_REJECTED', str(exc))
+            return False
+        outcome = self.outcomes.result(command_id)
+        if outcome == 'late':self.metrics.inc('late_results')
+        self.metrics.inc('results_received')
+        return True
 
     # -- Task 6: peer heartbeat, watchdog, failover ------------------------
 
