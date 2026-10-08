@@ -151,3 +151,16 @@ def test_capacity_backpressure_can_recover_after_real_ack(tmp_path,monkeypatch):
         assert (await c.process_command(second))['status']=='EXECUTED'
         assert c.metrics.get('executed')==2
     asyncio.run(scenario())
+
+def test_confirmed_result_replay_keeps_original_wire_after_controller_restart(tmp_path):
+    async def scenario():
+        c=controller(tmp_path);await c.process_command(command());original=pending(c)
+        g=Gateway('A1',queue_path=str(tmp_path/'a.db'))
+        assert await g._process_control_result(original)
+        assert c.recent_commands.acknowledge_result(original.message_id)
+        c=controller(tmp_path);await c.process_command(command());replayed=pending(c)
+        assert replayed.to_dict()==original.to_dict()
+        assert await g._process_control_result(replayed)
+        assert g.offline_queue.count()==1 and g.metrics.get('result_duplicates')==1
+        assert c.metrics.get('executed')==0
+    asyncio.run(scenario())

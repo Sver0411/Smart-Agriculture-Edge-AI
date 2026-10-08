@@ -367,6 +367,10 @@ class ControllerNode:
                 node_log(self.node_id, f'result retained as uncertain intent: {exc}')
                 return {**result, 'status': 'UNKNOWN', 'reason': 'STATE_UNAVAILABLE'}
         if writer is not None:
+            # Retarget only the transport copy; checkpointed original content
+            # and timestamp remain immutable through takeover and restart.
+            outgoing = Message.from_dict(outgoing.to_dict())
+            outgoing.target = message.source
             await send_message(writer, outgoing)
             node_log(self.node_id, f"CONTROL_RESULT sent to {message.source}")
         else:
@@ -380,6 +384,10 @@ class ControllerNode:
         key = json.dumps([self.node_id, result.get('command_id'), result.get('generation'),
                           result.get('status'), result.get('reason')], separators=(',', ':'))
         identity = 'result-' + hashlib.sha256(key.encode()).hexdigest()
+        row = self.recent_commands.entries.get(result.get('command_id'))
+        cached = row.get('result_message') if row else None
+        if cached and cached['payload'] == {**result, 'delivery_contract':CONTRACT}:
+            return Message.from_dict(cached)
         existing = self.recent_commands.pending_results.get(identity)
         if existing:
             return Message.from_dict(existing)

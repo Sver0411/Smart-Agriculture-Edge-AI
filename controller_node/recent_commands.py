@@ -49,6 +49,10 @@ class RecentCommandStore:
                 raise StateError('intent has result')
             if row['state'] == 'COMPLETED' and (not isinstance(row['result'],dict) or row['result'].get('status') != 'EXECUTED'):
                 raise StateError('invalid persisted command result')
+            if row.get('result_message') is not None:
+                message = Message.from_dict(row['result_message'])
+                if message.type != 'CONTROL_RESULT' or message.payload != {**row['result'], 'delivery_contract':CONTRACT}:
+                    raise StateError('completed result wire does not match outcome')
         pending = saved.get('pending_results', {})
         if not isinstance(pending, dict) or len(pending) > saved['capacity']:
             raise StateError('invalid result delivery window')
@@ -86,7 +90,8 @@ class RecentCommandStore:
 
     def complete(self, command_id, result, message=None):
         candidate = deepcopy(self.entries)
-        candidate[command_id].update(state='COMPLETED',result=dict(result))
+        candidate[command_id].update(state='COMPLETED',result=dict(result),
+                                     result_message=message.to_dict() if message is not None and self.store else None)
         pending = self._with_result(message)
         self._save(candidate, pending)
         self.entries, self.pending_results = candidate, pending
@@ -104,8 +109,14 @@ class RecentCommandStore:
 
     def queue_result(self, message):
         pending = self._with_result(message)
-        self._save(self.entries, pending)
-        self.pending_results = pending
+        candidate = deepcopy(self.entries)
+        row = candidate.get(message.payload.get('command_id'))
+        if row and row['state'] == 'COMPLETED' and not row.get('result_message') and message.payload.get('status') == 'EXECUTED':
+            # Upgrade old completed checkpoints with their first reliable wire
+            # representation; keep it after the pending delivery is confirmed.
+            row['result_message'] = message.to_dict()
+        self._save(candidate, pending)
+        self.entries, self.pending_results = candidate, pending
 
     def acknowledge_result(self, identity):
         if identity not in self.pending_results:return False

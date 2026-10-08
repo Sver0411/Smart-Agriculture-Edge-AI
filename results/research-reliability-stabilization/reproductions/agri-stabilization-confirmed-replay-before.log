@@ -1,0 +1,58 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_confirmed_result_replay_keeps_original_wire_after_controller_restart ___
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-133/test_confirmed_result_replay_k0')
+
+    def test_confirmed_result_replay_keeps_original_wire_after_controller_restart(tmp_path):
+        async def scenario():
+            c=controller(tmp_path);await c.process_command(command());original=pending(c)
+            g=Gateway('A1',queue_path=str(tmp_path/'a.db'))
+            assert await g._process_control_result(original)
+            assert c.recent_commands.acknowledge_result(original.message_id)
+            c=controller(tmp_path);await c.process_command(command());replayed=pending(c)
+            assert replayed.to_dict()==original.to_dict()
+            assert await g._process_control_result(replayed)
+            assert g.offline_queue.count()==1 and g.metrics.get('result_duplicates')==1
+            assert c.metrics.get('executed')==0
+>       asyncio.run(scenario())
+
+tests/test_result_delivery.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def scenario():
+        c=controller(tmp_path);await c.process_command(command());original=pending(c)
+        g=Gateway('A1',queue_path=str(tmp_path/'a.db'))
+        assert await g._process_control_result(original)
+        assert c.recent_commands.acknowledge_result(original.message_id)
+        c=controller(tmp_path);await c.process_command(command());replayed=pending(c)
+>       assert replayed.to_dict()==original.to_dict()
+E       AssertionError: assert {'type': 'CON...4.906924, ...} == {'type': 'CON...4.898274, ...}
+E         
+E         Omitting 5 identical items, use -vv to show
+E         Differing items:
+E         {'timestamp': 1791482904.906924} != {'timestamp': 1791482904.898274}
+E         Use -v to get more diff
+
+tests/test_result_delivery.py:162: AssertionError
+----------------------------- Captured stdout call -----------------------------
+02:08:24 [C1] IRRIGATION command received (command_id=cmd, duration=1s, generation=1)
+02:08:24 [C1] safety check passed
+02:08:24 [C1] irrigation executed
+02:08:24 [C1] CONTROL_RESULT EXECUTED
+02:08:24 [C1] IRRIGATION command received (command_id=cmd, duration=1s, generation=1)
+02:08:24 [C1] IRRIGATION command is a duplicate (command_id=cmd) - not executed again
+02:08:24 [C1] CONTROL_RESULT DUPLICATE
+=========================== short test summary info ============================
+FAILED tests/test_result_delivery.py::test_confirmed_result_replay_keeps_original_wire_after_controller_restart
+1 failed in 0.15s
