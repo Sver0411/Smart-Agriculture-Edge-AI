@@ -63,13 +63,13 @@ jobs:
         shell: bash
         run: |
           . "$IDF_PATH/export.sh"
-          bash scripts/ci_build_b1.sh "${{ matrix.profile }}" "$RUNNER_TEMP/b1-${{ matrix.profile }}"
+          bash scripts/ci_build_b1.sh "${{ matrix.profile }}" "$GITHUB_WORKSPACE/firmware-ci-evidence/${{ matrix.profile }}"
       - name: Preserve compile and size evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: firmware-esp32s3-idf5.4.4-${{ matrix.profile }}
           path: |
-            ${{ runner.temp }}/b1-${{ matrix.profile }}/*.log
-            ${{ runner.temp }}/b1-${{ matrix.profile }}/manifest.json
+            firmware-ci-evidence/${{ matrix.profile }}/*.log
+            firmware-ci-evidence/${{ matrix.profile }}/manifest.json
           if-no-files-found: warn

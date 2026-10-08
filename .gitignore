@@ -15,3 +15,5 @@ firmware/b1/sdkconfig.local
 results/experimental/
 
 .external/
+
+firmware-ci-evidence/
