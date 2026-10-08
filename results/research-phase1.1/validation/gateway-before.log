@@ -1,0 +1,71 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+________________ test_capacity_observable_and_read_only_archive ________________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-71/test_capacity_observable_and_r0')
+
+    def test_capacity_observable_and_read_only_archive(tmp_path):
+        q=OfflineQueue(str(tmp_path/'q.db'),max_sensor_receipts=10)
+        for i in range(1,9):
+            m=sample(i);assert q.admit_sensor(m,*identity_and_digest(m))
+            q.delete(q.peek()[0][0])
+>       stats=q.receipt_stats()
+              ^^^^^^^^^^^^^^^
+E       AttributeError: 'OfflineQueue' object has no attribute 'receipt_stats'
+
+tests/test_receipt_lifecycle.py:13: AttributeError
+_____________ test_crash_after_persist_before_ack_never_redecides ______________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-71/test_crash_after_persist_befor0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x102756190>
+
+    def test_crash_after_persist_before_ack_never_redecides(tmp_path,monkeypatch):
+        async def run():
+            path=str(tmp_path/'q.db');g=Gateway('A1',queue_path=path)
+            g.connections['B1']=object();g.sensor_boots['B1']='device-boot'
+            async def fail(w,m):raise BrokenPipeError('crash at ACK')
+            monkeypatch.setattr('gateway.gateway.send_message',fail)
+            m=sample();m.payload['data']['temperature']=36
+            with pytest.raises(BrokenPipeError):await g._process_sensor_message(m)
+            assert g.offline_queue.sensor_audit(m.message_id)['state']=='RECEIVED'
+            g.offline_queue.close();g=Gateway('A1',queue_path=path)
+            g.sensor_boots['B1']='device-boot';g.connections['B1']=object()
+            async def ok(w,m):pass
+            monkeypatch.setattr('gateway.gateway.send_message',ok)
+            await g._process_sensor_message(m)
+            assert g.command_queue.empty()
+            assert g.offline_queue.sensor_audit(m.message_id)['state']=='RECEIVED'
+            g.offline_queue.close()
+>       asyncio.run(run())
+
+tests/test_receipt_lifecycle.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:205: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:128: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py:720: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def run():
+        path=str(tmp_path/'q.db');g=Gateway('A1',queue_path=path)
+        g.connections['B1']=object();g.sensor_boots['B1']='device-boot'
+        async def fail(w,m):raise BrokenPipeError('crash at ACK')
+        monkeypatch.setattr('gateway.gateway.send_message',fail)
+        m=sample();m.payload['data']['temperature']=36
+        with pytest.raises(BrokenPipeError):await g._process_sensor_message(m)
+>       assert g.offline_queue.sensor_audit(m.message_id)['state']=='RECEIVED'
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'OfflineQueue' object has no attribute 'sensor_audit'
+
+tests/test_receipt_lifecycle.py:34: AttributeError
+----------------------------- Captured stdout call -----------------------------
+18:41:19 [A1] received SENSOR_DATA from B1
+=========================== short test summary info ============================
+FAILED tests/test_receipt_lifecycle.py::test_capacity_observable_and_read_only_archive
+FAILED tests/test_receipt_lifecycle.py::test_crash_after_persist_before_ack_never_redecides
+2 failed in 0.13s

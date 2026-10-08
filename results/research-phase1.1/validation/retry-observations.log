@@ -1,0 +1,5 @@
+one-hour attempts=11 probes=6 retained=1
+20000 seeded state transitions: PASS
+automatic recovery / low-frequency / FIFO / reconnect budgets: PASS
+.
+1 passed in 27.14s

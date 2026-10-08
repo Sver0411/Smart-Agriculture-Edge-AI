@@ -29,7 +29,7 @@ idf.py -p /dev/cu.YOUR_ESP32 flash monitor
 1. 启动确认 SHT30_PROBE 和 B1_BEGIN。记录固件 SHA256、boot_id、GPIO、供电方式和实际 NVS 剩余容量。
 2. 通过拔掉传感器或使用明确标记的测试注入制造 HIGH；看到入队后、发出前切断板级电源，恢复后核对相同 sample_id/message_id。串口采样日志不是 NVS 提交证据，需结合存储/交付计数及重启重发。
 3. 网关已保存后屏蔽/丢弃 B 的 GATEWAY_OUTBOX ACK，再断电恢复，核对原 ID 重发且 cloud/history 只有一条。普通数据的 RAM 断电损失单独统计。
-4. 停止网关、连续断网；观察 5 次每启动尝试后 FAILED 保留。恢复网络不保证 FAILED 自动再试，需保留证据后重启 B 开启新尝试窗口。该运行限制应计入实验结果。
+4. 停止网关、连续断网；观察每条记录 5 次快速尝试后 FAILED 保留，随后 60/120/240/480/900 s 低频探测。超过第五次后恢复网关，**不重启 B**，核对下一次可用探测用原 ID 交付。探测中再次断网，记录新的退避和容量。另做重启实验，区分每窗口、每启动及长期计数。30 s 调度预算不能当作实测射频开启时间。
 5. 满载、NVS 满载、网关重启、相同数据重复和乱序；记录拒绝数量，确认旧 HIGH 未被驱逐。不要通过擦除 NVS 构造“恢复成功”。
 6. Server 停止时，A 的本地持久化 ACK 应仍能出现；Server 恢复后，再观察 A→Server 的持久化和清理。这是两个不同的确认边界。
 7. 采集包含启动、采样、Wi-Fi 建链、发送、ACK 等待、重试和空闲的完整电流曲线。相同供电、采样轨迹、信道条件、时长下比较 Light Sleep 开/关，记录负面结果。
@@ -39,3 +39,13 @@ idf.py -p /dev/cu.YOUR_ESP32 flash monitor
 空白记录模板在 `results/research-phase1/hardware_measurement_template.csv`。每行保存仪器时间、run_id、阶段、电压、电流、持续时间、sample/message 身份、尝试/确认、NVS 占用及备注。外部功耗积分：`energy_j = Σ voltage_v * current_a * dt_s`，包括休眠与唤醒；单位可靠交付能耗只用已经达到声明确认层级的唯一样本计数作分母。没有仪器曲线时标记 not_measured，不能用上传次数换算“实测”。
 
 Flash 写入寿命、真实 RF、Deep Sleep、C 物理独立超时关闭分别需要额外实验。本表没有给真实泵、阀、风机接线或自动通电流程。
+
+## Phase 1.1 新增待实测项目
+
+- NVS 在 set、commit、erase 各边界断电，核对 qXX 的 v2 CRC、原身份、恢复顺序及 quarantine 行为；先备份分区，不擦除。
+- 共享 24 KiB NVS 逐步增加最大 HIGH 消息，记录实际可用条数、容量错误和 Wi-Fi 配置占用。16 槽不表示 16 个最大 blob 能落盘。
+- 比较 lab / Light Sleep 的任务栈水位、动态 heap 和 Wi-Fi 连接成功率；CI 编译静态体积不等于板级内存余量。
+- 断网一小时以上，采集完整电流轨迹和实际重连时间；单独检查 DNS、驱动阻塞以及 TCP 超时是否超过调度预算。
+- 网关在 RECEIVED / DECIDING / COMMAND_PLANNED / DISPATCH_UNCERTAIN 阶段中断，查审计与 C 安全记录；只用模拟执行器验证后再另行审批真实执行器实验。
+
+纯软件重复命令、SQLite 崩溃窗口和 Host 存储注入结果见 PHASE1_1_DEVELOPMENT_REPORT.md，均不是上述物理断电或功耗结果。

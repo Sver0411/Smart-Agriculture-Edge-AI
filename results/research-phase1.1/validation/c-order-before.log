@@ -1,0 +1,8 @@
+Assertion failed: (p.scheduler.last_upload_t==2&&p.reported_temperature==27), function main, file b1_ack_ordering.c, line 20.
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+  File "<string>", line 15, in test_ack_ordering
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/b1-order-before/ordering']' died with <Signals.SIGABRT: 6>.

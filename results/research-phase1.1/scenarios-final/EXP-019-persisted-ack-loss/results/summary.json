@@ -1,0 +1,95 @@
+{
+  "assertions": [
+    {
+      "description": "committed receipt was dropped",
+      "passed": true
+    },
+    {
+      "description": "server deduplicates replay after ACK loss",
+      "passed": true
+    },
+    {
+      "description": "acknowledged row removed",
+      "passed": true
+    },
+    {
+      "description": "one committed business row for lost receipt",
+      "passed": true
+    },
+    {
+      "description": "row retained at moment of dropped ACK",
+      "passed": true
+    },
+    {
+      "description": "dedup row committed before dropped ACK",
+      "passed": true
+    },
+    {
+      "description": "every sensor command preserves fixed zone membership",
+      "passed": true
+    },
+    {
+      "description": "no logical command reported executed twice on control link",
+      "passed": true
+    },
+    {
+      "description": "both sensor zones sampled",
+      "passed": true
+    },
+    {
+      "description": "C1 executes trusted control",
+      "passed": true
+    },
+    {
+      "description": "C2 zone continues",
+      "passed": true
+    },
+    {
+      "description": "server records sensor history",
+      "passed": true
+    },
+    {
+      "description": "planned frame fault exercised",
+      "passed": true
+    }
+  ],
+  "exit_code": 0,
+  "observations": {
+    "gateway_states": {
+      "A1": {
+        "gateway_id": "A1",
+        "generation": 1,
+        "health": "ONLINE",
+        "peer_generation": 1,
+        "peer_health": "ONLINE",
+        "peer_id": "A2",
+        "role": "ACTIVE"
+      },
+      "A2": {
+        "gateway_id": "A2",
+        "generation": 1,
+        "health": "ONLINE",
+        "peer_generation": 1,
+        "peer_health": "ONLINE",
+        "peer_id": "A1",
+        "role": "ACTIVE"
+      }
+    },
+    "measurement_end_s": 2.4087167920006323,
+    "measurement_scope": "scenario traffic before asynchronous teardown",
+    "node_ownership": {
+      "B1": {
+        "generation": 1,
+        "owner": "A1"
+      },
+      "B2": {
+        "generation": 1,
+        "owner": "A2"
+      }
+    },
+    "replayed_message_id": "ce505b8a9552"
+  },
+  "question": "Does a committed upload retain its gateway copy after a lost persisted ACK and replay to one business row?",
+  "scenario": "persisted-ack-loss",
+  "status": "PASS"
+}

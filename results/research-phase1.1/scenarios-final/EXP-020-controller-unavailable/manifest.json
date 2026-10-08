@@ -1,0 +1,13 @@
+{
+  "config_sha256": "7ab829cf71f96907d4e0e8f9a8d2dff2d2fbb0ee0b0ce09b32f7c245818629d7",
+  "dirty_scope": "source files; generated software-v0.3 and software-v0.3.1 evidence excluded",
+  "input_mode": "software-simulation",
+  "raw_sha256": "f8fb1b99464de45e0a6ebc01eca73a7dd618708a193d39cd9490d846073d7db6",
+  "revision": "d3ba0d9ce511a74b32c1d55ae3189eb35fe6f9f9",
+  "scenario": "controller-unavailable",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "PASS",
+  "verification": "host-tested",
+  "working_tree_dirty": true
+}

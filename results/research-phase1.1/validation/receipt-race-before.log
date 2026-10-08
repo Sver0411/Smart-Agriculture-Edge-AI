@@ -1,0 +1,33 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________ test_concurrent_receipt_admission_cannot_exceed_limit _____________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-81/test_concurrent_receipt_admiss0')
+
+    def test_concurrent_receipt_admission_cannot_exceed_limit(tmp_path):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+        path=str(tmp_path/'q.db');OfflineQueue(path).connect().close()
+        barrier=Barrier(2)
+        def worker(seq):
+            q=OfflineQueue(path,max_sensor_receipts=1).connect()
+            # Force both unprotected preflight readers into the original race;
+            # serialized admission reads have already acquired their write lock.
+            def trace(sql):
+                if sql=='SELECT COUNT(*) FROM sensor_receipts' and not q.conn.in_transaction:
+                    barrier.wait(timeout=5)
+            q.conn.set_trace_callback(trace)
+            m=sample(seq)
+            try:return q.admit_sensor(m,*identity_and_digest(m))
+            except QueueCapacityError:return False
+            finally:q.close()
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results=list(pool.map(worker,[1,2]))
+>       assert sum(results)==1
+E       assert 2 == 1
+E        +  where 2 = sum([True, True])
+
+tests/test_receipt_lifecycle.py:112: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_receipt_lifecycle.py::test_concurrent_receipt_admission_cannot_exceed_limit
+1 failed in 0.09s

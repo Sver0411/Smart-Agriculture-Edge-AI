@@ -1,0 +1,16 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_measurement_window_excludes_async_teardown_traffic ____________
+
+    def test_measurement_window_excludes_async_teardown_traffic():
+        from experiments.metrics import TransportRecorder
+        recorder=TransportRecorder()
+        m=Message(type=CONTROL_COMMAND,source='A1',target='C1')
+>       recorder('sent',m);recorder.freeze();recorder('sent',m)
+                           ^^^^^^^^^^^^^^^
+E       AttributeError: 'TransportRecorder' object has no attribute 'freeze'
+
+tests/test_experiments.py:78: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_experiments.py::test_measurement_window_excludes_async_teardown_traffic
+1 failed in 0.68s

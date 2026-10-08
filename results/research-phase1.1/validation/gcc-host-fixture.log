@@ -1,0 +1,8 @@
+tests/c_host/b1_storage_faults.c: In function 'read_':
+tests/c_host/b1_storage_faults.c:10:2: error: this 'if' clause does not guard... [-Werror=misleading-indentation]
+   10 |  if(*n<sizes[s])return B1_STORE_ERROR;memcpy(p,disk[s],sizes[s]);*n=sizes[s];return B1_STORE_OK;
+      |  ^~
+tests/c_host/b1_storage_faults.c:10:39: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   10 |  if(*n<sizes[s])return B1_STORE_ERROR;memcpy(p,disk[s],sizes[s]);*n=sizes[s];return B1_STORE_OK;
+      |                                       ^~~~~~
+cc1: all warnings being treated as errors

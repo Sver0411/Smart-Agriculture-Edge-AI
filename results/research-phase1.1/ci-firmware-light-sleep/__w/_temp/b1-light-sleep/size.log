@@ -1,0 +1,38 @@
+Executing action: size
+Running ninja in directory /__w/_temp/b1-light-sleep/build
+Executing "ninja all"...
+[1/4] cd /__w/_temp/b1-light-sleep/build/esp-idf/esptool_py && /opt/esp/python_env/idf5.4_py3.12_env/bin/python /opt/esp/idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /__w/_temp/b1-light-sleep/build/partition_table/partition-table.bin /__w/_temp/b1-light-sleep/build/smart_agriculture_b1.bin
+smart_agriculture_b1.bin binary size 0xcf280 bytes. Smallest app partition is 0x100000 bytes. 0x30d80 bytes (19%) free.
+[2/4] Performing build step for 'bootloader'
+[1/1] cd /__w/_temp/b1-light-sleep/build/bootloader/esp-idf/esptool_py && /opt/esp/python_env/idf5.4_py3.12_env/bin/python /opt/esp/idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /__w/_temp/b1-light-sleep/build/bootloader/bootloader.bin
+Bootloader binary size 0x51c0 bytes. 0x2e40 bytes (36%) free.
+[3/4] No install step for 'bootloader'
+[4/4] Completed 'bootloader'
+Running ninja in directory /__w/_temp/b1-light-sleep/build
+Executing "ninja size"...
+[0/1] cd /__w/_temp/b1-light-sleep/build && /opt/esp/tools/cmake/3.30.2/bin/cmake -D "IDF_SIZE_TOOL=/opt/esp/python_env/idf5.4_py3.12_env/bin/python;-m;esp_idf_size" -D MAP_FILE=/__w/_temp/b1-light-sleep/build/smart_agriculture_b1.map -D OUTPUT_JSON= -P /opt/esp/idf/tools/cmake/run_size_tool.cmake
+                            Memory Type Usage Summary                             
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Memory Type/Section ┃ Used [bytes] ┃ Used [%] ┃ Remain [bytes] ┃ Total [bytes] ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ Flash Code          │       602318 │          │                │               │
+│    .text            │       602318 │          │                │               │
+│ DIRAM               │       216559 │    63.37 │         125201 │        341760 │
+│    .bss             │       102336 │    29.94 │                │               │
+│    .text            │        85235 │    24.94 │                │               │
+│    .data            │        28988 │     8.48 │                │               │
+│ Flash Data          │       115352 │          │                │               │
+│    .rodata          │       115096 │          │                │               │
+│    .appdesc         │          256 │          │                │               │
+│ IRAM                │        16383 │    99.99 │              1 │         16384 │
+│    .text            │        15356 │    93.73 │                │               │
+│    .vectors         │         1027 │     6.27 │                │               │
+│ RTC FAST            │          112 │     1.37 │           8080 │          8192 │
+│    .text            │           84 │     1.03 │                │               │
+│    .rtc_reserved    │           24 │     0.29 │                │               │
+│    .force_fast      │            4 │     0.05 │                │               │
+│ RTC SLOW            │           28 │     0.34 │           8164 │          8192 │
+│    .force_slow      │           28 │     0.34 │                │               │
+└─────────────────────┴──────────────┴──────────┴────────────────┴───────────────┘
+Total image size: 848392 bytes (.bin may be padded larger)
+Note: The reported total sizes may be smaller than those in the technical reference manual due to reserved memory and application configuration. The total flash size available for the application is not included by default, as it cannot be reliably determined due to the presence of other data like the bootloader, partition table, and application partition size.
