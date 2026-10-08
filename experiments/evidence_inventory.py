@@ -20,7 +20,7 @@ for p in files:
  h=hashlib.sha256((root/p).read_bytes()).hexdigest();groups[h].append(p)
  if any(p.startswith(prefix+'/') for prefix in failed) or 'failure' in p.lower() or 'failed' in p.lower() or '/reproductions/' in p:kind='C'
  elif any(p.startswith(r.rstrip('/')+'/') or p==r for r in refs):kind='B'
- elif p.endswith(('.elf','.bin','.o','.a')) or '/build/' in p:kind='F'
+ elif p.endswith(('.elf','.o','.a')) or pathlib.PurePosixPath(p).name in ('smart_agriculture_b1.bin','bootloader.bin','partition-table.bin') or '/build/' in p:kind='F'
  elif '/ci-' in p:kind='E'
  elif h in seen:kind='D'
  else:kind='A'

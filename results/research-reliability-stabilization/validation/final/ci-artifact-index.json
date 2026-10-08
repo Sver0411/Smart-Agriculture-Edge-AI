@@ -1,0 +1,47 @@
+{
+  "run_id": 37823781299,
+  "artifacts": [
+    {
+      "id": 11571255067,
+      "name": "firmware-esp32s3-idf5.4.4-lab",
+      "size_in_bytes": 22206,
+      "digest": "sha256:035031074cc65cd11607640c6fc7f1cb729dce242345f07b9d99f934b795da15",
+      "expired": false
+    },
+    {
+      "id": 11570487555,
+      "name": "firmware-esp32s3-idf5.4.4-deep-sleep-experimental",
+      "size_in_bytes": 22251,
+      "digest": "sha256:d0175650a7ed068df764576356efc4745c91f2c4756e3c23ce8242cbd64f2624",
+      "expired": false
+    },
+    {
+      "id": 11570447889,
+      "name": "software-evidence-python-3.10",
+      "size_in_bytes": 3052752,
+      "digest": "sha256:dfeec0fc2b2e42e9ad6b4f11db36505af50423e1ff270901f45e9252cc3136d1",
+      "expired": false
+    },
+    {
+      "id": 11570328545,
+      "name": "software-evidence-python-3.12",
+      "size_in_bytes": 10481384,
+      "digest": "sha256:6ac5863ff525f768ea5e3e8c2977853c0abb78d9f4efc940c53790b51e20d8c4",
+      "expired": false
+    },
+    {
+      "id": 11570198403,
+      "name": "firmware-esp32s3-idf5.4.4-light-sleep",
+      "size_in_bytes": 22210,
+      "digest": "sha256:be3aa0d99a05dde0c03c3ccce1d1cafc226c4f8d1c19ae27e38cc4fa686cd5d0",
+      "expired": false
+    },
+    {
+      "id": 11569933258,
+      "name": "firmware-esp32s3-idf5.4.4-lora-prototype",
+      "size_in_bytes": 22178,
+      "digest": "sha256:32eef4cf54d7fdb25f73a8ee7d61c4a741fdc632015157a9ea1b4c3ee95a6cd4",
+      "expired": false
+    }
+  ]
+}

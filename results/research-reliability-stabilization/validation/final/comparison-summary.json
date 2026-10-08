@@ -1,0 +1,3713 @@
+{
+  "seed": 42,
+  "total": 56,
+  "passed": 56,
+  "runs": [
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "normal",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5464,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.32728445900283987,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.10858300083782524
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.1458749975427054
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "normal",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5464,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3270055839966517,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.06533400301123038
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.13045800005784258
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "normal",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 18,
+        "fragments_sent": 105,
+        "simulated_frame_bytes": 16388,
+        "reassembled": 18,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.7604272499957005,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.07608399755554274
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.7703750015934929
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "normal",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5462,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3299297920020763,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.06849999772384763
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.12716699711745605
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "packet-loss",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 7,
+        "fragments_sent": 45,
+        "simulated_frame_bytes": 7061,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 1,
+        "logical_messages": 3,
+        "application_send_attempts": 4,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.4313672909993329,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.06624999514315277
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.8003330003703013
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "packet-loss",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 5,
+        "fragments_sent": 32,
+        "simulated_frame_bytes": 5004,
+        "reassembled": 4,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 1,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 2,
+        "B_confirmed_messages": 2,
+        "effective_delivery_ratio": 0.6666666666666666,
+        "confirmed_delivery_ratio": 0.6666666666666666,
+        "host_elapsed_s": 0.3245907079981407,
+        "server_samples": 1,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.07562500104540959
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.11937499948544428
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "packet-loss",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 16,
+        "fragments_sent": 99,
+        "simulated_frame_bytes": 15470,
+        "reassembled": 14,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 3,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.760817958995176,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.09495799895375967
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.15620899648638442
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "packet-loss",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 7,
+        "fragments_sent": 45,
+        "simulated_frame_bytes": 7059,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 1,
+        "logical_messages": 3,
+        "application_send_attempts": 4,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.435404916999687,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.07733399979770184
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.13862500054528937
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "ack-loss",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 22,
+        "fragments_sent": 123,
+        "simulated_frame_bytes": 19085,
+        "reassembled": 12,
+        "duplicates": 0,
+        "rejected": 13,
+        "dropped": 10,
+        "logical_messages": 3,
+        "application_send_attempts": 11,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 1,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 0.3333333333333333,
+        "host_elapsed_s": 0.9509019580000313,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.07395800639642403
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.9133339990512468
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "ack-loss",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5463,
+        "reassembled": 4,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 2,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 1,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 0.3333333333333333,
+        "host_elapsed_s": 0.31753849999950035,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.08250000246334821
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.08016699575819075
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "ack-loss",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 18,
+        "fragments_sent": 105,
+        "simulated_frame_bytes": 16386,
+        "reassembled": 10,
+        "duplicates": 0,
+        "rejected": 7,
+        "dropped": 9,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 1,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 0.3333333333333333,
+        "host_elapsed_s": 0.7384281670019845,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.08054199861362576
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.09187500108964741
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "ack-loss",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 14,
+        "fragments_sent": 87,
+        "simulated_frame_bytes": 13692,
+        "reassembled": 9,
+        "duplicates": 0,
+        "rejected": 2,
+        "dropped": 5,
+        "logical_messages": 3,
+        "application_send_attempts": 7,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 2,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 0.6666666666666666,
+        "host_elapsed_s": 0.7438300409994554,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.10941699292743579
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.15999999595806003
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "duplication",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5463,
+        "reassembled": 6,
+        "duplicates": 18,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.323717208004382,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.06766699516447261
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.12795799557352439
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "duplication",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5461,
+        "reassembled": 6,
+        "duplicates": 18,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3266907080032979,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.04429199907463044
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.09825000597629696
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "duplication",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 18,
+        "fragments_sent": 105,
+        "simulated_frame_bytes": 16384,
+        "reassembled": 15,
+        "duplicates": 45,
+        "rejected": 9,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.7542366670022602,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.09129099635174498
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.10183300037169829
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "duplication",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5463,
+        "reassembled": 6,
+        "duplicates": 16,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3144148330029566,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.023833999875932932
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.08283399802166969
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "reordering",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5462,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3124539160053246,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.023375003365799785
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.05058300303062424
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "reordering",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5462,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3177243339960114,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.026832996809389442
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.10637499508447945
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "reordering",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 18,
+        "fragments_sent": 105,
+        "simulated_frame_bytes": 16389,
+        "reassembled": 18,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.7366971670053317,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.022959000489208847
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.09187500108964741
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "reordering",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5463,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3166133750055451,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.02308299735886976
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.0870000003487803
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "latency",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5462,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.35990645900164964,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.03149999974993989
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.5290420012897812
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "latency",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5461,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.35864916699938476,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.021667001419700682
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.08250000246334821
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "latency",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 18,
+        "fragments_sent": 105,
+        "simulated_frame_bytes": 16388,
+        "reassembled": 18,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.8937845839973306,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.06270899757510051
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.1819160024751909
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "latency",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5462,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3687441250003758,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.04983299731975421
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.11537499813130125
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "fragment-corruption",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 9,
+        "fragments_sent": 58,
+        "simulated_frame_bytes": 9115,
+        "reassembled": 7,
+        "duplicates": 0,
+        "rejected": 2,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 5,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.48297283300053095,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.07279199780896306
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.8185830010916106
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "fragment-corruption",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 5,
+        "fragments_sent": 32,
+        "simulated_frame_bytes": 5004,
+        "reassembled": 3,
+        "duplicates": 0,
+        "rejected": 2,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 2,
+        "B_confirmed_messages": 1,
+        "effective_delivery_ratio": 0.6666666666666666,
+        "confirmed_delivery_ratio": 0.3333333333333333,
+        "host_elapsed_s": 0.3164949159981916,
+        "server_samples": 1,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.04837500455323607
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.4678750046878122
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "fragment-corruption",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 17,
+        "fragments_sent": 102,
+        "simulated_frame_bytes": 15930,
+        "reassembled": 15,
+        "duplicates": 0,
+        "rejected": 2,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.7587210409983527,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.08870899910107255
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.1257920011994429
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "fragment-corruption",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 8,
+        "fragments_sent": 48,
+        "simulated_frame_bytes": 7516,
+        "reassembled": 7,
+        "duplicates": 0,
+        "rejected": 1,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 4,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.42880500000319444,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.07862500206101686
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.15208400145638734
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "partial-delivery",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 21,
+        "fragments_sent": 148,
+        "simulated_frame_bytes": 23189,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 6,
+        "dropped": 13,
+        "logical_messages": 3,
+        "application_send_attempts": 15,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 0,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 0.0,
+        "host_elapsed_s": 1.1605360840039793,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.05620799493044615
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.12141699698986486
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "partial-delivery",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 4,
+        "fragments_sent": 29,
+        "simulated_frame_bytes": 4546,
+        "reassembled": 1,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 3,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 1,
+        "B_confirmed_messages": 0,
+        "effective_delivery_ratio": 0.3333333333333333,
+        "confirmed_delivery_ratio": 0.0,
+        "host_elapsed_s": 0.3139342919967021,
+        "server_samples": 0,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.07108299905667081
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.8276250009657815
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "partial-delivery",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 15,
+        "fragments_sent": 96,
+        "simulated_frame_bytes": 15013,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 6,
+        "dropped": 7,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 0,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 0.0,
+        "host_elapsed_s": 0.7313643340021372,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.038209000194910914
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.13429099635686725
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "partial-delivery",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 18,
+        "fragments_sent": 118,
+        "simulated_frame_bytes": 18397,
+        "reassembled": 8,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 10,
+        "logical_messages": 3,
+        "application_send_attempts": 12,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 2,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 0.6666666666666666,
+        "host_elapsed_s": 0.9981071250003879,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.05658299778588116
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.1388750024489127
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "receiver-restart",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5464,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3216379160003271,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.06983300409046933
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.10875000589294359
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "receiver-restart",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5461,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3195923329985817,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.06420800491468981
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.7701249996898696
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "receiver-restart",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 18,
+        "fragments_sent": 105,
+        "simulated_frame_bytes": 16387,
+        "reassembled": 18,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.7504389999958221,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.07095800538081676
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.12541600153781474
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "receiver-restart",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5461,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3272602079960052,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.07054100569803268
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.16412499826401472
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "link-outage",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 9,
+        "fragments_sent": 61,
+        "simulated_frame_bytes": 9551,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 26,
+        "logical_messages": 3,
+        "application_send_attempts": 6,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.5305983329963055,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.10083399683935568
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.9567910019541159
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "link-outage",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 3,
+        "fragments_sent": 26,
+        "simulated_frame_bytes": 4088,
+        "reassembled": 0,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 26,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 0,
+        "B_confirmed_messages": 0,
+        "effective_delivery_ratio": 0.0,
+        "confirmed_delivery_ratio": 0.0,
+        "host_elapsed_s": 0.3155566249988624,
+        "server_samples": 0,
+        "server_alerts": 0,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.12658299965551123
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "link-outage",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 15,
+        "fragments_sent": 96,
+        "simulated_frame_bytes": 15015,
+        "reassembled": 12,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 26,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.7361932920030085,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.02466700243530795
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.0935829957597889
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "link-outage",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 9,
+        "fragments_sent": 61,
+        "simulated_frame_bytes": 9550,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 26,
+        "logical_messages": 3,
+        "application_send_attempts": 6,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.5251602089992957,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.027082998713012785
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.08641599561087787
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        },
+        {
+          "assertion": "restored historical samples do not control",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "gateway-failover",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 8,
+        "fragments_sent": 42,
+        "simulated_frame_bytes": 6395,
+        "reassembled": 8,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.32246691700129304,
+        "server_samples": 2,
+        "server_alerts": 2,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.12850000348407775
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.2385829939157702
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        },
+        {
+          "assertion": "restored historical samples do not control",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "gateway-failover",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 8,
+        "fragments_sent": 41,
+        "simulated_frame_bytes": 6321,
+        "reassembled": 8,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.32153145899792435,
+        "server_samples": 2,
+        "server_alerts": 2,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.12850000348407775
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.23433299793396145
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        },
+        {
+          "assertion": "restored historical samples do not control",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "gateway-failover",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 20,
+        "fragments_sent": 113,
+        "simulated_frame_bytes": 17407,
+        "reassembled": 20,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.7632892500041635,
+        "server_samples": 2,
+        "server_alerts": 2,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.19287499890197068
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.36558399733621627
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        },
+        {
+          "assertion": "restored historical samples do not control",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "gateway-failover",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 8,
+        "fragments_sent": 41,
+        "simulated_frame_bytes": 6323,
+        "reassembled": 8,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.32917879200249445,
+        "server_samples": 2,
+        "server_alerts": 2,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.041250001231674105
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.4044579982291907
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "queue-saturation",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 12,
+        "fragments_sent": 66,
+        "simulated_frame_bytes": 10211,
+        "reassembled": 12,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 6,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.2758664169959957,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [
+          "QUEUE_FULL",
+          "QUEUE_FULL",
+          "QUEUE_FULL"
+        ],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 1,
+            "max_wait_ms": 0.45495799713535234
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 1,
+            "max_wait_ms": 0.18804200226441026
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "queue-saturation",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5457,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 1,
+        "B_confirmed_messages": 1,
+        "effective_delivery_ratio": 0.3333333333333333,
+        "confirmed_delivery_ratio": 0.3333333333333333,
+        "host_elapsed_s": 0.1594766249982058,
+        "server_samples": 1,
+        "server_alerts": 0,
+        "failure_reasons": [
+          "QUEUE_FULL",
+          "QUEUE_FULL"
+        ],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 1,
+            "max_wait_ms": 0.4464579978957772
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 1,
+            "max_wait_ms": 0.7857919990783557
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "INCOMPLETE",
+      "case": "queue-saturation",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 18,
+        "fragments_sent": 105,
+        "simulated_frame_bytes": 16369,
+        "reassembled": 18,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 1,
+        "B_confirmed_messages": 1,
+        "effective_delivery_ratio": 0.3333333333333333,
+        "confirmed_delivery_ratio": 0.3333333333333333,
+        "host_elapsed_s": 0.2666504590015393,
+        "server_samples": 1,
+        "server_alerts": 0,
+        "failure_reasons": [
+          "QUEUE_FULL",
+          "QUEUE_FULL",
+          "QUEUE_FULL",
+          "QUEUE_FULL",
+          "QUEUE_FULL",
+          "QUEUE_FULL"
+        ],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 1,
+            "max_wait_ms": 0.36299999919719994
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 1,
+            "max_wait_ms": 0.0936659998842515
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "queue-saturation",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 12,
+        "fragments_sent": 70,
+        "simulated_frame_bytes": 10918,
+        "reassembled": 12,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 6,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.2706975839973893,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [
+          "QUEUE_FULL",
+          "QUEUE_FULL",
+          "QUEUE_FULL"
+        ],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 1,
+            "max_wait_ms": 0.4495410030358471
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 1,
+            "high_water": 1,
+            "max_wait_ms": 0.1267080006073229
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "controller rejects old epoch before execution (guard subcase)",
+          "passed": true
+        },
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "old-generation",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5464,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3318781249981839,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 1.7066660002456047
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.833625002996996
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "controller rejects old epoch before execution (guard subcase)",
+          "passed": true
+        },
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "old-generation",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5462,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3192274999964866,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.04170899774180725
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.11437500506872311
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "controller rejects old epoch before execution (guard subcase)",
+          "passed": true
+        },
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "old-generation",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 18,
+        "fragments_sent": 105,
+        "simulated_frame_bytes": 16389,
+        "reassembled": 18,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.7557404580002185,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.0837499974295497
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.127417006297037
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "controller rejects old epoch before execution (guard subcase)",
+          "passed": true
+        },
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "old-generation",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5461,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3222372499949415,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.07100000220816582
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.12974999845027924
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "old session rejected before business admission",
+          "passed": true
+        },
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "session-mismatch",
+      "scheme": "reliable",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5462,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3215006660029758,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.04179200186626986
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.8770829954301007
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "old session rejected before business admission",
+          "passed": true
+        },
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "session-mismatch",
+      "scheme": "no-retry",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5463,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.3226432500014198,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.0779999973019585
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.7582499965792522
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "old session rejected before business admission",
+          "passed": true
+        },
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "session-mismatch",
+      "scheme": "fixed-retry",
+      "metrics": {
+        "logical_attempts": 18,
+        "fragments_sent": 105,
+        "simulated_frame_bytes": 16389,
+        "reassembled": 18,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 9,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.7631117499986431,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.14699999883305281
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.17270800162805244
+          }
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "assertions": [
+        {
+          "assertion": "old session rejected before business admission",
+          "passed": true
+        },
+        {
+          "assertion": "only original logical identities admitted",
+          "passed": true
+        },
+        {
+          "assertion": "receipt identities unique",
+          "passed": true
+        },
+        {
+          "assertion": "unknown/failed delivery has no fabricated ACK",
+          "passed": true
+        }
+      ],
+      "delivery_status": "COMPLETE",
+      "case": "session-mismatch",
+      "scheme": "event-priority",
+      "metrics": {
+        "logical_attempts": 6,
+        "fragments_sent": 35,
+        "simulated_frame_bytes": 5462,
+        "reassembled": 6,
+        "duplicates": 0,
+        "rejected": 0,
+        "dropped": 0,
+        "logical_messages": 3,
+        "application_send_attempts": 3,
+        "gateway_durable_messages": 3,
+        "B_confirmed_messages": 3,
+        "effective_delivery_ratio": 1.0,
+        "confirmed_delivery_ratio": 1.0,
+        "host_elapsed_s": 0.32355833299516235,
+        "server_samples": 2,
+        "server_alerts": 1,
+        "failure_reasons": [],
+        "gateway_queues": {
+          "sensor": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.5645420023938641
+          },
+          "command": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "result": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 0,
+            "max_wait_ms": 0.0
+          },
+          "upload": {
+            "depth": 0,
+            "capacity": 128,
+            "high_water": 1,
+            "max_wait_ms": 0.12287500430829823
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "total": 19,
+  "passed": 19,
+  "runs": [
+    {
+      "case": "healthy",
+      "status": "PASS",
+      "returncode": 0,
+      "observations": 400,
+      "events": 0,
+      "faults": 0,
+      "recoveries": 0,
+      "snapshot_bytes": 5070
+    },
+    {
+      "case": "event",
+      "status": "PASS",
+      "returncode": 0,
+      "observations": 400,
+      "events": 40,
+      "faults": 24,
+      "recoveries": 6,
+      "snapshot_bytes": 5070
+    },
+    {
+      "case": "range",
+      "status": "PASS",
+      "returncode": 0,
+      "observations": 400,
+      "events": 0,
+      "faults": 54,
+      "recoveries": 6,
+      "snapshot_bytes": 5070
+    },
+    {
+      "case": "missing",
+      "status": "PASS",
+      "returncode": 0,
+      "observations": 400,
+      "events": 0,
+      "faults": 35,
+      "recoveries": 5,
+      "snapshot_bytes": 5070
+    },
+    {
+      "case": "stuck",
+      "status": "PASS",
+      "returncode": 0,
+      "observations": 400,
+      "events": 0,
+      "faults": 381,
+      "recoveries": 0,
+      "snapshot_bytes": 5070
+    },
+    {
+      "case": "drift",
+      "status": "PASS",
+      "returncode": 0,
+      "observations": 400,
+      "events": 0,
+      "faults": 354,
+      "recoveries": 0,
+      "snapshot_bytes": 5070
+    },
+    {
+      "case": "spike",
+      "status": "PASS",
+      "returncode": 0,
+      "observations": 400,
+      "events": 0,
+      "faults": 46,
+      "recoveries": 23,
+      "snapshot_bytes": 5070
+    },
+    {
+      "case": "unknown-time",
+      "status": "PASS",
+      "returncode": 0
+    },
+    {
+      "case": "sequence",
+      "status": "PASS",
+      "returncode": 0
+    },
+    {
+      "case": "epoch",
+      "status": "PASS",
+      "returncode": 0
+    },
+    {
+      "case": "truncated",
+      "status": "PASS",
+      "returncode": 0
+    },
+    {
+      "case": "bit-corruption",
+      "status": "PASS",
+      "returncode": 0
+    },
+    {
+      "case": "version",
+      "status": "PASS",
+      "returncode": 0
+    },
+    {
+      "case": "profile",
+      "status": "PASS",
+      "returncode": 0
+    },
+    {
+      "case": "state-capacity",
+      "status": "PASS",
+      "returncode": 0
+    },
+    {
+      "case": "clock-overflow",
+      "status": "PASS",
+      "returncode": 0
+    },
+    {
+      "case": "lease",
+      "status": "PASS",
+      "returncode": 0
+    },
+    {
+      "case": "counter-max",
+      "status": "PASS",
+      "returncode": 0
+    },
+    {
+      "case": "config-null",
+      "status": "PASS",
+      "returncode": 0
+    }
+  ],
+  "python": "3.12.14",
+  "C": "Apple clang version 17.0.0 (clang-1700.0.13.5)"
+}

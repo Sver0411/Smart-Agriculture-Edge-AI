@@ -68,7 +68,7 @@ Notifications do not access UART; only the ordinary network task runs radio wind
 
 ## Experiment-data handling
 
-A conservative inventory of the **4769 previously tracked results files** classified A=931 original/unclassified-unique evidence, B=3224 report-referenced, C=274 failure evidence, D=320 exact-byte duplicates and F=20 build artifacts; E=0 separately classified temporary CI outputs. There are 143 identical-byte groups, but equal bytes do not prove interchangeable experiment context. **No historical results were deleted.** B/C have precedence over duplicate classification. Full inventory SHA256 was `e4e9c9e54fde99e8f3dedae0472f63cb7846d4ad1c84337f222b11c7bbdc89b2`; the retained summary and reproducible inventory tool are included. Subsequent inventory adds this task's selected evidence and reports its own revision/hash.
+A conservative reviewed inventory of the **4769 previously tracked results files** classified A=933 original/unclassified-unique evidence, B=3224 report-referenced, C=274 failure evidence and D=338 exact-byte duplicate candidates. E=0 / F=0 are separately classified temporary CI/build outputs in that historical tracked set. There are 143 identical-byte groups, but equal bytes do not prove interchangeable experiment context. **No historical results were deleted.** B/C have precedence over duplicate classification. The initial automatic classifier treated 20 `.bin` files as F; inspection showed they were snapshot/outbox input fixtures, so the classifier and reviewed inventory now retain them as A/D scientific evidence. Both the preliminary summary and corrected review are retained. Full reviewed inventory SHA256 is `a7ff98845c19873abebc64f48a146fcf3c7758892f665731122b44e0bb3c4da8`; the summary and reproducible inventory tool are included. Subsequent inventory adds this task's selected evidence and records its own revision/hash.
 
 A/B/C remain in Git. D/E/F are retained conservatively; new redundant runs, CI outputs and builds go to isolated `.research-runs/`, temporary directories and Actions artifacts instead of another bulk result commit. Default new topology/stabilization/inventory outputs are ignored, refuse overwrite, and include configuration/source/raw hashes. Original failure selection is explicitly versioned. There are no broken historical links from removal. `common/field_transport.py` now distinguishes host framing, the implemented B1 E220 driver, missing A/C endpoints and pending physical validation. Both README architecture diagrams and the Chinese README remain.
 
@@ -92,17 +92,35 @@ bash scripts/ci_build_b1.sh lab /tmp/agri-idf-lab-NEW
 
 EdgeFaultLab is pinned at `c7248239f456cc877114ca1e67c5949fb4a7b958`. No restricted EventGuard-LoRa source was copied. Unit tests compile/run production C with ASan/UBSan where applicable. Actions runs the same complete matrix on both branch push and PR, preserves failure artifacts and records source/toolchain provenance before tests.
 
-| Validation | Status at this checkpoint |
+The complete local matrix below ran on clean source `2e3280b17b7a4edc139aee7afaf1a671b856a993` (`dirty=false`). [Final selected validation evidence](../../results/research-reliability-stabilization/validation/final/) includes the source/configuration hashes, exact experiment command arguments, suite summaries, raw pytest logs and four firmware manifests. Full local outputs are in `/tmp/agri-stabilization-verified`; complete CI experiment outputs and failures are retained as Actions artifacts. The subsequent report/evidence and inventory-classification correction does not change controller, gateway, server, sensor or firmware behavior, and triggers the same complete push/PR CI again.
+
+| Validation | Actual result on tested source |
 | --- | --- |
-| Python 3.10.21 preflight | PASS: 573 tests, 116.92 s; final-source rerun pending |
-| Python 3.12.14 preflight | PASS: 573 tests, 81.96 s; final-source rerun pending |
-| Focused P0 repeat | PASS: 18/18 (10 stale, 3 failover, 3 recovery, 1 split-brain, 1 unavailable) |
-| Result/policy/security/sensor/LoRa/C focused tests | PASS; individual logs retained; complete final-source matrix NOT RUN yet |
-| Fresh public ESP-IDF v5.4.4, four configurations | PASS preflight; ACK-progress follow-up needs final-source compile |
-| Full TCP / simulated LoRa / external / snapshot / integration | NOT RUN on final source yet |
-| Final comparison delivery classification | NOT RUN; historical INCOMPLETE is retained |
-| New branch push and PR Actions | NOT RUN before first push/PR |
+| Python 3.10.21 | PASS: 582 tests, 123.68 s |
+| Python 3.12.14 | PASS: 582 tests, 82.86 s |
+| Full original TCP scenarios | PASS: 20/20 |
+| Repeated stabilization scenarios | PASS: 20/20 — stale-generation 10, failover 3, recovery 3, split-brain 1, controller-unavailable 1, server-offline 1, queue-replay 1 |
+| Full host simulated LoRa topology | PASS: 20/20 |
+| Seeded radio comparison | PASS: 56/56 safety checks; delivery **43 COMPLETE / 13 INCOMPLETE**, with retained unconfirmed evidence |
+| Actual C sleep/snapshot oracle | PASS: 19/19 cases, 2800 observations across seven signal cases |
+| Cross-phase integration | PASS: 10/10 |
+| External EdgeFaultLab | PASS: 5/5; actual execution observations and immutable replay checks, with original assertion metadata retained |
+| C Host / applicable ASan and UBSan | PASS within both full pytest suites; local Apple clang 17.0.0 (`clang-1700.0.13.5`) |
+| Fresh public ESP-IDF v5.4.4 | PASS: lab 831152 bytes; light-sleep 848736; lora-prototype 329120; deep-sleep-experimental 350464; ESP32-S3 / Xtensa GCC 14.2.0 (`esp-14.2.0_20260121`) |
+| Branch push Actions, source `2e3280b` | PASS: [run 37823781299](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37823781299), all six jobs |
+| PR Actions, source `2e3280b` | PASS: [run 37824116529](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37824116529), all six jobs; complete scenario steps executed successfully |
 | Physical E220 / A/C endpoints / current / sleep hardware | NOT RUN: hardware unavailable; PENDING HARDWARE VALIDATION |
+
+Both CI runs execute pytest under Python 3.10 and 3.12, the complete experiment matrix under 3.12, and all four firmware profiles. The branch artifacts identify Python 3.10.22 / 3.12.15, Ubuntu GCC 13.3.0 for host C, ESP-IDF v5.4.4 and Xtensa GCC 14.2.0 for firmware. The local and CI patch versions differ and are recorded rather than conflated. Branch CI pytest was 582/582 on each interpreter (80.19 s / 66.69 s); all seven CI experiment suites match the PASS counts above. No failed core experiment was skipped to obtain success. Artifact IDs and published SHA256 digests, downloaded source manifests and job/step conclusions are in the selected final evidence. [PR #5 checks](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/pull/5/checks) track the latest report/evidence revision; both push and PR workflows must stay successful before merge.
+
+| Regression coverage | Test files |
+| --- | --- |
+| Initial enrollment, obsolete-peer fencing and original fault scenarios | `test_stabilization_reproductions.py`, `test_registration_ownership.py`, `test_phase12.py` |
+| Result durability, SQLite admission/rollback, recovery, immutable replay, capacity/TTL and real socket ACK loss | `test_result_delivery.py`, `test_result_delivery_e2e.py`, `test_execution_observation.py` |
+| Policy restart/migration/corruption/concurrent publishers | `test_server_policy_persistence.py` |
+| Deployment refusal, authentication/replay/route/epoch rejection | `test_deployment_security.py` |
+| Scoped sensor confirmation, loss, rejection and reboot | `test_sensor_report_confirmation.py` |
+| Radio recovery, deadline/backoff/coalescing and ACK-progress semantics | `test_lora_retry_lifecycle.py`, `test_b1_radio_schedule.py`, `c_host/b1_radio_schedule.c` |
 
 A later confirmed-result/reboot replay regression also failed: the result ID was stable but its timestamp was regenerated after pending ACK removal. The complete original wire representation is now retained with the completed entry; the regression confirms equal content and successful gateway dedup after restart. Failed development tests are retained. The first ownership unit fixture mistakenly used 10 s against the configured 12 s timeout; it was corrected to explicitly configure 1 s. Original P1 reproductions failed because the required persistent retry window/policy-update API did not exist; a separate unmodified-code reproduction confirmed actual version 100→1 and missing result resend state. The first full suite had three failures: capacity tests must ACK completed results before eviction; initial healthy enrollment must precede asymmetric injection; legacy result compatibility/auxiliary-audit handling required a product fix. Assertions about safety and original outcome upload remain. The first complete local matrix passed TCP/repeats/LoRa/comparison/snapshot/integration but failed the external duplicate-command assertion: replayable EXECUTED reports were counted as actions. The adapter now observes the actual execution branch while preserving uniqueness/nonvacuity; it also verifies result replay content. The first branch CI run 37821602482 compiled firmware successfully but failed all four firmware jobs at provenance generation because container Git rejected checkout ownership. A repository-specific per-command safe.directory fixes provenance without globally trusting repositories. The first external observation-metadata attempt was rejected by EdgeFaultLab's strict scenario schema; original assertions now live in a separate evidence file. A small-capacity replay test then confirmed ACK-only eviction could forget a still-fresh executed command; protecting completed IDs through TTL fixes it and preserves bounded backpressure. These failures and their sources are retained. The first socket ACK-loss test installed its ContextVar interceptor after task creation, so the gateway had no fault injector; installing it before tasks makes the intended ACK actually drop. That corrected test passes and asserts both a dropped ACK and a deduplicated retry.
 
@@ -114,4 +132,4 @@ UNVERIFIED RISK: long-term flash wear, prolonged capacity pressure with field du
 
 PENDING HARDWARE VALIDATION: A/C physical RF endpoints, E220 AUX/BUSY/wiring/airtime and reset behavior, RTC elapsed calibration and retention, GPIO holds, NVS power-cut behavior, battery/current/temperature variation and measured HIGH latency/energy. Software PASS and IDF builds do not satisfy these gates.
 
-Merge judgment at this checkpoint: **NOT READY until the final complete software/firmware regression and both push/PR CI finish successfully.** Deployment remains explicitly unavailable; a future research merge must not be presented as a field-deployment approval.
+Merge judgment: **READY FOR RESEARCH**, subject to successful checks on the final PR head. The complete local matrix and both push/PR CI at the tested implementation revision passed. No confirmed unresolved P0/P1 bug remains in these tested host paths. The deployment gate is intentionally closed, and hardware/design limits above remain explicit research work. A research merge does not approve field deployment. PR #5 targets `research`; it is not automatically merged, and `main` / `research` history is unchanged by this task.
