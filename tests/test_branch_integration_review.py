@@ -78,10 +78,15 @@ def test_controller_live_id_window_matches_durable_bound(tmp_path, monkeypatch):
         guard = SafetyGuard(store=StateStore(tmp_path / "controller.db"),
                             cooldown={"IRRIGATION": 0, "VENTILATION": 0})
         controller = ControllerNode("C1", safety_guard=guard, time_scale=0)
+        import time
+        clock=[time.time()]
+        monkeypatch.setattr('controller_node.recent_commands.time.time',lambda:clock[0])
         for i in range(5):
+            if i:clock[0]+=guard.command_ttl+1
             command = Message(type=CONTROL_COMMAND, source="A1", target="C1",
                               payload={"command_id": f"bounded-{i}", "type": "IRRIGATION",
                                        "duration": 1, "gateway_generation": 1})
+            command.timestamp=clock[0]
             assert (await controller.process_command(command))["status"] == "EXECUTED"
             # Result delivery now protects completed entries until the gateway
             # durably confirms them; this test exercises eviction after ACK.

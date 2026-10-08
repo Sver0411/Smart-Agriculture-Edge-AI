@@ -134,7 +134,7 @@ def test_unconfirmed_results_cannot_be_evicted(tmp_path):
     assert list(store.entries)==['b']
 
 
-def test_capacity_backpressure_can_recover_after_real_ack(tmp_path,monkeypatch):
+def test_backpressure_recovers_after_ack_and_safe_command_expiry(tmp_path,monkeypatch):
     from common import settings
     monkeypatch.setitem(settings.SETTINGS['controller'],'recent_command_capacity',1)
     async def scenario():
@@ -148,6 +148,10 @@ def test_capacity_backpressure_can_recover_after_real_ack(tmp_path,monkeypatch):
         assert not c._accept_result_ack(Message(type='ACK',source='A1',target='C1',payload=p),'A1')
         assert c._accept_result_ack(Message(type=PERSISTED_ACK,source='A1',target='C1',payload=p),'A1')
         c.guard.cooldown['IRRIGATION']=0
+        import time
+        now=time.time()+c.guard.command_ttl+1
+        monkeypatch.setattr('controller_node.recent_commands.time.time',lambda:now)
+        second.timestamp=now
         assert (await c.process_command(second))['status']=='EXECUTED'
         assert c.metrics.get('executed')==2
     asyncio.run(scenario())
@@ -163,4 +167,19 @@ def test_confirmed_result_replay_keeps_original_wire_after_controller_restart(tm
         assert await g._process_control_result(replayed)
         assert g.offline_queue.count()==1 and g.metrics.get('result_duplicates')==1
         assert c.metrics.get('executed')==0
+    asyncio.run(scenario())
+
+def test_acknowledged_command_not_evicted_while_original_can_still_execute(tmp_path,monkeypatch):
+    from common import settings
+    monkeypatch.setitem(settings.SETTINGS['controller'],'recent_command_capacity',2)
+    async def scenario():
+        c=controller(tmp_path);c.guard.cooldown['IRRIGATION']=0
+        original=command()
+        for cid in ['cmd','second','third']:
+            m=command();m.message_id=cid;m.payload['command_id']=cid
+            await c.process_command(m)
+            for identity in list(c.recent_commands.pending_results):c.recent_commands.acknowledge_result(identity)
+        before=c.metrics.get('executed')
+        assert (await c.process_command(original))['status']=='DUPLICATE'
+        assert c.metrics.get('executed')==before
     asyncio.run(scenario())

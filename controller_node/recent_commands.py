@@ -5,6 +5,8 @@ physical execution is UNKNOWN; recovery never executes it again.
 """
 from collections import OrderedDict
 from copy import deepcopy
+import time
+import math
 from common.state_store import StateError
 from common.messages import Message
 
@@ -14,9 +16,12 @@ class ResultBackpressure(StateError):
     pass
 
 class RecentCommandStore:
-    def __init__(self, store=None, capacity=64):
+    def __init__(self, store=None, capacity=64, retention_s=0):
         if type(capacity) is not int or not 1 <= capacity <= 1024:
             raise ValueError('invalid recent command capacity')
+        if type(retention_s) not in (int,float) or not math.isfinite(retention_s) or retention_s < 0:
+            raise ValueError('invalid command retention')
+        self.retention_s = retention_s
         self.store, self.capacity = store, capacity
         self.entries = OrderedDict()
         self.pending_results = {}
@@ -25,6 +30,11 @@ class RecentCommandStore:
             if saved:
                 self.entries = OrderedDict((row['command_id'], row) for row in saved['entries'])
                 self.pending_results = saved.get('pending_results', {})
+                for row in self.entries.values():
+                    if 'retain_until' not in row:
+                        # Legacy checkpoints do not prove expiry. Retain for a
+                        # full TTL after migration rather than forget live IDs.
+                        row['retain_until'] = time.time() + retention_s if retention_s else 0
                 self._trim(self.entries)
                 if len(self.pending_results) > capacity:
                     raise StateError('pending results exceed configured capacity')
@@ -43,6 +53,9 @@ class RecentCommandStore:
             if not isinstance(cid,str) or not 1 <= len(cid) <= 256 or cid in ids:
                 raise StateError('invalid/duplicate recent command id')
             ids.add(cid)
+            if ('retain_until' in row and (type(row['retain_until']) not in (int,float) or
+                    not math.isfinite(row['retain_until']) or row['retain_until'] < 0)):
+                raise StateError('invalid retained command deadline')
             if row['state'] not in ('INTENT','COMPLETED'):
                 raise StateError('invalid command state')
             if row['state'] == 'INTENT' and row['result'] is not None:
@@ -65,7 +78,7 @@ class RecentCommandStore:
     def _trim(self, entries):
         protected = {m['payload']['command_id'] for m in self.pending_results.values()}
         while len(entries) > self.capacity:
-            victim = next((cid for cid,row in entries.items() if row['state'] == 'COMPLETED' and cid not in protected), None)
+            victim = next((cid for cid,row in entries.items() if row['state'] == 'COMPLETED' and cid not in protected and row.get('retain_until', 0) < time.time()), None)
             if victim is None:raise ResultBackpressure('recent command window full of unconfirmed outcomes')
             del entries[victim]
 
@@ -83,7 +96,9 @@ class RecentCommandStore:
             raise ResultBackpressure('result delivery capacity full')
         candidate = deepcopy(self.entries)
         candidate[command_id] = {'command_id':command_id,'state':'INTENT','result':None,
-                                 'context': context}
+                                 'context': context, 'retain_until':
+                (context.get('issued_at', time.time()) if context else time.time()) + self.retention_s
+                if self.retention_s else 0}
         self._trim(candidate)
         self._save(candidate, self.pending_results)
         self.entries = candidate

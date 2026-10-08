@@ -63,6 +63,7 @@ class ControllerNode:
         time_scale: float = config.SIMULATION_TIME_SCALE,
         state_path: str | None = None,
         profile: str = "simulation",
+        emit_execution_events: bool = False,
     ):
         from common.deployment_security import require_lab_profile
         require_lab_profile(profile)
@@ -81,11 +82,13 @@ class ControllerNode:
         self.guard = safety_guard or SafetyGuard(store=StateStore(state_path) if state_path else None)
         self.recent_commands = None
         try:
-            self.recent_commands = RecentCommandStore(self.guard.store, SETTINGS['controller']['recent_command_capacity'])
+            self.recent_commands = RecentCommandStore(self.guard.store, SETTINGS['controller']['recent_command_capacity'],
+                retention_s=self.guard.command_ttl)
             self.guard.executed_command_ids.update(self.recent_commands.entries)
         except (StateError, sqlite3.Error, OSError) as exc:
             self.guard.persistence_fault = True
             node_log(node_id, f'recent command state unavailable; DO NOT EXECUTE: {exc}')
+        self.emit_execution_events = emit_execution_events
         self.time_scale = time_scale
         self.metrics = Counters()
         self._command_lock = asyncio.Lock()
@@ -281,7 +284,8 @@ class ControllerNode:
             try:
                 previous_ids = set(self.recent_commands.entries)
                 self.recent_commands.begin(command_id, {"source": message.source,
-                    "generation": generation, "command_type": command_type, "node_id": self.node_id})
+                    "generation": generation, "command_type": command_type, "node_id": self.node_id,
+                    "issued_at":message.timestamp})
                 # Trim only IDs durably evicted as completed. Unresolved
                 # intents stay in both guards, including across a reboot.
                 self.guard.executed_command_ids.difference_update(
@@ -296,6 +300,7 @@ class ControllerNode:
                 allowed, reason = False, "STATE_UNAVAILABLE"
                 self.metrics.inc('command_persistence_failures')
                 node_log(self.node_id, f'command intent could not be persisted: {exc}')
+        executed_now = allowed
         if allowed:
             node_log(self.node_id, "safety check passed")
             await asyncio.sleep(max(0.05, float(duration) * self.time_scale))
@@ -371,6 +376,14 @@ class ControllerNode:
             # and timestamp remain immutable through takeover and restart.
             outgoing = Message.from_dict(outgoing.to_dict())
             outgoing.target = message.source
+            if executed_now and self.emit_execution_events:
+                # Host experiment observation of the actual execution branch.
+                # It is deliberately separate from replayable durable results.
+                await send_message(writer, Message(type=NODE_STATUS, source=self.node_id,
+                    target=message.source, payload={'node_id':self.node_id, 'status':config.ONLINE,
+                        'event':'ACTUATOR_EXECUTED', 'command_id':command_id,
+                        'command_type':command_type, 'generation':generation,
+                        'owner_gateway':self.guard.owner_gateway}))
             await send_message(writer, outgoing)
             node_log(self.node_id, f"CONTROL_RESULT sent to {message.source}")
         else:
@@ -454,13 +467,14 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--startup-delay", type=float, default=0, help="software experiment process startup delay")
     parser.add_argument("--port", type=int, default=None)
     parser.add_argument("--state-db", default=None, help="host generation checkpoint; default controller_ID.state.db")
+    parser.add_argument("--emit-execution-events", action="store_true", help="host experiment execution-branch observations, independent of result replay")
     parser.add_argument("--profile", choices=("simulation", "lab", "deployment"), default="simulation")
     return parser.parse_args(argv)
 
 
 async def _run(args: argparse.Namespace) -> None:
     node = ControllerNode(node_id=args.id, gateway_host=args.host, gateway_port=args.port,
-                          state_path=args.state_db or f"controller_{args.id}.state.db", profile=args.profile)
+                          state_path=args.state_db or f"controller_{args.id}.state.db", profile=args.profile, emit_execution_events=args.emit_execution_events)
     if args.gateway:
         node.primary_gateway = args.gateway
         node.gateway_id = args.gateway
