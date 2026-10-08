@@ -1,6 +1,7 @@
 """Ten cross-phase cases with production C state and real application endpoints."""
 import argparse
 import asyncio
+import hashlib
 import json
 import subprocess
 from pathlib import Path
@@ -133,6 +134,18 @@ async def ownership_probe(out,exe):
     finally:
         g.offline_queue.close();(out/'events.jsonl').write_text(''.join(json.dumps(e)+'\n' for e in events))
 
+def finalize_topology_summary(out, result):
+    """Include integration assertions in the original run's evidence status."""
+    result['status'] = 'PASS' if all(a['passed'] for a in result['assertions']) else 'FAIL'
+    result['exit_code'] = 0 if result['status'] == 'PASS' else 1
+    summary = out/'results'/'summary.json'
+    summary.write_text(json.dumps(result,indent=2)+'\n')
+    path = out/'manifest.json'
+    manifest = json.loads(path.read_text())
+    manifest['status'] = result['status']
+    manifest['summary_sha256'] = hashlib.sha256(summary.read_bytes()).hexdigest()
+    path.write_text(json.dumps(manifest,indent=2)+'\n')
+
 async def run_all(output,seed=42):
     output=Path(output);output.mkdir(parents=True,exist_ok=False);summaries=[]
     mapping={'failover-freshness':'gateway-failover','recovery-fencing':'gateway-recovery','server-replay':'queue-replay','asymmetric-partition':'normal'}
@@ -144,13 +157,11 @@ async def run_all(output,seed=42):
                 result=await run_scenario(mapping[case],output/case,seed,transport='simulated-lora',extra_fault_rules=extra,duration=3 if extra else None);result['case']=case
                 if case=='failover-freshness':
                     result['assertions'].extend(await ownership_probe(output/case/'history-probe',exe))
-                    (output/case/'results'/'summary.json').write_text(json.dumps(result,indent=2)+'\n')
                 if extra:
                     states=result['observations']['gateway_states']
                     check={'description':'one-way A1→A2 heartbeat loss forces A2 epoch advance and A1 standby via reverse link','passed':states['A1']['role']=='STANDBY' and states['A2']['generation']>=2}
                     result['assertions'].append(check)
-                    if not check['passed']:result['status']='FAIL'
-                    (output/case/'results'/'summary.json').write_text(json.dumps(result,indent=2)+'\n')
+                finalize_topology_summary(output/case,result)
             else:result=await basic_case(case,output/case,seed,exe)
             summaries.append(result);print(case,result['status'],flush=True)
     result={'total':len(summaries),'passed':sum(s['status']=='PASS' for s in summaries),'runs':summaries,'partition_scope':'tested fault schedule and controller epoch fencing; no arbitrary partition consensus guarantee'}

@@ -16,6 +16,12 @@
     "failure-ci-37815924817/raw/events.jsonl": "e71f464a5fadecf5d652d6949ee07b0a7b48acc777d0ff694c360e263d4ec45b",
     "failure-ci-37815924817/summary.json": "e89f5e775ec568ec3f363166e16f3cf8ab7190f5a263fd8be7d162afc4c564f5",
     "failure-ci-37815924817/truth/injection_plan.json": "b5818a3bfa016d3b459c545e0ca4905647e4bb1dfbcd883fe33237cd0dae70c6",
+    "failure-ci-37825941307/config.json": "81bd9cd1eb938de93111c776d81a222dafee992d46531403f5eec9e73eed2a8f",
+    "failure-ci-37825941307/integration-step.log": "142a0d95c2e35a5bc38fb9aaf5831ef5913881bc089232f0e4ec54255c6da9a9",
+    "failure-ci-37825941307/manifest.json": "90ea335713eeb712bbf58dcc9b01e208542e70f4574eee8656d94e435c22f6e3",
+    "failure-ci-37825941307/raw/events.jsonl": "e1653de2ba8307c26208486c6f641f9a69caf0879d5de71d8a80e1e998e79b04",
+    "failure-ci-37825941307/results/summary.json": "a75e36b6ec2e6cbf7d81e47a60143c07dad9aefef8f4f5571c1e062bf5288f63",
+    "failure-ci-37825941307/truth/injection_plan.json": "024ecf6f74a1f73e2cf2426afb5f1d057519a3a015a18a65034fc608daf90405",
     "reproductions/agri-stabilization-baseline-repro.log": "3e995f67d803600c8b021384a9eac134c5ff65024060fb92fa34775b9aab3698",
     "reproductions/agri-stabilization-confirmed-replay-before.log": "e283066ca718795ff6b20fee87be2ec605b45b0b6ccbc83657f3520dc5aa48d3",
     "reproductions/agri-stabilization-full-first.log": "3ceeefaee8f80f254c079c7a49406e18fa4068f9f2653d51dca707080ab88d74",
@@ -25,6 +31,7 @@
     "reproductions/ci-37821602482/firmware-provenance-error.log": "50eef0386bdf41a2c658c53a47a61bfe7a95e7cebd789c60f0b65c6087b26c3b",
     "reproductions/external-observation-metadata-before.log": "25f4cacdaff46a6bfbddca215346ff6a3792846db6c83ddb983fa226afd93c12",
     "reproductions/external-replay-assertion-before.json": "c951c015a3b48f709e74e29fc0527e95db5275f969726517dacb5bc7b5067389",
+    "reproductions/monitor-pause-baseline.log": "fd46ca9f24acefd539545b87ecfd5d689a773e590c73b02403c2391e8a1a3035",
     "reproductions/result-e2e-injector-before.log": "21e277100638a73eace207de4b18583e8ff77a552587fb494030682e56186a04",
     "validation/agri-stabilization-capacity.log": "ba810ff60c5fc2e58d061d6f53cc188c8af7b27bd1252e9c236077ba1c2e8b38",
     "validation/agri-stabilization-confirmed-replay-fixed.log": "10fcae29c5fc7a337a68dfeee23dc116e17df7695ee4dc9f9a4795b01bc2dd2f",
@@ -60,7 +67,8 @@
     "validation/final/tcp-summary.json": "5e467959c5fe661de310347531ccec2bffa7969243c430cc8d889a18dbf926f3",
     "validation/final/validation-summary.json": "68f563d0190b140201f0d83542c14a38b8918b9f06e47b2600e876b3f59c7ebe",
     "validation/historical_inventory_reviewed.json": "fda516e97d9c59f10c5e828d77d6e373a0c4d3e35bb81fa914b0724893fbcc9d",
-    "validation/historical_inventory_summary.json": "3891a1538ac7268af112da5186740ea49bb32a5e874eaf750e23469348273446"
+    "validation/historical_inventory_summary.json": "3891a1538ac7268af112da5186740ea49bb32a5e874eaf750e23469348273446",
+    "validation/monitor-pause-focused.log": "2bd4a44989e45e8602de62b3ed5f852e62d433be5761e50b57e4b44aa9be0d36"
   },
   "tested_revision": "2e3280b17b7a4edc139aee7afaf1a671b856a993",
   "validation_summary": "validation/final/validation-summary.json",
@@ -73,5 +81,6 @@
       "id": 37824116529,
       "event": "pull_request"
     }
-  ]
+  ],
+  "additional_failed_ci_run": 37825941307
 }

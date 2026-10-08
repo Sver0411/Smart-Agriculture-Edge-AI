@@ -167,6 +167,8 @@ class Gateway:
         self.peer_last_seen: float | None = None
         self.peer_started_at: float | None = None
         self.peer_status = config.UNKNOWN
+        self._peer_monitor_last_tick: float | None = None
+        self._peer_resume_deadline: float | None = None
         # last command we put on the wire (used to replay a stale command in
         # the split-brain demo: a delayed frame from a deposed gateway)
         self.last_command: Message | None = None
@@ -506,6 +508,7 @@ class Gateway:
             self.metrics.inc("malformed_peer_heartbeat")
             return False
         self.peer_last_seen = time.monotonic()
+        self._peer_resume_deadline = None
         # Peer ownership evidence may advance a known node, never compete at
         # the same epoch. Registration itself cannot create this evidence.
         snapshot = message.payload.get("ownership", {})
@@ -1162,7 +1165,11 @@ class Gateway:
             for entry in self.registry.expire():
                 node_log(self.gateway_id, f"WATCHDOG {entry.node_id} -> {config.OFFLINE}")
 
+            # Measure only delay while our scheduled timer is pending, not
+            # time spent awaiting a peer connection or cloud queue capacity.
+            self._peer_monitor_last_tick = time.monotonic()
             await asyncio.sleep(self.heartbeat_interval)
+            self._observe_peer_monitor_tick()
 
     async def _connect_peer(self) -> None:
         try:
@@ -1195,6 +1202,20 @@ class Gateway:
         self.peer_writer = writer
         node_log(self.gateway_id, f"peer link established with {self.peer_id}")
 
+    def _observe_peer_monitor_tick(self, now: float | None = None) -> None:
+        """Do not infer a remote crash from a locally suspended monitor.
+
+        A gap exceeding the whole failure window means this task could not
+        observe the peer. Resume one bounded observation window; a validated
+        heartbeat ends it immediately. This does not alter the last receipt
+        time, the configured timeout, or ownership at an equal epoch.
+        """
+        now = time.monotonic() if now is None else now
+        previous, self._peer_monitor_last_tick = self._peer_monitor_last_tick, now
+        if previous is not None and now - previous > self.heartbeat_timeout:
+            self._peer_resume_deadline = now + self.heartbeat_timeout
+            self.metrics.inc("peer_monitor_stalls")
+
     def evaluate_peer_status(self, now: float | None = None) -> str:
         """Return the peer state; trigger the failover on the OFFLINE edge."""
         now = time.monotonic() if now is None else now
@@ -1205,6 +1226,10 @@ class Gateway:
             status = config.OFFLINE
         else:
             status = config.ONLINE
+
+        if (status == config.OFFLINE and self._peer_resume_deadline is not None
+                and now < self._peer_resume_deadline):
+            status = config.UNKNOWN
 
         if status != self.peer_status:
             if status == config.OFFLINE:
