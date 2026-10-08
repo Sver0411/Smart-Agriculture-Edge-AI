@@ -4,6 +4,22 @@
 
 A distributed agricultural IoT and Edge AI research prototype for trustworthy sensing, selective communication, safe local control, and recovery under unreliable connectivity.
 
+## Research at a Glance
+
+| Topic | Research summary |
+| --- | --- |
+| Research Focus | Trustworthy sensing, selective communication, and safe local control under resource constraints and intermittent connectivity |
+| System Prototype | Seven roles across two fixed agricultural zones: Server, gateways A1/A2, sensors B1/B2, and controllers C1/C2 |
+| Core Techniques | SensorTrust, AdaptiveSense, control-relevant uploads, ownership/failover, guarded control, and durable offline replay |
+| Software Validation | `main`: **350 tests**, **20/20 internal fault scenarios**, **5/5 external EdgeFaultLab scenarios**; 2026-10-08 acceptance of `f204ad9`, CI at `002e26a`. Python versions repeat the same suite. [Results and sources](#experiments-and-results) |
+| Hardware Evidence | Historical ESP32-S3/SHT30 HW1: **30 CRC-valid readings**, zero physical read failures; sensing only. [Evidence guide](docs/RESEARCH_EVIDENCE_GUIDE.md#b-physical-esp32-s3--sht30-evidence) |
+| Current Limitations | Integrated E220 wireless control, real actuators, deep sleep, energy/battery measurements, and agricultural effectiveness remain unverified |
+| Related Research | [Explore six independently maintained research projects](#related-research-projects); their results are separate from this system's evidence |
+
+## Quick Navigation
+
+[Research Overview](#project-overview) · [System Architecture](#system-architecture) · [Key Research Components](#key-research-components) · [Implementation Status](#implementation-status) · [Experiments and Results](#experiments-and-results) · [Quick Start](#quick-start) · [Limitations](#limitations-and-future-work) · [Related Research Projects](#related-research-projects) · [Research Evidence Guide](#research-evidence-guide)
+
 ## Project Overview
 
 The project studies how resource-constrained farm nodes can decide which readings deserve transmission and maintain a guarded local control loop when gateways or cloud connections fail. Agricultural IoT provides a concrete setting: slowly changing conditions, occasional important events, battery-powered sensors, and control decisions that depend on both data quality and freshness.
@@ -48,6 +64,46 @@ The cloud is an enhancement layer. It must never become a prerequisite for the f
 
 ## System Architecture
 
+### Compact System Overview
+
+This is the **host-software topology**: TCP links with simulated sensor inputs and actuator execution. B1/C1 and B2/C2 remain fixed pairs. Gateways are shown under normal ownership; if either fails, the surviving gateway can serve both zones, as specified below. The planned E220 field transport is not implemented or hardware-validated here.
+
+```mermaid
+%%{init: {'theme': 'base', 'fontFamily': 'Arial, sans-serif', 'htmlLabels': false, 'themeVariables': {'fontFamily': 'Arial, sans-serif', 'fontSize': '16px', 'primaryTextColor': '#183153', 'lineColor': '#52677f'}}}%%
+block-beta
+    columns 8
+    space:2 Cloud("Cloud Server<br/>History / policy / replay"):4 space:2
+    space:8
+    A1("Gateway A1<br/>Local decisions"):3 space:2 A2("Gateway A2<br/>Local decisions"):3
+    space:8
+    block:Z1:3
+        columns 2
+        B1("Sensor B1<br/>Zone 1") C1("Controller C1<br/>Zone 1")
+    end
+    space:2
+    block:Z2:3
+        columns 2
+        B2("Sensor B2<br/>Zone 2") C2("Controller C2<br/>Zone 2")
+    end
+    Cloud -- "Sync when available" <--> A1
+    Cloud -- "Sync when available" <--> A2
+    A1 --> C1
+    B1 --> A1
+    A2 --> C2
+    B2 --> A2
+    A1 -- "Heartbeat / ownership<br/>Failover" <--> A2
+    classDef cloud fill:#eef2ff,stroke:#6574b4,stroke-width:1.5px
+    classDef gateway fill:#eaf3ff,stroke:#527dac,stroke-width:1.5px
+    classDef sensor fill:#eaf7f0,stroke:#529579,stroke-width:1.5px
+    classDef controller fill:#fff4e5,stroke:#c08b4d,stroke-width:1.5px
+    class Cloud cloud
+    class A1,A2 gateway
+    class B1,B2 sensor
+    class C1,C2 controller
+    style Z1 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
+    style Z2 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
+```
+
 ### Two Agricultural Zones and Gateway Ownership
 
 Zone 1 always pairs **B1 with C1**; Zone 2 always pairs **B2 with C2**. Each zone has a complete Sensor B, Gateway A, and Controller C. A1 and A2 exchange heartbeats, and synchronize with the cloud when a connection is available. The architecture below shows the normal deployment of both zones. Both are integral parts of the system.
@@ -59,6 +115,11 @@ Zone 1 always pairs **B1 with C1**; Zone 2 always pairs **B2 with C2**. Each zon
 | A2 fails | B1 → A1 → C1 | B2 → A1 → C2 |
 
 **Gateway ownership can move; zone membership cannot.** The B1→C1 and B2→C2 mappings in `CONTROLLER_OF_SENSOR` remain fixed. Takeover uses the existing OwnershipManager, heartbeat timeout, generation/epoch, registration, and stale-command rejection mechanisms. A recovered gateway enters STANDBY. There is no automatic failback.
+
+### Detailed Architecture
+
+<details>
+<summary>Expand the original full seven-role diagram</summary>
 
 ```text
                                       ┌─────────────────────────────┐
@@ -118,6 +179,8 @@ Zone 1 always pairs **B1 with C1**; Zone 2 always pairs **B2 with C2**. Each zon
               └─────── Zone 1 ────┘                                    └─────── Zone 2 ────┘
 ```
 
+</details>
+
 A1/A2 are edge gateways, B1/B2 are sensor nodes, and C1/C2 control the corresponding zones. Sensors and controllers sit alongside one another: B1 readings always govern C1, including after gateway takeover. The server, controllers, and gateway reliability mechanisms are all part of this repository.
 
 ## Key Research Components
@@ -166,6 +229,10 @@ This README describes `main`, whose latest recorded software acceptance is **350
 The [research branch](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/tree/research) is a separate, unmerged development line. Phase 1 adds a bounded B1 HIGH buffer, stable message identities, and gateway durable-outbox acknowledgements. Phase 1.1 adds sensor re-probing, conservative recovery from uncertain saves, portable state checkpoints, receipt audits, and acknowledgement-confirmed upload baselines. Its [Phase 1 report](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/PHASE1_DEVELOPMENT_REPORT.md) and [Phase 1.1 report](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/PHASE1_1_DEVELOPMENT_REPORT.md) document separate software/build evidence and pending hardware checks. These capabilities and research-branch results are not claimed as `main` integration results.
 
 ## Experiments and Results
+
+### Research Evidence Guide
+
+Read the [English Research Evidence Guide](docs/RESEARCH_EVIDENCE_GUIDE.md) for concise summaries of main software acceptance, physical HW1 sensing, and the separate research Phase 1 / Phase 1.1 evaluations. It links original reports and raw evidence at explicit revisions. The results below are recorded evaluations, not experiments rerun for this README update.
 
 ### Latest Main Software Acceptance
 
@@ -333,7 +400,7 @@ The physical B1 firmware currently measures temperature and humidity through SHT
 
 Python `SensorRuntime` and `MockFieldTransport` test the radio wake/send/sleep flow on the host. The Python TCP SensorNode accepts only simulation and lab profiles. Combining deployment's minute-scale sampling with second-scale online keepalive does not establish a battery-powered deployment.
 
-In Phase 1, state stays in RAM between samples while the task waits for its next wake-up. Wi-Fi integration uses modem power save and offers opt-in ESP-IDF automatic light sleep. Keeping TCP associated still incurs protocol traffic. On-demand E220 wake-up and complete radio sleep remain future work.
+In the current main firmware, state stays in RAM between samples while the task waits for its next wake-up. Wi-Fi integration uses modem power save and offers opt-in ESP-IDF automatic light sleep. Keeping TCP associated still incurs protocol traffic. On-demand E220 wake-up and complete radio sleep remain future work.
 
 Phase 2 will define RTC-retained state and NVS checkpoints before introducing deep sleep. It must retain SensorTrust history, EMA and time history, hysteresis and ladder state, event duration, fault signature, last upload, and the ownership epoch. Resetting the algorithms after every sleep would break continuity. See the [deployment contract](docs/DEPLOYMENT_SEMANTICS.md). No current, energy, or battery-life conclusion is claimed for this work.
 

@@ -4,6 +4,22 @@
 
 面向农业物联网的分布式边缘智能研究原型，探索可信感知、按需通信、安全本地控制，以及不稳定连接下的故障恢复。
 
+## 研究概览
+
+| 主题 | 研究摘要 |
+| --- | --- |
+| 研究问题 | 资源受限、连接不稳定时的可信感知、选择性通信与安全本地控制 |
+| 系统原型 | 两个固定农业区域、七个角色：Server、A1/A2 网关、B1/B2 传感器、C1/C2 控制器 |
+| 核心方法 | SensorTrust、AdaptiveSense、控制相关上传、归属与接管、安全控制、持久化离线回放 |
+| 软件验证 | `main`：**350 项测试、20/20 内部故障场景、5/5 外部 EdgeFaultLab 场景**；2026-10-08 验收源码 `f204ad9`，CI 版本 `002e26a`。多个 Python 版本重复验证同一测试集，不累加数量。[结果与来源](#实验与结果) |
+| 实物证据 | 历史 ESP32-S3/SHT30 HW1：**30 次 CRC 有效读取**，无物理读取失败；仅验证感知。[英文证据摘要](docs/RESEARCH_EVIDENCE_GUIDE.md#b-physical-esp32-s3--sht30-evidence) |
+| 当前限制 | E220 无线控制闭环、真实执行器、deep sleep、能耗/电池测量与农业效果仍未验证 |
+| 相关研究 | [查看六个独立维护的研究项目](#相关研究项目)；其结果与主系统证据分开 |
+
+## 快速导航
+
+[项目概览](#项目概览) · [系统架构](#系统架构) · [核心研究模块](#核心研究模块) · [实现与验证状态](#实现与验证状态) · [实验与结果](#实验与结果) · [快速开始](#快速开始) · [限制与后续工作](#限制与后续工作) · [相关研究项目](#相关研究项目) · [英文研究证据导览](#英文研究证据导览)
+
 ## 项目概览
 
 本项目研究一个具体问题：资源受限的农业节点如何判断哪些读数值得传输，并在网关故障或云端断连时维持受安全约束的本地控制。农业物联网提供了明确的应用背景：环境通常缓慢变化，重要事件偶尔出现，传感器依赖电池供电，而控制决策同时依赖数据质量与新鲜度。
@@ -48,6 +64,46 @@ Cloud Server 是增强层，绝不能成为现场实时控制闭环的必要组�
 
 ## 系统架构
 
+### 精简系统概览
+
+下图是**主机软件拓扑**：TCP 通信，模拟传感器输入与执行器动作。B1/C1、B2/C2 是固定区域配对；网关位置表示正常归属。任一网关故障后，另一网关可以服务两个区域，具体路径见下表。计划中的现场 E220 传输尚未在这里实现或完成硬件验证。
+
+```mermaid
+%%{init: {'theme': 'base', 'fontFamily': 'Arial, sans-serif', 'htmlLabels': false, 'themeVariables': {'fontFamily': 'Arial, sans-serif', 'fontSize': '16px', 'primaryTextColor': '#183153', 'lineColor': '#52677f'}}}%%
+block-beta
+    columns 8
+    space:2 Cloud("Cloud Server<br/>History / policy / replay"):4 space:2
+    space:8
+    A1("Gateway A1<br/>Local decisions"):3 space:2 A2("Gateway A2<br/>Local decisions"):3
+    space:8
+    block:Z1:3
+        columns 2
+        B1("Sensor B1<br/>Zone 1") C1("Controller C1<br/>Zone 1")
+    end
+    space:2
+    block:Z2:3
+        columns 2
+        B2("Sensor B2<br/>Zone 2") C2("Controller C2<br/>Zone 2")
+    end
+    Cloud -- "Sync when available" <--> A1
+    Cloud -- "Sync when available" <--> A2
+    A1 --> C1
+    B1 --> A1
+    A2 --> C2
+    B2 --> A2
+    A1 -- "Heartbeat / ownership<br/>Failover" <--> A2
+    classDef cloud fill:#eef2ff,stroke:#6574b4,stroke-width:1.5px
+    classDef gateway fill:#eaf3ff,stroke:#527dac,stroke-width:1.5px
+    classDef sensor fill:#eaf7f0,stroke:#529579,stroke-width:1.5px
+    classDef controller fill:#fff4e5,stroke:#c08b4d,stroke-width:1.5px
+    class Cloud cloud
+    class A1,A2 gateway
+    class B1,B2 sensor
+    class C1,C2 controller
+    style Z1 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
+    style Z2 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
+```
+
 ### 两个农业区域与网关归属
 
 Zone 1 固定对应 **B1 与 C1**，Zone 2 固定对应 **B2 与 C2**。每个区域都有完整的 Sensor B、Gateway A 和 Controller C。A1/A2 交换心跳，并在连接可用时与云端同步。下图展示两个区域的正常部署关系，两者都是系统的完整组成部分。
@@ -59,6 +115,11 @@ Zone 1 固定对应 **B1 与 C1**，Zone 2 固定对应 **B2 与 C2**。每个�
 | A2 故障 | B1 → A1 → C1 | B2 → A1 → C2 |
 
 **网关归属可以迁移，区域成员关系不能改变。** `CONTROLLER_OF_SENSOR` 中的 B1→C1、B2→C2 始终固定。接管依赖 OwnershipManager、心跳超时、generation/epoch、注册和旧命令拒绝机制。恢复的网关进入 STANDBY，不自动切回。
+
+### 详细架构
+
+<details>
+<summary>展开原有七角色完整架构图</summary>
 
 ```text
                                       ┌─────────────────────────────┐
@@ -118,6 +179,8 @@ Zone 1 固定对应 **B1 与 C1**，Zone 2 固定对应 **B2 与 C2**。每个�
               └─────── Zone 1 ────┘                                    └─────── Zone 2 ────┘
 ```
 
+</details>
+
 A1/A2 是边缘网关，B1/B2 是传感器节点，C1/C2 控制对应区域。B 与 C 并列：B1 的读数始终用于控制 C1，接管后也保持这一关系。Server、Controller 和网关可靠性机制都位于本仓库。
 
 ## 核心研究模块
@@ -166,6 +229,10 @@ A1/A2 是边缘网关，B1/B2 是传感器节点，C1/C2 控制对应区域。B 
 [research 分支](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/tree/research)是独立、尚未合并的开发线。Phase 1 增加有界 B1 HIGH 缓冲、稳定消息身份和网关持久化 outbox 确认；Phase 1.1 增加传感器重新探测、不确定保存后的保守恢复、可移植状态 checkpoint、回执审计，以及确认后才推进的上传基线。[Phase 1 报告](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/PHASE1_DEVELOPMENT_REPORT.md)与[Phase 1.1 报告](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/PHASE1_1_DEVELOPMENT_REPORT.md)分别记录其软件、编译证据和待验证硬件项。这些功能和结果不作为 `main` 的已集成成果。
 
 ## 实验与结果
+
+### 英文研究证据导览
+
+[英文研究证据导览](docs/RESEARCH_EVIDENCE_GUIDE.md)简要解释主分支软件验收、HW1 实物感知，以及独立 research 分支的 Phase 1 / Phase 1.1 评估，并按明确版本链接原始报告与证据。下文均为已记录的评估，本次 README 修改没有重跑实验。
 
 ### 主分支最近一次软件验收
 
