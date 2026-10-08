@@ -1172,15 +1172,17 @@ class Gateway:
     def _takeover(self) -> int:
         """Take the peer's nodes and bump the ownership generation.
 
-        The epoch is bumped even when the registry holds nothing that still
-        belongs to the peer: the peer has been declared dead, so every command
-        it may still emit - or that is still in flight - belongs to an older
-        epoch and the controllers have to refuse it.  That is what turns a
-        "dead gateway" into a "deposed gateway" for the rest of the system.
+        A delayed heartbeat from an already deposed peer may briefly restore
+        liveness. Its subsequent timeout must not create another epoch when
+        all zones are already fenced by our higher, active epoch.
         """
         if self.persistence_fault:
             return self.ownership.generation
         node_ids = [entry.node_id for entry in self.registry.owned_by(self.peer_id)]
+        if (not node_ids and self.ownership.role == config.ACTIVE and
+                self.ownership.generation > self.ownership.peer_generation and
+                not self._recovery_pending):
+            return self.ownership.generation
 
         previous = self.ownership.generation
         generation = self.ownership.takeover(node_ids)

@@ -61,3 +61,15 @@ def test_malformed_registration_owner_is_rejected_without_crashing(cls,node,monk
         payload={'owner_gateway':[],'generation':1,'accepted':True})
     monkeypatch.setattr(module+'.send_message',send);monkeypatch.setattr(module+'.read_message',read)
     assert not asyncio.run(n._register(None,None,'A1'))
+
+def test_deposed_peer_late_heartbeat_timeout_does_not_repeat_takeover():
+    g = Gateway('A2', heartbeat_timeout=1)
+    g.peer_last_seen = 0
+    assert g.evaluate_peer_status(now=10) == config.OFFLINE
+    assert g.ownership.generation == 2
+    assert g._on_peer_heartbeat(Message(type=HEARTBEAT, source='A1', target='A2',
+        payload={'generation': 1, 'ownership': {}}))
+    assert g.evaluate_peer_status(now=g.peer_last_seen) == config.ONLINE
+    assert g.evaluate_peer_status(now=g.peer_last_seen + 10) == config.OFFLINE
+    assert g.ownership.generation == 2
+    assert g.metrics.get('failovers') == 1
