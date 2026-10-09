@@ -18,6 +18,8 @@
 
 ---
 
+**整合状态：**[PR #7](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/pull/7) 保持草稿，**因已记录的恢复 CI 失败而阻塞**。本文描述 research 上准备好的整合版本，main 尚未改动。[阻塞与证据](docs/research/FINAL_BRANCH_INTEGRATION.md#publication-blocker-final-head-ci-failure)。
+
 ## 研究概览
 
 | 主题 | 研究摘要 |
@@ -200,7 +202,7 @@ A1/A2 是边缘网关，B1/B2 是传感器节点，C1/C2 控制对应区域。B 
 
 ## 核心研究模块
 
-以下模块已在 `main` 中实现；具体证据等级与验证边界见下一节。
+以下模块已在当前 research 整合准备版本中实现；具体证据等级与验证边界见下一节。
 
 | 模块 | 在研究原型中的作用 | 源码 |
 | --- | --- | --- |
@@ -244,12 +246,12 @@ A1/A2 是边缘网关，B1/B2 是传感器节点，C1/C2 控制对应区域。B 
 
 本文描述由 `research`（`f5c2710`）与 `main`（`08f573f`）形成的统一实现。整合保留 main 的学术展示、中英文文档、架构图和证据导航，采用最新 research 源码与完整 CI 矩阵。[最终分支整合记录](docs/research/FINAL_BRANCH_INTEGRATION.md)列出输入版本、分支审计和验证状态。
 
-Phase 1/1.1 引入有界 B1 HIGH 保留与持久化确认；Phase 1.2–3 补强注册/新鲜度，实现有界 LoRa 分帧、B1 UART 驱动和默认关闭的 RTC/NVS 休眠恢复。稳定化增加控制结果持久化重发、Server 策略版本恢复、传感器确认模式与无线调度。AR-1 在保持行为的前提下分离纯传感器准备与 Gateway 协调。这些能力已形成统一实现基线；历史报告仍保留当时范围。
+Phase 1/1.1 引入有界 B1 HIGH 保留与持久化确认；Phase 1.2–3 补强注册/新鲜度，实现有界 LoRa 分帧、B1 UART 驱动和默认关闭的 RTC/NVS 休眠恢复。稳定化增加控制结果持久化重发、Server 策略版本恢复、传感器确认模式与无线调度。AR-1 在保持行为的前提下分离纯传感器准备与 Gateway 协调。这些能力形成 research 上的整合准备基线；已记录的恢复失败解决前，禁止发布到 main。历史报告仍保留当时范围。
 
 | 开发线 | 整合后的作用 | 证据边界 |
 | --- | --- | --- |
-| `main` | 包含 research 实现与学术文档的统一发布线 | 主机测试、受控软件故障和四种固件编译；实物结果仍仅限 HW1 |
-| `research` | 已整合功能的来源，保留开发历史 | 整合时采用同一套已测试实现；后续提交需独立验证 |
+| `main` | 现有发布线；准备好的整合尚未合入 | 历史 350 项验收及 HW1 感知，下文保留原证据 |
+| `research` | 当前功能与 main 文档的整合准备版本；PR #7 保持草稿 | 本地及准备阶段通过，同时保留最终提交的阻塞 CI 观察；后续修复需完整验证 |
 
 详见[跨阶段集成](docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md)、[可靠性稳定化](docs/research/RELIABILITY_STABILIZATION_REPORT.md)、[AR-1 架构与验证](docs/architecture/AR1_SENSOR_PIPELINE.md)。固定 seed 无线比较保留 **43 COMPLETE / 13 INCOMPLETE**，56 项安全检查均通过。隔离实验可用 peer HMAC，但所有必要链路认证前，deployment 入口仍 fail-closed。源码整合不构成硬件成果。
 

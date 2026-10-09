@@ -18,6 +18,8 @@
 
 ---
 
+**Integration status:** [PR #7](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/pull/7) is draft and **blocked by a recorded recovery CI failure**. This README describes the prepared research consolidation; main is unchanged. [Blocker and evidence](docs/research/FINAL_BRANCH_INTEGRATION.md#publication-blocker-final-head-ci-failure).
+
 ## Research at a Glance
 
 | Topic | Research summary |
@@ -200,7 +202,7 @@ A1/A2 are edge gateways, B1/B2 are sensor nodes, and C1/C2 control the correspon
 
 ## Key Research Components
 
-The following components are implemented in `main`; their verification boundaries are listed below.
+The following components are implemented in this prepared research baseline; their verification boundaries are listed below.
 
 | Component | Role in the research prototype | Source |
 | --- | --- | --- |
@@ -244,12 +246,12 @@ The [HW1 record](results/v0.3/README.md) contains 30 CRC-valid SHT30 reads, with
 
 This README describes the consolidated implementation prepared from `research` (`f5c2710`) and `main` (`08f573f`). Integration retains the main academic presentation, both languages, diagrams, and evidence navigation, while adopting the latest research source and complete CI matrix. [Final branch integration record](docs/research/FINAL_BRANCH_INTEGRATION.md) identifies the input revisions, branch audit, and validation status.
 
-Phases 1/1.1 introduced bounded B1 HIGH retention and durable confirmation; Phases 1.2–3 added hardened registration/freshness, bounded LoRa framing and the B1 UART driver, and opt-in RTC/NVS sleep restoration. Stabilization added persistent control-result retries, restart-safe policy publication, sensor confirmation modes, and radio scheduling. AR-1 separates pure sensor preparation from Gateway coordination without changing runtime behavior. These additions now form one implementation baseline; historical branch reports retain their original scope.
+Phases 1/1.1 introduced bounded B1 HIGH retention and durable confirmation; Phases 1.2–3 added hardened registration/freshness, bounded LoRa framing and the B1 UART driver, and opt-in RTC/NVS sleep restoration. Stabilization added persistent control-result retries, restart-safe policy publication, sensor confirmation modes, and radio scheduling. AR-1 separates pure sensor preparation from Gateway coordination without changing runtime behavior. These additions form the prepared research baseline; main publication is blocked until the recorded recovery failure is resolved. Historical branch reports retain their original scope.
 
 | Development line | Role after integration | Evidence boundary |
 | --- | --- | --- |
-| `main` | Consolidated release line containing the research implementation and academic documentation | Host tests, controlled software faults, and four firmware compilation profiles; physical results remain limited to HW1 |
-| `research` | Source of the integrated functionality; retained development history | The same tested implementation at integration; future commits require their own validation |
+| `main` | Existing release line; the prepared consolidation has not been merged | Historical 350-test acceptance and HW1 sensing; see the earlier acceptance below |
+| `research` | Prepared consolidation of current functionality and main documentation; PR #7 remains draft | Passing local/preparation runs plus the blocking final-head CI observation; future fixes require complete validation |
 
 Read the [cross-phase integration](docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md), [reliability stabilization](docs/research/RELIABILITY_STABILIZATION_REPORT.md), and [AR-1 architecture/validation](docs/architecture/AR1_SENSOR_PIPELINE.md) reports. Seeded radio comparisons retain **43 COMPLETE / 13 INCOMPLETE** deliveries while all 56 safety checks pass. Optional peer HMAC supports isolated experiments; deployment entry points remain fail-closed until every required link authenticates. Source integration does not establish a hardware outcome.
 
