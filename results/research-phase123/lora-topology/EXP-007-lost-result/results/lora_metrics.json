@@ -1,0 +1,9 @@
+{
+  "dropped": 0,
+  "duplicates": 0,
+  "fragments_sent": 1193,
+  "logical_attempts": 173,
+  "reassembled": 173,
+  "rejected": 0,
+  "simulated_frame_bytes": 182388
+}

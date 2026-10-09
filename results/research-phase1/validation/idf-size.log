@@ -1,0 +1,41 @@
+Executing action: size
+Running ninja in directory /Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/build
+Executing "ninja all"...
+[1/4] cd /Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/build/esp-idf/esptool_py && /Users/mac/.espressif/python_env/idf5.4_py3.13_env/bin/python /Users/mac/esp/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/build/partition_table/partition-table.bin /Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/build/smart_agriculture_b1.bin
+smart_agriculture_b1.bin binary size 0x44910 bytes. Smallest app partition is 0x100000 bytes. 0xbb6f0 bytes (73%) free.
+[2/4] Performing build step for 'bootloader'
+[1/1] cd /Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/build/bootloader/esp-idf/esptool_py && /Users/mac/.espressif/python_env/idf5.4_py3.13_env/bin/python /Users/mac/esp/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/build/bootloader/bootloader.bin
+Bootloader binary size 0x51c0 bytes. 0x2e40 bytes (36%) free.
+[3/4] No install step for 'bootloader'
+[4/4] Completed 'bootloader'
+Running ninja in directory /Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/build
+Executing "ninja size"...
+[0/1] cd /Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/build && /Users/mac/.espressif/tools/cmake/3.30.2/CMake.app/Contents/bin/cmake -D "IDF_SIZE_TOOL=/Users/mac/.espressif/python_env/idf5.4_py3.13_env/bin/python;-m;esp_idf_size" -D MAP_FILE=/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/build/smart_agriculture_b1.map -D OUTPUT_JSON= -P /Users/mac/esp/esp-idf/tools/cmake/run_size_tool.cmake
+                           Memory Type Usage Summary                            
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Memory            ┃              ┃          ┃                ┃               ┃
+┃ Type/Section      ┃ Used [bytes] ┃ Used [%] ┃ Remain [bytes] ┃ Total [bytes] ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ Flash Code        │       151770 │          │                │               │
+│    .text          │       151770 │          │                │               │
+│ DIRAM             │       148827 │    43.55 │         192933 │        341760 │
+│    .bss           │        87200 │    25.51 │                │               │
+│    .text          │        49287 │    14.42 │                │               │
+│    .data          │        12340 │     3.61 │                │               │
+│ Flash Data        │        50928 │          │                │               │
+│    .rodata        │        50672 │          │                │               │
+│    .appdesc       │          256 │          │                │               │
+│ IRAM              │        16383 │    99.99 │              1 │         16384 │
+│    .text          │        15356 │    93.73 │                │               │
+│    .vectors       │         1027 │     6.27 │                │               │
+│ RTC SLOW          │           28 │     0.34 │           8164 │          8192 │
+│    .force_slow    │           28 │     0.34 │                │               │
+│ RTC FAST          │           24 │     0.29 │           8168 │          8192 │
+│    .rtc_reserved  │           24 │     0.29 │                │               │
+└───────────────────┴──────────────┴──────────┴────────────────┴───────────────┘
+Total image size: 280736 bytes (.bin may be padded larger)
+Note: The reported total sizes may be smaller than those in the technical 
+reference manual due to reserved memory and application configuration. The total
+flash size available for the application is not included by default, as it 
+cannot be reliably determined due to the presence of other data like the 
+bootloader, partition table, and application partition size.

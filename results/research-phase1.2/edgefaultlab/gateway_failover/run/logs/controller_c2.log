@@ -1,0 +1,88 @@
+21:28:21 [C2] connected to gateway A2 (127.0.0.1)
+21:28:21 [C2] NODE_REGISTER sent to A2 (attempt 1)
+21:28:21 [C2] connected to gateway A1 (127.0.0.1)
+21:28:21 [C2] NODE_REGISTER sent to A1 (attempt 1)
+21:28:21 [C2] connected to gateway A2 (127.0.0.1)
+21:28:21 [C2] NODE_REGISTER sent to A2 (attempt 1)
+21:28:21 [C2] registered with A2 (generation=1)
+21:28:21 [C2] IRRIGATION command received (command_id=cff681f6f216, duration=10s, generation=1)
+21:28:21 [C2] ACK sent (command_id=cff681f6f216)
+21:28:21 [C2] safety check passed
+21:28:21 [C2] irrigation executed
+21:28:21 [C2] CONTROL_RESULT sent to A2
+21:28:21 [C2] IRRIGATION command received (command_id=18aec9c24431, duration=10s, generation=1)
+21:28:21 [C2] ACK sent (command_id=18aec9c24431)
+21:28:21 [C2] safety check passed
+21:28:21 [C2] irrigation executed
+21:28:21 [C2] CONTROL_RESULT sent to A2
+21:28:22 [C2] IRRIGATION command received (command_id=559909e8dc17, duration=10s, generation=1)
+21:28:22 [C2] ACK sent (command_id=559909e8dc17)
+21:28:22 [C2] safety check passed
+21:28:22 [C2] irrigation executed
+21:28:22 [C2] CONTROL_RESULT sent to A2
+21:28:22 [C2] IRRIGATION command received (command_id=c792117acb3b, duration=10s, generation=1)
+21:28:22 [C2] ACK sent (command_id=c792117acb3b)
+21:28:22 [C2] safety check passed
+21:28:23 [C2] irrigation executed
+21:28:23 [C2] CONTROL_RESULT sent to A2
+21:28:23 [C2] IRRIGATION command received (command_id=453e9407bf6d, duration=10s, generation=1)
+21:28:23 [C2] ACK sent (command_id=453e9407bf6d)
+21:28:23 [C2] safety check passed
+21:28:23 [C2] irrigation executed
+21:28:23 [C2] CONTROL_RESULT sent to A2
+21:28:23 [C2] owner_gateway = A2 (generation=2)
+21:28:24 [C2] IRRIGATION command received (command_id=38cc895b8a45, duration=10s, generation=2)
+21:28:24 [C2] ACK sent (command_id=38cc895b8a45)
+21:28:24 [C2] safety check passed
+21:28:24 [C2] irrigation executed
+21:28:24 [C2] CONTROL_RESULT sent to A2
+21:28:24 [C2] IRRIGATION command received (command_id=548b5dc8e32a, duration=10s, generation=2)
+21:28:24 [C2] ACK sent (command_id=548b5dc8e32a)
+21:28:24 [C2] safety check passed
+21:28:24 [C2] irrigation executed
+21:28:24 [C2] CONTROL_RESULT sent to A2
+21:28:25 [C2] IRRIGATION command received (command_id=a90bc8439b35, duration=10s, generation=2)
+21:28:25 [C2] ACK sent (command_id=a90bc8439b35)
+21:28:25 [C2] safety check passed
+21:28:25 [C2] irrigation executed
+21:28:25 [C2] CONTROL_RESULT sent to A2
+21:28:25 [C2] IRRIGATION command received (command_id=4eb74eb2c9da, duration=10s, generation=2)
+21:28:25 [C2] ACK sent (command_id=4eb74eb2c9da)
+21:28:25 [C2] safety check passed
+21:28:25 [C2] irrigation executed
+21:28:25 [C2] CONTROL_RESULT sent to A2
+21:28:28 [C2] IRRIGATION command received (command_id=6134d0e54e05, duration=10s, generation=2)
+21:28:28 [C2] ACK sent (command_id=6134d0e54e05)
+21:28:28 [C2] safety check passed
+21:28:28 [C2] irrigation executed
+21:28:28 [C2] CONTROL_RESULT sent to A2
+21:28:28 [C2] IRRIGATION command received (command_id=6125bf2c9595, duration=10s, generation=2)
+21:28:28 [C2] ACK sent (command_id=6125bf2c9595)
+21:28:28 [C2] safety check passed
+21:28:29 [C2] irrigation executed
+21:28:29 [C2] CONTROL_RESULT sent to A2
+21:28:29 [C2] IRRIGATION command received (command_id=28e66291b4dd, duration=10s, generation=2)
+21:28:29 [C2] ACK sent (command_id=28e66291b4dd)
+21:28:29 [C2] safety check passed
+21:28:29 [C2] irrigation executed
+21:28:29 [C2] CONTROL_RESULT sent to A2
+21:28:31 [C2] IRRIGATION command received (command_id=2b25103bde5a, duration=10s, generation=2)
+21:28:31 [C2] ACK sent (command_id=2b25103bde5a)
+21:28:31 [C2] safety check passed
+21:28:31 [C2] irrigation executed
+21:28:31 [C2] CONTROL_RESULT sent to A2
+21:28:32 [C2] IRRIGATION command received (command_id=bb64f9e2dc37, duration=10s, generation=2)
+21:28:32 [C2] ACK sent (command_id=bb64f9e2dc37)
+21:28:32 [C2] safety check passed
+21:28:32 [C2] irrigation executed
+21:28:32 [C2] CONTROL_RESULT sent to A2
+21:28:32 [C2] IRRIGATION command received (command_id=985146f14d8a, duration=10s, generation=2)
+21:28:32 [C2] ACK sent (command_id=985146f14d8a)
+21:28:32 [C2] safety check passed
+21:28:32 [C2] irrigation executed
+21:28:32 [C2] CONTROL_RESULT sent to A2
+21:28:33 [C2] IRRIGATION command received (command_id=3a4a00a6e848, duration=10s, generation=2)
+21:28:33 [C2] ACK sent (command_id=3a4a00a6e848)
+21:28:33 [C2] safety check passed
+21:28:33 [C2] irrigation executed
+21:28:33 [C2] CONTROL_RESULT sent to A2

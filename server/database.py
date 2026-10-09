@@ -13,6 +13,7 @@ from __future__ import annotations
 import sqlite3
 import time
 import json
+import hashlib
 from contextlib import contextmanager
 
 SCHEMA = """
@@ -106,6 +107,7 @@ class Database:
             self.conn = sqlite3.connect(self.path, check_same_thread=False)
             self.conn.row_factory = sqlite3.Row
             self.conn.execute("PRAGMA journal_mode=WAL")
+            self.conn.execute("PRAGMA synchronous=FULL")
         return self
 
     def init_schema(self) -> "Database":
@@ -130,6 +132,45 @@ class Database:
             self.conn = None
 
     # -- writes ------------------------------------------------------------
+
+    def load_policy(self, initial_version, initial_policy):
+        """Recover the exact head. Never invent a version for an old database.
+
+        Old schemas have no persisted publication high-water mark. They can
+        keep accepting history, but policy publication requires an explicitly
+        restored authoritative checkpoint (see deployment migration guide).
+        """
+        self.connect()
+        tables = {row[0] for row in self.conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        if 'server_policy' not in tables:
+            with self.conn:
+                self.conn.execute('CREATE TABLE server_policy (singleton INTEGER PRIMARY KEY CHECK(singleton=1), version INTEGER NOT NULL, content TEXT NOT NULL, checksum TEXT NOT NULL)')
+                if not tables:
+                    self._write_policy(initial_version, initial_policy, insert=True)
+        row = self.conn.execute('SELECT version,content,checksum FROM server_policy WHERE singleton=1').fetchone()
+        if row is None:raise ValueError('policy version unavailable: authoritative restoration required')
+        version, raw, checksum = row
+        from common.protocol import integer, validate_policy
+        if not integer(version, 1) or hashlib.sha256(f'{version}:{raw}'.encode()).hexdigest() != checksum:
+            raise ValueError('corrupt policy head; refusing version rollback')
+        policy = json.loads(raw)
+        if set(policy) != set(initial_policy):raise ValueError('incomplete policy head')
+        return version, validate_policy({**policy, 'policy_version':version}, initial_policy)
+
+    def _write_policy(self, version, policy, *, insert=False, expected_version=None):
+        raw = json.dumps(policy, sort_keys=True, separators=(',', ':'), allow_nan=False)
+        digest = hashlib.sha256(f'{version}:{raw}'.encode()).hexdigest()
+        if insert:
+            self.conn.execute('INSERT INTO server_policy VALUES (1,?,?,?)', (version, raw, digest))
+        else:
+            cursor = self.conn.execute('UPDATE server_policy SET version=?,content=?,checksum=? WHERE singleton=1 AND version=?',
+                                       (version, raw, digest, expected_version))
+            if cursor.rowcount != 1:raise ValueError('policy head changed or lost; reload required')
+
+    def update_policy(self, version, policy, expected_version):
+        with self.conn:
+            self.conn.execute('BEGIN IMMEDIATE')
+            self._write_policy(version, policy, expected_version=expected_version)
 
     def insert_sensor_data(
         self,

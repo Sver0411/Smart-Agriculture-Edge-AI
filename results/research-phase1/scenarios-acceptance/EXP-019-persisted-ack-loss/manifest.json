@@ -1,0 +1,13 @@
+{
+  "config_sha256": "ca84a040f3c14a4f89074bfca3478cea0aa060d1449347e1821bb873914a317f",
+  "dirty_scope": "source files; generated software-v0.3 and software-v0.3.1 evidence excluded",
+  "input_mode": "software-simulation",
+  "raw_sha256": "64a22855b25dcd711b9b178a1642165c05dd147b636ff4f89b82693fb81e76d2",
+  "revision": "827cc393af34a1921613e9239785a625f191eafb",
+  "scenario": "persisted-ack-loss",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "PASS",
+  "verification": "host-tested",
+  "working_tree_dirty": true
+}

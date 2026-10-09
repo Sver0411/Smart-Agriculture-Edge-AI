@@ -1,0 +1,167 @@
+{
+  "disruptions": [],
+  "frame_faults": [
+    {
+      "action": "drop",
+      "count": 10000,
+      "match": {
+        "source": "A1",
+        "target": "A2",
+        "type": "HEARTBEAT"
+      }
+    }
+  ],
+  "receipt_observations": [
+    {
+      "action": "drop",
+      "message_id": "b71dec95354b"
+    },
+    {
+      "action": "drop",
+      "message_id": "46dc24ad1e17"
+    },
+    {
+      "action": "drop",
+      "message_id": "581ecec42d7a"
+    },
+    {
+      "action": "drop",
+      "message_id": "48a66c672bb2"
+    },
+    {
+      "action": "drop",
+      "message_id": "f7cc79d57bb4"
+    },
+    {
+      "action": "drop",
+      "message_id": "a6738ac5855e"
+    },
+    {
+      "action": "drop",
+      "message_id": "3bffb9233d16"
+    },
+    {
+      "action": "drop",
+      "message_id": "b68c255624e2"
+    },
+    {
+      "action": "drop",
+      "message_id": "b75bf03f61a8"
+    },
+    {
+      "action": "drop",
+      "message_id": "799779c796c4"
+    },
+    {
+      "action": "drop",
+      "message_id": "e8482b716fe2"
+    },
+    {
+      "action": "drop",
+      "message_id": "8e59a3cfbf6d"
+    },
+    {
+      "action": "drop",
+      "message_id": "50ad9f014d1b"
+    },
+    {
+      "action": "drop",
+      "message_id": "cc2e037b99b8"
+    },
+    {
+      "action": "drop",
+      "message_id": "22623b7f195e"
+    },
+    {
+      "action": "drop",
+      "message_id": "913dd544e64f"
+    },
+    {
+      "action": "drop",
+      "message_id": "46fdee844cfa"
+    },
+    {
+      "action": "drop",
+      "message_id": "ef01bee7ab32"
+    },
+    {
+      "action": "drop",
+      "message_id": "40bac65b7ac7"
+    },
+    {
+      "action": "drop",
+      "message_id": "3fa99a88391b"
+    },
+    {
+      "action": "drop",
+      "message_id": "66256f792b40"
+    },
+    {
+      "action": "drop",
+      "message_id": "cd6844007caf"
+    },
+    {
+      "action": "drop",
+      "message_id": "c78ba32ab6b5"
+    },
+    {
+      "action": "drop",
+      "message_id": "8d229a04317c"
+    },
+    {
+      "action": "drop",
+      "message_id": "789eff594a66"
+    },
+    {
+      "action": "drop",
+      "message_id": "39c2ad426e2e"
+    },
+    {
+      "action": "drop",
+      "message_id": "febe23f4871b"
+    },
+    {
+      "action": "drop",
+      "message_id": "56c5525aba14"
+    },
+    {
+      "action": "drop",
+      "message_id": "14ec447b3962"
+    },
+    {
+      "action": "drop",
+      "message_id": "5f1cfda3562f"
+    },
+    {
+      "action": "drop",
+      "message_id": "0a6e8776006f"
+    },
+    {
+      "action": "drop",
+      "message_id": "473ec42fd261"
+    },
+    {
+      "action": "drop",
+      "message_id": "9c53b41e7495"
+    },
+    {
+      "action": "drop",
+      "message_id": "03fc970afc56"
+    },
+    {
+      "action": "drop",
+      "message_id": "457e9ca982da"
+    },
+    {
+      "action": "drop",
+      "message_id": "5641af975f84"
+    },
+    {
+      "action": "drop",
+      "message_id": "69025ebe0ab8"
+    }
+  ],
+  "scenario": "normal",
+  "seed": 42,
+  "sensor_fault": false
+}

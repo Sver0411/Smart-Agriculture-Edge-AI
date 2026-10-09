@@ -38,8 +38,9 @@ def test_legacy_physical_channel_health_without_valid_flag_can_ventilate():
     # Frozen physical B1 protocol: state/score/flags, no Python-only valid field.
     async def run():
         g=Gateway('A1')
+        g.sensor_boots['B1']='trusted-lab'
         await g._process_sensor_message(Message(type=SENSOR_DATA,source='B1',target='A1',payload={
-            'node_mode':'physical','data':{'temperature':40,'humidity':60},'usable_for_control':True,
+            'boot_id':'trusted-lab','delivery_age_ms':0,'node_mode':'physical','data':{'temperature':40,'humidity':60},'usable_for_control':True,
             'health':{'temperature':{'state':'HEALTHY','score':100,'flags':0},
                       'humidity':{'state':'HEALTHY','score':100,'flags':0}}}))
         assert (await g.command_queue.get())[0].payload['type']=='VENTILATION'

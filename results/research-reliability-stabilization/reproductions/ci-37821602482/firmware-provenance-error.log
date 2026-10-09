@@ -1,0 +1,14 @@
+2026-10-08T18:08:22.3580339Z Note: The reported total sizes may be smaller than those in the technical reference manual due to reserved memory and application configuration. The total flash size available for the application is not included by default, as it cannot be reliably determined due to the presence of other data like the bootloader, partition table, and application partition size.
+2026-10-08T18:08:22.4985899Z fatal: detected dubious ownership in repository at '/__w/Smart-Agriculture-Edge-AI/Smart-Agriculture-Edge-AI'
+2026-10-08T18:08:22.4986660Z To add an exception for this directory, call:
+2026-10-08T18:08:22.4986920Z 
+2026-10-08T18:08:22.4987296Z 	git config --global --add safe.directory /__w/Smart-Agriculture-Edge-AI/Smart-Agriculture-Edge-AI
+2026-10-08T18:08:22.4988342Z Traceback (most recent call last):
+2026-10-08T18:08:22.4988690Z   File "<stdin>", line 6, in <module>
+2026-10-08T18:08:22.4989146Z   File "/usr/lib/python3.12/subprocess.py", line 466, in check_output
+2026-10-08T18:08:22.4989685Z     return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+2026-10-08T18:08:22.4990140Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-08T18:08:22.4990570Z   File "/usr/lib/python3.12/subprocess.py", line 571, in run
+2026-10-08T18:08:22.4991022Z     raise CalledProcessError(retcode, process.args,
+2026-10-08T18:08:22.4991821Z subprocess.CalledProcessError: Command '['git', '-C', '/__w/Smart-Agriculture-Edge-AI/Smart-Agriculture-Edge-AI', 'rev-parse', 'HEAD']' returned non-zero exit status 128.
+2026-10-08T18:08:22.5075348Z ##[error]Process completed with exit code 1.

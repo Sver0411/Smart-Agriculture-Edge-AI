@@ -1,0 +1,12 @@
+{
+  "counts": {
+    "B": 3224,
+    "C": 274,
+    "A": 933,
+    "D": 338
+  },
+  "files": 4769,
+  "duplicates": 143,
+  "inventory_sha256": "a7ff98845c19873abebc64f48a146fcf3c7758892f665731122b44e0bb3c4da8",
+  "review": "20 .bin files were inspected: snapshot/outbox evidence, never firmware build output; no deletion"
+}

@@ -1,0 +1,173 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_________________ test_intent_does_not_advance_python_baseline _________________
+
+    def test_intent_does_not_advance_python_baseline():
+        b=AdaptiveSense();b.update({'temperature':25,'humidity':60},TRUST,10)
+>       assert b.core._last_upload_t is None
+E       assert 10.0 is None
+E        +  where 10.0 = <sensor_node.adaptive_scheduler.AdaptiveScheduler object at 0x1049edfd0>._last_upload_t
+E        +    where <sensor_node.adaptive_scheduler.AdaptiveScheduler object at 0x1049edfd0> = <sensor_node.adaptive_sense.AdaptiveSense object at 0x1049ed940>.core
+
+tests/test_ack_baseline.py:7: AssertionError
+___________ test_late_ack_uses_acquisition_time_and_never_rolls_back ___________
+
+    def test_late_ack_uses_acquisition_time_and_never_rolls_back():
+        b=AdaptiveSense();b.update({'temperature':25,'humidity':60},TRUST,100)
+>       assert b.mark_reported({'temperature':36,'humidity':60},TRUST,timestamp=20,sequence=2)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: AdaptiveSense.mark_reported() got an unexpected keyword argument 'timestamp'
+
+tests/test_ack_baseline.py:11: TypeError
+______________________________ test_ack_ordering _______________________________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-73/test_ack_ordering0')
+
+    def test_ack_ordering(tmp_path):
+        main=ROOT/'firmware/b1/main';trust=ROOT/'firmware/b1/components/sensor_trust';adaptive=ROOT/'firmware/b1/components/adaptive_sense'
+        binary=tmp_path/'ordering';cc=shutil.which('cc')
+        if not cc:pytest.fail('C compiler required')
+>       subprocess.run([cc,'-std=c11','-Wall','-Wextra','-Werror','-DB1_HOST_TEST','-DCONFIG_B1_LAB_MODE=1','-pthread','-fsanitize=address,undefined',
+            '-I',str(ROOT/'third_party/cjson'),'-I',str(ROOT/'tests/c_host/stubs'),'-I',str(main),'-I',str(trust),'-I',str(adaptive),
+            str(ROOT/'tests/c_host/b1_ack_ordering.c'),str(main/'b1_policy.c'),str(main/'b1_queue.c'),str(main/'b1_telemetry.c'),str(main/'b1_outbox.c'),
+            str(trust/'sensor_trust.c'),str(adaptive/'adaptive_scheduler.c'),str(adaptive/'change_detector.c'),
+            str(ROOT/'third_party/cjson/cJSON.c'),'-lm','-o',str(binary)],check=True)
+
+tests/test_b1_ack_ordering.py:10: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['/usr/bin/cc', '-std=c11', '-Wall', '-Wextra', '-Werror', '-DB1_HOST_TEST', ...],)
+kwargs = {}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout (seconds) is given and the process takes too long,
+         a TimeoutExpired exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['/usr/bin/cc', '-std=c11', '-Wall', '-Wextra', '-Werror', '-DB1_HOST_TEST', '-DCONFIG_B1_LAB_MODE=1', '-pthread', '-fsanitize=address,undefined', '-I', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/third_party/cjson', '-I', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/tests/c_host/stubs', '-I', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/main', '-I', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/components/sensor_trust', '-I', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/components/adaptive_sense', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/tests/c_host/b1_ack_ordering.c', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/main/b1_policy.c', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/main/b1_queue.c', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/main/b1_telemetry.c', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/main/b1_outbox.c', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/components/sensor_trust/sensor_trust.c', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/components/adaptive_sense/adaptive_scheduler.c', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/firmware/b1/components/adaptive_sense/change_detector.c', '/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/third_party/cjson/cJSON.c', '-lm', '-o', '/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-73/test_ack_ordering0/ordering']' returned non-zero exit status 1.
+
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:578: CalledProcessError
+----------------------------- Captured stderr call -----------------------------
+/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/third_party/cjson/cJSON.c:127:5: error: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Werror,-Wdeprecated-declarations]
+  127 |     sprintf(version, "%i.%i.%i", CJSON_VERSION_MAJOR, CJSON_VERSION_MINOR, CJSON_VERSION_PATCH);
+      |     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/third_party/cjson/cJSON.c:609:18: error: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Werror,-Wdeprecated-declarations]
+  609 |         length = sprintf((char*)number_buffer, "null");
+      |                  ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/third_party/cjson/cJSON.c:613:18: error: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Werror,-Wdeprecated-declarations]
+  613 |         length = sprintf((char*)number_buffer, "%d", item->valueint);
+      |                  ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/third_party/cjson/cJSON.c:618:18: error: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Werror,-Wdeprecated-declarations]
+  618 |         length = sprintf((char*)number_buffer, "%1.15g", d);
+      |                  ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/third_party/cjson/cJSON.c:624:22: error: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Werror,-Wdeprecated-declarations]
+  624 |             length = sprintf((char*)number_buffer, "%1.17g", d);
+      |                      ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/third_party/cjson/cJSON.c:1058:21: error: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Werror,-Wdeprecated-declarations]
+ 1058 |                     sprintf((char*)output_pointer, "u%04x", *input_pointer);
+      |                     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+6 errors generated.
+=========================== short test summary info ============================
+FAILED tests/test_ack_baseline.py::test_intent_does_not_advance_python_baseline
+FAILED tests/test_ack_baseline.py::test_late_ack_uses_acquisition_time_and_never_rolls_back
+FAILED tests/test_b1_ack_ordering.py::test_ack_ordering - subprocess.CalledPr...
+3 failed in 0.90s

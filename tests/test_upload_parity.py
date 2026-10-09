@@ -25,8 +25,8 @@ def c_policy(request, tmp_path_factory):
     base=ROOT/'firmware/b1';main=base/'main';trust=base/'components/sensor_trust';adaptive=base/'components/adaptive_sense'
     binary=tmp_path_factory.mktemp('upload-parity')/request.param
     subprocess.run([cc,'-std=c11','-Wall','-Wextra','-Werror','-DB1_HOST_TEST',f'-DCONFIG_B1_{request.param.upper()}_MODE=1',
-        '-I',str(ROOT/'tests/c_host/stubs'),'-I',str(main),'-I',str(trust),'-I',str(adaptive),
-        str(ROOT/'tests/c_host/b1_policy_trace.c'),str(main/'b1_policy.c'),str(main/'b1_queue.c'),str(main/'b1_telemetry.c'),
+        '-I',str(ROOT/'third_party/cjson'),'-I',str(ROOT/'tests/c_host/stubs'),'-I',str(main),'-I',str(trust),'-I',str(adaptive),
+        str(ROOT/'tests/c_host/b1_policy_trace.c'),str(main/'b1_policy.c'),str(main/'b1_queue.c'),str(main/'b1_telemetry.c'),str(main/'b1_outbox.c'),str(ROOT/'third_party/cjson/cJSON.c'),
         str(trust/'sensor_trust.c'),str(adaptive/'adaptive_scheduler.c'),str(adaptive/'change_detector.c'),'-lm','-o',str(binary)],check=True)
     return request.param,binary
 

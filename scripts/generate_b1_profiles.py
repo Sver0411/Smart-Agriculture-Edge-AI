@@ -1,5 +1,7 @@
 """Generate B1's C parameters from validated JSON; no ESP-IDF is needed."""
 import argparse
+import hashlib
+import json
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -15,7 +17,8 @@ def generate():
     for i, profile in enumerate(('deployment', 'lab', 'simulation')):
         lines.append(('#if' if i == 0 else '#elif') + ' defined(CONFIG_B1_' + ('DEPLOYMENT_MODE' if profile == 'deployment' else 'LAB_MODE' if profile == 'lab' else 'SIMULATION_MODE') + ')')
         n = node_settings(profile, physical=True); a = n['adaptive']
-        lines += [f'#define B1_PROFILE_NAME "{profile}"', 'static void configure_profile(b1_policy_t *p) {']
+        digest=hashlib.sha256(json.dumps({'settings':n,'policy':SETTINGS['policy']},sort_keys=True).encode()).hexdigest()[:16]
+        lines += [f'#define B1_POLICY_VERSION "{profile}-{digest}"', f'#define B1_PROFILE_NAME "{profile}"', 'static void configure_profile(b1_policy_t *p) {']
         for state in ('stable', 'active', 'alert'):
             lines.append(f'    static const float {state}[] = {{{", ".join(number(v) for v in a["ladders"][state])}}};')
         for field in ('temperature', 'humidity'):

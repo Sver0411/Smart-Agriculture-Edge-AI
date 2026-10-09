@@ -1,0 +1,125 @@
+FF...                                                                    [100%]
+=================================== FAILURES ===================================
+___________ test_ack_after_commit_lost_ack_retry_and_gateway_restart ___________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-51/test_ack_after_commit_lost_ack0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x102b39e00>
+
+    def test_ack_after_commit_lost_ack_retry_and_gateway_restart(tmp_path, monkeypatch):
+        async def run():
+            path = str(tmp_path/'queue.db')
+            g = Gateway('A1', queue_path=path)
+            writer = object(); g.connections['B1'] = writer
+            receipts = []
+            async def send(w, m):
+                if m.type == PERSISTED_ACK:
+                    disk = OfflineQueue(path).connect()
+                    assert disk.count() == 1
+                    disk.close()
+                    receipts.append(m)
+            monkeypatch.setattr('gateway.gateway.send_message', send)
+            await g._process_sensor_message(sample())
+            assert len(receipts) == 1
+            assert receipts[0].payload['scope'] == 'GATEWAY_OUTBOX'
+            assert receipts[0].payload['ack_message_id'] == sample().message_id
+            # Simulate cloud ACK cleanup before B has received the gateway ACK.
+            row = g.offline_queue.peek()[0][0]; g.offline_queue.delete(row)
+            g.offline_queue.close()
+            g = Gateway('A1', queue_path=path); g.connections['B1'] = writer
+            await g._process_sensor_message(sample())
+            assert len(receipts) == 2 and g.offline_queue.count() == 0
+            assert g.metrics.get('sensor_messages') == 0
+            g.offline_queue.close()
+>       asyncio.run(run())
+
+tests/test_b1_gateway_receipts.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:205: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:128: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py:720: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def run():
+        path = str(tmp_path/'queue.db')
+        g = Gateway('A1', queue_path=path)
+        writer = object(); g.connections['B1'] = writer
+        receipts = []
+        async def send(w, m):
+            if m.type == PERSISTED_ACK:
+                disk = OfflineQueue(path).connect()
+                assert disk.count() == 1
+                disk.close()
+                receipts.append(m)
+        monkeypatch.setattr('gateway.gateway.send_message', send)
+        await g._process_sensor_message(sample())
+>       assert len(receipts) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests/test_b1_gateway_receipts.py:36: AssertionError
+----------------------------- Captured stdout call -----------------------------
+14:14:36 [A1] received SENSOR_DATA from B1
+14:14:36 [A1] edge decision = NONE (soil=None%, temp=25C)
+_____________ test_capacity_or_storage_failure_never_acknowledges ______________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-51/test_capacity_or_storage_failu0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x102b3a8b0>
+
+    def test_capacity_or_storage_failure_never_acknowledges(tmp_path, monkeypatch):
+        async def run():
+            g = Gateway('A1', queue_path=str(tmp_path/'queue.db'))
+            g.connections['B1'] = object()
+            sent = []
+            async def send(w, m): sent.append(m)
+            monkeypatch.setattr('gateway.gateway.send_message', send)
+            def fail(*args, **kwargs): raise QueueCapacityError('full')
+            monkeypatch.setattr(g.offline_queue, 'admit_sensor', fail, raising=False)
+            await g._process_sensor_message(sample())
+            assert not sent and g.command_queue.empty()
+            assert g.metrics.get('sensor_durable_rejected') == 1
+            g.offline_queue.close()
+>       asyncio.run(run())
+
+tests/test_b1_gateway_receipts.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:205: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:128: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py:720: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def run():
+        g = Gateway('A1', queue_path=str(tmp_path/'queue.db'))
+        g.connections['B1'] = object()
+        sent = []
+        async def send(w, m): sent.append(m)
+        monkeypatch.setattr('gateway.gateway.send_message', send)
+        def fail(*args, **kwargs): raise QueueCapacityError('full')
+        monkeypatch.setattr(g.offline_queue, 'admit_sensor', fail, raising=False)
+        await g._process_sensor_message(sample())
+        assert not sent and g.command_queue.empty()
+>       assert g.metrics.get('sensor_durable_rejected') == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = get('sensor_durable_rejected')
+E        +    where get = <common.reliability.Counters object at 0x102c78190>.get
+E        +      where <common.reliability.Counters object at 0x102c78190> = <gateway.gateway.Gateway object at 0x102b62cf0>.metrics
+
+tests/test_b1_gateway_receipts.py:61: AssertionError
+----------------------------- Captured stdout call -----------------------------
+14:14:36 [A1] received SENSOR_DATA from B1
+14:14:36 [A1] edge decision = NONE (soil=None%, temp=25C)
+=========================== short test summary info ============================
+FAILED tests/test_b1_gateway_receipts.py::test_ack_after_commit_lost_ack_retry_and_gateway_restart
+FAILED tests/test_b1_gateway_receipts.py::test_capacity_or_storage_failure_never_acknowledges
+2 failed, 3 passed in 0.22s

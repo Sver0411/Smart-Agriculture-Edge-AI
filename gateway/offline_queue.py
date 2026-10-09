@@ -10,6 +10,7 @@ replayed traffic.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import pathlib
 import sqlite3
@@ -33,7 +34,7 @@ def admission_priority(message):
     record = payload.get('record')
     evidence = record if isinstance(record, dict) else payload
     if (message.type == CONTROL_RESULT or payload.get('severity') == 'CRITICAL' or
-            evidence.get('severity') == 'CRITICAL' or evidence.get('health_state') == 'FAULT'):
+            evidence.get('importance') == 'HIGH' or evidence.get('severity') == 'CRITICAL' or evidence.get('health_state') == 'FAULT'):
         return HIGH
     if message.type == ALERT and payload.get('alert_type') in (
             'SENSOR_FAULT', 'COMMAND_DELIVERY_FAILED', 'CONTROL_RESULT_TIMEOUT', 'GATEWAY_FAILOVER'):
@@ -51,6 +52,23 @@ CREATE TABLE IF NOT EXISTS gateway_queue (
     priority INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS gateway_queue_message ON gateway_queue(message_id);
+CREATE TABLE IF NOT EXISTS sensor_receipts (
+    identity TEXT PRIMARY KEY,
+    digest TEXT NOT NULL,
+    received_at REAL NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sensor_control_audit (
+    identity TEXT PRIMARY KEY REFERENCES sensor_receipts(identity),
+    state TEXT NOT NULL,
+    command_id TEXT,
+    updated_at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sensor_audit_command ON sensor_control_audit(command_id);
+CREATE TABLE IF NOT EXISTS result_receipts (
+    identity TEXT PRIMARY KEY,
+    digest TEXT NOT NULL,
+    received_at REAL NOT NULL
+);
 """
 
 
@@ -58,7 +76,14 @@ class OfflineQueue:
     """A durable FIFO of messages that still need to reach the server."""
 
     def __init__(self, path: str = ":memory:", max_messages=None, max_payload_bytes=None,
-                 reserved_messages=None, reserved_payload_bytes=None):
+                 reserved_messages=None, reserved_payload_bytes=None, max_sensor_receipts=100000, max_result_receipts=100000):
+        if type(max_sensor_receipts) is not int or max_sensor_receipts < 1:
+            raise ValueError("receipt limit must be positive")
+        if type(max_result_receipts) is not int or max_result_receipts < 1:
+            raise ValueError('result receipt limit must be positive')
+        self.max_result_receipts = max_result_receipts
+        self.max_sensor_receipts = max_sensor_receipts
+        self.receipt_capacity_rejected = 0
         self.path = path
         self.conn: sqlite3.Connection | None = None
         self.enqueued = 0
@@ -80,6 +105,7 @@ class OfflineQueue:
         if self.conn is None:
             self.conn = sqlite3.connect(self.path, check_same_thread=False)
             self.conn.execute("PRAGMA journal_mode=WAL")
+            self.conn.execute("PRAGMA synchronous=FULL")
             self.conn.executescript(SCHEMA)
             columns = {row[1] for row in self.conn.execute('PRAGMA table_info(gateway_queue)')}
             if 'priority' not in columns:
@@ -101,10 +127,17 @@ class OfflineQueue:
     def enqueue(self, message: Message) -> int:
         """Store a message for later delivery. Returns its queue id."""
         self.connect()
+        with self.conn:
+            self.conn.execute("BEGIN IMMEDIATE")
+            queue_id, inserted = self._enqueue(message)
+        self.enqueued += inserted
+        return queue_id
+
+    def _enqueue(self, message):
         raw = message.to_json()
         # Repeated command-history uploads keep one outstanding logical row.
         row = self.conn.execute("SELECT queue_id FROM gateway_queue WHERE message_id=?", (message.message_id,)).fetchone()
-        if row is not None:return int(row[0])
+        if row is not None:return int(row[0]), False
         count, size = self.conn.execute("SELECT COUNT(*), COALESCE(SUM(length(CAST(payload AS BLOB))),0) FROM gateway_queue").fetchone()
         priority = admission_priority(message)
         count_limit = self.max_messages if priority == HIGH else self.max_messages-self.reserved_messages
@@ -121,9 +154,112 @@ class OfflineQueue:
             """,
             (message.message_id, message.type, raw, time.time(), priority),
         )
-        self.conn.commit()
+        return int(cursor.lastrowid), True
+
+    def sensor_is_fresh(self, identity):
+        """Persisted high-water check for this device boot, including after replay."""
+        self.connect()
+        prefix = identity.rsplit('-', 2)[0] + '-'
+        latest = self.conn.execute(
+            'SELECT MAX(identity) FROM sensor_receipts WHERE identity BETWEEN ? AND ?',
+            (prefix + '00000000-S', prefix + 'ffffffff-S')).fetchone()[0]
+        return latest is None or identity > latest
+
+    def admit_sensor(self, message, identity, digest):
+        """Commit receipt and cloud outbox together; duplicates never requeue.
+
+        Returns False for an identical retry even after cloud replay cleanup.
+        Refuse new receipts when the bounded ledger is full; never age out an
+        identity while a rebooted B might still retry it.
+        """
+        self.connect()
+        with self.conn:
+            # Reserve the writer before capacity/dedup reads across processes.
+            self.conn.execute("BEGIN IMMEDIATE")
+            row = self.conn.execute(
+                'SELECT digest FROM sensor_receipts WHERE identity=?', (identity,)).fetchone()
+            if row is not None:
+                if row[0] != digest:
+                    raise ValueError('sample identity reused for different evidence')
+                return False
+            count = self.conn.execute('SELECT COUNT(*) FROM sensor_receipts').fetchone()[0]
+            if count >= self.max_sensor_receipts:
+                self.receipt_capacity_rejected += 1
+                raise QueueCapacityError('sensor receipt ledger full; identities retained')
+            if self.conn.execute('SELECT 1 FROM gateway_queue WHERE message_id=?', (identity,)).fetchone():
+                raise ValueError('outbox identity exists without a matching receipt')
+            self._enqueue(message)
+            self.conn.execute('INSERT INTO sensor_receipts VALUES (?,?,?)',
+                              (identity, digest, time.time()))
+            self.conn.execute("INSERT INTO sensor_control_audit VALUES (?,'RECEIVED',NULL,?)",
+                              (identity, time.time()))
         self.enqueued += 1
-        return int(cursor.lastrowid)
+        return True
+
+    def receipt_stats(self):
+        self.connect()
+        count, size = self.conn.execute(
+            "SELECT COUNT(*),COALESCE(SUM(length(CAST(identity AS BLOB))+length(CAST(digest AS BLOB))+8),0) FROM sensor_receipts").fetchone()
+        # Logical content bytes, not SQLite file/WAL/allocator overhead.
+        return {"count": count, "logical_bytes": size, "limit": self.max_sensor_receipts,
+                "free": max(0, self.max_sensor_receipts-count),
+                "near_capacity": count*5 >= self.max_sensor_receipts*4,
+                "capacity_rejected": self.receipt_capacity_rejected}
+
+    def admit_result(self, message, digest):
+        """One transaction commits audit receipt and cloud outbox.
+
+        Receipts survive cloud dequeue and gateway restart. Their bounded
+        ledger rejects admission at capacity rather than forget dedup history.
+        """
+        self.connect()
+        with self.conn:
+            self.conn.execute('BEGIN IMMEDIATE')
+            row = self.conn.execute('SELECT digest FROM result_receipts WHERE identity=?',
+                                    (message.message_id,)).fetchone()
+            if row:
+                if row[0] != digest:raise ValueError('result identity conflict')
+                return False
+            if self.conn.execute('SELECT COUNT(*) FROM result_receipts').fetchone()[0] >= self.max_result_receipts:
+                raise QueueCapacityError('result receipt ledger full')
+            self._enqueue(message)
+            self.conn.execute('INSERT INTO result_receipts VALUES (?,?,?)',
+                              (message.message_id, digest, time.time()))
+        self.enqueued += 1
+        return True
+
+    def export_receipts(self):
+        """Read-only archive snapshot. No retirement handshake exists with B.
+
+        Backup is not proof a device cannot retry: this API never deletes rows.
+        Keep the database (including WAL) or use SQLite backup for recovery.
+        """
+        self.connect()
+        with self.conn:
+            rows = self.conn.execute('SELECT identity,digest,received_at FROM sensor_receipts ORDER BY identity').fetchall()
+        raw = json.dumps(rows, separators=(',', ':'), ensure_ascii=True)
+        return {"version": 1, "receipts": rows, "sha256": hashlib.sha256(raw.encode()).hexdigest(),
+                "retirement_allowed": False}
+
+    def sensor_audit(self, identity):
+        self.connect()
+        row = self.conn.execute('SELECT state,command_id,updated_at FROM sensor_control_audit WHERE identity=?', (identity,)).fetchone()
+        return {"state": "LEGACY_UNTRACKED"} if row is None else dict(zip(('state','command_id','updated_at'),row))
+
+    def audit_sensor_control(self, identity, state, command_id=None):
+        """Durable progress evidence only; never used to replay control."""
+        self.connect()
+        with self.conn:
+            cursor = self.conn.execute('UPDATE sensor_control_audit SET state=?,command_id=COALESCE(?,command_id),updated_at=? WHERE identity=?',
+                                       (state, command_id, time.time(), identity))
+            if cursor.rowcount != 1:
+                raise ValueError('control audit requires a new durable sensor receipt')
+
+    def audit_command_outcome(self, command_id, state):
+        self.connect()
+        with self.conn:
+            self.conn.execute('UPDATE sensor_control_audit SET state=?,updated_at=? WHERE command_id=?',
+                              (state,time.time(),command_id))
 
     # -- read side ---------------------------------------------------------
 
@@ -164,4 +300,6 @@ class OfflineQueue:
                 "max_messages":self.max_messages, "max_payload_bytes":self.max_payload_bytes,
                 "reserved_messages":self.reserved_messages,"reserved_payload_bytes":self.reserved_payload_bytes,
                 "admission_rejected":self.rejected,"admission_rejected_high":self.rejected_high,
-                "admission_rejected_normal":self.rejected_normal}
+                "admission_rejected_normal":self.rejected_normal,"sensor_receipts":self.receipt_stats(),
+                "result_receipts":{"count":self.conn.execute("SELECT COUNT(*) FROM result_receipts").fetchone()[0],
+                                   "limit":self.max_result_receipts}}

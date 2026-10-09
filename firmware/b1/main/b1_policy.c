@@ -7,6 +7,8 @@
 #include "b1_profiles.h"
 #include "b1_control_relevance.h"
 
+const char *b1_policy_version(void) { return B1_POLICY_VERSION; }
+
 bool b1_policy_set_temperature_threshold(b1_policy_t *p, float threshold)
 {
     if (!isfinite(threshold)) return false;
@@ -16,6 +18,8 @@ bool b1_policy_set_temperature_threshold(b1_policy_t *p, float threshold)
 
 void b1_policy_mark_reported(b1_policy_t *p, const b1_sample_t *s)
 {
+    if (p->has_confirmed && (s->seq <= p->confirmed_seq || s->monotonic_ms < p->confirmed_ms)) return;
+    p->has_confirmed=true; p->confirmed_seq=s->seq; p->confirmed_ms=s->monotonic_ms;
     p->has_reported_temperature = s->valid && isfinite(s->temperature) && s->temp_health.state == SENSOR_STATE_HEALTHY;
     if (p->has_reported_temperature) p->reported_temperature = s->temperature;
     if (s->usable) {
@@ -84,7 +88,13 @@ void b1_policy_update(b1_policy_t *p, b1_sample_t *s)
     }
     if (p->untrusted) {
         cd_init(&p->detector, &p->cd_config);
+        /* Reset detector scheduling while preserving confirmed report history. */
+        as_t previous=p->scheduler;
         as_init(&p->scheduler, &p->as_config);
+        p->scheduler.last_upload_t=previous.last_upload_t;
+        p->scheduler.has_uploaded=previous.has_uploaded;
+        memcpy(p->scheduler.last_upload_values,previous.last_upload_values,sizeof(previous.last_upload_values));
+        memcpy(p->scheduler.last_upload_valid,previous.last_upload_valid,sizeof(previous.last_upload_valid));
         p->untrusted = false;
     }
     const float values[CD_NUM_CHANNELS] = {s->temperature, s->humidity, 0, 0};
@@ -92,7 +102,18 @@ void b1_policy_update(b1_policy_t *p, b1_sample_t *s)
     bool event = false;
     s->score = cd_update(&p->detector, t, values, valid, &event);
     as_decision_t decision;
+    const as_t report_baseline = p->scheduler;
     as_update(&p->scheduler, t, values, valid, s->score, event, &decision);
+    // The upstream core treats upload intent as reported. At the B1 boundary
+    // only durable gateway confirmation advances heartbeat/delta baselines.
+    p->scheduler.last_upload_t = report_baseline.last_upload_t;
+    p->scheduler.has_uploaded = report_baseline.has_uploaded;
+    memcpy(p->scheduler.last_upload_values, report_baseline.last_upload_values, sizeof(p->scheduler.last_upload_values));
+    memcpy(p->scheduler.last_upload_valid, report_baseline.last_upload_valid, sizeof(p->scheduler.last_upload_valid));
+    if (!p->scheduler.has_uploaded && p->as_config.up_first_sample) {
+        decision.upload_requested = true;
+        decision.upload_reasons |= UP_FIRST_SAMPLE;
+    }
     s->mode = decision.state == AS_ALERT ? "ALERT" : decision.state == AS_ACTIVE ? "ACTIVE" : "STABLE";
     s->reason = s->mode;
     s->next_interval_ms = (uint32_t)(decision.interval_s * 1000);

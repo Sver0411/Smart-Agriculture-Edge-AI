@@ -1,0 +1,17 @@
+{
+  "assertions": [
+    {
+      "description": "C-restored HIGH history cannot control after A2 takeover",
+      "passed": true
+    },
+    {
+      "description": "new boot fresh data passes A2\u2192LoRa\u2192C1 guard and executes once",
+      "passed": true
+    },
+    {
+      "description": "old A1 epoch is rejected and C1 retains A2 owner",
+      "passed": true
+    }
+  ],
+  "physical_sensor": false
+}

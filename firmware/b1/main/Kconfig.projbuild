@@ -40,4 +40,53 @@ menu "Physical B1 configuration"
     config B1_TEST_FAULT_INJECTION
         bool "Inject out-of-range temperature AFTER physical read (test only)"
         default n
+    config B1_USE_E220
+        bool "Experimental E220 transport instead of Wi-Fi/TCP"
+        default n
+    config B1_E220_TX_GPIO
+        int "E220 UART TX GPIO"
+        default 17
+    config B1_E220_RX_GPIO
+        int "E220 UART RX GPIO"
+        default 18
+    config B1_E220_M0_GPIO
+        int "E220 M0 GPIO"
+        default 10
+    config B1_E220_M1_GPIO
+        int "E220 M1 GPIO"
+        default 11
+    config B1_E220_AUX_GPIO
+        int "E220 AUX GPIO"
+        default 12
+    config B1_E220_UART_BAUD
+        int "Commissioned UART baud (8N1)"
+        range 1200 115200
+        default 9600
+    config B1_E220_AUX_TIMEOUT_MS
+        int "AUX operation timeout (ms)"
+        range 100 5000
+        default 2000
+    config B1_E220_FRAME_MTU
+        int "Application frame bytes (verify module subpacket setting)"
+        range 96 200
+        default 160
+    config B1_E220_EXPECTED_REGISTERS
+        string "Exact commissioned 00..07 register hex (16 chars; mandatory)"
+        default ""
+    config B1_DEEP_SLEEP_EXPERIMENTAL
+        bool "Opt-in experimental Deep Sleep with versioned RTC snapshot"
+        depends on B1_USE_E220 && !B1_LIGHT_SLEEP
+        default n
+    config B1_DEEP_MIN_SLEEP_MS
+        int "Minimum sleep/error retry interval (ms)"
+        range 5000 86400000
+        default 60000
+    config B1_DEEP_COMM_WINDOW_MS
+        int "Bounded communication window (ms, plus driver shutdown timeout)"
+        range 100 30000
+        default 10000
+    config B1_DEEP_MAX_CLOCK_ERROR_MS
+        int "Maximum error accepted from calibrated elapsed-time provider (ms)"
+        range 0 1000
+        default 100
 endmenu

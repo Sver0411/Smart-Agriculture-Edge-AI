@@ -18,6 +18,8 @@
 
 ---
 
+**整合状态：**PR #7 已记录的恢复阻塞已[修复并完成完整验证](docs/research/PR7_RECOVERY_FIX.md)。[PR #7](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/pull/7) 及其[检查](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/pull/7/checks)记录合入 main 的发布状态。[原始失败证据](docs/research/FINAL_BRANCH_INTEGRATION.md#publication-blocker-final-head-ci-failure)继续保留。
+
 ## 研究概览
 
 | 主题 | 研究摘要 |
@@ -25,8 +27,8 @@
 | 研究问题 | 资源受限、连接不稳定时的可信感知、选择性通信与安全本地控制 |
 | 系统原型 | 两个固定农业区域、七个角色：Server、A1/A2 网关、B1/B2 传感器、C1/C2 控制器 |
 | 核心方法 | SensorTrust、AdaptiveSense、控制相关上传、归属与接管、安全控制、持久化离线回放 |
-| 软件验证 | `main`：**350 项测试、20/20 内部故障场景、5/5 外部 EdgeFaultLab 场景**；已记录验收源码 `f204ad9`，CI 版本 `002e26a`。[结果与来源](#实验与结果) |
-| 研究分支 | **每个 Python 版本 631 项测试**；有界 LoRa/B1 UART、实验 RTC/NVS 休眠恢复、可靠结果交付、策略版本恢复及 AR-1；[独立实现与证据](#主分支与研究分支) |
+| 软件验证 | **每个 Python 版本 631 项测试**；TCP **20/20**、主机模拟 LoRa **20/20**、跨阶段 **10/10**、外部 EdgeFaultLab **5/5**；[已记录结果与整合检查](#实验与结果) |
+| 研究整合 | 有界 LoRa/B1 UART、实验 RTC/NVS 休眠恢复、可靠样本/结果交付、策略版本恢复及 AR-1；[源码与范围](#主分支与研究分支) |
 | 实物证据 | 历史 ESP32-S3/SHT30 HW1：**30 次 CRC 有效读取**，无物理读取失败；仅验证感知。[英文证据摘要](docs/RESEARCH_EVIDENCE_GUIDE.md#b-physical-esp32-s3--sht30-evidence) |
 | 当前限制 | E220 无线控制闭环、真实执行器、deep sleep、能耗/电池测量与农业效果仍未验证 |
 | 相关研究 | [查看六个独立维护的研究项目](#相关研究项目)；其结果与主系统证据分开 |
@@ -81,7 +83,7 @@ Cloud Server 是增强层，绝不能成为现场实时控制闭环的必要组�
 
 ### 精简系统概览
 
-下图是**主机软件拓扑**：TCP 通信，模拟传感器输入与执行器动作。B1/C1、B2/C2 是固定区域配对；网关位置表示正常归属。任一网关故障后，另一网关可以服务两个区域，具体路径见下表。计划中的现场 E220 传输尚未在这里实现或完成硬件验证。
+下图是**主机软件拓扑**：TCP 通信，模拟传感器输入与执行器动作。B1/C1、B2/C2 是固定区域配对；网关位置表示正常归属。任一网关故障后，另一网关可以服务两个区域，具体路径见下表。有界 LoRa 分帧与 B1 E220 UART 驱动已有实现；完整 A/C 实物端点与 RF 验证仍待完成。
 
 ```mermaid
 %%{init: {'theme': 'base', 'fontFamily': 'Arial, sans-serif', 'htmlLabels': false, 'themeVariables': {'fontFamily': 'Arial, sans-serif', 'fontSize': '16px', 'primaryTextColor': '#183153', 'lineColor': '#52677f'}}}%%
@@ -200,7 +202,7 @@ A1/A2 是边缘网关，B1/B2 是传感器节点，C1/C2 控制对应区域。B 
 
 ## 核心研究模块
 
-以下模块已在 `main` 中实现；具体证据等级与验证边界见下一节。
+以下模块已在当前 research 整合准备版本中实现；具体证据等级与验证边界见下一节。
 
 | 模块 | 在研究原型中的作用 | 源码 |
 | --- | --- | --- |
@@ -213,52 +215,74 @@ A1/A2 是边缘网关，B1/B2 是传感器节点，C1/C2 控制对应区域。B 
 | 离线队列与恢复 | 文件型 SQLite outbox、HIGH 准入保留容量、FIFO 回放；仅凭 PERSISTED_ACK 删除 | [离线队列](gateway/offline_queue.py) |
 | Edge AI | 可切换的 Rule、Logistic、Tree、MLP 引擎，以及可复现的合成策略模仿参考 | [决策引擎](ai/engines/)、[训练](ai/train.py) |
 | 故障注入与可复现实验 | 七角色主机实验、可审计指标，以及独立 EdgeFaultLab 的运行适配器 | [实验框架](experiments/runner.py)、[外部适配器](experiments/edgefaultlab.py) |
+| 传感器准备（AR-1） | 纯记录、可信度、年龄/boot 资格与告警准备；Gateway 保留事务、ACK、实时归属与调度 | [pipeline](gateway/sensor_pipeline.py)、[架构](docs/architecture/AR1_SENSOR_PIPELINE.md) |
+| 有界现场传输与休眠 | 主机 LoRa 编解码/重组、B1 E220 UART、可选 RTC 快照/NVS HIGH 保留；硬件调试待完成 | [LoRa](common/lora/)、[固件配置](firmware/b1/EXPERIMENTAL_TRANSPORT_SLEEP.md) |
+| 可靠结果与策略发布 | 稳定控制结果重放、范围化持久回执与 Server 持久策略版本 | [控制器存储](controller_node/recent_commands.py)、[Server 数据库](server/database.py) |
 
 ## 实现与验证状态
 
 **已实现**表示当前分支包含相应源码；**主机测试**表示有工作站测试或软件故障实验；**固件编译通过**表示 ESP-IDF 构建成功，不等于板上运行；**实物测试**必须有真实设备记录；**已设计 / 计划中 / 待验证**表示已定义的契约或后续工作。多个等级可以同时成立，不能相互替代。
 
-| 能力 | 当前证据 | 待完成工作或边界 |
-| --- | --- | --- |
-| SensorTrust | 主机测试 / 固件编译通过；历史 HW1 正常读数 | 农田故障阈值校准 |
-| AdaptiveSense | 主机测试 / 软件故障实验 / 固件编译通过 | 修订语义的实物验证、真实环境事件 |
-| B 上传策略 | Python/C 逐样本及队列/sink 主机测试 / 固件编译通过 | 修订固件的无线上传实测 |
-| SHT30 实物感知 | 历史 30 次读取，CRC 全部有效 | 仅 HW1；无注入故障、独立湿度校准或温湿度以外通道验证 |
-| B 低功耗运行机制 | 已设计 / mock 主机测试 / 含可选 light sleep 的固件编译 | 无线占空比、电流与电池测量 |
-| B↔A LoRa | 已设计 / 消息与休眠契约的主机测试 | E220 适配器和 RF 测试 |
-| A DecisionEngine | 主机测试 / 软件故障实验 | MCU 移植与农业有效性 |
-| A1/A2 心跳 | 主机测试 / 软件故障实验 | 本地无线硬件链路 |
-| 网关接管 | 主机测试 / 软件故障实验 | 完整实物演示；没有自动切回 |
-| A↔C LoRa | 已设计 | E220 适配器和 RF 测试 |
-| C 执行器 | 安全守卫主机测试 / 模拟执行 | 真实继电器、水泵和风扇 |
-| 云端离线回放 | 主机测试 / 软件故障实验 | 长期存储与掉电测试 |
-| Dashboard | 已设计 | HTTP API 和前端 |
-| 真实数据训练 | 已设计；合成数据工具通过主机测试 | 现场数据、标签、GPU 训练与模型注册 |
+| 能力 | 当前证据等级 | Pending / 边界 |
+|---|---|---|
+| SensorTrust | Host Tested / Firmware Implemented；历史 HW1 正常读数 | 故障阈值农田校准 |
+| AdaptiveSense | Host Tested / Software Experimentally Evaluated / Firmware Implemented | 新语义硬件重验、真实环境事件 |
+| B upload policy | Host Tested Python/C 逐 sample + queue/sink / Firmware Implemented | 新固件 radio 上传实测 |
+| Physical SHT30 | Hardware Tested，历史 30 次 CRC 正常读取 | 本轮未刷板；温湿度以外通道未测 |
+| B low-power runtime | Host/C 快照测试；包括实验 Deep Sleep 的四种配置编译通过 | 校准 RTC elapsed、GPIO/无线休眠、NVS 断电、电流与电池测量 |
+| B↔A LoRa | 有界 Host 协议测试；B1 E220 UART 源码编译通过 | 实物 Gateway 端点、RF 调试与端到端测量 |
+| A DecisionEngine | Host Tested / Software Experimentally Evaluated | MCU port、真实农业效果 |
+| A1/A2 heartbeat | Host Tested / Software Experimentally Evaluated | 本地无线硬件链路 |
+| Gateway failover | Host Tested / Software Experimentally Evaluated | 整套硬件展示，无自动 failback |
+| A↔C LoRa | 主机拓扑、路由及控制 fencing 测试 | 实物 A/C E220 端点与 RF 测量 |
+| C actuator | Host Tested 安全守卫 / 模拟执行 | relay / pump / fan 真实执行 |
+| Cloud offline replay | 样本/结果持久化回执、FIFO 回放、策略版本恢复的 Host 测试 | 长期容量与断电评估 |
+| Dashboard | Designed | HTTP API / frontend 未实现 |
+| real-data training | Designed；synthetic 工具 Host Tested | 现场数据、标签、GPU、registry |
 
 [HW1 记录](results/v0.3/README.md)包含 30 次 CRC 有效的 SHT30 读取，没有物理读取失败。当时 Wi-Fi 未配置，未观察到网关上传，也没有注入环境故障。因此它验证的是一次感知运行，尚不能证明完整 B→A→C 闭环、修订上传策略、LoRa、功耗或接管能力。[五项补丁记录](results/final-five-patches/README.md)另外保存了 ESP-IDF v5.4.4 的 lab/deployment 编译证据，包括可选 light sleep；该轮构建没有烧录验证。
 
 ### 主分支与研究分支
 
-本文描述 `main`。最近一次已记录的软件验收为 **350 项测试、20 个内部场景、5 个外部 EdgeFaultLab 场景**，下一节提供源码版本和原始证据。
+本文描述由 `research`（`f5c2710`）与 `main`（`08f573f`）形成的统一实现。整合保留 main 的学术展示、中英文文档、架构图和证据导航，采用最新 research 源码与完整 CI 矩阵。[最终分支整合记录](docs/research/FINAL_BRANCH_INTEGRATION.md)列出输入版本、分支审计和验证状态。
 
-[research 分支](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/tree/research)是当前开发线，其新增能力尚未合入 `main`。Phase 1/1.1 引入有界 B1 HIGH 保留与持久化确认；Phase 1.2–3 补强注册/新鲜度，实现有界 LoRa 协议和 B1 UART 驱动，以及默认关闭的 RTC/NVS 休眠恢复。随后稳定化增加控制结果持久化重发、Server 策略发布版本恢复、传感器确认模式和无线调度；AR-1 则在保持行为的前提下，将纯传感器准备与 Gateway 协调分开。
+Phase 1/1.1 引入有界 B1 HIGH 保留与持久化确认；Phase 1.2–3 补强注册/新鲜度，实现有界 LoRa 分帧、B1 UART 驱动和默认关闭的 RTC/NVS 休眠恢复。稳定化增加控制结果持久化重发、Server 策略版本恢复、传感器确认模式与无线调度。AR-1 在保持行为的前提下分离纯传感器准备与 Gateway 协调。这些能力形成 research 基线；已记录的恢复阻塞已单独修复并验证，发布到 main 仍要求最终完整 CI。历史报告仍保留当时范围。
 
-| 分支 | 最近一次已记录的软件验证 | 实现边界 |
+| 开发线 | 整合后的作用 | 证据边界 |
 | --- | --- | --- |
-| `main` | 每个解释器 350 项测试；TCP 20/20；外部 5/5 | 本文描述的实现与历史硬件证据 |
-| `research` | Python 3.10/3.12 各 631 项；TCP 20/20；模拟 LoRa 20/20；跨阶段 10/10；外部 5/5；四种固件编译通过 | research 源码与主机/编译证据；完整实物 RF、执行器和功耗评估仍待完成 |
+| `main` | 发布线；PR #7 记录 research 发布及最终检查 | 历史 350 项验收及 HW1 感知与本次集成验证分开保留 |
+| `research` | 当前功能与 main 文档的整合版本，包含已验证的 PR #7 恢复修复 | 完整 Python 3.10/3.12、集成实验及四种 ESP32-S3 CI 构建通过；原始失败保留 |
 
-详见[跨阶段集成报告](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md)、[可靠性稳定化报告](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/RELIABILITY_STABILIZATION_REPORT.md)、[AR-1 架构与验证](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/architecture/AR1_SENSOR_PIPELINE.md)。research 的固定 seed 无线比较保留 43 COMPLETE / 13 INCOMPLETE，56 项安全检查均通过。隔离实验可使用 peer HMAC，但所有必要链路认证前，research 的 deployment 入口仍 fail-closed。这些是独立研究结果，不作为 `main` 已集成功能或硬件成果。
+详见[跨阶段集成](docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md)、[可靠性稳定化](docs/research/RELIABILITY_STABILIZATION_REPORT.md)、[AR-1 架构与验证](docs/architecture/AR1_SENSOR_PIPELINE.md)。固定 seed 无线比较保留 **43 COMPLETE / 13 INCOMPLETE**，56 项安全检查均通过。隔离实验可用 peer HMAC，但所有必要链路认证前，deployment 入口仍 fail-closed。源码整合不构成硬件成果。
 
 ## 实验与结果
 
 ### 英文研究证据导览
 
-[英文研究证据导览](docs/RESEARCH_EVIDENCE_GUIDE.md)简要解释主分支软件验收、HW1 实物感知，以及独立 research 分支的 Phase 1 / Phase 1.1 评估，并按明确版本链接原始报告与证据。新一轮 research 评估见[主分支与研究分支](#主分支与研究分支)，包括 [AR-1](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/architecture/AR1_SENSOR_PIPELINE.md)。下文为已记录评估，本次 README 内容更新本身不代表重新执行实验。
+[英文研究证据导览](docs/RESEARCH_EVIDENCE_GUIDE.md)按明确版本链接历史 main 验收、HW1 实物记录、Phase 1–3 开发、稳定化和 AR-1 证据。[最终整合记录](docs/research/FINAL_BRANCH_INTEGRATION.md)区分本次重新执行的检查与历史评估。同一测试套件在不同 Python 版本重复运行，数量不累加。
 
 ### 主分支最近一次软件验收
 
-[分支整合审查](docs/BRANCH_INTEGRATION_REVIEW.md)记录了 `main` 最近一次验收。功能源码版本为 [`f204ad9`](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/commit/f204ad9)；归档 CI 验证的是 [`002e26a`](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/commit/002e26a)，功能源码相同，另有文档更新。此后仅更新证据的提交不代表重新执行了实验。
+当前整合检查见[最终整合记录](docs/research/FINAL_BRANCH_INTEGRATION.md)。下表是本次采用的功能源码在此前 AR-1 阶段的验收记录，与新一轮整合或硬件测量分开。
+
+最近一次完整 AR-1 回归验证的功能源码为 `add9d076a04670b63b643fb822cfa84b23e99975`。最终报告版本 `825bb92` 的 [push CI](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37880089604) 和 [PR CI](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37880093415) 均完整通过，功能源码和配置 hash 与本地验收一致。[AR-1 记录](docs/architecture/AR1_SENSOR_PIPELINE.md)与[稳定化报告](docs/research/RELIABILITY_STABILIZATION_REPORT.md)说明了验证范围、来源和保留的失败过程。
+
+| 评估 | 已记录结果 | 范围 |
+| --- | --- | --- |
+| 完整 pytest，Python 3.10 / 3.12 | 每个版本各 631 项通过 | 全部原有 587 项与 AR-1 新增 44 项；不跨解释器累加 |
+| 基准与重构行为对照 | 256/256 一致 | 使用真实处理函数比较记录、命令、顺序状态、日志、指标和审计 |
+| 原有 TCP 故障场景 | 20/20 PASS | 七角色主机拓扑与模拟执行器 |
+| 重复归属与可靠性场景 | 20/20 PASS | 旧 generation ×10、接管 ×3、恢复 ×3，以及其他四种故障 |
+| 主机模拟 LoRa 全拓扑 | 20/20 PASS | 真实应用逻辑通过模拟 RF 载体通信 |
+| 固定 seed LoRa 比较 | 56/56 安全检查通过 | 43 COMPLETE、13 INCOMPLETE；未确认记录继续保留 |
+| 实际 C 休眠恢复参考 | 19/19 PASS，2800 次观察 | 已知 elapsed oracle 与未知时间保守恢复；不是物理 RTC 实测 |
+| 跨阶段集成 / 外部 EdgeFaultLab | 10/10 与 5/5 PASS | 生产 C/应用路径与独立故障运行器 |
+| GitHub Actions | push 和 PR 均 6/6 job 通过 | 两种 Python、完整实验矩阵和四种固件构建 |
+| ESP32-S3 固件 | ESP-IDF v5.4.4 下四种配置编译通过 | lab、light-sleep、lora-prototype、deep-sleep-experimental；编译不等于板上实验 |
+
+以下保留更早的 main 350 项验收，作为历史基线。
+
+[分支整合审查](docs/BRANCH_INTEGRATION_REVIEW.md)记录了 `main` 历史 350 项验收。功能源码版本为 [`f204ad9`](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/commit/f204ad9)；归档 CI 验证的是 [`002e26a`](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/commit/002e26a)，功能源码相同，另有文档更新。此后仅更新证据的提交不代表重新执行了实验。
 
 | 评估 | 已记录结果 | 可追溯证据 |
 | --- | --- | --- |
@@ -306,24 +330,26 @@ python -m controller_node.controller_node --id C1
 python -m controller_node.controller_node --id C2
 ```
 
-demo 保留正常、故障接管、Server 离线场景，以及旧命令和重复命令注入选项。正式实验使用独立配置、端口和数据库。
+demo 保留正常、故障接管、Server 离线场景，以及旧命令和重复命令注入。正式实验使用独立配置、端口和数据库。验证传感器持久化确认时，为 B 指定 `--delivery-mode gateway-durable`，为 Gateway 指定文件型 `--queue-db`；默认仍为 `legacy-write` 兼容模式。
 
 ### 运行可复现故障实验
 
 ```bash
-python -m experiments.runner --all --output results/software-v0.3.1/my-run
-python -m experiments.runner --scenario ack-loss --output results/software-v0.3.1/ack-loss-run
+python -m experiments.runner --all --output .research-runs/tcp-NEW
+python -m experiments.reliability_stabilization --output .research-runs/repeats-NEW
+python -m experiments.runner --all --transport simulated-lora --output .research-runs/lora-NEW
+python -m experiments.lora_harness --seed 42 --output .research-runs/radio-NEW
+python -m experiments.snapshot_harness --output .research-runs/snapshot-NEW
+python -m experiments.phase123_integration --seed 42 --output .research-runs/integration-NEW
 
 git clone https://github.com/Sver0411/EdgeFaultLab ../EdgeFaultLab
 git -C ../EdgeFaultLab checkout c7248239f456cc877114ca1e67c5949fb4a7b958
-python -m experiments.edgefaultlab --edgefaultlab-root ../EdgeFaultLab --output results/software-v0.3.1/efl-run
+python -m experiments.edgefaultlab --edgefaultlab-root ../EdgeFaultLab --output .research-runs/external-NEW
 ```
 
-上面的 checkout 将 EdgeFaultLab 固定为[集成来源](docs/integration_sources.json)中的审查版本。EdgeFaultLab 保持独立，本仓库提供配置、CLI 和端口适配器；失败运行返回非零退出码。
+同一机器上的两种 Python 完整测试应串行运行，因为部分 e2e 测试使用固定端口。Host C 测试需要 C11 编译器，适用的 sanitizer 检查包含在 pytest 内。EdgeFaultLab 保持外部维护，固定到审查版本。核心断言失败会返回非零退出码。
 
-每个内部实验保存 `config.json`、`manifest.json`、`truth/injection_plan.json`、`raw/events.jsonl`、`results/metrics.json`、`results/summary.json` 和报告。已有输出目录不会被覆盖。指标区分 `null / not measured` 与 `0 / observed`，并分别记录 TCP 接收、接收确认、执行结果和持久化。
-
-每次运行使用新的输出目录；上述命令无需连接实体硬件。
+实验保留配置、注入计划、原始事件、指标、汇总，以及源码和配置 hash；输出目录拒绝覆盖，CI 也保留失败 Artifact。指标区分 `null / not measured` 与 `0 / observed`，并分别记录接收、ACK、执行结果和持久化。已有科研证据保留，新生成数据写入 `.research-runs/` 或 CI Artifact。
 
 ## 从采样到控制结果
 
@@ -345,28 +371,27 @@ Gateway: live upload / SQLite OfflineQueue → Server: atomic dedup + history
 
 ## 可靠性与安全
 
-- B/C 注册确定 owner 和 generation。SensorNode、Controller 接收网关 NODE_STATUS 更新，拒绝来源不一致或旧 generation。
-- 心跳、ACK 与结果超时、节点在线超时、冷却时间使用单调时钟；`last_seen`、协议时间戳和数据库记录保留墙上时钟。客户端时间戳不决定节点在线状态。
-- CONTROL_COMMAND 保持稳定的 `message_id`/`command_id`，ACK 重试次数有限，由控制器幂等处理。重试增加 `attempt`，不改变逻辑消息身份。
-- 命令 ACK 只确认收到，CONTROL_RESULT 才报告执行结果。收到 ACK 后结果仍超时，则记为 UNKNOWN 并告警。迟到结果可以消除不确定性；不能靠再次执行修复结果丢失。
-- 控制器串行处理命令。SafetyGuard 检查类型、`command_id`、TTL、generation、owner、重复、最大执行时长和冷却时间。同一命令的并发副本只执行一次。
-- 网关心跳超时触发接管并提高 generation。原网关恢复后保持 STANDBY，直到显式变更归属，不自动切回。
-- SENSOR_DATA、CONTROL_COMMAND、CONTROL_RESULT、ALERT 先进入 SQLite outbox，再上传。FIFO 回放保留原身份，只有独立 `PERSISTED_ACK` 才允许删除。确认丢失时本地副本保留；重连后 Server 去重并重新确认。
-- 控制器不可用、归属丢失或命令过期时，尚未发送的命令记为 `NOT_DISPATCHED` 并保存原因；可能已经发送、但无法继续投递的重试记为 `UNKNOWN`。执行器命令不会积压到未来执行。
-- Server 验证上传业务语义，将去重记录与业务历史写入同一 SQLite 事务，commit 后才发送持久化确认。无效上传不占用消息身份。
-- `SERVER_POLICY` 原子校验版本与参数，先本地持久化再激活。Cloud 离线重启时可加载最后有效策略。checkpoint 包含 `policy_version`、payload、SHA-256、`updated_at`；损坏时退回上一有效策略或编译默认值。策略 ACK 只确认接收，Server 不保证基于该 ACK 重试策略。
+- B/C 注册和连接路由共同确定节点连接、owner 与 generation；来源不一致或旧 generation 会被拒绝。
+- 节点在线判断、重试、冷却和样本年龄使用单调时钟；协议时间戳和历史记录保留墙上时钟。客户端时间戳不决定在线状态。可靠与物理样本的五秒控制新鲜度包含网关内部排队时间，并要求 boot 与注册值一致；持久化准入及 ACK 等待之后、实际决策之前，再次检查年龄。
+- 可靠样本在丢失、缓冲和重启后保留原 boot/sequence 身份。Gateway 先将回执和历史提交到文件型 SQLite outbox，再发送 `GATEWAY_OUTBOX` 范围的 PERSISTED_ACK。重复重传可以重新确认，但不产生额外回执或控制决策。旧 boot、过期或年龄未知的可靠样本仅作为历史。
+- Host SensorNode 保留 `legacy-write` 兼容模式，并提供可选的 `gateway-durable` 模式。后者将 HIGH 待确认记录写入 checkpoint，NORMAL 仍只保留在 RAM；只有匹配的持久化 ACK 才推进上传基线。旧 boot 历史的确认只清退旧记录，不确认新 boot 基线。
+- CONTROL_COMMAND 保持稳定的 `message_id`/`command_id`，ACK 重试有界，控制器按身份幂等处理。命令 ACK 仅确认接收，CONTROL_RESULT 才报告执行。结果缺失时记为 UNKNOWN，迟到结果可以消除不确定性；不能发起新动作来修复结果丢失。
+- Controller 串行处理命令。SafetyGuard 检查类型、身份、TTL、owner/generation、重复、执行时长和冷却时间；意图与结果 checkpoint 支持保守恢复。CONTROL_RESULT 使用有界持久化重发窗口，保留原始消息内容，由 `CONTROL_RESULTS` 范围的持久化 ACK 清退。Gateway 提交结果回执、历史和 outcome 后才确认。
+- 心跳超时触发接管并提高 generation，恢复的网关保持 STANDBY，不自动切回。故障检测器区分本地监视任务暂停与远端失联；这一机制不是任意分区下的共识协议。
+- 云端上传使用有界 SQLite outbox、HIGH 容量保留、稳定身份、FIFO 回放和 Server 事务去重；commit 后才发送 ACK。重连与回放由独立任务处理。无效上传不占用身份，ACK 丢失时保留记录，供去重重传。
+- 过期、控制器不可用或失去控制权的未发送命令记为 NOT_DISPATCHED；可能已发送的命令可以保持 UNKNOWN。现场命令不会积压到故障恢复后再执行。
+- SERVER_POLICY 先验证内容与版本，再持久化激活。Gateway 恢复最后有效策略；Server 将发布内容和版本一起持久化，避免重启后版本归零。未改变内容或重复广播不生成新版本。策略 ACK 仍只确认接收，不构成保证重试契约。
+- A1/A2 的隔离实验可使用 HMAC 会话，但 B↔A、A↔C、云端和实物 RF 链路尚未形成完整认证会话。因此 `profile=deployment` 即使配置了有效 peer key，也会在启动前被拒绝。CRC 只能验证完整性，不能认证身份。
 
 ### 协议兼容
 
-TCP 消息使用换行分隔的 JSON，继续兼容原六字段 envelope：
+TCP 上使用逐行 JSON，原有六字段 envelope 保持兼容：
 
 ```json
 {"type":"SENSOR_DATA","source":"B1","target":"A1","timestamp":1234567890.0,"message_id":"sample-001","payload":{}}
 ```
 
-可选字段为 `protocol_version:1`、`sequence`、`attempt`、`generation`；缺少时按旧协议处理。新模拟传感器通过 boot ID 与 sequence 标识逻辑样本。乱序或重复的旧读数可以保留为审计历史，但不能触发新控制。
-
-解析拒绝非有限或溢出数值、错误类型、不支持的版本及超长帧。Gateway 与 Server 需要配套升级：若旧 Server 无法提供持久化确认，新 Gateway 会保留 outbox 副本。协议不提供身份认证。
+可选字段为 `protocol_version:1`、`sequence`、`attempt`、`generation`；未携带时按旧协议处理。新模拟传感器使用 boot_id + sequence 区分逻辑采样；重排/重复旧数据可保留用于审计，但不再驱动新控制。解析拒绝非有限/溢出数字、错误字段类型、不支持的版本和超长帧。Gateway 与 Server 需配套升级：旧 Server 无持久化确认时，新网关保留 outbox 副本。JSON envelope 和 LoRa CRC 不认证 B/C/云端身份；可选 peer HMAC 仅覆盖 A1/A2 实验，完整认证前禁止 deployment。
 
 ## 配置与时序
 
@@ -380,7 +405,7 @@ TCP 消息使用换行分隔的 JSON，继续兼容原六字段 envelope：
 | lab | 2→4→5 s | 2→1 s | 1 s | 300 s |
 | deployment | 20→40 min | 10→5 min | 5→2→1 min | 6 h |
 
-部署数值是**工程默认值**，需要结合作物特性、传感器噪声、环境变化、电池测量和农田试验校准。阈值、EMA 窗口、事件持续时间与故障提醒也可配置；部署配置改变的不只是一个休眠间隔。
+部署数值是**工程默认值**，不代表允许安全部署；需要结合作物特性、传感器噪声、环境变化、电池测量和农田试验校准。阈值、EMA 窗口、事件持续时间与故障提醒也可配置；部署配置改变的不只是一个休眠间隔。
 
 `config/physical_b1.json` 显式保留历史温湿度 SensorTrust 设置。运行 `python scripts/generate_b1_profiles.py` 生成 B1 的 C 参数，或使用 `--check` 检查生成配置是否过期。
 
@@ -403,7 +428,7 @@ Logistic 在合成留出集上有 10/240 条策略模仿误差。该负面结果
 
 ## Sensor B 的现场部署语义
 
-> 本地感知，只在信息值得通信成本时传输。
+> Sense locally and communicate only when information is worth the energy.
 
 ```text
 Wake → Read Sensors → SensorTrust → AdaptiveSense → Update local state
@@ -412,49 +437,37 @@ Wake → Read Sensors → SensorTrust → AdaptiveSense → Update local state
         └── YES → Wake radio → LoRa → A → Radio sleep → Sleep
 ```
 
-**采样不等于传输。** B1 的 `upload_requested` 传递到样本、发送队列和传输守卫，稳定读数不再每次自动入队。通信触发包括首次有效样本、重要状态变化、确认的事件开始或恢复、大幅变化、健康/故障变化、低频健康报告与配置认可的关键条件。故障签名未变时，不会每个异常样本都发送。
+**sampled != transmitted**。B1 的 upload_requested 现在完整传递至 sample、发送队列和 transmission guard；稳定采样不再每次入队。communication events 来自首次有效 sample、重要状态变化、确认事件开始/恢复、大 delta、健康故障变化、低频健康报告及配置认可的 critical condition。故障签名不变时不重复发送每个异常 sample。
 
-**控制相关上传**：可信通道跨越控制阈值时立即请求上报。轻量 ControlRelevanceGate 比较当前值与上次成功发送或准入值，双向识别土壤湿度 `< threshold` 和温度 `> threshold` 的跨越。可配置的邻域幅度也可在进入阈值附近时触发报告。`upload_reasons` 保留所有触发原因；不可信通道走故障路径，不相关故障不会掩盖可信温度跨越。最终控制决策仍由 A 负责。
+**Low-Power Communication**：Control-relevant threshold crossing is an immediate upload trigger. 轻量 ControlRelevanceGate 仅比较可信通道与上次成功发送/入队值，双向识别 soil `< threshold`、temperature `> threshold`；profile margin 可配置进入阈值邻域的额外上报。`upload_reasons` 保存所有触发原因。不可信通道走 sensor fault；不相关通道故障不掩盖可信温度 crossing。最终控制仍由 A 决定。
 
-`firmware/b1` 的 ESP32 Wi-Fi/TCP 实现是**开发与集成传输**，用于硬件整合，并让感知逻辑独立于 socket。`b1_telemetry.c` 构造业务载荷，`b1_transport.h` 提供 sink 接口，`b1_network.c` 实现 TCP/Wi-Fi 适配器。
+B1 的实物感知仍是 SHT30 温度与湿度；土壤湿度控制相关性目前只在主机原型验证。
 
-当前 B1 实物固件通过 SHT30 测量温度和湿度。土壤湿度的控制相关性在主机原型中验证，不是 B1 实物土壤传感器结果。
+当前 `firmware/b1` 的 ESP32 Wi-Fi/TCP 是 **Development / Integration Transport**，保留其硬件整合价值。SensorTrust/AdaptiveSense 不知道 socket；`b1_telemetry.c` 构造业务 payload，`b1_transport.h` 提供 sink，`b1_network.c` 是 TCP/Wi-Fi adapter。Python `SensorRuntime` 与 `MockFieldTransport` 在 host 验证 radio wake/send/sleep 路径；Python TCP SensorNode 只接受 simulation/lab，不能把 deployment 的分钟周期配在秒级在线 keepalive 上冒充电池部署。
 
-Python `SensorRuntime` 和 `MockFieldTransport` 在主机上测试无线唤醒、发送、休眠流程。TCP SensorNode 只接受 simulation/lab 配置；把部署的分钟级采样与秒级在线保活组合起来，不能证明电池部署成立。
+lab/light-sleep 保留 Wi-Fi/TCP 集成。research 的 E220 驱动已实现有界 UART/AUX 通信窗口，以及空队列变为非空或 HIGH 准入时的通知调度与断链退避。UART 写入完成不等于远端收到；只有匹配的网关持久化 ACK 才能清退可靠记录。无线唤醒/休眠、AUX 时序和 RF 行为仍需实测。
 
-当前阶段的采样状态保存在 RAM，任务等待下次唤醒。Wi-Fi 集成使用 modem power save，并可选择启用 ESP-IDF 自动 light sleep。保持 TCP 关联仍有协议通信成本；E220 按需唤醒与完整无线休眠待实现。
+Phase 3 已提供默认关闭的 Deep Sleep 任务、RTC 算法快照和 NVS HIGH 恢复，并用实际 C 实现验证 SensorTrust/AdaptiveSense 连续性。默认 elapsed provider 返回 UNKNOWN，固件保守重建时间与上报基线，不把计划休眠时间当作实测值。每次唤醒使用新 boot 身份，旧 HIGH 保留原身份。详见[休眠配置与调试要求](firmware/b1/EXPERIMENTAL_TRANSPORT_SLEEP.md)。板上连续性、电流和电池寿命仍未测量。
 
-`main` 的 RAM 感知运行时尚未整合 RTC/NVS Deep Sleep 恢复；`research` 已有实验实现与实际 C 快照测试。整合时必须保留 SensorTrust 历史、EMA 与时间状态、滞回、周期阶梯、事件、故障签名、上传基线和归属 epoch，并校准 elapsed 来源。每次唤醒重置算法会破坏连续性，详见[部署契约](docs/DEPLOYMENT_SEMANTICS.md)及前述 research 报告。这里不报告电流、能耗或电池寿命结论。
-
-现场目标平台是 **ESP32-S3 + E220 LoRa**，覆盖 B↔A 与 A↔C；A1↔A2 协调也必须独立于互联网、Cloud 和 Wi-Fi AP。`main` 的 E220 适配器及完整无线注册/归属/心跳集成仍属于计划或主机契约工作。[research 实现](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/firmware/b1/EXPERIMENTAL_TRANSPORT_SLEEP.md)已有有界分帧、B1 UART 驱动和实验性休眠快照；A/C 实物端点与端到端硬件测量仍待完成。
-
-**现场 LoRa 语义**：B 属于区域，不永久属于某个网关。上行携带 `source_node_id`、`zone_id`、sequence、boot/session 身份和 payload；只有当前区域 owner 可以控制该区域固定 C。接管由网关检测，B 不持续监听两个 A，也不发送高频探测。
-
-TCP 回退用于主机集成。未来 LoRa 可以按区域寻址，因此 B 保持区域身份，无需先切换目标网关。必要的本地策略和 epoch 交换在通信窗口内进行，最终时序仍需硬件验证。
+现场目标是 **ESP32-S3 + E220 LoRa**，用于 B↔A、A↔C；A1↔A2 coordination 也必须独立于 Internet/Cloud/Wi-Fi AP。有界分帧/重组、角色路由、重试和 B1 UART 驱动已有源码及主机测试或编译证据；Gateway/Controller 实物 E220 端点、完整无线注册、归属通知与心跳集成仍待硬件工作。**Field LoRa Semantics**：B belongs to a Zone, not permanently to a Gateway. Uplink 携带 source_node_id、zone_id、sequence、boot/session id、payload；只有当前 Zone owner 可以驱动固定 C。Gateway 层检测 failover，B 不持续监听两个 A 或发送高频 probe。TCP fallback 是 host integration behavior；最终 LoRa 可以按 Zone 上行，B 不必改自己的 Zone 或先改目的 Gateway。必要的本地策略/epoch 交换在通信窗口完成，最终时序需硬件验证。
 
 ## Gateway A 的本地自主与弱网同步
 
-本地路径始终为接收 B → 有效性/可信门控 → DecisionEngine → CONTROL_COMMAND → C → CONTROL_RESULT。Cloud 重连和 outbox 回放使用独立任务；缓慢云端回执不会阻塞新历史的本地持久化或 B→A→C 控制链路。
+本地路径始终是 receive B → validate / Trust Gate → DecisionEngine → CONTROL_COMMAND → C → CONTROL_RESULT。[sensor_pipeline](gateway/sensor_pipeline.py) 用纯函数准备记录、信任、新鲜度和告警；Gateway 保留顺序/boot 状态、SQLite 准入、ACK、实时控制权、generation 和命令派发，原有处理接口保持可用。Cloud reconnect 与 outbox replay 使用独立任务；慢回执也不会挡住新历史的本地落盘和 B→A→C。
 
-云端连接状态分为 ONLINE、DEGRADED、OFFLINE。部署重连按 5/15/30/60/300 秒退避，simulation/lab 有独立设置。重连后按配置节流回放，每条记录仍需 PERSISTED_ACK 才删除。显式 CRITICAL 事件可以在冷却时间约束下请求一次提前重连。
+Cloud connectivity 分为 ONLINE、DEGRADED、OFFLINE；deployment 重连退避为 5/15/30/60/300 s，simulation/lab 各有独立参数。恢复后按配置节流回放，仍由每条 PERSISTED_ACK 删除；显式 CRITICAL event 可触发一次受 cooldown 限制的提前重连。连接状态和 outbox depth/bytes/oldest age/rejections 随 Gateway heartbeat 保存在 Cloud 历史。heartbeat 的 host TCP 实现不能证明现场在 Wi-Fi AP 断开后仍工作。
 
-网关心跳将连接状态及 outbox 深度、字节数、最老记录年龄和拒绝数带入云端历史。主机 TCP 心跳不能证明现场系统在 Wi-Fi AP 断开后仍可运行。
+**Offline Queue**：critical capacity is reserved。默认 10,000 条 / 16 MiB 中，为 HIGH 保留 1,000 条 / 1,677,722 bytes；NORMAL 到保留边界即拒绝，HIGH 可继续进入总容量。CONTROL_RESULT、CRITICAL、命令投递失败、Gateway takeover、严重 sensor fault 使用 HIGH。总容量满时明确拒绝并记录 priority metrics/log/local alert state；不驱逐已入队消息，FIFO、ID、dedup、PERSISTED_ACK 保持。
 
-**离线队列**：默认总容量为 10,000 条 / 16 MiB，其中为 HIGH 保留 1,000 条 / 1,677,722 字节。NORMAL 到达保留边界即停止准入，HIGH 可使用剩余总容量。CONTROL_RESULT、CRITICAL 事件、命令投递失败、网关接管和严重传感器故障使用 HIGH。
+**Controller Safety**：recent command IDs must survive restart before real actuator deployment。Host RecentCommandStore 保存可配置有界窗口（默认64），先 persist INTENT，再模拟执行，再 persist result；损坏或 intent 写失败默认 DO NOT EXECUTE。未完成 intent 也阻止重启重放，不能当作已成功执行。未来 ESP32 使用 NVS；没有板上验证。
 
-总容量耗尽后，新消息被明确拒绝，并记录优先级指标、日志与本地告警状态。已准入消息保留；FIFO、稳定身份、去重与 PERSISTED_ACK 语义不变。
-
-**控制器安全**：接真实执行器前，近期命令身份必须能跨重启保留。主机 RecentCommandStore 使用可配置有界窗口，默认 64 条；先持久化 INTENT，再模拟执行，再持久化结果。损坏或意图写入失败默认不执行。未完成 INTENT 也阻止重启重放，但不能证明动作已成功执行。未来 ESP32 控制器需要 NVS 后端，尚未板上验证。
-
-**时间语义**：单靠墙上时钟不足以证明离线命令新鲜。计划中的 LoRa 契约结合 owner/epoch、网关和接收端 boot session、命令 sequence/身份、接收端提前发出的接收窗口，以及单调时钟过期/重试边界。主机契约可在没有墙上时钟时验证新鲜命令；TCP 保持兼容的时间戳 TTL。旧包到达后重新启动 TTL，不会让它变新鲜，详见[五项补丁及证据](results/final-five-patches/README.md)。
+**Time Semantics**：Wall-clock time is not the sole safety basis for offline control TTL。Host LoRa 新鲜度契约组合 owner/epoch、gateway/receiver boot session、command sequence/id、接收端预先发出的 receive window 和 monotonic expiry/retry bounds；实物 A/C 端点集成仍待完成。Host contract 在无 wall clock 时可验证新鲜命令；现有 TCP timestamp TTL 保持兼容。仅收到旧包后重新启动 TTL 不能证明新鲜。详见[五项补丁与证据](results/final-five-patches/README.md)。
 
 ## 云端职责与现场数据学习
 
-云端已有 TCP 接收、SQLite 历史、原子去重与 PERSISTED_ACK、策略推送。**HTTP API 和 Web Dashboard 尚未实现。**
+Cloud 已有 TCP 接收、SQLite 历史、原子去重/PERSISTED_ACK 和可跨重启恢复的策略发布；策略内容与版本一起持久化，未改变内容及重复广播不提高版本。**HTTP API / Web Dashboard 仍然缺失**。下一阶段的只读 API 应展示 Zone status、latest/history curves、Gateway ownership/connectivity、alerts、control history、OfflineQueue/replay，并区分“数据过期”与“低功耗节点预计休眠”。设计契约见[Cloud 边界](docs/CLOUD_BOUNDARIES.md)，本轮不引入 broker、微服务或 Kubernetes。
 
-后续只读 API 应展示区域状态、最新读数和历史曲线、网关归属与连接状态、告警、控制历史、outbox 与回放状态，并区分数据过期和低功耗节点按计划休眠。设计见[云端边界](docs/CLOUD_BOUNDARIES.md)，不引入 broker、微服务或 Kubernetes。
-
-Logistic、Tree、MLP 仍是合成策略模仿模型，**尚未验证为农业智能模型**。计划中的数据学习流程为：
+Logistic / Tree / MLP 继续是 synthetic policy imitation：**NOT validated agricultural intelligence**。未来闭环：
 
 ```text
 Field Data → Cloud DB → Dataset Builder → Versioned Dataset
@@ -462,11 +475,11 @@ Field Data → Cloud DB → Dataset Builder → Versioned Dataset
     → Model Registry → Approved Deployment
 ```
 
-重训练采用批次或定期调度，不能每收到一个样本就启动训练。当前训练接口接受外部行数据；现场标签、版本化数据集、RTX GPU 训练、评估审批、模型注册与自动部署尚未实现。
+采用 batch / scheduled retraining；绝不每收到一个 sample 就重新训练。当前外部 rows 是软件训练入口；现场标签、版本数据集、RTX GPU 训练、评估审批、registry 与自动部署尚未完成。
 
 ## 路线图：网关故障硬件演示
 
-下一阶段的重要系统级硬件实验之一是：
+这是下一阶段最重要的系统级硬件实验之一：
 
 ```text
 Normal: B1 → A1 → C1   and   B2 → A2 → C2
@@ -482,20 +495,17 @@ Restore A1
 A1 sees newer generation → remains STANDBY
 ```
 
-实验需关闭互联网与 Cloud，并验证协调不依赖 Wi-Fi AP。逐样本、逐命令记录区域、owner/generation、ACK 与执行结果；注入旧 A1 命令，确认 C1 拒绝。
-
-完成 E220 链路、NVS 支持、B 休眠与 C 执行器集成后才能进行该演示。目前**待验证**，没有硬件结果。Camera、Tiny Vision、YOLO 与图像上传不属于当前工作范围。
+同时关闭 Internet/Cloud，并验证 coordination 不依赖 Wi-Fi AP。记录每条 sample/command 的 Zone、owner/generation、ACK 与执行结果，注入旧 A1 command 验证 C1 拒绝。完成 A/B/C 实物 RF 调试、Gateway/Controller 板上恢复状态、B 休眠计时校准和真实执行器集成后再执行；当前硬件展示仍是 Pending。本轮不接入 Camera、Tiny Vision、YOLO 或图像上传。
 
 ## 限制与后续工作
 
-- CLI 使用文件型 outbox；构造器默认的内存队列仅适合软件测试。持久化确认只保护已进入 outbox 的上传，前端上行和准入前的内存任务队列没有一般持久化保证。outbox 按消息数和载荷字节限制容量；满时明确拒绝新准入并记录指标，已准入且未确认的历史不按 TTL 驱逐。物理磁盘、WAL 增长及损坏 FIFO 首条仍需运维处理。
-- 主机网关持久化 ownership、generation、peer epoch，恢复后先 STANDBY 再与 peer 对齐。控制器在模拟执行前持久化最高 generation/owner 与近期意图/结果，重启后保守等待完整冷却时间。关键状态损坏则禁止控制，不回退旧值。ESP32 控制器 NVS 后端尚未实现；有界窗口不提供永久幂等，崩溃可能留下 UNKNOWN，不能保证跨重启恰好执行一次。
-- 双网关心跳和 owner/generation 检查不构成共识协议。split-brain 场景检查旧 generation 与同 epoch 非 owner 命令拒绝，不证明任意网络分区下的独占控制。
-- STUCK 无法区分真实恒定环境与冻结传感器；DRIFT 也可能来自真实持续变化。依赖 DEGRADED 通道的动作被阻断，阈值需要农业校准。
-- 旧版传感器遥测仍是尽力传输。按 boot 的 sequence 检查抑制重复和乱序读数，但不提供传感器端持久化、重传或设备端年龄保证。`research` 的 B1 投递改进有独立范围，见[主分支与研究分支](#主分支与研究分支)。
-- 尚无认证、加密、跨节点时钟同步与部署校准。TCP CONTROL_COMMAND 时间戳仍要求 Unix 墙上时钟；未来现场新鲜度的主机模型虽已测试，尚未接入无线固件。
-- 模型测试验证软件流程，INT8 仅是权重存储参考。完整 C 推理一致性、真实数据有效性、设备资源占用和能耗尚未测量。
-- `main` 的 deep sleep、现场节点 RTC/NVS 连续性、B↔A/A↔C/A1↔A2 E220 集成和真实执行器仍待完成。没有实测电池寿命、能耗下降幅度、系统集成 E220 交付率或农作物增产结论。
+- 回执账本、HIGH 缓冲、结果重发窗口和近期命令保护都有容量边界。容量压力会明确拒绝准入，不能静默删除身份；物理磁盘/WAL 增长、Flash 磨损、长期离线和可证明的回执清退仍需运维评估。
+- Host ownership/generation 和命令意图/结果 checkpoint 支持 fail-closed 重启恢复；ESP32 控制器及网关实物 RF 端点尚未实现。不可观察的崩溃窗口和有界去重历史，使系统不能无条件承诺执行器 exactly-once。
+- 双网关心跳故障检测不是分布式共识。split-brain、单向丢失、恢复和旧 generation 实验验证明确的故障计划，不能证明任意分区下的独占控制。
+- legacy-write 遥测仍为尽力传输。非 physical 的 legacy 实验输入使用接收年龄和按 boot 的顺序检查，没有可靠/物理路径的注册 boot 门槛。可靠 HIGH 历史可通过 checkpoint/重试保留，Host NORMAL 待确认数据仍只在 RAM。提交后 ACK 发送失败，不会在重传时重新执行被中断的控制决策。[AR-1 边界](docs/architecture/AR1_SENSOR_PIPELINE.md#remaining-architecture-debt)记录了这些保持不变的行为。
+- 可选 HMAC 仅保护 peer 实验。B/C/云端/RF 会话认证、加密、跨节点时钟调试和现场校准尚未完成，因此 deployment 模式仍被拒绝。
+- E220 RF 可靠性、A/C 集成、GPIO/AUX/复位行为、校准的 RTC elapsed、NVS 断电、真实执行器、电流和电池寿命仍待硬件验证。实验源码与四种固件编译通过不能替代这些测量。
+- STUCK、DRIFT 是启发式指标，也可能对应真实环境行为。学习模型仍为合成策略参考，完整 C 推理一致性、农业效果、MCU 资源和能耗尚未验证。
 
 ## 相关研究项目
 
@@ -518,8 +528,8 @@ A1 sees newer generation → remains STANDBY
 
 [v0.3.1 可靠性报告](docs/V0_3_1_RELIABILITY_REPORT.md) · [代码审查](docs/V0_3_1_RELIABILITY_REVIEW.md) · [v0.3 整合与复用记录](docs/V0_3_INTEGRATION_REPORT.md)
 
-[分支整合审查与最近软件验证](docs/BRANCH_INTEGRATION_REVIEW.md)记录了开发线合入主线前的 checkpoint、命令窗口和配置修复。历史测试与实验报告保留其原始范围。
+最新记录：[最终分支整合](docs/research/FINAL_BRANCH_INTEGRATION.md)、[Phase 1.2](docs/research/PHASE1_2_DEVELOPMENT_REPORT.md)、[LoRa 协议/UART](docs/research/PHASE2_LORA_DEVELOPMENT_REPORT.md)、[实验休眠](docs/research/PHASE3_DEEPSLEEP_DEVELOPMENT_REPORT.md)、[跨阶段集成](docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md)、[可靠性稳定化](docs/research/RELIABILITY_STABILIZATION_REPORT.md)、[AR-1 架构](docs/architecture/AR1_SENSOR_PIPELINE.md)。[早期分支整合审查](docs/BRANCH_INTEGRATION_REVIEW.md)和全部原始证据保留历史范围。本轮没有执行 AR-2/AR-3/AR-4。
 
-后续优先审查 [research 新进展](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/tree/research)并分阶段整合主线，补齐实物 A/C E220 端点和认证会话，校准 RTC/NVS，再完成真实执行器与功耗测量及硬件接管展示。完整双区域拓扑是项目长期保留的组成部分。
+后续优先补齐实物 A/C E220 端点与认证会话，校准 RTC/NVS，再完成真实执行器、功耗测量和硬件接管展示。完整双区域拓扑是项目长期保留的组成部分。
 
 MIT 许可。直接复用的 AdaptiveSense Python 文件保留其 MIT 许可声明与来源记录。

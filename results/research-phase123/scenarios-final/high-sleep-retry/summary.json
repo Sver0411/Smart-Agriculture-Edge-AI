@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "case": "high-sleep-retry",
+  "assertions": [
+    {
+      "description": "loss/damage has no fabricated durable confirmation or control admission",
+      "passed": true
+    },
+    {
+      "description": "old boot HIGH retry deduplicates and retires evidence without advancing fresh baseline",
+      "passed": true
+    },
+    {
+      "description": "one immutable logical sample stored once at gateway and server",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "logical_attempts": 8,
+    "fragments_sent": 40,
+    "simulated_frame_bytes": 6062,
+    "reassembled": 7,
+    "duplicates": 0,
+    "rejected": 0,
+    "dropped": 3,
+    "gateway_receipts": 1,
+    "server_samples": 1,
+    "decision_calls": 1
+  }
+}

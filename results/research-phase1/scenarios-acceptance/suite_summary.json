@@ -1,0 +1,1555 @@
+{
+  "passed": 20,
+  "scenarios": [
+    {
+      "assertions": [
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Do both zones complete B -> A -> C -> A -> Server?",
+      "scenario": "normal",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Do all seven software roles participate in the complete control loop?",
+      "scenario": "full-control-loop",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        },
+        {
+          "description": "planned frame fault exercised",
+          "passed": true
+        },
+        {
+          "description": "bounded retry observed",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Does a dropped control frame retry and execute once?",
+      "scenario": "packet-loss",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        },
+        {
+          "description": "planned frame fault exercised",
+          "passed": true
+        },
+        {
+          "description": "bounded retry observed",
+          "passed": true
+        },
+        {
+          "description": "duplicate execution prevented",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Does a lost receipt ACK retry without a second actuator execution?",
+      "scenario": "ack-loss",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        },
+        {
+          "description": "planned frame fault exercised",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Does a duplicated logical command execute once?",
+      "scenario": "duplicate-command",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        },
+        {
+          "description": "planned frame fault exercised",
+          "passed": true
+        },
+        {
+          "description": "late result resolves unknown outcome",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Can an unknown execution outcome be resolved by a late result?",
+      "scenario": "delayed-result",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        },
+        {
+          "description": "planned frame fault exercised",
+          "passed": true
+        },
+        {
+          "description": "missing result is UNKNOWN",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Does missing CONTROL_RESULT remain explicitly UNKNOWN without blind reexecution?",
+      "scenario": "lost-result",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        },
+        {
+          "description": "planned frame fault exercised",
+          "passed": true
+        },
+        {
+          "description": "old telemetry skipped for control",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Is old telemetry retained for audit but excluded from fresh control?",
+      "scenario": "reordered-messages",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 never executes on faulty B1",
+          "passed": true
+        },
+        {
+          "description": "fault evidence stored",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Does a broken B1 channel block C1 while the other zone continues?",
+      "scenario": "sensor-fault",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.902396375000535,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does A2 take over and synchronize sensor/controller generation?",
+      "scenario": "gateway-failover",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "recovered gateway standby",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 2,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "STANDBY"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.8138809999982186,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does recovered A1 enter STANDBY?",
+      "scenario": "gateway-recovery",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6105148749993532,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a command from a deposed epoch remain rejected?",
+      "scenario": "stale-generation",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "history queued durably",
+          "passed": true
+        },
+        {
+          "description": "local control executes during outage",
+          "passed": true
+        },
+        {
+          "description": "all offline queues drained",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Does edge control continue and history replay after cloud recovery?",
+      "scenario": "server-offline",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "history queued durably",
+          "passed": true
+        },
+        {
+          "description": "local control executes during outage",
+          "passed": true
+        },
+        {
+          "description": "all offline queues drained",
+          "passed": true
+        },
+        {
+          "description": "250 logical queued samples stored",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Do 250 queued messages replay without any new telemetry trigger?",
+      "scenario": "queue-replay",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "old policy ignored",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Does an older policy leave current thresholds unchanged?",
+      "scenario": "policy-replay",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "non-owner cannot execute",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        },
+        "result": {
+          "command_id": "non-owner",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "NOT_OWNER",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a controller reject a non-owner at the same epoch?",
+      "scenario": "split-brain",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "expired command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        },
+        "result": {
+          "command_id": "expired",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "EXPIRED",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does an expired command leave the actuator untouched?",
+      "scenario": "expired-command",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 explicitly rejects B1 and C1 before takeover",
+          "passed": true
+        },
+        {
+          "description": "correct B1/C1 initial owner at A1",
+          "passed": true
+        },
+        {
+          "description": "registration does not bump initial epoch",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Do B1/C1 contact A2 first, receive NOT_OWNER, then establish correct ownership at A1 without startup delays?",
+      "scenario": "registration-race",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "committed receipt was dropped",
+          "passed": true
+        },
+        {
+          "description": "server deduplicates replay after ACK loss",
+          "passed": true
+        },
+        {
+          "description": "acknowledged row removed",
+          "passed": true
+        },
+        {
+          "description": "one committed business row for lost receipt",
+          "passed": true
+        },
+        {
+          "description": "row retained at moment of dropped ACK",
+          "passed": true
+        },
+        {
+          "description": "dedup row committed before dropped ACK",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        },
+        {
+          "description": "planned frame fault exercised",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        },
+        "replayed_message_id": "b099a3ac22e0"
+      },
+      "question": "Does a committed upload retain its gateway copy after a lost persisted ACK and replay to one business row?",
+      "scenario": "persisted-ack-loss",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "server records unavailable controller outcome",
+          "passed": true
+        },
+        {
+          "description": "offline controller executes zero commands",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 really reconnects after offline decision",
+          "passed": true
+        },
+        {
+          "description": "reconnected C1 never executes old undispatched command",
+          "passed": true
+        },
+        {
+          "description": "no unavailable command is later dispatched",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        },
+        "undispatched_ids": [
+          "8c16b4c6db89",
+          "58ab1b7bf6d8",
+          "112bed1003bc",
+          "27aab72d32b0"
+        ]
+      },
+      "question": "Is unavailable C1 reported NOT_DISPATCHED, with no old command executed after reconnection?",
+      "scenario": "controller-unavailable",
+      "status": "PASS"
+    }
+  ],
+  "total": 20
+}

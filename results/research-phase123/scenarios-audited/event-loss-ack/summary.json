@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "case": "event-loss-ack",
+  "assertions": [
+    {
+      "description": "loss/damage has no fabricated durable confirmation or control admission",
+      "passed": true
+    },
+    {
+      "description": "real gateway committed receipt precedes ACK, actual C confirmed_seq advances to2 only after matching ACK",
+      "passed": true
+    },
+    {
+      "description": "one immutable logical sample stored once at gateway and server",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "logical_attempts": 5,
+    "fragments_sent": 31,
+    "simulated_frame_bytes": 4742,
+    "reassembled": 4,
+    "duplicates": 0,
+    "rejected": 0,
+    "dropped": 11,
+    "gateway_receipts": 1,
+    "server_samples": 1,
+    "decision_calls": 1
+  }
+}

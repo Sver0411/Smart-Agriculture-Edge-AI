@@ -1,0 +1,7 @@
+{
+  "idf": "v5.4.4",
+  "target": "esp32s3",
+  "profile": "lab",
+  "binary_bytes": 831264,
+  "sha256": "48e7b012be47ac2491d80ee36867e7ef1398b78f6049f5af7fa3ad5b8264fd9d"
+}

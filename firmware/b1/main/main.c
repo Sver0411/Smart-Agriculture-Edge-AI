@@ -1,6 +1,8 @@
 #include "b1.h"
+#include "b1_deep_sleep.h"
+#include "b1_lora_network.h"
 #include "esp_log.h"
-#include "esp_random.h"
+#include "b1_storage.h"
 #include "esp_system.h"
 #if CONFIG_SPIRAM
 #include "esp_psram.h"
@@ -8,21 +10,23 @@
 #include "nvs_flash.h"
 #include <stdio.h>
 
-QueueHandle_t b1_queue;
 b1_stats_t b1_stats;
-char b1_boot_id[16];
+char b1_boot_id[B1_BOOT_ID_SIZE];
 
 void app_main(void)
 {
     esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        err = nvs_flash_init();
+    // Never erase NVS on error: it can contain unacknowledged critical data.
+    if (err != ESP_OK || !b1_queue_init()) {
+        printf("B1_DELIVERY {\"event\":\"STORAGE_INIT_FAILED_PRESERVED\"}\n");
+        return;
     }
-    ESP_ERROR_CHECK(err);
-    snprintf(b1_boot_id, sizeof(b1_boot_id), "%08lx", (unsigned long)esp_random());
-    b1_queue = xQueueCreate(16, sizeof(b1_sample_t));
-    if (!b1_queue) abort();
+#if CONFIG_B1_DEEP_SLEEP_EXPERIMENTAL
+    xTaskCreate(b1_deep_sleep_task,"b1_deep",24576,NULL,5,NULL);
+    return;
+#else
+    b1_new_boot_identity();
+#endif
     b1_runtime_init();
     size_t psram_runtime = 0;
 #if CONFIG_SPIRAM
@@ -30,6 +34,10 @@ void app_main(void)
 #endif
     printf("B1_BEGIN {\"boot_id\":\"%s\",\"queue_capacity\":16,\"heap_after_boot\":%lu,\"psram_runtime_bytes\":%lu}\n",
         b1_boot_id, (unsigned long)esp_get_free_heap_size(), (unsigned long)psram_runtime);
-    xTaskCreate(b1_sensor_task, "b1_sensor", 6144, NULL, 5, NULL);
-    xTaskCreate(b1_network_task, "b1_network", 8192, NULL, 5, NULL);
+    xTaskCreate(b1_sensor_task, "b1_sensor", 12288, NULL, 5, NULL);
+#if CONFIG_B1_USE_E220
+    xTaskCreate(b1_lora_network_task, "b1_lora", 16384, NULL, 5, NULL);
+#else
+    xTaskCreate(b1_network_task, "b1_network", 16384, NULL, 5, NULL);
+#endif
 }

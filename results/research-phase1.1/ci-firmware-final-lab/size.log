@@ -1,0 +1,36 @@
+Executing action: size
+Running ninja in directory /__w/Smart-Agriculture-Edge-AI/Smart-Agriculture-Edge-AI/firmware-ci-evidence/lab/build
+Executing "ninja all"...
+[1/4] cd /__w/Smart-Agriculture-Edge-AI/Smart-Agriculture-Edge-AI/firmware-ci-evidence/lab/build/esp-idf/esptool_py && /opt/esp/python_env/idf5.4_py3.12_env/bin/python /opt/esp/idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /__w/Smart-Agriculture-Edge-AI/Smart-Agriculture-Edge-AI/firmware-ci-evidence/lab/build/partition_table/partition-table.bin /__w/Smart-Agriculture-Edge-AI/Smart-Agriculture-Edge-AI/firmware-ci-evidence/lab/build/smart_agriculture_b1.bin
+smart_agriculture_b1.bin binary size 0xcadd0 bytes. Smallest app partition is 0x100000 bytes. 0x35230 bytes (21%) free.
+[2/4] Performing build step for 'bootloader'
+[1/1] cd /__w/Smart-Agriculture-Edge-AI/Smart-Agriculture-Edge-AI/firmware-ci-evidence/lab/build/bootloader/esp-idf/esptool_py && /opt/esp/python_env/idf5.4_py3.12_env/bin/python /opt/esp/idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /__w/Smart-Agriculture-Edge-AI/Smart-Agriculture-Edge-AI/firmware-ci-evidence/lab/build/bootloader/bootloader.bin
+Bootloader binary size 0x51c0 bytes. 0x2e40 bytes (36%) free.
+[3/4] No install step for 'bootloader'
+[4/4] Completed 'bootloader'
+Running ninja in directory /__w/Smart-Agriculture-Edge-AI/Smart-Agriculture-Edge-AI/firmware-ci-evidence/lab/build
+Executing "ninja size"...
+[0/1] cd /__w/Smart-Agriculture-Edge-AI/Smart-Agriculture-Edge-AI/firmware-ci-evidence/lab/build && /opt/esp/tools/cmake/3.30.2/bin/cmake -D "IDF_SIZE_TOOL=/opt/esp/python_env/idf5.4_py3.12_env/bin/python;-m;esp_idf_size" -D MAP_FILE=/__w/Smart-Agriculture-Edge-AI/Smart-Agriculture-Edge-AI/firmware-ci-evidence/lab/build/smart_agriculture_b1.map -D OUTPUT_JSON= -P /opt/esp/idf/tools/cmake/run_size_tool.cmake
+                            Memory Type Usage Summary                             
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Memory Type/Section ┃ Used [bytes] ┃ Used [%] ┃ Remain [bytes] ┃ Total [bytes] ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ Flash Code          │       594214 │          │                │               │
+│    .text            │       594214 │          │                │               │
+│ DIRAM               │       209535 │    61.31 │         132225 │        341760 │
+│    .bss             │       102120 │    29.88 │                │               │
+│    .text            │        78491 │    22.97 │                │               │
+│    .data            │        28924 │     8.46 │                │               │
+│ Flash Data          │       112768 │          │                │               │
+│    .rodata          │       112512 │          │                │               │
+│    .appdesc         │          256 │          │                │               │
+│ IRAM                │        16383 │    99.99 │              1 │         16384 │
+│    .text            │        15356 │    93.73 │                │               │
+│    .vectors         │         1027 │     6.27 │                │               │
+│ RTC SLOW            │           28 │     0.34 │           8164 │          8192 │
+│    .force_slow      │           28 │     0.34 │                │               │
+│ RTC FAST            │           24 │     0.29 │           8168 │          8192 │
+│    .rtc_reserved    │           24 │     0.29 │                │               │
+└─────────────────────┴──────────────┴──────────┴────────────────┴───────────────┘
+Total image size: 830808 bytes (.bin may be padded larger)
+Note: The reported total sizes may be smaller than those in the technical reference manual due to reserved memory and application configuration. The total flash size available for the application is not included by default, as it cannot be reliably determined due to the presence of other data like the bootloader, partition table, and application partition size.

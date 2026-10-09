@@ -1,0 +1,73 @@
+F...........................                                             [100%]
+=================================== FAILURES ===================================
+___________ test_ack_after_commit_lost_ack_retry_and_gateway_restart ___________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-52/test_ack_after_commit_lost_ack0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x105ef6fd0>
+
+    def test_ack_after_commit_lost_ack_retry_and_gateway_restart(tmp_path, monkeypatch):
+        async def run():
+            path = str(tmp_path/'queue.db')
+            g = Gateway('A1', queue_path=path)
+            writer = object(); g.connections['B1'] = writer
+            receipts = []
+            async def send(w, m):
+                if m.type == PERSISTED_ACK:
+                    disk = OfflineQueue(path).connect()
+                    assert disk.count() == 1
+                    disk.close()
+                    receipts.append(m)
+            monkeypatch.setattr('gateway.gateway.send_message', send)
+            await g._process_sensor_message(sample())
+            assert len(receipts) == 1
+            assert receipts[0].payload['scope'] == 'GATEWAY_OUTBOX'
+            assert receipts[0].payload['ack_message_id'] == sample().message_id
+            # Simulate cloud ACK cleanup before B has received the gateway ACK.
+            row = g.offline_queue.peek()[0][0]; g.offline_queue.delete(row)
+            g.offline_queue.close()
+            g = Gateway('A1', queue_path=path); g.connections['B1'] = writer
+            await g._process_sensor_message(sample())
+            assert len(receipts) == 2 and g.offline_queue.count() == 0
+            assert g.metrics.get('sensor_messages') == 0
+            g.offline_queue.close()
+>       asyncio.run(run())
+
+tests/test_b1_gateway_receipts.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:205: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:128: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py:720: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+tests/test_b1_gateway_receipts.py:43: in run
+    await g._process_sensor_message(sample())
+gateway/gateway.py:517: in _process_sensor_message
+    if not await self._admit_sensor_upload(message, upload, identity, digest):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+gateway/gateway.py:586: in _admit_sensor_upload
+    await send_message(writer, Message(type=PERSISTED_ACK, source=self.gateway_id,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+w = <object object at 0x1043a5790>
+m = Message(type='PERSISTED_ACK', source='A1', target='B1', payload={'ack_message_id': 'B1-device-boot-00000001-S', 'persi...tamp=1791440132.347726, message_id='8a5101b4b23a', protocol_version=None, sequence=None, attempt=None, generation=None)
+
+    async def send(w, m):
+        if m.type == PERSISTED_ACK:
+            disk = OfflineQueue(path).connect()
+>           assert disk.count() == 1
+E           assert 0 == 1
+E            +  where 0 = count()
+E            +    where count = <gateway.offline_queue.OfflineQueue object at 0x105ef7490>.count
+
+tests/test_b1_gateway_receipts.py:31: AssertionError
+----------------------------- Captured stdout call -----------------------------
+14:15:32 [A1] received SENSOR_DATA from B1
+14:15:32 [A1] sensor B1 unusable for control -> decision skipped
+14:15:32 [A1] received SENSOR_DATA from B1
+=========================== short test summary info ============================
+FAILED tests/test_b1_gateway_receipts.py::test_ack_after_commit_lost_ack_retry_and_gateway_restart
+1 failed, 27 passed in 2.15s

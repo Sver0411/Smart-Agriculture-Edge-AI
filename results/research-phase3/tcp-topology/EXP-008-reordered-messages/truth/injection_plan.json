@@ -1,0 +1,26 @@
+{
+  "disruptions": [],
+  "frame_faults": [
+    {
+      "action": "reorder",
+      "count": 2,
+      "match": {
+        "source": "B1",
+        "type": "SENSOR_DATA"
+      }
+    }
+  ],
+  "receipt_observations": [
+    {
+      "action": "reorder",
+      "message_id": "8b097cf57a5d"
+    },
+    {
+      "action": "reorder",
+      "message_id": "7526388ec513"
+    }
+  ],
+  "scenario": "reordered-messages",
+  "seed": 42,
+  "sensor_fault": false
+}

@@ -1,0 +1,13 @@
+{
+  "disruptions": [
+    {
+      "action": "server_outage",
+      "time_s": 0.8119371249995311
+    }
+  ],
+  "frame_faults": [],
+  "receipt_observations": [],
+  "scenario": "queue-replay",
+  "seed": 42,
+  "sensor_fault": false
+}

@@ -9,9 +9,9 @@ takeover itself, protected by a monotonically increasing ``generation``
   anything older with ``STALE_GENERATION``.
 
 That is what keeps a deposed gateway - one that is still running but has been
-replaced - from acting on the same actuator as its successor.  No Raft, no
-Paxos, no etcd: heartbeat + timeout + ownership + generation is enough for two
-gateways in one field.
+replaced - from acting on the same actuator as its successor.  Heartbeat timeouts and generations fence older commands after a controller
+has seen the new epoch. They do not establish consensus under arbitrary or
+asymmetric network partitions.
 """
 
 from __future__ import annotations

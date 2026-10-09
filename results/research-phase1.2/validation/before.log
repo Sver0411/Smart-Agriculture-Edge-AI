@@ -1,0 +1,117 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+______________ test_unenrolled_heartbeat_cannot_change_ownership _______________
+
+    def test_unenrolled_heartbeat_cannot_change_ownership():
+        async def run():
+            g=Gateway("A1",port=0,peer_port=1,server_port=1)
+            await g.start()
+            r,w=await asyncio.open_connection("127.0.0.1",g._server.sockets[0].getsockname()[1])
+            from common.messages import send_message
+            await send_message(w,Message(type=HEARTBEAT,source="A2",target="A1",payload={"generation":99}))
+            await asyncio.sleep(.03)
+            assert g.ownership.generation==1 and g.ownership.role=="ACTIVE" and g.peer_last_seen is None
+            w.close();await g.stop()
+>       asyncio.run(run())
+
+tests/test_phase12.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:205: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:128: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py:720: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def run():
+        g=Gateway("A1",port=0,peer_port=1,server_port=1)
+        await g.start()
+        r,w=await asyncio.open_connection("127.0.0.1",g._server.sockets[0].getsockname()[1])
+        from common.messages import send_message
+        await send_message(w,Message(type=HEARTBEAT,source="A2",target="A1",payload={"generation":99}))
+        await asyncio.sleep(.03)
+>       assert g.ownership.generation==1 and g.ownership.role=="ACTIVE" and g.peer_last_seen is None
+E       AssertionError: assert (1 == 1 and 'STANDBY' == 'ACTIVE'
+E        +  where 1 = <gateway.ownership.OwnershipManager object at 0x1035b7620>.generation
+E        +    where <gateway.ownership.OwnershipManager object at 0x1035b7620> = <gateway.gateway.Gateway object at 0x1035b6e40>.ownership
+E         
+E         - ACTIVE
+E         + STANDBY)
+
+tests/test_phase12.py:17: AssertionError
+----------------------------- Captured stdout call -----------------------------
+21:18:54 [A1] gateway started on 127.0.0.1:0 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+21:18:54 [A1] cloud DEGRADED; retry in 0.2s
+21:18:54 [A1] peer ownership generation = 99 (mine 1) - entering STANDBY
+____________________ test_queue_wait_is_added_to_sample_age ____________________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-90/test_queue_wait_is_added_to_sa0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10358a780>
+
+    def test_queue_wait_is_added_to_sample_age(tmp_path,monkeypatch):
+        async def run():
+            g=Gateway("A1",queue_path=str(tmp_path/"q.db"))
+            g.sensor_boots["B1"]="device-boot";g.connections["B1"]=object()
+            async def send(*args):pass
+            monkeypatch.setattr("gateway.gateway.send_message",send)
+            m=sample();m.payload["data"]["temperature"]=36
+            g.sensor_queue.put_nowait(m)
+            monkeypatch.setattr("gateway.gateway.time.monotonic",lambda:time.perf_counter()+10)
+            await g._process_sensor_message(await g.sensor_queue.get())
+            assert g.command_queue.empty()
+            assert g.offline_queue.count()==1
+            assert not g.offline_queue.peek()[0][1].payload["record"]["usable_for_control"]
+            g.offline_queue.close()
+>       asyncio.run(run())
+
+tests/test_phase12.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:205: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py:128: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py:720: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def run():
+        g=Gateway("A1",queue_path=str(tmp_path/"q.db"))
+        g.sensor_boots["B1"]="device-boot";g.connections["B1"]=object()
+        async def send(*args):pass
+        monkeypatch.setattr("gateway.gateway.send_message",send)
+        m=sample();m.payload["data"]["temperature"]=36
+        g.sensor_queue.put_nowait(m)
+        monkeypatch.setattr("gateway.gateway.time.monotonic",lambda:time.perf_counter()+10)
+        await g._process_sensor_message(await g.sensor_queue.get())
+>       assert g.command_queue.empty()
+E       AssertionError: assert False
+E        +  where False = empty()
+E        +    where empty = <Queue at 0x10369cd10 maxsize=0 _queue=[(Message(type='CONTROL_COMMAND', source='A1', target='C1', payload={'type': 'V...3508, message_id='705524219787', protocol_version=None, sequence=None, attempt=None, generation=None), False)] tasks=1>.empty
+E        +      where <Queue at 0x10369cd10 maxsize=0 _queue=[(Message(type='CONTROL_COMMAND', source='A1', target='C1', payload={'type': 'V...3508, message_id='705524219787', protocol_version=None, sequence=None, attempt=None, generation=None), False)] tasks=1> = <gateway.gateway.Gateway object at 0x1035b6ba0>.command_queue
+
+tests/test_phase12.py:32: AssertionError
+----------------------------- Captured stdout call -----------------------------
+21:18:54 [A1] received SENSOR_DATA from B1
+21:18:54 [A1] edge decision = VENTILATION (temperature 36 > 32.0)
+_____________________ test_all_internal_queues_are_bounded _____________________
+
+    def test_all_internal_queues_are_bounded():
+        g=Gateway("A1")
+        for q in [g.sensor_queue,g.result_queue,g.upload_queue,g.command_queue]:
+>           assert 0<q.maxsize<=1024
+E           assert 0 < 0
+E            +  where 0 = <Queue at 0x103663a50 maxsize=0>.maxsize
+
+tests/test_phase12.py:42: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_phase12.py::test_unenrolled_heartbeat_cannot_change_ownership
+FAILED tests/test_phase12.py::test_queue_wait_is_added_to_sample_age - Assert...
+FAILED tests/test_phase12.py::test_all_internal_queues_are_bounded - assert 0...
+3 failed in 0.26s

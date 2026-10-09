@@ -1,0 +1,9 @@
+{
+  "run": 37767170403,
+  "code_commit": "110295e4eabbfdd6423bfa1e5f751a16c24c332b",
+  "archive": "ci-software-110295e.tar.gz",
+  "sha256": "312d7ce592ad5ff07a3e0b37a3a734a32ab08845021e67aea5e384c02324e102",
+  "contents": "20 system scenarios and 5 EdgeFaultLab scenarios: raw events/logs, configs, manifests, metrics and verdicts; SQLite files omitted",
+  "passed_system": 20,
+  "passed_external": 5
+}

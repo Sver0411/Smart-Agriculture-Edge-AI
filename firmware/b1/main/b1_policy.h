@@ -16,6 +16,9 @@ typedef struct {
     double last_notification_t;
     float temperature_threshold, temperature_margin, reported_temperature;
     bool has_reported_temperature;
+    bool has_confirmed;
+    uint32_t confirmed_seq;
+    uint64_t confirmed_ms;
 } b1_policy_t;
 bool b1_policy_init(b1_policy_t *p);
 void b1_policy_update(b1_policy_t *p, b1_sample_t *sample);

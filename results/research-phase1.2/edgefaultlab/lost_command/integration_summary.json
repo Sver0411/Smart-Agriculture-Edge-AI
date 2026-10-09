@@ -1,0 +1,23 @@
+{
+  "assertions": [
+    {
+      "description": "the command is executed after the ACK timeout and retry",
+      "detail": "matched [payload.status='EXECUTED', type='CONTROL_RESULT'] at 0.592s (window 0.000s..8.000s)",
+      "passed": true
+    },
+    {
+      "description": "the retry executed the command exactly once",
+      "detail": "19 distinct payload.command_id value(s) in 19 matching message(s)",
+      "passed": true
+    },
+    {
+      "description": "at least one command was sent",
+      "detail": "observed 19 message(s) matching [type='CONTROL_COMMAND']",
+      "passed": true
+    }
+  ],
+  "exit_code": 0,
+  "external_revision": "c7248239f456cc877114ca1e67c5949fb4a7b958",
+  "scenario": "lost_command",
+  "status": "PASS"
+}

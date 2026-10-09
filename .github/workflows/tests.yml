@@ -2,15 +2,14 @@ name: tests
 
 on:
   push:
-    branches: [main, v0.3-software-integration, v0.3.1-reliability-hardening]
-    paths-ignore: ['docs/**', 'README.md', 'results/**']
+    branches: [main, research, v0.3-software-integration, v0.3.1-reliability-hardening, fix/research-reliability-stabilization, refactor/ar1-sensor-pipeline]
   pull_request:
   workflow_dispatch:
 
 jobs:
   software:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -22,12 +21,32 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install test dependencies
         run: pip install -r requirements.txt
+      - name: Record source and toolchain provenance
+        run: python -c 'from experiments.reliability_stabilization import source_manifest; import json,os; from pathlib import Path; Path(os.environ["RUNNER_TEMP"],"source_manifest.json").write_text(json.dumps(source_manifest(),indent=2)+"\n")'
       - name: Unit, integration and host reference tests
         shell: bash
         run: python -m pytest tests/ -vv -o faulthandler_timeout=60 --basetemp "$RUNNER_TEMP/pytest" | tee "$RUNNER_TEMP/unit-tests.log"
+      - name: Classify retained historical research evidence
+        if: matrix.python == '3.12'
+        run: python -m experiments.evidence_inventory --output "$RUNNER_TEMP/smart-agriculture/evidence_inventory.json"
       - name: Complete topology software scenarios
         if: matrix.python == '3.12'
         run: python -m experiments.runner --all --output "$RUNNER_TEMP/smart-agriculture/software"
+      - name: Repeated ownership and reliability stabilization scenarios
+        if: matrix.python == '3.12'
+        run: python -m experiments.reliability_stabilization --output "$RUNNER_TEMP/smart-agriculture/stabilization"
+      - name: All scenarios over host simulated LoRa
+        if: matrix.python == '3.12'
+        run: python -m experiments.runner --all --transport simulated-lora --output "$RUNNER_TEMP/smart-agriculture/lora-topology"
+      - name: Seeded radio delivery comparisons (including incomplete deliveries)
+        if: matrix.python == '3.12'
+        run: python -m experiments.lora_harness --seed 42 --output "$RUNNER_TEMP/smart-agriculture/lora-comparison"
+      - name: Actual C algorithm sleep-restore oracle
+        if: matrix.python == '3.12'
+        run: python -m experiments.snapshot_harness --output "$RUNNER_TEMP/smart-agriculture/snapshot"
+      - name: Ten cross-phase integration scenarios
+        if: matrix.python == '3.12'
+        run: python -m experiments.phase123_integration --seed 42 --output "$RUNNER_TEMP/smart-agriculture/phase123"
       - name: Checkout independent EdgeFaultLab at reviewed revision
         if: matrix.python == '3.12'
         uses: actions/checkout@v4
@@ -44,7 +63,33 @@ jobs:
         with:
           name: software-evidence-python-${{ matrix.python }}
           path: |
+            ${{ runner.temp }}/source_manifest.json
             ${{ runner.temp }}/unit-tests.log
             ${{ runner.temp }}/pytest
             ${{ runner.temp }}/smart-agriculture
+          if-no-files-found: warn
+
+  firmware:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container: espressif/idf:v5.4.4
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [lab, light-sleep, lora-prototype, deep-sleep-experimental]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ESP32-S3 using public defaults only
+        shell: bash
+        run: |
+          . "$IDF_PATH/export.sh"
+          bash scripts/ci_build_b1.sh "${{ matrix.profile }}" "$GITHUB_WORKSPACE/firmware-ci-evidence/${{ matrix.profile }}"
+      - name: Preserve compile and size evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-esp32s3-idf5.4.4-${{ matrix.profile }}
+          path: |
+            firmware-ci-evidence/${{ matrix.profile }}/*.log
+            firmware-ci-evidence/${{ matrix.profile }}/manifest.json
           if-no-files-found: warn

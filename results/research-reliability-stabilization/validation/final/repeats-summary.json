@@ -1,0 +1,1911 @@
+{
+  "passed": 20,
+  "scenarios": [
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.1410352910024812,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6179806670043035,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a command from a deposed epoch remain rejected?",
+      "scenario": "stale-generation",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.134963874996174,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6152003329989384,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a command from a deposed epoch remain rejected?",
+      "scenario": "stale-generation",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.1398451249988284,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6112907079950674,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a command from a deposed epoch remain rejected?",
+      "scenario": "stale-generation",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.1277331669989508,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6097666670029867,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a command from a deposed epoch remain rejected?",
+      "scenario": "stale-generation",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.178746040997794,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.637053417005518,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a command from a deposed epoch remain rejected?",
+      "scenario": "stale-generation",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.157860667000932,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6269434170026216,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a command from a deposed epoch remain rejected?",
+      "scenario": "stale-generation",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.15265091600304,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6201457499992102,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a command from a deposed epoch remain rejected?",
+      "scenario": "stale-generation",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.1823343329961062,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6339522910056985,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a command from a deposed epoch remain rejected?",
+      "scenario": "stale-generation",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.211097916995641,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6418634580040816,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a command from a deposed epoch remain rejected?",
+      "scenario": "stale-generation",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.1582537080030306,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.619104208999488,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a command from a deposed epoch remain rejected?",
+      "scenario": "stale-generation",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.134007249995193,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6156225419981638,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does A2 take over and synchronize sensor/controller generation?",
+      "scenario": "gateway-failover",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.1457891250029206,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6165457500028424,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does A2 take over and synchronize sensor/controller generation?",
+      "scenario": "gateway-failover",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.0609128330033855,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6134405839984538,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does A2 take over and synchronize sensor/controller generation?",
+      "scenario": "gateway-failover",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "recovered gateway standby",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 2,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "STANDBY"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.2611305829996127,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6278087499958929,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does recovered A1 enter STANDBY?",
+      "scenario": "gateway-recovery",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "recovered gateway standby",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 2,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "STANDBY"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.2614527080004336,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6223232500051381,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does recovered A1 enter STANDBY?",
+      "scenario": "gateway-recovery",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "A2 peer A1 OFFLINE",
+          "passed": true
+        },
+        {
+          "description": "ownership epoch synchronized across A2/B1/C1",
+          "passed": true
+        },
+        {
+          "description": "B1 and C1 owner A2",
+          "passed": true
+        },
+        {
+          "description": "deposed command rejected",
+          "passed": true
+        },
+        {
+          "description": "recovered gateway standby",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "A2 drives C1 from B1 after takeover",
+          "passed": true
+        },
+        {
+          "description": "A2 continues driving C2 from B2",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 2,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "STANDBY"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 2,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 3.2673117500016815,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 2,
+            "owner": "A2"
+          },
+          "B2": {
+            "generation": 2,
+            "owner": "A2"
+          }
+        },
+        "recovery_time_s": 0.6250078330049291,
+        "stale_result": {
+          "command_id": "stale-probe",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "STALE_GENERATION",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does recovered A1 enter STANDBY?",
+      "scenario": "gateway-recovery",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "non-owner cannot execute",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 2.545311624999158,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        },
+        "result": {
+          "command_id": "non-owner",
+          "command_type": "IRRIGATION",
+          "generation": 1,
+          "reason": "NOT_OWNER",
+          "status": "REJECTED"
+        }
+      },
+      "question": "Does a controller reject a non-owner at the same epoch?",
+      "scenario": "split-brain",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "server records unavailable controller outcome",
+          "passed": true
+        },
+        {
+          "description": "offline controller executes zero commands",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 really reconnects after offline decision",
+          "passed": true
+        },
+        {
+          "description": "reconnected C1 never executes old undispatched command",
+          "passed": true
+        },
+        {
+          "description": "no unavailable command is later dispatched",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 2.4752076669974485,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        },
+        "undispatched_ids": [
+          "5a9e2601ea52",
+          "07ecf46a043e",
+          "c7d0c929bec6",
+          "ad9d807a9e7c"
+        ]
+      },
+      "question": "Is unavailable C1 reported NOT_DISPATCHED, with no old command executed after reconnection?",
+      "scenario": "controller-unavailable",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "history queued durably",
+          "passed": true
+        },
+        {
+          "description": "local control executes during outage",
+          "passed": true
+        },
+        {
+          "description": "all offline queues drained",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 4.273796749999747,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Does edge control continue and history replay after cloud recovery?",
+      "scenario": "server-offline",
+      "status": "PASS"
+    },
+    {
+      "assertions": [
+        {
+          "description": "history queued durably",
+          "passed": true
+        },
+        {
+          "description": "local control executes during outage",
+          "passed": true
+        },
+        {
+          "description": "all offline queues drained",
+          "passed": true
+        },
+        {
+          "description": "250 logical queued samples stored",
+          "passed": true
+        },
+        {
+          "description": "every sensor command preserves fixed zone membership",
+          "passed": true
+        },
+        {
+          "description": "no logical command reported executed twice on control link",
+          "passed": true
+        },
+        {
+          "description": "both sensor zones sampled",
+          "passed": true
+        },
+        {
+          "description": "C1 executes trusted control",
+          "passed": true
+        },
+        {
+          "description": "C2 zone continues",
+          "passed": true
+        },
+        {
+          "description": "server records sensor history",
+          "passed": true
+        }
+      ],
+      "exit_code": 0,
+      "observations": {
+        "gateway_states": {
+          "A1": {
+            "gateway_id": "A1",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A2",
+            "role": "ACTIVE"
+          },
+          "A2": {
+            "gateway_id": "A2",
+            "generation": 1,
+            "health": "ONLINE",
+            "peer_generation": 1,
+            "peer_health": "ONLINE",
+            "peer_id": "A1",
+            "role": "ACTIVE"
+          }
+        },
+        "measurement_end_s": 4.375223082999582,
+        "measurement_scope": "scenario traffic before asynchronous teardown",
+        "node_ownership": {
+          "B1": {
+            "generation": 1,
+            "owner": "A1"
+          },
+          "B2": {
+            "generation": 1,
+            "owner": "A2"
+          }
+        }
+      },
+      "question": "Do 250 queued messages replay without any new telemetry trigger?",
+      "scenario": "queue-replay",
+      "status": "PASS"
+    }
+  ],
+  "total": 20
+}

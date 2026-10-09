@@ -1,0 +1,89 @@
+{
+  "baseline_revision": "ccff0ae690073c9cc40b184932fe7b98abd70302",
+  "baseline_tests": {
+    "elapsed_s": 44.81,
+    "passed": 350
+  },
+  "created_at": "2026-10-08T14:48:13.789235+08:00",
+  "dataset_version": "existing scenario catalog at 827cc393; C host trace embedded in tests/c_host/b1_delivery_wire.c",
+  "evidence_sha256": {
+    "raw/b1-tcp-events.jsonl": "53049497d85aa39e76ccc7487e3ebead9a4dd946df06cd9a954abaa29bad2881",
+    "raw/firmware-wire.jsonl": "7678645592310b326a04777d63701ee1c3e3dbc707af16baabe4cf6455f627b9"
+  },
+  "final_scenarios": 20,
+  "final_tests": {
+    "elapsed_s": 48.64,
+    "passed": 363
+  },
+  "firmware_bin_bytes": 280848,
+  "firmware_bin_sha256": "7e1a16db9695af1dbdaa246fd63f266cc1b59f9a3892fad04a070c1a8ff86761",
+  "firmware_commit": "827cc393af34a1921613e9239785a625f191eafb",
+  "functional_sources_match_firmware_commit": true,
+  "gateway_commit": "ffb5615225ba0a7b76ad8ac65da7a9821a239264",
+  "hardware_configuration": {
+    "actuators": "simulation only; no live output enabled",
+    "physical_validation_this_round": false,
+    "sda_scl": "configured locally; defaults GPIO8/GPIO9",
+    "sensor": "SHT30 0x44",
+    "transport": "Wi-Fi/TCP lab integration"
+  },
+  "hardware_energy_j": null,
+  "idf_python": "3.13",
+  "idf_version": "v5.4.4",
+  "limitations": [
+    "normal RAM power loss unrecoverable",
+    "5 attempts per boot, not lifetime",
+    "NVS physical capacity may reject before 16 HIGH slots",
+    "receipt ledger fails closed at 100000 identities",
+    "no deep-sleep algorithm/owner checkpoint",
+    "no RF/current/physical reset/actuator verification"
+  ],
+  "observed_flash_model": {
+    "high_success_store_calls": 2,
+    "normal_sample_store_calls": 0,
+    "retry_store_calls": 0,
+    "scope": "host-injected application storage callbacks; not physical flash erases or measured energy"
+  },
+  "partition_table_changed": false,
+  "platform": "macOS-15.7.7-arm64-arm-64bit-Mach-O",
+  "python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 17.0.0 (clang-1700.6.4.2)]",
+  "rf_delivery_rate": null,
+  "scenario_seed": 42,
+  "scenario_total": 20,
+  "scope": "Phase 0/1 physical B1 TCP delivery milestone; not full research platform completion",
+  "source_sha256": {
+    "firmware/b1/main/b1.h": "21bff5ad12511ebb3bfb72c7812e08d303c5f3196617bc015d76a564053871bf",
+    "firmware/b1/main/b1_control_relevance.h": "0cf881395832f387d4b111569e8d05586527ef2ba384ab6651e95fb0ef0bc84c",
+    "firmware/b1/main/b1_network.c": "a84940b819f9f9b61e5a17df5c3f07e29ad82b60dae1c4d6e39be791e0b606a0",
+    "firmware/b1/main/b1_outbox.c": "cc70becad18e81eed60fc455ddece3be5b8a45fe0456b070845d4f7d3199ac3a",
+    "firmware/b1/main/b1_outbox.h": "def85cc189ac12f29d9da936c2ce970e34d9a9e39c41be68bd5ba66523b46984",
+    "firmware/b1/main/b1_policy.c": "1a977a0b6aeccb609e56af5c8c31dc89cac736964557fc77a25a564302ffe15f",
+    "firmware/b1/main/b1_policy.h": "b0f1e98645ff59cf83ac6e38e665868ee7f8bf5cecef2d4e8b12df782c78ded0",
+    "firmware/b1/main/b1_profiles.h": "5e73bdfd28ffc327463b3dfb9ec87a080b1019d3604cc22791e701219af032b4",
+    "firmware/b1/main/b1_queue.c": "be06ed488571dd1e61ab506c7c1166cc4d717ae2cf17e33b172a7e8ff3e384f8",
+    "firmware/b1/main/b1_runtime.c": "31a20b51b57c88e87f5ca3e0800ff67f5fcfbc8d569da0c1e412b3db4acb9ac4",
+    "firmware/b1/main/b1_sensor.c": "0113c70a446338d177f78b326d4814002f7da0e7bec8ec30c984627d5be44f4e",
+    "firmware/b1/main/b1_storage.c": "505e44114ea1e2440343ae400ef3d8e86fa7ed03842c0febec709ae9a47b5879",
+    "firmware/b1/main/b1_storage.h": "c273ea64a4a7b715b2191b877adf4f0112a1cff704f110774c71e0414c6d2fc6",
+    "firmware/b1/main/b1_telemetry.c": "bb99598ea7c952709b08cb06e7449a89d7f478123f0534dc27fbfd3d4659ddcb",
+    "firmware/b1/main/b1_transport.h": "717d408640506a6d96ea24ae0f5c34aec8930617c09a72b0dc13bffe199bb333",
+    "firmware/b1/main/b1_types.h": "c2e2037de92985c4d7dd689242ff19ba8b4549c4c349217e61ee338a6edf7204",
+    "firmware/b1/main/main.c": "dfbac0a829c7daea6fee00e9945d33c745e40814fb67a4c926b16871da77b320",
+    "gateway/__init__.py": "033a29534a357df8c69e0ee8689c4e715f5305c9f2ccbea1eb6f5b1ad82357bf",
+    "gateway/connectivity.py": "234c1bb5f930f9f54811b0ad4710985b1d645fcfd90aa90ceeb9ebc3a945715d",
+    "gateway/edge_decision.py": "cafea058e9f70493a46d920b6825591c744da357cbe0992cbaeb0e715a70a236",
+    "gateway/gateway.py": "398f67d2d9a0d9eaf1313293e60ab32850d1a59abd83c059e62ecca1ac740079",
+    "gateway/offline_queue.py": "c2d48428cbe59fb293f15125b7fbaef61dca43752d593d471aa8535c2e19c270",
+    "gateway/ownership.py": "2478ef1575af9055f93ea29b1d176fb48ef9150cf06f18c3e9d048b82f5bd44f",
+    "gateway/registry.py": "bfbd3e6a5d32b862ae185ed20b38babf1d416aad5eb3cb02b384c385348caac1",
+    "gateway/sensor_delivery.py": "f769cd7e2155b8ff24c94e31e2f8d6bbd51ba8dc88b83add0d8ad428995c3499",
+    "gateway/trust_gate.py": "0644adfe3a947cc1234a9ec9b614fdec79f4dd665604651aa2321f53ae4998f2"
+  },
+  "target": "esp32s3",
+  "targeted_tests": {
+    "elapsed_s": 6.05,
+    "passed": 91
+  },
+  "unchanged_main_revision": "167e307ad220d2df2b3405ede8ac8f47220c13e8",
+  "upstream_eventguard_revision": "f7b6e44597abe958d7e9d6d481265d0fae33b749"
+}

@@ -93,6 +93,8 @@ class SensorNode:
         keepalive_interval: float = config.NODE_STATUS_INTERVAL,
         history_size: int = 8,
         profile: str = "simulation",
+        delivery_mode: str = "legacy-write",
+        state_path: str | None = None,
     ):
         if node_id not in config.GATEWAY_OF_SENSOR:
             raise ValueError(f"unknown sensor node id: {node_id!r}")
@@ -126,6 +128,15 @@ class SensorNode:
         self.scheduler = AdaptiveSense(settings=settings, slow=slow_interval, fast=fast_interval)
         self.history: list[dict] = []
         self._stopping = False
+        if delivery_mode not in ('legacy-write', 'gateway-durable'):
+            raise ValueError('unknown sensor delivery mode')
+        self.delivery_mode = delivery_mode
+        self.report_window = None
+        if delivery_mode == 'gateway-durable':
+            if not state_path:raise ValueError('reliable HIGH reports require a state database')
+            from common.state_store import StateStore
+            from sensor_node.report_delivery import SensorReportWindow
+            self.report_window = SensorReportWindow(node_id, self.boot_id, StateStore(state_path))
 
     # -- candidate gateways ------------------------------------------------
 
@@ -170,6 +181,8 @@ class SensorNode:
                 asyncio.create_task(self._inbound_loop(reader, gateway_id)),
                 asyncio.create_task(self._keepalive(writer, gateway_id)),
             ]
+            if self.report_window:
+                tasks.append(asyncio.create_task(self._report_retry_loop(writer)))
             done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
             for task in done:
                 task.result()
@@ -190,7 +203,7 @@ class SensorNode:
                     type=NODE_REGISTER,
                     source=self.node_id,
                     target=gateway_id,
-                    payload={"node_id": self.node_id, "node_type": config.SENSOR, "generation": self.generation},
+                    payload={"node_id": self.node_id, "node_type": config.SENSOR, "generation": self.generation, "boot_id":self.boot_id},
                 ),
             )
             node_log(self.node_id, f"NODE_REGISTER sent to {gateway_id} (attempt {attempt})")
@@ -230,7 +243,10 @@ class SensorNode:
             message = await read_message(reader)
             if message is None:
                 return
-            if message.type == NODE_STATUS:
+            if message.type == 'PERSISTED_ACK' and self.report_window:
+                if self.report_window.confirm(message, self.scheduler, gateway_id):
+                    self.metrics.inc('durable_reports_confirmed')
+            elif message.type == NODE_STATUS:
                 self._adopt_ownership(message, gateway_id)
             else:
                 node_log(self.node_id, f"ignored unexpected {message.type}")
@@ -296,11 +312,24 @@ class SensorNode:
             from sensor_node.telemetry import sensor_payload
             payload = sensor_payload(reading, trust, schedule, self.boot_id, self.sample_sequence)
             if schedule["upload_requested"]:
-                await send_message(writer, Message(type=SENSOR_DATA, source=self.node_id,
+                acquired_at = time.monotonic()
+                message = Message(type=SENSOR_DATA, source=self.node_id,
                     target=self.owner_gateway or self.gateway_id, payload=payload,
-                    sequence=self.sample_sequence, generation=self.generation, protocol_version=1))
-                self.metrics.inc("sensor_messages")
-                self.scheduler.mark_reported(reading, trust)
+                    sequence=self.sample_sequence, generation=self.generation, protocol_version=1)
+                if self.report_window:
+                    from sensor_node.report_delivery import prepare_report
+                    from common.state_store import StateError
+                    high = bool(schedule.get('detected_event') or schedule.get('control_relevant_change') or
+                        any(r in ('HEALTH_CHANGE','FIRST_SAMPLE','EVENT','CONTROL_RELEVANT_CHANGE')
+                            for r in schedule['upload_reasons']))
+                    try:self.report_window.admit(prepare_report(message, acquired_at, high=high), reading, trust, acquired_at)
+                    except StateError:self.metrics.inc('report_backpressure')
+                else:
+                    # Legacy compatibility tracks attempted telemetry. This is
+                    # explicitly a write boundary, not a received/durable ACK.
+                    await send_message(writer, message)
+                    self.metrics.inc('sensor_messages')
+                    self.scheduler.mark_reported(reading, trust)
             notification = self.fault_notifier.update(trust)
             if notification is not None:
                 await send_message(writer, Message(type=ALERT, source=self.node_id,
@@ -313,6 +342,13 @@ class SensorNode:
             self.interval_counts[interval] += 1
             node_log(self.node_id, f"next sampling interval = {interval:g}s")
             await asyncio.sleep(interval)
+
+    async def _report_retry_loop(self, writer):
+        while True:
+            for message in self.report_window.due(time.monotonic(), self.owner_gateway or self.gateway_id):
+                await send_message(writer, message)
+                self.metrics.inc('sensor_messages')
+            await asyncio.sleep(0.1) # RAM deadline check; does not wake a physical radio
 
     def stop(self) -> None:
         self._stopping = True
@@ -340,6 +376,8 @@ def parse_args(argv=None) -> argparse.Namespace:
         metavar="N",
         help="emit one out-of-range reading at sample N (demonstrates SensorTrust)",
     )
+    parser.add_argument("--delivery-mode", choices=("legacy-write","gateway-durable"), default="legacy-write")
+    parser.add_argument("--state-db", default=None)
     return parser.parse_args(argv)
 
 
@@ -347,6 +385,7 @@ async def _run(args: argparse.Namespace) -> None:
     node = SensorNode(
         node_id=args.id,
         profile=args.profile,
+        delivery_mode=args.delivery_mode, state_path=args.state_db,
         slow_interval=args.sample_interval, fast_interval=args.sample_interval,
         gateway_host=args.host,
         gateway_port=args.port,

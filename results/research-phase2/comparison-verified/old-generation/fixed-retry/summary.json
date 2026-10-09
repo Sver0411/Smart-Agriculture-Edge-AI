@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "assertions": [
+    {
+      "assertion": "controller rejects old epoch before execution (guard subcase)",
+      "passed": true
+    },
+    {
+      "assertion": "only original logical identities admitted",
+      "passed": true
+    },
+    {
+      "assertion": "receipt identities unique",
+      "passed": true
+    },
+    {
+      "assertion": "unknown/failed delivery has no fabricated ACK",
+      "passed": true
+    }
+  ],
+  "delivery_status": "COMPLETE",
+  "case": "old-generation",
+  "scheme": "fixed-retry"
+}

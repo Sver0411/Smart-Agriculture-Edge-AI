@@ -1,0 +1,315 @@
+18:50:31 [A1] gateway started on 127.0.0.1:56088 (sensor=B1, controller=C1, peer=A2, generation=1, role=ACTIVE)
+18:50:31 [A1] connected to server 127.0.0.1:56085
+18:50:31 [A1] offline queue empty
+18:50:31 [A1] peer link established with A2
+18:50:31 [A1] heartbeat -> A2
+18:50:31 [A1] A2 is online
+18:50:31 [A1] heartbeat -> A2
+18:50:31 [A1] C1 registered (owner=A1, generation=1)
+18:50:31 [A1] B1 registered (owner=A1, generation=1)
+18:50:31 [A1] received SENSOR_DATA from B1
+18:50:31 [A1] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+18:50:31 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:31 [A1] command sent to C1 (IRRIGATION 10s, command_id=a16c2215c8d9, generation=1)
+18:50:31 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:31 [A1] ACK received (message_id=a16c2215c8d9)
+18:50:31 [A1] heartbeat -> A2
+18:50:31 [A1] offline queue empty
+18:50:32 [A1] heartbeat -> A2
+18:50:32 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:32 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+18:50:32 [A1] offline queue empty
+18:50:32 [A1] received SENSOR_DATA from B1
+18:50:32 [A1] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+18:50:32 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:32 [A1] command sent to C1 (IRRIGATION 10s, command_id=7fb8f25f972f, generation=1)
+18:50:32 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:32 [A1] ACK received (message_id=7fb8f25f972f)
+18:50:32 [A1] heartbeat -> A2
+18:50:32 [A1] offline queue empty
+18:50:32 [A1] heartbeat -> A2
+18:50:32 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:32 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+18:50:32 [A1] offline queue empty
+18:50:32 [A1] heartbeat -> A2
+18:50:32 [A1] heartbeat -> A2
+18:50:32 [A1] received SENSOR_DATA from B1
+18:50:32 [A1] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+18:50:32 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:32 [A1] command sent to C1 (IRRIGATION 10s, command_id=4e1fec4d930a, generation=1)
+18:50:32 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:32 [A1] ACK received (message_id=4e1fec4d930a)
+18:50:32 [A1] offline queue empty
+18:50:32 [A1] heartbeat -> A2
+18:50:32 [A1] heartbeat -> A2
+18:50:32 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:32 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+18:50:32 [A1] offline queue empty
+18:50:32 [A1] SERVER_POLICY v1 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+18:50:32 [A1] edge autonomy intact: policy is advisory, control stays local
+18:50:32 [A1] heartbeat -> A2
+18:50:32 [A1] heartbeat -> A2
+18:50:32 [A1] received SENSOR_DATA from B1
+18:50:32 [A1] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+18:50:32 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:32 [A1] command sent to C1 (IRRIGATION 10s, command_id=f14db98e9ae5, generation=1)
+18:50:32 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:32 [A1] ACK received (message_id=f14db98e9ae5)
+18:50:32 [A1] heartbeat -> A2
+18:50:32 [A1] offline queue empty
+18:50:33 [A1] heartbeat -> A2
+18:50:33 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:33 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+18:50:33 [A1] offline queue empty
+18:50:33 [A1] heartbeat -> A2
+18:50:33 [A1] heartbeat -> A2
+18:50:33 [A1] received SENSOR_DATA from B1
+18:50:33 [A1] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+18:50:33 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:33 [A1] command sent to C1 (IRRIGATION 10s, command_id=e4b6646ff030, generation=1)
+18:50:33 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:33 [A1] ACK received (message_id=e4b6646ff030)
+18:50:33 [A1] offline queue empty
+18:50:33 [A1] heartbeat -> A2
+18:50:33 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:33 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+18:50:33 [A1] offline queue empty
+18:50:33 [A1] heartbeat -> A2
+18:50:33 [A1] heartbeat -> A2
+18:50:33 [A1] heartbeat -> A2
+18:50:33 [A1] received SENSOR_DATA from B1
+18:50:33 [A1] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+18:50:33 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:33 [A1] command sent to C1 (IRRIGATION 10s, command_id=6b8d5e68a73a, generation=1)
+18:50:33 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:33 [A1] ACK received (message_id=6b8d5e68a73a)
+18:50:33 [A1] heartbeat -> A2
+18:50:33 [A1] connected to server 127.0.0.1:56085
+18:50:33 [A1] server link error: [Errno 54] Connection reset by peer
+18:50:33 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:33 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=3)
+18:50:33 [A1] heartbeat -> A2
+18:50:33 [A1] heartbeat -> A2
+18:50:34 [A1] heartbeat -> A2
+18:50:34 [A1] received SENSOR_DATA from B1
+18:50:34 [A1] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+18:50:34 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=4)
+18:50:34 [A1] command sent to C1 (IRRIGATION 10s, command_id=88729ca7feb0, generation=1)
+18:50:34 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=5)
+18:50:34 [A1] ACK received (message_id=88729ca7feb0)
+18:50:34 [A1] heartbeat -> A2
+18:50:34 [A1] heartbeat -> A2
+18:50:34 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:34 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=6)
+18:50:34 [A1] connected to server 127.0.0.1:56085
+18:50:34 [A1] server link error: [Errno 54] Connection reset by peer
+18:50:34 [A1] heartbeat -> A2
+18:50:34 [A1] heartbeat -> A2
+18:50:34 [A1] heartbeat -> A2
+18:50:34 [A1] heartbeat -> A2
+18:50:34 [A1] received SENSOR_DATA from B1
+18:50:34 [A1] edge decision = IRRIGATION (soil_moisture 21.8 < 25.0)
+18:50:34 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=7)
+18:50:34 [A1] command sent to C1 (IRRIGATION 10s, command_id=225cd24f1ce9, generation=1)
+18:50:34 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=8)
+18:50:34 [A1] ACK received (message_id=225cd24f1ce9)
+18:50:34 [A1] heartbeat -> A2
+18:50:34 [A1] heartbeat -> A2
+18:50:34 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:34 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=9)
+18:50:35 [A1] heartbeat -> A2
+18:50:35 [A1] heartbeat -> A2
+18:50:35 [A1] received SENSOR_DATA from B1
+18:50:35 [A1] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+18:50:35 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=10)
+18:50:35 [A1] command sent to C1 (IRRIGATION 10s, command_id=922f9967c7ca, generation=1)
+18:50:35 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=11)
+18:50:35 [A1] ACK received (message_id=922f9967c7ca)
+18:50:35 [A1] heartbeat -> A2
+18:50:35 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:35 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=12)
+18:50:35 [A1] heartbeat -> A2
+18:50:35 [A1] connected to server 127.0.0.1:56085
+18:50:35 [A1] server link error: [Errno 54] Connection reset by peer
+18:50:35 [A1] heartbeat -> A2
+18:50:35 [A1] heartbeat -> A2
+18:50:35 [A1] heartbeat -> A2
+18:50:35 [A1] heartbeat -> A2
+18:50:35 [A1] heartbeat -> A2
+18:50:35 [A1] heartbeat -> A2
+18:50:36 [A1] received SENSOR_DATA from B1
+18:50:36 [A1] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+18:50:36 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=13)
+18:50:36 [A1] command sent to C1 (IRRIGATION 10s, command_id=1d30c94b4d6f, generation=1)
+18:50:36 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=14)
+18:50:36 [A1] ACK received (message_id=1d30c94b4d6f)
+18:50:36 [A1] heartbeat -> A2
+18:50:36 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:36 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=15)
+18:50:36 [A1] heartbeat -> A2
+18:50:36 [A1] heartbeat -> A2
+18:50:36 [A1] heartbeat -> A2
+18:50:36 [A1] received SENSOR_DATA from B1
+18:50:36 [A1] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+18:50:36 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=16)
+18:50:36 [A1] command sent to C1 (IRRIGATION 10s, command_id=072cb17463aa, generation=1)
+18:50:36 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=17)
+18:50:36 [A1] ACK received (message_id=072cb17463aa)
+18:50:36 [A1] heartbeat -> A2
+18:50:36 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:36 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=18)
+18:50:36 [A1] heartbeat -> A2
+18:50:36 [A1] heartbeat -> A2
+18:50:36 [A1] heartbeat -> A2
+18:50:36 [A1] received SENSOR_DATA from B1
+18:50:36 [A1] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+18:50:36 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=19)
+18:50:36 [A1] command sent to C1 (IRRIGATION 10s, command_id=b64ceca7d4ea, generation=1)
+18:50:36 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=20)
+18:50:36 [A1] ACK received (message_id=b64ceca7d4ea)
+18:50:36 [A1] heartbeat -> A2
+18:50:36 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:36 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=21)
+18:50:36 [A1] heartbeat -> A2
+18:50:37 [A1] heartbeat -> A2
+18:50:37 [A1] heartbeat -> A2
+18:50:37 [A1] heartbeat -> A2
+18:50:37 [A1] connected to server 127.0.0.1:56085
+18:50:37 [A1] heartbeat -> A2
+18:50:37 [A1] offline queue empty
+18:50:37 [A1] received SENSOR_DATA from B1
+18:50:37 [A1] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+18:50:37 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:37 [A1] command sent to C1 (IRRIGATION 10s, command_id=f9d5d552034d, generation=1)
+18:50:37 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:37 [A1] ACK received (message_id=f9d5d552034d)
+18:50:37 [A1] offline queue empty
+18:50:37 [A1] heartbeat -> A2
+18:50:37 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:37 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+18:50:37 [A1] offline queue empty
+18:50:37 [A1] heartbeat -> A2
+18:50:37 [A1] heartbeat -> A2
+18:50:37 [A1] heartbeat -> A2
+18:50:37 [A1] heartbeat -> A2
+18:50:37 [A1] heartbeat -> A2
+18:50:38 [A1] heartbeat -> A2
+18:50:38 [A1] heartbeat -> A2
+18:50:38 [A1] heartbeat -> A2
+18:50:38 [A1] heartbeat -> A2
+18:50:38 [A1] heartbeat -> A2
+18:50:38 [A1] heartbeat -> A2
+18:50:38 [A1] heartbeat -> A2
+18:50:38 [A1] heartbeat -> A2
+18:50:38 [A1] received SENSOR_DATA from B1
+18:50:38 [A1] edge decision = IRRIGATION (soil_moisture 21.7 < 25.0)
+18:50:38 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:38 [A1] command sent to C1 (IRRIGATION 10s, command_id=9517bf83d0a6, generation=1)
+18:50:38 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:38 [A1] ACK received (message_id=9517bf83d0a6)
+18:50:38 [A1] offline queue empty
+18:50:38 [A1] heartbeat -> A2
+18:50:38 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:38 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+18:50:38 [A1] offline queue empty
+18:50:38 [A1] heartbeat -> A2
+18:50:39 [A1] heartbeat -> A2
+18:50:39 [A1] heartbeat -> A2
+18:50:39 [A1] heartbeat -> A2
+18:50:39 [A1] heartbeat -> A2
+18:50:39 [A1] heartbeat -> A2
+18:50:39 [A1] heartbeat -> A2
+18:50:39 [A1] heartbeat -> A2
+18:50:39 [A1] heartbeat -> A2
+18:50:39 [A1] heartbeat -> A2
+18:50:39 [A1] heartbeat -> A2
+18:50:40 [A1] received SENSOR_DATA from B1
+18:50:40 [A1] edge decision = IRRIGATION (soil_moisture 21.6 < 25.0)
+18:50:40 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:40 [A1] command sent to C1 (IRRIGATION 10s, command_id=20e02274d85a, generation=1)
+18:50:40 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:40 [A1] ACK received (message_id=20e02274d85a)
+18:50:40 [A1] offline queue empty
+18:50:40 [A1] heartbeat -> A2
+18:50:40 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:40 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+18:50:40 [A1] offline queue empty
+18:50:40 [A1] heartbeat -> A2
+18:50:40 [A1] heartbeat -> A2
+18:50:40 [A1] heartbeat -> A2
+18:50:40 [A1] received SENSOR_DATA from B1
+18:50:40 [A1] edge decision = IRRIGATION (soil_moisture 21.6 < 25.0)
+18:50:40 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:40 [A1] command sent to C1 (IRRIGATION 10s, command_id=9494c6f76f39, generation=1)
+18:50:40 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:40 [A1] ACK received (message_id=9494c6f76f39)
+18:50:40 [A1] offline queue empty
+18:50:40 [A1] heartbeat -> A2
+18:50:40 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:40 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+18:50:40 [A1] offline queue empty
+18:50:40 [A1] heartbeat -> A2
+18:50:40 [A1] heartbeat -> A2
+18:50:40 [A1] heartbeat -> A2
+18:50:40 [A1] heartbeat -> A2
+18:50:40 [A1] heartbeat -> A2
+18:50:41 [A1] heartbeat -> A2
+18:50:41 [A1] heartbeat -> A2
+18:50:41 [A1] received SENSOR_DATA from B1
+18:50:41 [A1] edge decision = IRRIGATION (soil_moisture 21.9 < 25.0)
+18:50:41 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:41 [A1] command sent to C1 (IRRIGATION 10s, command_id=3ff1e238ef97, generation=1)
+18:50:41 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:41 [A1] ACK received (message_id=3ff1e238ef97)
+18:50:41 [A1] offline queue empty
+18:50:41 [A1] heartbeat -> A2
+18:50:41 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:41 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+18:50:41 [A1] offline queue empty
+18:50:41 [A1] heartbeat -> A2
+18:50:41 [A1] heartbeat -> A2
+18:50:41 [A1] heartbeat -> A2
+18:50:41 [A1] heartbeat -> A2
+18:50:41 [A1] heartbeat -> A2
+18:50:41 [A1] heartbeat -> A2
+18:50:41 [A1] heartbeat -> A2
+18:50:42 [A1] heartbeat -> A2
+18:50:42 [A1] heartbeat -> A2
+18:50:42 [A1] heartbeat -> A2
+18:50:42 [A1] heartbeat -> A2
+18:50:42 [A1] received SENSOR_DATA from B1
+18:50:42 [A1] edge decision = IRRIGATION (soil_moisture 22.0 < 25.0)
+18:50:42 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:42 [A1] command sent to C1 (IRRIGATION 10s, command_id=1930942b2cdd, generation=1)
+18:50:42 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:42 [A1] ACK received (message_id=1930942b2cdd)
+18:50:42 [A1] offline queue empty
+18:50:42 [A1] heartbeat -> A2
+18:50:42 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:42 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+18:50:42 [A1] offline queue empty
+18:50:42 [A1] heartbeat -> A2
+18:50:42 [A1] heartbeat -> A2
+18:50:42 [A1] SERVER_POLICY v2 applied (soil<25.0 -> 10s, temp>32.0 -> 5s)
+18:50:42 [A1] edge autonomy intact: policy is advisory, control stays local
+18:50:42 [A1] heartbeat -> A2
+18:50:42 [A1] heartbeat -> A2
+18:50:43 [A1] heartbeat -> A2
+18:50:43 [A1] heartbeat -> A2
+18:50:43 [A1] heartbeat -> A2
+18:50:43 [A1] received SENSOR_DATA from B1
+18:50:43 [A1] edge decision = IRRIGATION (soil_moisture 22.1 < 25.0)
+18:50:43 [A1] awaiting server durable receipt, SENSOR_DATA queued locally (depth=1)
+18:50:43 [A1] command sent to C1 (IRRIGATION 10s, command_id=efe790c6e859, generation=1)
+18:50:43 [A1] awaiting server durable receipt, CONTROL_COMMAND queued locally (depth=2)
+18:50:43 [A1] ACK received (message_id=efe790c6e859)
+18:50:43 [A1] offline queue empty
+18:50:43 [A1] heartbeat -> A2
+18:50:43 [A1] controller result received (IRRIGATION -> EXECUTED)
+18:50:43 [A1] awaiting server durable receipt, CONTROL_RESULT queued locally (depth=1)
+18:50:43 [A1] offline queue empty
+18:50:43 [A1] heartbeat -> A2
+18:50:43 [A1] heartbeat -> A2
+18:50:43 [A1] heartbeat -> A2
+18:50:43 [A1] C1 disconnected
+18:50:43 [A1] B1 disconnected

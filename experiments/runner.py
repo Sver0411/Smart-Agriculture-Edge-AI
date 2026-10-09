@@ -3,6 +3,7 @@
 python -m experiments.runner --all --output results/software-v0.3
 """
 import argparse
+from datetime import datetime, timezone
 import asyncio
 from collections import Counter
 from copy import deepcopy
@@ -37,11 +38,18 @@ def ports(count):
 def write_json(path,data):
     path.write_text(json.dumps(data,indent=2,sort_keys=True,allow_nan=False)+'\n')
 
-async def run_scenario(name,output,seed=42,duration=None):
+async def run_scenario(name,output,seed=42,duration=None,transport="tcp",lora_options=None,extra_fault_rules=None):
     if name not in CATALOG:raise ValueError(f'unknown scenario {name}')
     out=Path(output);out.mkdir(parents=True,exist_ok=False)
     raw=out/'raw';raw.mkdir();results=out/'results';results.mkdir();truth=out/'truth';truth.mkdir()
+    if transport not in ("tcp", "simulated-lora"):
+        raise ValueError("host transport must be tcp or simulated-lora")
+    radio = None
+    if transport == "simulated-lora":
+        from common.lora.transport import SimulatedLoRa
+        radio = SimulatedLoRa(seed=seed, **(lora_options or {}))
     cfg=deepcopy(SETTINGS);cfg['experiment']['seed']=seed
+    cfg['field_transport'] = {"mode": transport, "lora": lora_options or {}, "physical_RF": False}
     sp,p1,p2=ports(3);gateway_ports={'A1':p1,'A2':p2}
     cfg['system']['SERVER_PORT']=sp;cfg['system']['GATEWAY_PORTS']=gateway_ports
     cfg['runtime_overrides']={'gateway':{'heartbeat_interval':0.1,'heartbeat_timeout':0.6,
@@ -65,9 +73,12 @@ async def run_scenario(name,output,seed=42,duration=None):
     if name=='lost-result':rules=[{'action':'drop','count':1000,'match':{'type':'CONTROL_RESULT','source':'C1'}}]
     if name=='persisted-ack-loss':rules=[{'action':'drop','match':{'type':'PERSISTED_ACK','target':'A1'}}]
     if name=='reordered-messages':rules=[{'action':'reorder','count':2,'match':{'type':'SENSOR_DATA','source':'B1'}}]
+    rules.extend(deepcopy(extra_fault_rules or []))
+    cfg["additional_fault_rules"]=extra_fault_rules or []
+    write_json(out/"config.json",cfg)
     faults=FrameFaults(rules,seed)
     async def inject(writer,message):
-        handled=await faults(writer,message)
+        handled=await faults(writer,message) if setup_complete else False
         if name=='persisted-ack-loss' and handled and message.type=='PERSISTED_ACK':
             ack_id=message.payload['ack_message_id']
             retained=any(m.message_id==ack_id for _,m in gateways['A1'].offline_queue.peek(1000))
@@ -75,11 +86,20 @@ async def run_scenario(name,output,seed=42,duration=None):
             faults.events[-1].update(queue_retained=retained,commit_observed=committed)
             recorder('persistence_boundary',Message(type='PERSISTED_ACK',source='SERVER',target='A1',
                 payload={**message.payload,'queue_retained':retained,'commit_observed':committed}))
+        if not handled and radio is not None:
+            handled = await radio(writer, message)
         return handled
+    setup_complete = False
     inter=transport_interceptor.set(inject)
     server=Server(port=sp,db_path=str(out/'server.db'),policy_interval=0.5)
     servers=[server];gateways={};gateway_history=[];nodes={};tasks=[];node_tasks={};assertions=[];observations={};disruptions=[]
     def check(description,condition):assertions.append({'description':description,'passed':bool(condition)})
+    async def wait_state(predicate, description, timeout=3):
+        deadline = time.monotonic() + timeout
+        while not predicate():
+            if time.monotonic() >= deadline:
+                raise TimeoutError(description)
+            await asyncio.sleep(0.01)
     def new_gateway(id):
         g=Gateway(id,port=gateway_ports[id],peer_port=gateway_ports['A2' if id=='A1' else 'A1'],server_port=sp,
                   heartbeat_interval=0.1,heartbeat_timeout=0.6,queue_path=str(out/(id+'.db')),random_seed=seed,result_timeout=0.4,receipt_timeout=0.25)
@@ -95,6 +115,12 @@ async def run_scenario(name,output,seed=42,duration=None):
         await server.start()
         for id in ('A1','A2'):
             gateways[id]=new_gateway(id);await gateways[id].start()
+        # Establish the healthy initial topology before sensor/SQLite load and
+        # before injecting a crash. A timeout takeover during setup is not the
+        # intended fault and must fail setup, never satisfy the recovery wait.
+        await wait_state(lambda: all(g.peer_last_seen is not None and
+            g.evaluate_peer_status() == config.ONLINE and g.ownership.generation == 1
+            for g in gateways.values()), 'initial peer enrollment')
         for id in ('C1','C2'):
             n=ControllerNode(id,safety_guard=SafetyGuard(cooldown={'IRRIGATION':0,'VENTILATION':0}),time_scale=0)
             n._candidates=lambda n=n:[(x,'127.0.0.1',gateway_ports[x]) for x in [n.guard.owner_gateway or n.primary_gateway]+[x for x in ('A1','A2') if x!=(n.guard.owner_gateway or n.primary_gateway)]]
@@ -112,6 +138,7 @@ async def run_scenario(name,output,seed=42,duration=None):
             n._candidates=lambda n=n:[(x,'127.0.0.1',gateway_ports[x]) for x in [n.owner_gateway or n.primary_gateway]+[x for x in ('A1','A2') if x!=(n.owner_gateway or n.primary_gateway)]]
             if name=='registration-race' and id=='B1':n.primary_gateway='A2'
             nodes[id]=n;task=asyncio.create_task(n.run());tasks.append(task);node_tasks[id]=task
+        setup_complete = True
         await asyncio.sleep(0.8)
         if name=='registration-race':
             wrong=[e for e in recorder.events if e['event']=='delivered' and e['message']['type']=='NODE_REGISTER_ACK'
@@ -162,12 +189,15 @@ async def run_scenario(name,output,seed=42,duration=None):
             while (nodes['C1'].guard.owner_gateway!='A1' or 'C1' not in gateways['A1'].connections) and time.monotonic()<deadline:
                 await asyncio.sleep(0.01)
         if name in ('gateway-failover','gateway-recovery','stale-generation'):
+            await wait_state(lambda: nodes['B1'].owner_gateway ==
+                nodes['C1'].guard.owner_gateway == 'A1' and
+                gateways['A2'].ownership.generation == 1, 'initial zone ownership')
             await gateways['A1'].stop();disruptions.append({'action':'gateway_crash','time_s':time.monotonic()-recorder.start})
             failure_time=time.monotonic()
-            deadline=failure_time+3
-            while time.monotonic()<deadline:
-                if nodes['B1'].owner_gateway=='A2' and nodes['B1'].generation>=2 and nodes['C1'].guard.current_generation>=2:break
-                await asyncio.sleep(0.05)
+            await wait_state(lambda: gateways['A2'].peer_status == config.OFFLINE and
+                nodes['B1'].owner_gateway == nodes['C1'].guard.owner_gateway == 'A2' and
+                gateways['A2'].ownership.generation == nodes['B1'].generation ==
+                nodes['C1'].guard.current_generation >= 2, 'converged takeover')
             observations['recovery_time_s']=time.monotonic()-failure_time
             check('A2 peer A1 OFFLINE',gateways['A2'].peer_status=='OFFLINE')
             check('ownership epoch synchronized across A2/B1/C1',gateways['A2'].ownership.generation==nodes['B1'].generation==nodes['C1'].guard.current_generation>=2)
@@ -176,7 +206,9 @@ async def run_scenario(name,output,seed=42,duration=None):
             check('deposed command rejected',old.get('reason')=='STALE_GENERATION')
             observations['stale_result']=old
             if name=='gateway-recovery':
-                g=new_gateway('A1');gateways['A1']=g;await g.start();await asyncio.sleep(0.5)
+                g=new_gateway('A1');gateways['A1']=g;await g.start()
+                await wait_state(lambda: not g._recovery_pending and g.peer_last_seen is not None
+                    and g.ownership.role == 'STANDBY', 'recovered peer enrollment')
                 check('recovered gateway standby',g.ownership.role=='STANDBY')
         if name in ('server-offline','queue-replay'):
             await server.stop();disruptions.append({'action':'server_outage','time_s':time.monotonic()-recorder.start})
@@ -212,6 +244,9 @@ async def run_scenario(name,output,seed=42,duration=None):
             result=await nodes['C1'].process_command(command('expired',timestamp=time.time()-30))
             observations['result']=result;check('expired command rejected',result.get('reason')=='EXPIRED')
         await asyncio.sleep(duration if duration is not None else 1.6)
+        recorder.freeze()
+        observations['measurement_end_s']=recorder.end-recorder.start
+        observations['measurement_scope']='scenario traffic before asynchronous teardown'
         delivered=[e for e in recorder.events if e['event']=='delivered']
         controls=[e['message'] for e in delivered if e['message']['type']=='CONTROL_COMMAND'
                   and e['message']['target'] in ('C1','C2')]
@@ -278,6 +313,7 @@ async def run_scenario(name,output,seed=42,duration=None):
     except Exception as exc:
         check('scenario runs without exception',False);observations['error']=f'{type(exc).__name__}: {exc}'
     finally:
+        recorder.freeze()
         await faults.close()
         for n in nodes.values():n.stop()
         for t in tasks:t.cancel()
@@ -288,6 +324,9 @@ async def run_scenario(name,output,seed=42,duration=None):
         transport_observer.reset(obs);transport_interceptor.reset(inter)
     (raw/'events.jsonl').write_text(''.join(json.dumps(e,sort_keys=True,allow_nan=False)+'\n' for e in recorder.events))
     write_json(truth/'injection_plan.json',{'scenario':name,'seed':seed,'frame_faults':rules,'disruptions':disruptions,'receipt_observations':faults.events,'sensor_fault':name=='sensor-fault'})
+    if radio is not None:
+        write_json(results/'lora_metrics.json', radio.metrics)
+        (raw/'lora_events.jsonl').write_text(''.join(json.dumps(e,sort_keys=True)+'\n' for e in radio.events))
     code=0 if assertions and all(a['passed'] for a in assertions) else 1
     summary={'scenario':name,'question':CATALOG[name],'status':'PASS' if code==0 else 'FAIL','exit_code':code,'assertions':assertions,'observations':observations}
     write_json(results/'summary.json',summary)
@@ -299,16 +338,16 @@ async def run_scenario(name,output,seed=42,duration=None):
     (results/'report.md').write_text(f"# {name}: {summary['status']}\n\n{CATALOG[name]}\n\n"+'\n'.join(f"- {'PASS' if a['passed'] else 'FAIL'}: {a['description']}" for a in assertions)+'\n')
     return summary
 
-async def run_all(output,seed=42,names=None):
+async def run_all(output,seed=42,names=None,transport="tcp",lora_options=None):
     summaries=[]
     for index,name in enumerate(names or CATALOG,1):
-        summary=await run_scenario(name,Path(output)/f'EXP-{index:03}-{name}',seed)
+        summary=await run_scenario(name,Path(output)/f'EXP-{index:03}-{name}',seed,transport=transport,lora_options=lora_options)
         print(f"{name}: {summary['status']}",flush=True);summaries.append(summary)
     write_json(Path(output)/'suite_summary.json',{'scenarios':summaries,'passed':sum(s['exit_code']==0 for s in summaries),'total':len(summaries)})
     return 0 if all(s['exit_code']==0 for s in summaries) else 1
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--scenario',choices=CATALOG);p.add_argument('--all',action='store_true');p.add_argument('--output',required=True);p.add_argument('--seed',type=int,default=42);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--scenario',choices=CATALOG);p.add_argument('--all',action='store_true');p.add_argument('--output',default='.research-runs/topology-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'));p.add_argument('--seed',type=int,default=42);p.add_argument('--transport',choices=['tcp','simulated-lora'],default='tcp');a=p.parse_args()
     if not a.all and not a.scenario:p.error('specify --all or --scenario')
-    raise SystemExit(asyncio.run(run_all(a.output,a.seed,None if a.all else [a.scenario])))
+    raise SystemExit(asyncio.run(run_all(a.output,a.seed,None if a.all else [a.scenario],transport=a.transport)))
 if __name__=='__main__':main()

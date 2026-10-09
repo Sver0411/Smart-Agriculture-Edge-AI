@@ -1,28 +1,48 @@
-"""Bounded durable intent/result window. A future MCU backend uses NVS.
+"""One bounded checkpoint for command intents, outcomes and result delivery.
 
-Unfinished intents are never evicted. Their outcome may be unknown after a
-crash, but they must never authorize a second actuator run.
+Unfinished intents and unconfirmed results cannot be evicted. An interrupted
+physical execution is UNKNOWN; recovery never executes it again.
 """
 from collections import OrderedDict
 from copy import deepcopy
+import time
+import math
 from common.state_store import StateError
+from common.messages import Message
+
+CONTRACT = 'controller-result-durable-v1'
+
+class ResultBackpressure(StateError):
+    pass
 
 class RecentCommandStore:
-    def __init__(self, store=None, capacity=64):
+    def __init__(self, store=None, capacity=64, retention_s=0):
         if type(capacity) is not int or not 1 <= capacity <= 1024:
             raise ValueError('invalid recent command capacity')
+        if type(retention_s) not in (int,float) or not math.isfinite(retention_s) or retention_s < 0:
+            raise ValueError('invalid command retention')
+        self.retention_s = retention_s
         self.store, self.capacity = store, capacity
         self.entries = OrderedDict()
+        self.pending_results = {}
         if store:
             saved = store.load('recent_commands', validator=self.validate)
             if saved:
                 self.entries = OrderedDict((row['command_id'], row) for row in saved['entries'])
+                self.pending_results = saved.get('pending_results', {})
+                for row in self.entries.values():
+                    if 'retain_until' not in row:
+                        # Legacy checkpoints do not prove expiry. Retain for a
+                        # full TTL after migration rather than forget live IDs.
+                        row['retain_until'] = time.time() + retention_s if retention_s else 0
                 self._trim(self.entries)
-            self._save(self.entries)
+                if len(self.pending_results) > capacity:
+                    raise StateError('pending results exceed configured capacity')
+            self._save(self.entries, self.pending_results)
 
     @staticmethod
     def validate(saved):
-        if type(saved['schema_version']) is not int or saved['schema_version'] != 1 or type(saved['capacity']) is not int or not 1 <= saved['capacity'] <= 1024:
+        if type(saved['schema_version']) is not int or saved['schema_version'] not in (1,2) or type(saved['capacity']) is not int or not 1 <= saved['capacity'] <= 1024:
             raise StateError('invalid recent command schema')
         rows = saved['entries']
         if not isinstance(rows,list) or len(rows) > saved['capacity']:
@@ -33,35 +53,90 @@ class RecentCommandStore:
             if not isinstance(cid,str) or not 1 <= len(cid) <= 256 or cid in ids:
                 raise StateError('invalid/duplicate recent command id')
             ids.add(cid)
+            if ('retain_until' in row and (type(row['retain_until']) not in (int,float) or
+                    not math.isfinite(row['retain_until']) or row['retain_until'] < 0)):
+                raise StateError('invalid retained command deadline')
             if row['state'] not in ('INTENT','COMPLETED'):
                 raise StateError('invalid command state')
             if row['state'] == 'INTENT' and row['result'] is not None:
                 raise StateError('intent has result')
             if row['state'] == 'COMPLETED' and (not isinstance(row['result'],dict) or row['result'].get('status') != 'EXECUTED'):
                 raise StateError('invalid persisted command result')
+            if row.get('result_message') is not None:
+                message = Message.from_dict(row['result_message'])
+                if message.type != 'CONTROL_RESULT' or message.payload != {**row['result'], 'delivery_contract':CONTRACT}:
+                    raise StateError('completed result wire does not match outcome')
+        pending = saved.get('pending_results', {})
+        if not isinstance(pending, dict) or len(pending) > saved['capacity']:
+            raise StateError('invalid result delivery window')
+        for key, raw in pending.items():
+            message = Message.from_dict(raw)
+            if (message.message_id != key or message.type != 'CONTROL_RESULT' or
+                    message.payload.get('delivery_contract') != CONTRACT):
+                raise StateError('invalid pending result')
 
     def _trim(self, entries):
+        protected = {m['payload']['command_id'] for m in self.pending_results.values()}
         while len(entries) > self.capacity:
-            victim = next((cid for cid,row in entries.items() if row['state'] == 'COMPLETED'), None)
-            if victim is None:raise StateError('recent command window full of unresolved intents')
+            victim = next((cid for cid,row in entries.items() if row['state'] == 'COMPLETED' and cid not in protected and row.get('retain_until', 0) < time.time()), None)
+            if victim is None:raise ResultBackpressure('recent command window full of unconfirmed outcomes')
             del entries[victim]
 
-    def _save(self, entries):
+    def _save(self, entries, pending):
         if self.store:
-            self.store.save('recent_commands', {'schema_version':1,'capacity':self.capacity,'entries':list(entries.values())})
+            self.store.save('recent_commands', {'schema_version':2,'capacity':self.capacity,
+                'entries':list(entries.values()), 'pending_results':pending})
 
-    def begin(self, command_id):
+    def begin(self, command_id, context=None):
         if not isinstance(command_id,str) or not 1 <= len(command_id) <= 256:
             raise StateError('invalid durable command id')
         if command_id in self.entries:raise StateError('command already admitted')
+        # Reserve result capacity before permitting an actuator execution.
+        if self.store and len(self.pending_results) >= self.capacity:
+            raise ResultBackpressure('result delivery capacity full')
         candidate = deepcopy(self.entries)
-        candidate[command_id] = {'command_id':command_id,'state':'INTENT','result':None}
+        candidate[command_id] = {'command_id':command_id,'state':'INTENT','result':None,
+                                 'context': context, 'retain_until':
+                (context.get('issued_at', time.time()) if context else time.time()) + self.retention_s
+                if self.retention_s else 0}
         self._trim(candidate)
-        self._save(candidate)  # Never publish in-memory intent before commit.
+        self._save(candidate, self.pending_results)
         self.entries = candidate
 
-    def complete(self, command_id, result):
+    def complete(self, command_id, result, message=None):
         candidate = deepcopy(self.entries)
-        candidate[command_id].update(state='COMPLETED',result=dict(result))
-        self._save(candidate)
-        self.entries = candidate
+        candidate[command_id].update(state='COMPLETED',result=dict(result),
+                                     result_message=message.to_dict() if message is not None and self.store else None)
+        pending = self._with_result(message)
+        self._save(candidate, pending)
+        self.entries, self.pending_results = candidate, pending
+
+    def _with_result(self, message):
+        pending = deepcopy(self.pending_results)
+        if message is not None and self.store:
+            raw = message.to_dict()
+            if message.message_id in pending and pending[message.message_id] != raw:
+                raise StateError('result identity conflict')
+            if message.message_id not in pending and len(pending) >= self.capacity:
+                raise ResultBackpressure('result delivery capacity full')
+            pending[message.message_id] = raw
+        return pending
+
+    def queue_result(self, message):
+        pending = self._with_result(message)
+        candidate = deepcopy(self.entries)
+        row = candidate.get(message.payload.get('command_id'))
+        if row and row['state'] == 'COMPLETED' and not row.get('result_message') and message.payload.get('status') == 'EXECUTED':
+            # Upgrade old completed checkpoints with their first reliable wire
+            # representation; keep it after the pending delivery is confirmed.
+            row['result_message'] = message.to_dict()
+        self._save(candidate, pending)
+        self.entries, self.pending_results = candidate, pending
+
+    def acknowledge_result(self, identity):
+        if identity not in self.pending_results:return False
+        pending = deepcopy(self.pending_results)
+        del pending[identity]
+        self._save(self.entries, pending)
+        self.pending_results = pending
+        return True

@@ -70,3 +70,10 @@ def test_external_adapter_has_no_ownership_startup_delay(tmp_path):
     from experiments.edgefaultlab import adapt
     spec=adapt({'processes':[],'links':[],'faults':[],'assertions':[]},Path(__file__).resolve().parents[1],tmp_path)
     assert all('--startup-delay' not in p['command'] for p in spec['processes'])
+
+def test_measurement_window_excludes_async_teardown_traffic():
+    from experiments.metrics import TransportRecorder
+    recorder=TransportRecorder()
+    m=Message(type=CONTROL_COMMAND,source='A1',target='C1')
+    recorder('sent',m);recorder.freeze();recorder('sent',m)
+    assert recorder.counts['sent']==1 and len(recorder.events)==1

@@ -18,6 +18,7 @@ class Metrics:
 class TransportRecorder:
     def __init__(self):
         self.start = time.monotonic()
+        self.end = None
         self.events = []
         self.counts = Counter()
         self.first_attempt = {}
@@ -29,7 +30,12 @@ class TransportRecorder:
         self.persisted_ack_latencies = []
         self.acked_logical = set()
 
+    def freeze(self):
+        """Close the measurement window before asynchronous teardown starts."""
+        if self.end is None:self.end=time.monotonic()
+
     def __call__(self, event, message):
+        if self.end is not None:return
         now = time.monotonic()
         key = (message.message_id, message.source, message.target)
         attempt_key = (*key, message.attempt)

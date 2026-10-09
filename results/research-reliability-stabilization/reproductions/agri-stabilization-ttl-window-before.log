@@ -1,0 +1,70 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_acknowledged_command_not_evicted_while_original_can_still_execute ____
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-137/test_acknowledged_command_not_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10214e570>
+
+    def test_acknowledged_command_not_evicted_while_original_can_still_execute(tmp_path,monkeypatch):
+        from common import settings
+        monkeypatch.setitem(settings.SETTINGS['controller'],'recent_command_capacity',2)
+        async def scenario():
+            c=controller(tmp_path);c.guard.cooldown['IRRIGATION']=0
+            original=command()
+            for cid in ['cmd','second','third']:
+                m=command();m.message_id=cid;m.payload['command_id']=cid
+                await c.process_command(m)
+                for identity in list(c.recent_commands.pending_results):c.recent_commands.acknowledge_result(identity)
+            before=c.metrics.get('executed')
+            assert (await c.process_command(original))['status']=='DUPLICATE'
+            assert c.metrics.get('executed')==before
+>       asyncio.run(scenario())
+
+tests/test_result_delivery.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def scenario():
+        c=controller(tmp_path);c.guard.cooldown['IRRIGATION']=0
+        original=command()
+        for cid in ['cmd','second','third']:
+            m=command();m.message_id=cid;m.payload['command_id']=cid
+            await c.process_command(m)
+            for identity in list(c.recent_commands.pending_results):c.recent_commands.acknowledge_result(identity)
+        before=c.metrics.get('executed')
+>       assert (await c.process_command(original))['status']=='DUPLICATE'
+E       AssertionError: assert 'EXECUTED' == 'DUPLICATE'
+E         
+E         - DUPLICATE
+E         + EXECUTED
+
+tests/test_result_delivery.py:179: AssertionError
+----------------------------- Captured stdout call -----------------------------
+02:20:00 [C1] IRRIGATION command received (command_id=cmd, duration=1s, generation=1)
+02:20:00 [C1] safety check passed
+02:20:00 [C1] irrigation executed
+02:20:00 [C1] CONTROL_RESULT EXECUTED
+02:20:00 [C1] IRRIGATION command received (command_id=second, duration=1s, generation=1)
+02:20:00 [C1] safety check passed
+02:20:00 [C1] irrigation executed
+02:20:00 [C1] CONTROL_RESULT EXECUTED
+02:20:00 [C1] IRRIGATION command received (command_id=third, duration=1s, generation=1)
+02:20:00 [C1] safety check passed
+02:20:00 [C1] irrigation executed
+02:20:00 [C1] CONTROL_RESULT EXECUTED
+02:20:00 [C1] IRRIGATION command received (command_id=cmd, duration=1s, generation=1)
+02:20:00 [C1] safety check passed
+02:20:00 [C1] irrigation executed
+02:20:00 [C1] CONTROL_RESULT EXECUTED
+=========================== short test summary info ============================
+FAILED tests/test_result_delivery.py::test_acknowledged_command_not_evicted_while_original_can_still_execute
+1 failed in 0.37s

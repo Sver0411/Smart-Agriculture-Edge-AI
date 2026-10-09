@@ -1,6 +1,7 @@
 #pragma once
 #include <stdbool.h>
 #include <stdint.h>
+#include "b1_outbox.h"
 #include "sensor_trust.h"
 #include "adaptive_scheduler.h"
 
@@ -35,4 +36,4 @@ typedef struct {
 } b1_stats_t;
 
 extern b1_stats_t b1_stats;
-extern char b1_boot_id[16];
+extern char b1_boot_id[B1_BOOT_ID_SIZE];

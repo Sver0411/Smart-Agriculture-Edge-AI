@@ -1,0 +1,100 @@
+[
+  {
+    "name": "tcp",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.runner",
+      "--all",
+      "--output",
+      "/tmp/agri-stabilization-verified/tcp"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "repeats",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.reliability_stabilization",
+      "--output",
+      "/tmp/agri-stabilization-verified/repeats"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "lora",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.runner",
+      "--all",
+      "--transport",
+      "simulated-lora",
+      "--output",
+      "/tmp/agri-stabilization-verified/lora"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "comparison",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.lora_harness",
+      "--seed",
+      "42",
+      "--output",
+      "/tmp/agri-stabilization-verified/comparison"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "snapshot",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.snapshot_harness",
+      "--output",
+      "/tmp/agri-stabilization-verified/snapshot"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "integration",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.phase123_integration",
+      "--seed",
+      "42",
+      "--output",
+      "/tmp/agri-stabilization-verified/integration"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "external",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.edgefaultlab",
+      "--edgefaultlab-root",
+      "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.external/edgefaultlab",
+      "--output",
+      "/tmp/agri-stabilization-verified/external"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "inventory",
+    "command": [
+      "/tmp/agri-phase123-py312/bin/python",
+      "-m",
+      "experiments.evidence_inventory",
+      "--output",
+      "/tmp/agri-stabilization-verified/inventory.json"
+    ],
+    "exit_code": 0
+  }
+]

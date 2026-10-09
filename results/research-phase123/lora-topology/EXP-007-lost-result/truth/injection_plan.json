@@ -1,0 +1,54 @@
+{
+  "disruptions": [],
+  "frame_faults": [
+    {
+      "action": "drop",
+      "count": 1000,
+      "match": {
+        "source": "C1",
+        "type": "CONTROL_RESULT"
+      }
+    }
+  ],
+  "receipt_observations": [
+    {
+      "action": "drop",
+      "message_id": "eeff17508a36"
+    },
+    {
+      "action": "drop",
+      "message_id": "d37dc85436a6"
+    },
+    {
+      "action": "drop",
+      "message_id": "c22073b1daf9"
+    },
+    {
+      "action": "drop",
+      "message_id": "5195522032cf"
+    },
+    {
+      "action": "drop",
+      "message_id": "98bdfb75c654"
+    },
+    {
+      "action": "drop",
+      "message_id": "327361879792"
+    },
+    {
+      "action": "drop",
+      "message_id": "1778b842586f"
+    },
+    {
+      "action": "drop",
+      "message_id": "9d3409e9a075"
+    },
+    {
+      "action": "drop",
+      "message_id": "bc8dcba5ca82"
+    }
+  ],
+  "scenario": "lost-result",
+  "seed": 42,
+  "sensor_fault": false
+}

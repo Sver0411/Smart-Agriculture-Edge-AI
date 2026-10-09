@@ -1,0 +1,7 @@
+{
+  "idf": "v5.4.4",
+  "target": "esp32s3",
+  "profile": "light-sleep",
+  "binary_bytes": 848512,
+  "sha256": "e2283bc2d364d3b6ea74cb338ea975ca86c5f99a4c73cee0a95250979b17d642"
+}

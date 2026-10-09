@@ -1,0 +1,13 @@
+{
+  "config_sha256": "f39ee2150a689dd64dccc362a7a118f83d668c6388347e03918b81e2f6b2f919",
+  "dirty_scope": "source files; generated software-v0.3 and software-v0.3.1 evidence excluded",
+  "input_mode": "software-simulation",
+  "raw_sha256": "789432fca288b0e484463f72ac8b1e07f29d926300541c1f3fdb087b5d3f90cd",
+  "revision": "d909aa4a39e8374d4f356aca2db62473889236b1",
+  "scenario": "split-brain",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "PASS",
+  "verification": "host-tested",
+  "working_tree_dirty": true
+}

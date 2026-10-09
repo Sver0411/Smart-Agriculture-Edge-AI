@@ -1,0 +1,111 @@
+{
+  "scenario": "gateway-failover",
+  "question": "Does A2 take over and synchronize sensor/controller generation?",
+  "status": "PASS",
+  "exit_code": 0,
+  "assertions": [
+    {
+      "description": "A2 peer A1 OFFLINE",
+      "passed": true
+    },
+    {
+      "description": "ownership epoch synchronized across A2/B1/C1",
+      "passed": true
+    },
+    {
+      "description": "B1 and C1 owner A2",
+      "passed": true
+    },
+    {
+      "description": "deposed command rejected",
+      "passed": true
+    },
+    {
+      "description": "every sensor command preserves fixed zone membership",
+      "passed": true
+    },
+    {
+      "description": "A2 drives C1 from B1 after takeover",
+      "passed": true
+    },
+    {
+      "description": "A2 continues driving C2 from B2",
+      "passed": true
+    },
+    {
+      "description": "no logical command reported executed twice on control link",
+      "passed": true
+    },
+    {
+      "description": "both sensor zones sampled",
+      "passed": true
+    },
+    {
+      "description": "C1 executes trusted control",
+      "passed": true
+    },
+    {
+      "description": "C2 zone continues",
+      "passed": true
+    },
+    {
+      "description": "server records sensor history",
+      "passed": true
+    },
+    {
+      "description": "C-restored HIGH history cannot control after A2 takeover",
+      "passed": true
+    },
+    {
+      "description": "new boot fresh data passes A2\u2192LoRa\u2192C1 guard and executes once",
+      "passed": true
+    },
+    {
+      "description": "old A1 epoch is rejected and C1 retains A2 owner",
+      "passed": true
+    }
+  ],
+  "observations": {
+    "recovery_time_s": 0.6114349170020432,
+    "stale_result": {
+      "command_id": "stale-probe",
+      "command_type": "IRRIGATION",
+      "generation": 1,
+      "status": "REJECTED",
+      "reason": "STALE_GENERATION"
+    },
+    "measurement_end_s": 3.035304791003,
+    "measurement_scope": "scenario traffic before asynchronous teardown",
+    "gateway_states": {
+      "A1": {
+        "gateway_id": "A1",
+        "role": "ACTIVE",
+        "health": "ONLINE",
+        "generation": 1,
+        "peer_id": "A2",
+        "peer_health": "ONLINE",
+        "peer_generation": 1
+      },
+      "A2": {
+        "gateway_id": "A2",
+        "role": "ACTIVE",
+        "health": "ONLINE",
+        "generation": 2,
+        "peer_id": "A1",
+        "peer_health": "ONLINE",
+        "peer_generation": 1
+      }
+    },
+    "node_ownership": {
+      "B1": {
+        "owner": "A2",
+        "generation": 2
+      },
+      "B2": {
+        "owner": "A2",
+        "generation": 2
+      }
+    }
+  },
+  "case": "failover-freshness"
+}

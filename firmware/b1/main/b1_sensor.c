@@ -1,4 +1,5 @@
 #include "b1.h"
+#include "b1_sensor.h"
 #include "b1_policy.h"
 #include "driver/i2c.h"
 #include "esp_timer.h"
@@ -22,7 +23,7 @@ static uint8_t crc8(const uint8_t *data)
     return crc;
 }
 
-static bool sht30_read(float *temperature, float *humidity)
+bool b1_sensor_read(float *temperature, float *humidity)
 {
     const uint8_t cmd[2] = {0x24, 0x00};
     uint8_t rx[6];
@@ -39,8 +40,8 @@ static bool sht30_read(float *temperature, float *humidity)
     return true;
 }
 
-void b1_sensor_task(void *arg)
-{
+static bool sensor_installed;
+bool b1_sensor_init(void) {
     i2c_config_t cfg = {
         .mode = I2C_MODE_MASTER,
         .sda_io_num = CONFIG_B1_SDA_GPIO,
@@ -49,8 +50,9 @@ void b1_sensor_task(void *arg)
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
         .master.clk_speed = 100000,
     };
-    ESP_ERROR_CHECK(i2c_param_config(I2C_PORT, &cfg));
-    ESP_ERROR_CHECK(i2c_driver_install(I2C_PORT, cfg.mode, 0, 0, 0));
+    if(i2c_param_config(I2C_PORT,&cfg)!=ESP_OK)return false;
+    if(i2c_driver_install(I2C_PORT,cfg.mode,0,0,0)!=ESP_OK)return false;
+    sensor_installed=true;
     // Actual bus probe; previous wiring is never assumed successful.
     i2c_cmd_handle_t command = i2c_cmd_link_create();
     i2c_master_start(command);
@@ -60,14 +62,30 @@ void b1_sensor_task(void *arg)
     i2c_cmd_link_delete(command);
     printf("B1_NET {\"event\":\"SHT30_PROBE\",\"address\":68,\"sda\":%d,\"scl\":%d,\"ok\":%s}\n",
         CONFIG_B1_SDA_GPIO, CONFIG_B1_SCL_GPIO, probe == ESP_OK ? "true" : "false");
+    return probe==ESP_OK;
+}
+bool b1_sensor_shutdown(void) {
+    if(!sensor_installed)return true;
+    if(i2c_driver_delete(I2C_PORT)!=ESP_OK)return false;
+    sensor_installed=false;return true;
+}
+void b1_sensor_task(void *arg) {
+    (void)arg;
+    b1_sensor_init();
     static b1_policy_t policy;
     if (!b1_policy_init(&policy)) abort();
     uint32_t sequence = 0;
     while (true) {
+        b1_sample_t reported;
+        if (b1_queue_take_confirmed(&reported)) b1_policy_mark_reported(&policy, &reported);
         b1_sample_t s = {0};
+        if (sequence == UINT32_MAX) {
+            printf("B1_DELIVERY {\"event\":\"SEQUENCE_EXHAUSTED_REBOOT_REQUIRED\"}\n");
+            while (true) vTaskDelay(pdMS_TO_TICKS(10000));
+        }
         s.seq = ++sequence;
         s.monotonic_ms = (uint64_t)(esp_timer_get_time() / 1000);
-        s.valid = sht30_read(&s.temperature, &s.humidity);
+        s.valid = b1_sensor_read(&s.temperature, &s.humidity);
 #if CONFIG_B1_TEST_FAULT_INJECTION
         if (s.valid && s.seq >= 10 && s.seq <= 14) {
             s.temperature = 150.0f;
@@ -102,7 +120,7 @@ void b1_sensor_task(void *arg)
                s.upload_requested ? "true" : "false", s.detected_event ? "true" : "false",
                (unsigned long)s.next_interval_ms, s.reason,
                (unsigned long)esp_get_minimum_free_heap_size());
-        if (b1_queue_sample(&s)) b1_policy_mark_reported(&policy, &s);
+        b1_queue_sample(&s);
         vTaskDelay(pdMS_TO_TICKS(s.next_interval_ms));
     }
 }
