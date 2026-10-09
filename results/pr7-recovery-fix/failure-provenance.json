@@ -1,0 +1,48 @@
+{
+  "run": 37893918383,
+  "attempt": 1,
+  "job": 113700798696,
+  "revision": "021585e28b468a9db7f09aed2e5e4c6996d09586",
+  "artifact": "software-evidence-python-3.12",
+  "original_events_sha256": "1f93b23c0727a3080e959b08b09c303c5b4366d62c5ba68aa78f043c907c4adc",
+  "selection": "sent peer HEARTBEAT and AUTH_ACK, pytest/test_gateway_recovery_metrics_0/recovery/raw/events.jsonl",
+  "failed_summary": {
+    "assertions": [
+      {
+        "description": "A2 peer A1 OFFLINE",
+        "passed": true
+      },
+      {
+        "description": "ownership epoch synchronized across A2/B1/C1",
+        "passed": true
+      },
+      {
+        "description": "B1 and C1 owner A2",
+        "passed": true
+      },
+      {
+        "description": "deposed command rejected",
+        "passed": true
+      },
+      {
+        "description": "scenario runs without exception",
+        "passed": false
+      }
+    ],
+    "exit_code": 1,
+    "observations": {
+      "error": "TimeoutError: recovered peer enrollment",
+      "recovery_time_s": 0.2309227089999979,
+      "stale_result": {
+        "command_id": "stale-probe",
+        "command_type": "IRRIGATION",
+        "generation": 1,
+        "reason": "STALE_GENERATION",
+        "status": "REJECTED"
+      }
+    },
+    "question": "Does recovered A1 enter STANDBY?",
+    "scenario": "gateway-recovery",
+    "status": "FAIL"
+  }
+}
