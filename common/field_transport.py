@@ -1,13 +1,14 @@
-"""Field message contract. Mock only; an E220 driver is not implemented.
+"""Host field adapter contract, with explicit hardware boundaries.
 
-Adapters retain message identity, route, epoch and ACK/result distinction.
-Radio framing/fragmentation, discovery and takeover handshake require RF tests.
+Host LoRa framing, bounded reassembly and retry live in common.lora. ESP32 B1
+has an E220 UART/AUX/mode driver in firmware/b1/main/b1_e220.c and a bounded
+radio window. Gateway/controller physical RF endpoints are still missing.
+Physical RF/current/latency, reset and GPIO sleep behavior await validation.
 
-Field B uplinks use ZoneUplink (source_node_id/zone_id/sequence/boot_id/payload)
-from common.field_contract. B belongs to a Zone, not permanently to a Gateway.
-Only the current zone owner processes control. B does not probe gateway health.
-FieldFreshnessGuard models the future local command freshness contract; it does
-not replace the existing TCP timestamp protocol. No E220 wire format exists yet.
+Adapters preserve identity, route, epoch and ACK/result distinctions. The mock
+below records attempted writes; it provides neither reception nor durability.
+A reliable runtime must supply an explicit receive_confirmation(timeout) method
+and validate the scoped gateway SQLite receipt. CRC is not authentication.
 """
 from typing import Protocol
 from common.messages import Message

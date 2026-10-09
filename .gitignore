@@ -17,3 +17,8 @@ results/experimental/
 .external/
 
 firmware-ci-evidence/
+
+# New local experiments are isolated; publish selected evidence explicitly.
+.research-runs/
+*.key
+*.pem

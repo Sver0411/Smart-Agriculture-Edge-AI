@@ -5,6 +5,8 @@
 #include "b1_registration.h"
 #include "b1_transport.h"
 #include "b1_deep_sleep.h"
+#include "b1_radio_schedule.h"
+#include "freertos/task.h"
 #include "esp_random.h"
 #include "esp_timer.h"
 #include "mbedtls/sha256.h"
@@ -300,12 +302,31 @@ bool b1_lora_run_window(uint32_t budget) {
   bool stopped = b1_e220_shutdown(2000) == ESP_OK;
   return registered && stopped;
 }
+static TaskHandle_t network_task;
+void b1_lora_notify_pending(void) {
+#if !CONFIG_B1_DEEP_SLEEP_EXPERIMENTAL
+  if (network_task) xTaskNotifyGive(network_task);
+#endif
+}
 void b1_lora_network_task(void *arg) {
   (void)arg;
+  network_task = xTaskGetCurrentTaskHandle();
+  b1_radio_schedule_t schedule;
+  b1_radio_schedule_init(&schedule);
   while (true) {
-    if (b1_queue_pending_count())
-      b1_lora_run_window(10000);
-    vTaskDelay(pdMS_TO_TICKS(60000));
+    unsigned before = b1_queue_pending_count();
+    if (b1_radio_schedule_due(&schedule, now_ms(), before != 0)) {
+      uint32_t confirmed_before = b1_queue_acknowledged_count();
+      b1_lora_run_window(10000); /* This task is the only ordinary UART owner. */
+      unsigned after = b1_queue_pending_count();
+      b1_radio_schedule_finish(&schedule, now_ms(), after != 0, b1_queue_acknowledged_count() != confirmed_before);
+    }
+    uint32_t delay = b1_radio_schedule_wait(&schedule, now_ms(), b1_queue_pending_count()!=0);
+    TickType_t wait = delay == UINT32_MAX ? portMAX_DELAY : pdMS_TO_TICKS(delay);
+    if (delay && !wait) wait = 1;
+    /* Notifications coalesce. HIGH during backoff wakes this gate but cannot
+     * start another RF window early. New queue admission never touches UART. */
+    ulTaskNotifyTake(pdTRUE, wait);
   }
 }
 uint32_t b1_lora_generation(void) { return registration.generation; }

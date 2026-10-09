@@ -1,0 +1,119 @@
+{
+  "disruptions": [],
+  "frame_faults": [
+    {
+      "action": "drop",
+      "count": 10000,
+      "match": {
+        "source": "A1",
+        "target": "A2",
+        "type": "HEARTBEAT"
+      }
+    }
+  ],
+  "receipt_observations": [
+    {
+      "action": "drop",
+      "message_id": "b93e7abc02dd"
+    },
+    {
+      "action": "drop",
+      "message_id": "5f596dc6d512"
+    },
+    {
+      "action": "drop",
+      "message_id": "ea9b13409610"
+    },
+    {
+      "action": "drop",
+      "message_id": "f44edfe5e0a8"
+    },
+    {
+      "action": "drop",
+      "message_id": "c0a93ce319ae"
+    },
+    {
+      "action": "drop",
+      "message_id": "6c179d232c49"
+    },
+    {
+      "action": "drop",
+      "message_id": "c4b826f1e4c5"
+    },
+    {
+      "action": "drop",
+      "message_id": "a4a9c5917363"
+    },
+    {
+      "action": "drop",
+      "message_id": "9dc45936ead1"
+    },
+    {
+      "action": "drop",
+      "message_id": "de66f4027ae7"
+    },
+    {
+      "action": "drop",
+      "message_id": "9698febb8639"
+    },
+    {
+      "action": "drop",
+      "message_id": "a21fa7fa764a"
+    },
+    {
+      "action": "drop",
+      "message_id": "d85d195204db"
+    },
+    {
+      "action": "drop",
+      "message_id": "60b414adcc3b"
+    },
+    {
+      "action": "drop",
+      "message_id": "c8d6618badba"
+    },
+    {
+      "action": "drop",
+      "message_id": "11df82ca98fd"
+    },
+    {
+      "action": "drop",
+      "message_id": "ba451debe05d"
+    },
+    {
+      "action": "drop",
+      "message_id": "741d32917902"
+    },
+    {
+      "action": "drop",
+      "message_id": "64f9cbe55891"
+    },
+    {
+      "action": "drop",
+      "message_id": "4d9e975f8ae7"
+    },
+    {
+      "action": "drop",
+      "message_id": "9b7d86687166"
+    },
+    {
+      "action": "drop",
+      "message_id": "167a4f02dc81"
+    },
+    {
+      "action": "drop",
+      "message_id": "594258cc0b9b"
+    },
+    {
+      "action": "drop",
+      "message_id": "0541559dcc07"
+    },
+    {
+      "action": "drop",
+      "message_id": "ef1ee79720f9"
+    }
+  ],
+  "scenario": "normal",
+  "seed": 42,
+  "sensor_fault": false
+}

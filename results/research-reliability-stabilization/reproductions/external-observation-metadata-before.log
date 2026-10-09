@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/experiments/edgefaultlab.py", line 128, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/experiments/edgefaultlab.py", line 127, in main
+    raise SystemExit(asyncio.run(run_templates(a.edgefaultlab_root,a.output,a.seed)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/mac/.codex/worktrees/english-readme/Smart-Agriculture-Edge-AI/experiments/edgefaultlab.py", line 93, in run_templates
+    scenario=load_scenario(path)
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.external/edgefaultlab/edgefaultlab/scenario.py", line 237, in load_scenario
+    return _parse_scenario(data, str(scenario_path), str(scenario_path.resolve().parent))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Documents/ChatGPT/Smart-Agriculture-Edge-AI/.external/edgefaultlab/edgefaultlab/scenario.py", line 904, in _parse_scenario
+    raise ScenarioError(errors, path)
+edgefaultlab.scenario.ScenarioError: /private/tmp/agri-stabilization-external-fixed/gateway_failover/scenario.json: scenario is invalid
+  - scenario: unknown field 'original_assertions' (allowed: assertions, duration, faults, links, name, processes, seed)

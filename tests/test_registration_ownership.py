@@ -61,3 +61,56 @@ def test_malformed_registration_owner_is_rejected_without_crashing(cls,node,monk
         payload={'owner_gateway':[],'generation':1,'accepted':True})
     monkeypatch.setattr(module+'.send_message',send);monkeypatch.setattr(module+'.read_message',read)
     assert not asyncio.run(n._register(None,None,'A1'))
+
+def test_deposed_peer_late_heartbeat_timeout_does_not_repeat_takeover():
+    g = Gateway('A2', heartbeat_timeout=1)
+    g.peer_last_seen = 0
+    assert g.evaluate_peer_status(now=10) == config.OFFLINE
+    assert g.ownership.generation == 2
+    assert g._on_peer_heartbeat(Message(type=HEARTBEAT, source='A1', target='A2',
+        payload={'generation': 1, 'ownership': {}}))
+    assert g.evaluate_peer_status(now=g.peer_last_seen) == config.ONLINE
+    assert g.evaluate_peer_status(now=g.peer_last_seen + 10) == config.OFFLINE
+    assert g.ownership.generation == 2
+    assert g.metrics.get('failovers') == 1
+
+
+def test_local_monitor_pause_does_not_create_equal_epoch_takeovers(monkeypatch):
+    a1, a2 = [Gateway(name, heartbeat_timeout=.6) for name in ['A1', 'A2']]
+    for g, last_seen in [(a1, .458), (a2, .321)]:
+        g.peer_last_seen = last_seen
+        g._observe_peer_monitor_tick(.457)
+        g._observe_peer_monitor_tick(1.060)
+        assert g.evaluate_peer_status(1.060) == config.UNKNOWN
+        assert g.ownership.generation == 1
+        assert g.peer_last_seen == last_seen
+    # Only A1 receives the resumed reverse heartbeat. A1->A2 stays dropped.
+    monkeypatch.setattr('gateway.gateway.time.monotonic', lambda: 1.065)
+    assert a1._on_peer_heartbeat(Message(type=HEARTBEAT, source='A2', target='A1',
+        payload={'generation':1,'ownership':{}}))
+    assert a1.evaluate_peer_status(1.065) == config.ONLINE
+    for tick in [1.160, 1.260, 1.360, 1.460, 1.560, 1.661]:
+        a2._observe_peer_monitor_tick(tick)
+    assert a2.evaluate_peer_status(1.661) == config.OFFLINE
+    assert a2.ownership.generation == 2
+    assert a1._on_peer_heartbeat(Message(type=HEARTBEAT, source='A2', target='A1',
+        payload={'generation':2,'ownership':{n:{'owner_gateway':'A2','generation':2}
+                                             for n in ['B1','C1','B2','C2']}}))
+    assert a1.ownership.role == config.STANDBY
+    assert a1.registry.get('C1').owner_gateway == 'A2'
+
+
+def test_resumed_monitor_still_times_out_without_valid_peer():
+    g = Gateway('A2', heartbeat_timeout=.6)
+    g.peer_last_seen = .321
+    g._observe_peer_monitor_tick(.457)
+    g._observe_peer_monitor_tick(1.060)
+    assert g.evaluate_peer_status(1.060) == config.UNKNOWN
+    assert not g._on_peer_heartbeat(Message(type=HEARTBEAT, source='B1', target='A2',
+        payload={'generation':1,'ownership':{}}))
+    for tick in [1.160, 1.260, 1.360, 1.460, 1.560, 1.661]:
+        g._observe_peer_monitor_tick(tick)
+    assert g.evaluate_peer_status(1.661) == config.OFFLINE
+    assert g.ownership.generation == 2
+    assert g.metrics.get('peer_monitor_stalls') == 1
+    assert g.metrics.get('failovers') == 1

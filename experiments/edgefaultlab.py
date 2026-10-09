@@ -44,12 +44,12 @@ def adapt(template,project,output,seed=42):
         if proc['name'].startswith('sensor'):
             command+=['--sample-interval','0.2','--seed',str(seed)]
         if proc['name'].startswith('controller'):
-            command+=['--state-db',str(out/(proc['name']+'.state.db'))]
+            command+=['--state-db',str(out/(proc['name']+'.state.db')),'--emit-execution-events']
         proc['cwd']=str(root);proc['env']={'SMART_AGRICULTURE_CONFIG':str(config_path)}
     for id,module,gateway in [('B2','sensor_node.sensor_node','A2'),('C2','controller_node.controller_node','A2')]:
         command=[sys.executable,'-u','-m',module,'--id',id,'--gateway',gateway]
         if id=='B2':command+=['--sample-interval','0.2','--seed',str(seed+1)]
-        if id=='C2':command+=['--state-db',str(out/'controller_c2.state.db')]
+        if id=='C2':command+=['--state-db',str(out/'controller_c2.state.db'),'--emit-execution-events']
         spec['processes'].append({'name':'sensor_b2' if id=='B2' else 'controller_c2','command':command,'cwd':str(root),'env':{'SMART_AGRICULTURE_CONFIG':str(config_path)}})
     for fault in spec['faults']:
         fault['at']=0 if fault['at']==0 else 2
@@ -57,6 +57,18 @@ def adapt(template,project,output,seed=42):
     for assertion in spec['assertions']:
         if 'after' in assertion:assertion['after']=0 if assertion['after']==0 else (4 if assertion['after']>=20 else 2)
         if 'within' in assertion:assertion['within']=8
+    # A durable EXECUTED outcome is replayable after ACK loss or duplicate
+    # command delivery. Observe the execution branch to retain the stronger
+    # at-most-once actuator assertion, rather than prohibit result retransmit.
+    write_json(out/'original_assertions.json', spec['assertions'])
+    for assertion in spec['assertions']:
+        match = assertion.get('match', {})
+        if assertion.get('assert') == 'unique' and match.get('type') == 'CONTROL_RESULT' and match.get('payload.status') == 'EXECUTED':
+            assertion['match'] = {'type':'NODE_STATUS', 'payload.event':'ACTUATOR_EXECUTED'}
+    if any(a.get('assert') == 'unique' and a.get('match', {}).get('payload.event') == 'ACTUATOR_EXECUTED' for a in spec['assertions']):
+        spec['assertions'].append({'assert':'message_count','link':'nodes_to_gateway_a1',
+            'match':{'type':'NODE_STATUS','payload.event':'ACTUATOR_EXECUTED'},'min':1,
+            'description':'actual actuator execution events are nonvacuously observed'})
     # Nonvacuous failover assertion must observe traffic from the successor.
     if any(f['action']=='process_kill' for f in spec['faults']):
         spec['assertions'].append({'assert':'eventually','after':2,'within':8,'link':'gateways_to_server',
@@ -83,6 +95,31 @@ async def run_templates(efl_root,output,seed=42):
         code=await runner.run()
         summary={'scenario':name,'status':'PASS' if code==0 else 'FAIL','exit_code':code,
                  'external_revision':revision,'assertions':[{'description':r.description,'passed':r.passed,'detail':r.detail} for r in runner.results]}
+        # Supplement execution uniqueness with replay-content consistency.
+        wires={};conflicts=[];executed=set();observed_actions=set()
+        for event in runner.recorder.observations:
+            message=event.get('message') or {}
+            if message.get('source') not in ('C1','C2'):continue
+            payload=message.get('payload',{})
+            if message.get('type')=='NODE_STATUS' and payload.get('event')=='ACTUATOR_EXECUTED':
+                observed_actions.add((message['source'],payload.get('command_id')))
+            if message.get('type')=='CONTROL_RESULT' and payload.get('status')=='EXECUTED':
+                executed.add((message['source'],payload.get('command_id')))
+                identity=message['message_id']
+                canonical=json.dumps({k:v for k,v in message.items() if k!='target'},sort_keys=True,separators=(',',':'))
+                if identity in wires and wires[identity]!=canonical:conflicts.append(identity)
+                wires[identity]=canonical
+        checks=[{'description':'replayed execution results preserve immutable content (transport target may follow takeover)',
+                 'passed':not conflicts,'detail':f'{len(wires)} identities; {len(conflicts)} conflicts'}]
+        if name=='duplicate_control_command':
+            checks.append({'description':'duplicate-command execution outcomes have independently observed actual execution',
+                 'passed':executed<=observed_actions,
+                 'detail':f'{len(executed)} outcomes; {len(observed_actions)} execution identities'})
+        summary['execution_observation']={'outcomes':len(executed),'execution_identities':len(observed_actions),
+            'scope':'observations can be lost during endpoint outages; result replay is not a second action'}
+        summary['assertions'].extend(checks)
+        if not all(r['passed'] for r in checks):code=1
+        summary.update(status='PASS' if code==0 else 'FAIL',exit_code=code)
         write_json(out/'integration_summary.json',summary);summaries.append(summary)
         print(f"EdgeFaultLab {name}: {summary['status']}",flush=True)
     write_json(Path(output)/'suite_summary.json',{'scenarios':summaries,'passed':sum(s['exit_code']==0 for s in summaries),'total':len(summaries)})

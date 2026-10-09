@@ -1,6 +1,9 @@
 #include "b1.h"
 #include "b1_transport.h"
 #include "b1_storage.h"
+#if CONFIG_B1_USE_E220 && !CONFIG_B1_DEEP_SLEEP_EXPERIMENTAL
+#include "b1_lora_network.h"
+#endif
 #include <stdio.h>
 #include <string.h>
 
@@ -42,6 +45,7 @@ bool b1_queue_sample(const b1_sample_t *sample)
 {
     if (!sample->upload_requested) return false;
     b1_storage_lock();
+    bool was_empty=b1_outbox_count(&outbox)==0;
     memset(&building, 0, sizeof(building));
     building.acquired_ms=sample->monotonic_ms;
     building.sequence=sample->seq; building.has_alert=sample->alert_requested;
@@ -56,7 +60,13 @@ bool b1_queue_sample(const b1_sample_t *sample)
         printf("B1_DELIVERY {\"event\":\"ADMISSION_REJECTED\",\"sample_id\":\"%s\",\"importance\":\"%s\"}\n",
                building.sample_id, building.high ? "HIGH" : "NORMAL");
     }
+    bool notify=ok && (was_empty || building.high);
     b1_storage_unlock();
+#if CONFIG_B1_USE_E220 && !CONFIG_B1_DEEP_SLEEP_EXPERIMENTAL
+    if(notify)b1_lora_notify_pending();
+#else
+    (void)notify;
+#endif
     return ok;
 }
 
@@ -129,3 +139,10 @@ void b1_queue_stats(void)
 }
 
 unsigned b1_queue_pending_count(void){b1_storage_lock();unsigned n=b1_outbox_count(&outbox);b1_storage_unlock();return n;}
+
+uint32_t b1_queue_acknowledged_count(void) {
+    b1_storage_lock();
+    uint32_t count=outbox.acknowledged;
+    b1_storage_unlock();
+    return count;
+}

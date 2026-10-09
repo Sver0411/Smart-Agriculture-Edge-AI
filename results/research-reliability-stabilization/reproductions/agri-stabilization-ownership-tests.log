@@ -1,0 +1,21 @@
+..........F                                                              [100%]
+=================================== FAILURES ===================================
+______ test_deposed_peer_late_heartbeat_timeout_does_not_repeat_takeover _______
+
+    def test_deposed_peer_late_heartbeat_timeout_does_not_repeat_takeover():
+        g = Gateway('A2')
+        g.peer_last_seen = 0
+>       assert g.evaluate_peer_status(now=10) == config.OFFLINE
+E       AssertionError: assert 'ONLINE' == 'OFFLINE'
+E         
+E         - OFFLINE
+E         ?  ^^
+E         + ONLINE
+E         ?  ^
+
+tests/test_registration_ownership.py:68: AssertionError
+----------------------------- Captured stdout call -----------------------------
+01:36:07 [A2] A1 is online
+=========================== short test summary info ============================
+FAILED tests/test_registration_ownership.py::test_deposed_peer_late_heartbeat_timeout_does_not_repeat_takeover
+1 failed, 10 passed in 0.09s

@@ -1,0 +1,12 @@
+{
+  "counts": {
+    "B": 3224,
+    "C": 274,
+    "A": 931,
+    "D": 320,
+    "F": 20
+  },
+  "files": 4769,
+  "duplicates": 143,
+  "inventory_sha256": "e4e9c9e54fde99e8f3dedae0472f63cb7846d4ad1c84337f222b11c7bbdc89b2"
+}

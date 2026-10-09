@@ -29,6 +29,8 @@ import math
 import sys
 import time
 import uuid
+import hashlib
+import json
 from common.bounded_queue import BoundedQueue
 from gateway import peer_security
 
@@ -99,6 +101,8 @@ class Gateway:
         peer_security_mode: str = "lab",
         peer_key: bytes | None = None,
     ):
+        from common.deployment_security import require_lab_profile
+        require_lab_profile(profile, peer_mode=peer_security_mode, peer_key=peer_key)
         if gateway_id not in config.GATEWAY_PORTS:
             raise ValueError(f"unknown gateway id: {gateway_id!r}")
 
@@ -163,6 +167,8 @@ class Gateway:
         self.peer_last_seen: float | None = None
         self.peer_started_at: float | None = None
         self.peer_status = config.UNKNOWN
+        self._peer_monitor_last_tick: float | None = None
+        self._peer_resume_deadline: float | None = None
         # last command we put on the wire (used to replay a stale command in
         # the split-brain demo: a delayed frame from a deposed gateway)
         self.last_command: Message | None = None
@@ -311,7 +317,8 @@ class Gateway:
             self.metrics.inc("ingress_queue_rejected")
             await send_message(writer, Message(type=NODE_STATUS, source=self.gateway_id,
                 target=message.source, payload={"accepted": False, "reason": "QUEUE_FULL",
-                    "rejected_message_id": message.message_id, "persisted": False}))
+                    "rejected_message_id": message.message_id, "persisted": False,
+                    "result_state": "RESULT_REJECTED" if message.type == CONTROL_RESULT else None}))
 
     def _persist_congested_upload(self, message):
         try:
@@ -369,7 +376,7 @@ class Gateway:
                     p = message.payload
                     if p.get("peer_handshake") == "HELLO" and message.target == self.gateway_id:
                         client = p.get("client")
-                        if not isinstance(client, str) or len(client) != 32:
+                        if not peer_security.valid_nonce(client):
                             continue
                         challenge = peer_security.proof(source, self.gateway_id, client, peer_security.nonce())
                         response = {"peer_handshake": "CHALLENGE", **challenge}
@@ -410,7 +417,7 @@ class Gateway:
                     body["payload"] = {k: v for k, v in p.items() if k != "peer_auth"}
                     valid = (session is not None and source == self.peer_id and message.target == self.gateway_id and
                              p.get("peer_session") == session["session"] and
-                             integer(p.get("peer_sequence"), 1) and p["peer_sequence"] > session["sequence"] and
+                             integer(p.get("peer_sequence"), 1) and p["peer_sequence"] <= 0xffffffff and p["peer_sequence"] > session["sequence"] and
                              (self.peer_security_mode == "lab" or
                               peer_security.verify(self.peer_key, body, p.get("peer_auth"))))
                     if valid and self._on_peer_heartbeat(message):
@@ -435,6 +442,7 @@ class Gateway:
                     await self._ingress_put(self.sensor_queue, message, writer)
                 elif message.type == CONTROL_RESULT:
                     self.registry.touch(source)
+                    message._result_writer = writer
                     await self._ingress_put(self.result_queue, message, writer)
                 else:
                     node_log(self.gateway_id, f"unexpected {message.type} from {source}")
@@ -500,6 +508,7 @@ class Gateway:
             self.metrics.inc("malformed_peer_heartbeat")
             return False
         self.peer_last_seen = time.monotonic()
+        self._peer_resume_deadline = None
         # Peer ownership evidence may advance a known node, never compete at
         # the same epoch. Registration itself cannot create this evidence.
         snapshot = message.payload.get("ownership", {})
@@ -1034,37 +1043,76 @@ class Gateway:
         while not self._stopping:
             message = await self.result_queue.get()
             try:
-                payload = dict(message.payload)
-                command_id = payload.get("command_id")
-                if not isinstance(command_id,str) or not command_id:
-                    self.metrics.inc("malformed_results")
-                    continue
-                try:
-                    self.offline_queue.audit_command_outcome(command_id,"RESULT_"+str(payload.get("status","UNKNOWN")))
-                except sqlite3.Error as exc:
-                    # Leave audit as uncertain, but keep the original result path.
-                    self.metrics.inc("sensor_audit_failures")
-                    node_log(self.gateway_id,f"sensor command audit failed: {exc}")
-                outcome = self.outcomes.result(command_id)
-                if outcome == "late":self.metrics.inc("late_results")
-                node_log(
-                    self.gateway_id,
-                    f"controller result received ({payload.get('command_type')} -> {payload.get('status')}"
-                    + (f", reason={payload.get('reason')}" if payload.get("reason") else "")
-                    + ")",
-                )
-                payload["controller_id"] = message.source
-                await self._submit_upload(
-                    Message(
-                        type=CONTROL_RESULT,
-                        source=self.gateway_id,
-                        target="SERVER",
-                        message_id=message.message_id,
-                        payload=payload,
-                    )
-                )
+                await self._process_control_result(message)
             finally:
                 self.result_queue.task_done()
+
+    async def _result_status(self, message, state, reason=None):
+        writer = getattr(message, '_result_writer', None) or self.connections.get(message.source)
+        if writer is None:return
+        from controller_node.recent_commands import CONTRACT
+        durable = state == 'RESULT_DURABLY_STORED'
+        try:
+            await send_message(writer, Message(type=PERSISTED_ACK if durable else NODE_STATUS,
+                source=self.gateway_id, target=message.source,
+                payload={'ack_message_id':message.message_id, 'result_state':state,
+                    'persisted':durable, 'scope':'CONTROL_RESULTS', 'delivery_contract':CONTRACT,
+                    'reason':reason}))
+        except (OSError, RuntimeError):
+            self.metrics.inc('result_ack_send_failures')
+
+    async def _process_control_result(self, message):
+        from controller_node.recent_commands import CONTRACT
+        payload = dict(message.payload)
+        reliable = payload.get('delivery_contract') == CONTRACT
+        command_id = payload.get('command_id')
+        entry = self.registry.get(message.source)
+        generation = payload.get('generation')
+        valid = (message.type == CONTROL_RESULT and message.target == self.gateway_id and
+            message.source in config.GATEWAY_OF_CONTROLLER and isinstance(command_id, str) and
+            1 <= len(command_id) <= 256 and payload.get('status') in
+            ('EXECUTED','REJECTED','DUPLICATE','UNKNOWN') and entry is not None and
+            ((not reliable and generation is None) or
+                integer(generation, 1) and generation <= entry.generation))
+        if not valid:
+            self.metrics.inc('malformed_results')
+            if reliable:await self._result_status(message, 'RESULT_REJECTED', 'INVALID_RESULT')
+            return False
+        payload['controller_id'] = message.source
+        upload = Message(type=CONTROL_RESULT, source=self.gateway_id, target='SERVER',
+                         message_id=message.message_id, timestamp=message.timestamp, payload=payload)
+        try:
+            if reliable:
+                from server.validation import validate_server_upload
+                validate_server_upload(upload)
+                if self.offline_queue.path == ':memory:':
+                    raise ValueError('durable result ACK requires file-backed SQLite')
+                await self._result_status(message, 'RESULT_RECEIVED')
+                # Route is allowed to change during takeover; result identity
+                # and content are immutable across that historical replay.
+                digest = hashlib.sha256(json.dumps({'source':message.source,
+                    'timestamp':message.timestamp, 'payload':payload}, sort_keys=True,
+                    separators=(',', ':'), allow_nan=False).encode()).hexdigest()
+                fresh = self.offline_queue.admit_result(upload, digest)
+                await self._result_status(message, 'RESULT_DURABLY_STORED')
+                self._request_flush()
+                if not fresh:
+                    self.metrics.inc('result_duplicates')
+                    return True
+            else:
+                await self._submit_upload(upload)
+        except (ValueError, sqlite3.Error, OSError) as exc:
+            self.metrics.inc('result_durable_rejected')
+            if reliable:await self._result_status(message, 'RESULT_REJECTED', str(exc))
+            return False
+        try:
+            self.offline_queue.audit_command_outcome(command_id, 'RESULT_' + payload['status'])
+        except sqlite3.Error:
+            self.metrics.inc('sensor_audit_failures')
+        outcome = self.outcomes.result(command_id)
+        if outcome == 'late':self.metrics.inc('late_results')
+        self.metrics.inc('results_received')
+        return True
 
     # -- Task 6: peer heartbeat, watchdog, failover ------------------------
 
@@ -1105,6 +1153,7 @@ class Gateway:
                     node_log(self.gateway_id, f"heartbeat -> {self.peer_id}")
                 except (ConnectionResetError, BrokenPipeError, RuntimeError):
                     node_log(self.gateway_id, f"heartbeat to {self.peer_id} failed, reconnecting")
+                    self.peer_writer.close()
                     self.peer_writer = None
 
             # ... and let the cloud server keep a record of our liveness too.
@@ -1116,7 +1165,11 @@ class Gateway:
             for entry in self.registry.expire():
                 node_log(self.gateway_id, f"WATCHDOG {entry.node_id} -> {config.OFFLINE}")
 
+            # Measure only delay while our scheduled timer is pending, not
+            # time spent awaiting a peer connection or cloud queue capacity.
+            self._peer_monitor_last_tick = time.monotonic()
             await asyncio.sleep(self.heartbeat_interval)
+            self._observe_peer_monitor_tick()
 
     async def _connect_peer(self) -> None:
         try:
@@ -1130,7 +1183,7 @@ class Gateway:
             if reply is None or reply.source != self.peer_id or reply.target != self.gateway_id or reply.payload.get("peer_handshake") != "CHALLENGE":
                 raise ValueError("invalid peer challenge")
             session = reply.payload.get("session")
-            if not isinstance(session, str) or len(session) != 32 or reply.payload.get("client") != client:
+            if not peer_security.valid_nonce(session) or reply.payload.get("client") != client:
                 raise ValueError("invalid peer session")
             body = peer_security.proof(self.gateway_id, self.peer_id, client, session)
             if self.peer_security_mode == "hmac" and not peer_security.verify(self.peer_key, {"purpose": "CHALLENGE", **body}, reply.payload.get("server_auth")):
@@ -1149,6 +1202,20 @@ class Gateway:
         self.peer_writer = writer
         node_log(self.gateway_id, f"peer link established with {self.peer_id}")
 
+    def _observe_peer_monitor_tick(self, now: float | None = None) -> None:
+        """Do not infer a remote crash from a locally suspended monitor.
+
+        A gap exceeding the whole failure window means this task could not
+        observe the peer. Resume one bounded observation window; a validated
+        heartbeat ends it immediately. This does not alter the last receipt
+        time, the configured timeout, or ownership at an equal epoch.
+        """
+        now = time.monotonic() if now is None else now
+        previous, self._peer_monitor_last_tick = self._peer_monitor_last_tick, now
+        if previous is not None and now - previous > self.heartbeat_timeout:
+            self._peer_resume_deadline = now + self.heartbeat_timeout
+            self.metrics.inc("peer_monitor_stalls")
+
     def evaluate_peer_status(self, now: float | None = None) -> str:
         """Return the peer state; trigger the failover on the OFFLINE edge."""
         now = time.monotonic() if now is None else now
@@ -1159,6 +1226,10 @@ class Gateway:
             status = config.OFFLINE
         else:
             status = config.ONLINE
+
+        if (status == config.OFFLINE and self._peer_resume_deadline is not None
+                and now < self._peer_resume_deadline):
+            status = config.UNKNOWN
 
         if status != self.peer_status:
             if status == config.OFFLINE:
@@ -1172,15 +1243,17 @@ class Gateway:
     def _takeover(self) -> int:
         """Take the peer's nodes and bump the ownership generation.
 
-        The epoch is bumped even when the registry holds nothing that still
-        belongs to the peer: the peer has been declared dead, so every command
-        it may still emit - or that is still in flight - belongs to an older
-        epoch and the controllers have to refuse it.  That is what turns a
-        "dead gateway" into a "deposed gateway" for the rest of the system.
+        A delayed heartbeat from an already deposed peer may briefly restore
+        liveness. Its subsequent timeout must not create another epoch when
+        all zones are already fenced by our higher, active epoch.
         """
         if self.persistence_fault:
             return self.ownership.generation
         node_ids = [entry.node_id for entry in self.registry.owned_by(self.peer_id)]
+        if (not node_ids and self.ownership.role == config.ACTIVE and
+                self.ownership.generation > self.ownership.peer_generation and
+                not self._recovery_pending):
+            return self.ownership.generation
 
         previous = self.ownership.generation
         generation = self.ownership.takeover(node_ids)
@@ -1292,7 +1365,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--peer-port", type=int, default=None)
     parser.add_argument("--engine", choices=("rule","logistic","tree","mlp"), default="rule")
     parser.add_argument("--queue-db", default=None, help="store-and-forward sqlite file")
-    parser.add_argument("--profile", choices=("simulation", "lab", "deployment"), default="simulation", help="cloud reconnect/replay profile; field transport is still host TCP")
+    parser.add_argument("--profile", choices=("simulation", "lab", "deployment"), default="simulation", help="lab/simulation runtime; deployment is refused until all links authenticate")
     parser.add_argument("--peer-security-mode", choices=("lab","hmac"), default="lab")
     parser.add_argument("--peer-key-file", help="out-of-band >=32-byte shared key; never committed")
     parser.add_argument("--queue-capacity", type=int, default=128)

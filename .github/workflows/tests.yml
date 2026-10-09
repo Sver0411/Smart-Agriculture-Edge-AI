@@ -2,8 +2,7 @@ name: tests
 
 on:
   push:
-    branches: [main, research, v0.3-software-integration, v0.3.1-reliability-hardening]
-    paths-ignore: ['docs/**', 'README.md', 'results/**']
+    branches: [main, research, v0.3-software-integration, v0.3.1-reliability-hardening, fix/research-reliability-stabilization]
   pull_request:
   workflow_dispatch:
 
@@ -22,12 +21,20 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install test dependencies
         run: pip install -r requirements.txt
+      - name: Record source and toolchain provenance
+        run: python -c 'from experiments.reliability_stabilization import source_manifest; import json,os; from pathlib import Path; Path(os.environ["RUNNER_TEMP"],"source_manifest.json").write_text(json.dumps(source_manifest(),indent=2)+"\n")'
       - name: Unit, integration and host reference tests
         shell: bash
         run: python -m pytest tests/ -vv -o faulthandler_timeout=60 --basetemp "$RUNNER_TEMP/pytest" | tee "$RUNNER_TEMP/unit-tests.log"
+      - name: Classify retained historical research evidence
+        if: matrix.python == '3.12'
+        run: python -m experiments.evidence_inventory --output "$RUNNER_TEMP/smart-agriculture/evidence_inventory.json"
       - name: Complete topology software scenarios
         if: matrix.python == '3.12'
         run: python -m experiments.runner --all --output "$RUNNER_TEMP/smart-agriculture/software"
+      - name: Repeated ownership and reliability stabilization scenarios
+        if: matrix.python == '3.12'
+        run: python -m experiments.reliability_stabilization --output "$RUNNER_TEMP/smart-agriculture/stabilization"
       - name: All scenarios over host simulated LoRa
         if: matrix.python == '3.12'
         run: python -m experiments.runner --all --transport simulated-lora --output "$RUNNER_TEMP/smart-agriculture/lora-topology"
@@ -56,6 +63,7 @@ jobs:
         with:
           name: software-evidence-python-${{ matrix.python }}
           path: |
+            ${{ runner.temp }}/source_manifest.json
             ${{ runner.temp }}/unit-tests.log
             ${{ runner.temp }}/pytest
             ${{ runner.temp }}/smart-agriculture

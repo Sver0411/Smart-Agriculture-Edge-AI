@@ -64,6 +64,11 @@ CREATE TABLE IF NOT EXISTS sensor_control_audit (
     updated_at REAL NOT NULL
 );
 CREATE INDEX IF NOT EXISTS sensor_audit_command ON sensor_control_audit(command_id);
+CREATE TABLE IF NOT EXISTS result_receipts (
+    identity TEXT PRIMARY KEY,
+    digest TEXT NOT NULL,
+    received_at REAL NOT NULL
+);
 """
 
 
@@ -71,9 +76,12 @@ class OfflineQueue:
     """A durable FIFO of messages that still need to reach the server."""
 
     def __init__(self, path: str = ":memory:", max_messages=None, max_payload_bytes=None,
-                 reserved_messages=None, reserved_payload_bytes=None, max_sensor_receipts=100000):
+                 reserved_messages=None, reserved_payload_bytes=None, max_sensor_receipts=100000, max_result_receipts=100000):
         if type(max_sensor_receipts) is not int or max_sensor_receipts < 1:
             raise ValueError("receipt limit must be positive")
+        if type(max_result_receipts) is not int or max_result_receipts < 1:
+            raise ValueError('result receipt limit must be positive')
+        self.max_result_receipts = max_result_receipts
         self.max_sensor_receipts = max_sensor_receipts
         self.receipt_capacity_rejected = 0
         self.path = path
@@ -198,6 +206,28 @@ class OfflineQueue:
                 "near_capacity": count*5 >= self.max_sensor_receipts*4,
                 "capacity_rejected": self.receipt_capacity_rejected}
 
+    def admit_result(self, message, digest):
+        """One transaction commits audit receipt and cloud outbox.
+
+        Receipts survive cloud dequeue and gateway restart. Their bounded
+        ledger rejects admission at capacity rather than forget dedup history.
+        """
+        self.connect()
+        with self.conn:
+            self.conn.execute('BEGIN IMMEDIATE')
+            row = self.conn.execute('SELECT digest FROM result_receipts WHERE identity=?',
+                                    (message.message_id,)).fetchone()
+            if row:
+                if row[0] != digest:raise ValueError('result identity conflict')
+                return False
+            if self.conn.execute('SELECT COUNT(*) FROM result_receipts').fetchone()[0] >= self.max_result_receipts:
+                raise QueueCapacityError('result receipt ledger full')
+            self._enqueue(message)
+            self.conn.execute('INSERT INTO result_receipts VALUES (?,?,?)',
+                              (message.message_id, digest, time.time()))
+        self.enqueued += 1
+        return True
+
     def export_receipts(self):
         """Read-only archive snapshot. No retirement handshake exists with B.
 
@@ -270,4 +300,6 @@ class OfflineQueue:
                 "max_messages":self.max_messages, "max_payload_bytes":self.max_payload_bytes,
                 "reserved_messages":self.reserved_messages,"reserved_payload_bytes":self.reserved_payload_bytes,
                 "admission_rejected":self.rejected,"admission_rejected_high":self.rejected_high,
-                "admission_rejected_normal":self.rejected_normal,"sensor_receipts":self.receipt_stats()}
+                "admission_rejected_normal":self.rejected_normal,"sensor_receipts":self.receipt_stats(),
+                "result_receipts":{"count":self.conn.execute("SELECT COUNT(*) FROM result_receipts").fetchone()[0],
+                                   "limit":self.max_result_receipts}}

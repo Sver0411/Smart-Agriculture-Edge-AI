@@ -24,3 +24,4 @@ bool b1_queue_take_confirmed(b1_sample_t *sample);
 const char *b1_policy_version(void);
 
 unsigned b1_queue_pending_count(void);
+uint32_t b1_queue_acknowledged_count(void);

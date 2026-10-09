@@ -1,0 +1,18 @@
+01:52:16 [A2] FAILOVER A1 -> OFFLINE
+01:52:16 [A2] taking ownership of B1
+01:52:16 [A2] taking ownership of C1
+01:52:16 [A2] ownership generation = 1 -> 2
+01:52:16 [A2] A1 is online
+01:52:16 [A2] FAILOVER A1 -> OFFLINE
+01:52:16 [A2] ownership generation = 2 -> 3
+CONFIRMED: repeated deposed timeout epoch 3
+01:52:16 [SERVER] listening on 127.0.0.1:0 (sqlite: /var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/tmp430v9o7b/s.db)
+01:52:16 [SERVER] SERVER_POLICY v100 pushed to A1
+01:52:16 [SERVER] listening on 127.0.0.1:0 (sqlite: /var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/tmp430v9o7b/s.db)
+01:52:16 [SERVER] SERVER_POLICY v1 pushed to A1
+CONFIRMED: published versions before/after restart [100, 1]
+01:52:16 [C1] IRRIGATION command received (command_id=cmd, duration=1s, generation=1)
+01:52:16 [C1] safety check passed
+01:52:16 [C1] irrigation executed
+01:52:16 [C1] CONTROL_RESULT EXECUTED
+CONFIRMED: executed durable outcome, no result retry/ACK window EXECUTED False

@@ -1,0 +1,11 @@
+02:52:28 [A1] FAILOVER A2 -> OFFLINE
+02:52:28 [A1] taking ownership of B2
+02:52:28 [A1] taking ownership of C2
+02:52:28 [A1] ownership generation = 1 -> 2
+A1 state OFFLINE generation 2
+reverse heartbeat restored; A1 role ACTIVE
+02:52:28 [A2] FAILOVER A1 -> OFFLINE
+02:52:28 [A2] taking ownership of B1
+02:52:28 [A2] taking ownership of C1
+02:52:28 [A2] ownership generation = 1 -> 2
+A2 state OFFLINE generation 2

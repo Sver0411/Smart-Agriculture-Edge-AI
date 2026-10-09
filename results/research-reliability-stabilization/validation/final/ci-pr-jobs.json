@@ -1,0 +1,642 @@
+{
+  "conclusion": "success",
+  "headSha": "2e3280b17b7a4edc139aee7afaf1a671b856a993",
+  "jobs": [
+    {
+      "completedAt": "2026-10-08T18:26:49Z",
+      "conclusion": "success",
+      "databaseId": 113472377779,
+      "name": "software (3.10)",
+      "startedAt": "2026-10-08T18:25:10Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-08T18:25:12Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-08T18:25:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:25:16Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-08T18:25:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:25:16Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v5",
+          "number": 3,
+          "startedAt": "2026-10-08T18:25:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:25:21Z",
+          "conclusion": "success",
+          "name": "Install test dependencies",
+          "number": 4,
+          "startedAt": "2026-10-08T18:25:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:25:22Z",
+          "conclusion": "success",
+          "name": "Record source and toolchain provenance",
+          "number": 5,
+          "startedAt": "2026-10-08T18:25:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:43Z",
+          "conclusion": "success",
+          "name": "Unit, integration and host reference tests",
+          "number": 6,
+          "startedAt": "2026-10-08T18:25:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:43Z",
+          "conclusion": "skipped",
+          "name": "Classify retained historical research evidence",
+          "number": 7,
+          "startedAt": "2026-10-08T18:26:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:43Z",
+          "conclusion": "skipped",
+          "name": "Complete topology software scenarios",
+          "number": 8,
+          "startedAt": "2026-10-08T18:26:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:43Z",
+          "conclusion": "skipped",
+          "name": "Repeated ownership and reliability stabilization scenarios",
+          "number": 9,
+          "startedAt": "2026-10-08T18:26:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:43Z",
+          "conclusion": "skipped",
+          "name": "All scenarios over host simulated LoRa",
+          "number": 10,
+          "startedAt": "2026-10-08T18:26:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:43Z",
+          "conclusion": "skipped",
+          "name": "Seeded radio delivery comparisons (including incomplete deliveries)",
+          "number": 11,
+          "startedAt": "2026-10-08T18:26:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:43Z",
+          "conclusion": "skipped",
+          "name": "Actual C algorithm sleep-restore oracle",
+          "number": 12,
+          "startedAt": "2026-10-08T18:26:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:43Z",
+          "conclusion": "skipped",
+          "name": "Ten cross-phase integration scenarios",
+          "number": 13,
+          "startedAt": "2026-10-08T18:26:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:43Z",
+          "conclusion": "skipped",
+          "name": "Checkout independent EdgeFaultLab at reviewed revision",
+          "number": 14,
+          "startedAt": "2026-10-08T18:26:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:43Z",
+          "conclusion": "skipped",
+          "name": "External fault scenarios",
+          "number": 15,
+          "startedAt": "2026-10-08T18:26:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:45Z",
+          "conclusion": "success",
+          "name": "Preserve test logs and experiment evidence including failures",
+          "number": 16,
+          "startedAt": "2026-10-08T18:26:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:46Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v5",
+          "number": 31,
+          "startedAt": "2026-10-08T18:26:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:46Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 32,
+          "startedAt": "2026-10-08T18:26:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:46Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 33,
+          "startedAt": "2026-10-08T18:26:46Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37824116529/job/113472377779"
+    },
+    {
+      "completedAt": "2026-10-08T18:27:55Z",
+      "conclusion": "success",
+      "databaseId": 113472378078,
+      "name": "firmware (deep-sleep-experimental)",
+      "startedAt": "2026-10-08T18:25:10Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-08T18:25:12Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-08T18:25:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:41Z",
+          "conclusion": "success",
+          "name": "Initialize containers",
+          "number": 2,
+          "startedAt": "2026-10-08T18:25:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:46Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 3,
+          "startedAt": "2026-10-08T18:26:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:51Z",
+          "conclusion": "success",
+          "name": "Build ESP32-S3 using public defaults only",
+          "number": 4,
+          "startedAt": "2026-10-08T18:26:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:52Z",
+          "conclusion": "success",
+          "name": "Preserve compile and size evidence",
+          "number": 5,
+          "startedAt": "2026-10-08T18:27:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:53Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 9,
+          "startedAt": "2026-10-08T18:27:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:53Z",
+          "conclusion": "success",
+          "name": "Stop containers",
+          "number": 10,
+          "startedAt": "2026-10-08T18:27:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:53Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 11,
+          "startedAt": "2026-10-08T18:27:53Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37824116529/job/113472378078"
+    },
+    {
+      "completedAt": "2026-10-08T18:27:47Z",
+      "conclusion": "success",
+      "databaseId": 113472378136,
+      "name": "firmware (lab)",
+      "startedAt": "2026-10-08T18:25:10Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-08T18:25:12Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-08T18:25:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:42Z",
+          "conclusion": "success",
+          "name": "Initialize containers",
+          "number": 2,
+          "startedAt": "2026-10-08T18:25:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:46Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 3,
+          "startedAt": "2026-10-08T18:26:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:43Z",
+          "conclusion": "success",
+          "name": "Build ESP32-S3 using public defaults only",
+          "number": 4,
+          "startedAt": "2026-10-08T18:26:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:44Z",
+          "conclusion": "success",
+          "name": "Preserve compile and size evidence",
+          "number": 5,
+          "startedAt": "2026-10-08T18:27:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:44Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 9,
+          "startedAt": "2026-10-08T18:27:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:45Z",
+          "conclusion": "success",
+          "name": "Stop containers",
+          "number": 10,
+          "startedAt": "2026-10-08T18:27:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:45Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 11,
+          "startedAt": "2026-10-08T18:27:45Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37824116529/job/113472378136"
+    },
+    {
+      "completedAt": "2026-10-08T18:27:55Z",
+      "conclusion": "success",
+      "databaseId": 113472378143,
+      "name": "firmware (lora-prototype)",
+      "startedAt": "2026-10-08T18:25:10Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-08T18:25:12Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-08T18:25:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:25Z",
+          "conclusion": "success",
+          "name": "Initialize containers",
+          "number": 2,
+          "startedAt": "2026-10-08T18:25:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:30Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 3,
+          "startedAt": "2026-10-08T18:26:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:51Z",
+          "conclusion": "success",
+          "name": "Build ESP32-S3 using public defaults only",
+          "number": 4,
+          "startedAt": "2026-10-08T18:26:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:52Z",
+          "conclusion": "success",
+          "name": "Preserve compile and size evidence",
+          "number": 5,
+          "startedAt": "2026-10-08T18:27:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:52Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 9,
+          "startedAt": "2026-10-08T18:27:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:53Z",
+          "conclusion": "success",
+          "name": "Stop containers",
+          "number": 10,
+          "startedAt": "2026-10-08T18:27:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:53Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 11,
+          "startedAt": "2026-10-08T18:27:53Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37824116529/job/113472378143"
+    },
+    {
+      "completedAt": "2026-10-08T18:27:54Z",
+      "conclusion": "success",
+      "databaseId": 113472378250,
+      "name": "firmware (light-sleep)",
+      "startedAt": "2026-10-08T18:25:10Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-08T18:25:12Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-08T18:25:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:22Z",
+          "conclusion": "success",
+          "name": "Initialize containers",
+          "number": 2,
+          "startedAt": "2026-10-08T18:25:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:26Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 3,
+          "startedAt": "2026-10-08T18:26:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:50Z",
+          "conclusion": "success",
+          "name": "Build ESP32-S3 using public defaults only",
+          "number": 4,
+          "startedAt": "2026-10-08T18:26:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:51Z",
+          "conclusion": "success",
+          "name": "Preserve compile and size evidence",
+          "number": 5,
+          "startedAt": "2026-10-08T18:27:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:51Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 9,
+          "startedAt": "2026-10-08T18:27:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:52Z",
+          "conclusion": "success",
+          "name": "Stop containers",
+          "number": 10,
+          "startedAt": "2026-10-08T18:27:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:52Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 11,
+          "startedAt": "2026-10-08T18:27:52Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37824116529/job/113472378250"
+    },
+    {
+      "completedAt": "2026-10-08T18:31:39Z",
+      "conclusion": "success",
+      "databaseId": 113472378278,
+      "name": "software (3.12)",
+      "startedAt": "2026-10-08T18:25:10Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-08T18:25:12Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-08T18:25:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:25:16Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-08T18:25:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:25:16Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v5",
+          "number": 3,
+          "startedAt": "2026-10-08T18:25:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:25:19Z",
+          "conclusion": "success",
+          "name": "Install test dependencies",
+          "number": 4,
+          "startedAt": "2026-10-08T18:25:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:25:20Z",
+          "conclusion": "success",
+          "name": "Record source and toolchain provenance",
+          "number": 5,
+          "startedAt": "2026-10-08T18:25:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:37Z",
+          "conclusion": "success",
+          "name": "Unit, integration and host reference tests",
+          "number": 6,
+          "startedAt": "2026-10-08T18:25:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:26:38Z",
+          "conclusion": "success",
+          "name": "Classify retained historical research evidence",
+          "number": 7,
+          "startedAt": "2026-10-08T18:26:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:27:37Z",
+          "conclusion": "success",
+          "name": "Complete topology software scenarios",
+          "number": 8,
+          "startedAt": "2026-10-08T18:26:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:28:44Z",
+          "conclusion": "success",
+          "name": "Repeated ownership and reliability stabilization scenarios",
+          "number": 9,
+          "startedAt": "2026-10-08T18:27:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:29:42Z",
+          "conclusion": "success",
+          "name": "All scenarios over host simulated LoRa",
+          "number": 10,
+          "startedAt": "2026-10-08T18:28:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:30:10Z",
+          "conclusion": "success",
+          "name": "Seeded radio delivery comparisons (including incomplete deliveries)",
+          "number": 11,
+          "startedAt": "2026-10-08T18:29:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:30:13Z",
+          "conclusion": "success",
+          "name": "Actual C algorithm sleep-restore oracle",
+          "number": 12,
+          "startedAt": "2026-10-08T18:30:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:30:31Z",
+          "conclusion": "success",
+          "name": "Ten cross-phase integration scenarios",
+          "number": 13,
+          "startedAt": "2026-10-08T18:30:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:30:31Z",
+          "conclusion": "success",
+          "name": "Checkout independent EdgeFaultLab at reviewed revision",
+          "number": 14,
+          "startedAt": "2026-10-08T18:30:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:31:32Z",
+          "conclusion": "success",
+          "name": "External fault scenarios",
+          "number": 15,
+          "startedAt": "2026-10-08T18:30:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:31:35Z",
+          "conclusion": "success",
+          "name": "Preserve test logs and experiment evidence including failures",
+          "number": 16,
+          "startedAt": "2026-10-08T18:31:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:31:35Z",
+          "conclusion": "success",
+          "name": "Post Checkout independent EdgeFaultLab at reviewed revision",
+          "number": 30,
+          "startedAt": "2026-10-08T18:31:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:31:36Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v5",
+          "number": 31,
+          "startedAt": "2026-10-08T18:31:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:31:36Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 32,
+          "startedAt": "2026-10-08T18:31:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T18:31:36Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 33,
+          "startedAt": "2026-10-08T18:31:36Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37824116529/job/113472378278"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37824116529"
+}
