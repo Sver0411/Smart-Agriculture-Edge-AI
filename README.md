@@ -1,8 +1,22 @@
-# Smart-Agriculture-Edge-AI
+<h1 align="center">Smart Agriculture Edge AI</h1>
 
-[English](README.md) | [简体中文](README.zh-CN.md)
+<p align="center"><strong>A Research Platform for Agricultural IoT and Edge AI</strong></p>
 
-A distributed agricultural IoT and Edge AI research prototype for trustworthy sensing, selective communication, safe local control, and recovery under unreliable connectivity.
+<p align="center">Trustworthy Sensing · Low-Power Communication · Safe Local Control · Reproducible Experiments</p>
+
+---
+
+<p align="center">An independently developed research prototype integrating embedded sensing, edge intelligence, and resilient IoT communication for smart agriculture.</p>
+
+<p align="center">
+  <a href="#project-overview">Overview</a> ·
+  <a href="#system-architecture">Architecture</a> ·
+  <a href="#implementation-status">Implementation</a> ·
+  <a href="#related-research-projects">Related Projects</a> ·
+  <a href="README.zh-CN.md">简体中文</a>
+</p>
+
+---
 
 ## Research at a Glance
 
@@ -11,7 +25,8 @@ A distributed agricultural IoT and Edge AI research prototype for trustworthy se
 | Research Focus | Trustworthy sensing, selective communication, and safe local control under resource constraints and intermittent connectivity |
 | System Prototype | Seven roles across two fixed agricultural zones: Server, gateways A1/A2, sensors B1/B2, and controllers C1/C2 |
 | Core Techniques | SensorTrust, AdaptiveSense, control-relevant uploads, ownership/failover, guarded control, and durable offline replay |
-| Software Validation | `main`: **350 tests**, **20/20 internal fault scenarios**, **5/5 external EdgeFaultLab scenarios**; 2026-10-08 acceptance of `f204ad9`, CI at `002e26a`. Python versions repeat the same suite. [Results and sources](#experiments-and-results) |
+| Software Validation | `main`: **350 tests**, **20/20 internal fault scenarios**, **5/5 external EdgeFaultLab scenarios**; recorded acceptance of `f204ad9`, CI at `002e26a`. [Results and sources](#experiments-and-results) |
+| Research Branch | **631 tests per Python version**, bounded LoRa/B1 UART, experimental RTC/NVS sleep restoration, reliable result delivery, restart-safe policies, and AR-1; [separate implementation and evidence](#main-and-research-branches) |
 | Hardware Evidence | Historical ESP32-S3/SHT30 HW1: **30 CRC-valid readings**, zero physical read failures; sensing only. [Evidence guide](docs/RESEARCH_EVIDENCE_GUIDE.md#b-physical-esp32-s3--sht30-evidence) |
 | Current Limitations | Integrated E220 wireless control, real actuators, deep sleep, energy/battery measurements, and agricultural effectiveness remain unverified |
 | Related Research | [Explore six independently maintained research projects](#related-research-projects); their results are separate from this system's evidence |
@@ -226,13 +241,20 @@ The [HW1 record](results/v0.3/README.md) contains 30 CRC-valid SHT30 reads, with
 
 This README describes `main`, whose latest recorded software acceptance is **350 tests**, **20 internal scenarios**, and **5 external EdgeFaultLab scenarios**. Evidence and source revisions are linked in the next section.
 
-The [research branch](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/tree/research) is a separate, unmerged development line. Phase 1 adds a bounded B1 HIGH buffer, stable message identities, and gateway durable-outbox acknowledgements. Phase 1.1 adds sensor re-probing, conservative recovery from uncertain saves, portable state checkpoints, receipt audits, and acknowledgement-confirmed upload baselines. Its [Phase 1 report](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/PHASE1_DEVELOPMENT_REPORT.md) and [Phase 1.1 report](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/PHASE1_1_DEVELOPMENT_REPORT.md) document separate software/build evidence and pending hardware checks. These capabilities and research-branch results are not claimed as `main` integration results.
+The [research branch](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/tree/research) is the active development line. Its newer capabilities have not been integrated into `main`. Phases 1/1.1 introduced bounded B1 HIGH retention and durable confirmation; Phases 1.2–3 added hardened registration/freshness, a bounded LoRa protocol and B1 UART driver, and opt-in RTC/NVS sleep restoration. Subsequent stabilization added persistent control-result retries, restart-safe server policy publication, sensor confirmation modes, and radio scheduling. AR-1 now separates pure sensor preparation from Gateway coordination while preserving behavior.
+
+| Branch | Latest recorded software validation | Implementation boundary |
+| --- | --- | --- |
+| `main` | 350 tests per interpreter; TCP 20/20; external 5/5 | The implementation and historical hardware evidence described in this README |
+| `research` | 631 tests on each of Python 3.10/3.12; TCP 20/20; simulated LoRa 20/20; cross-phase 10/10; external 5/5; four firmware profiles compiled | Research-only source and host/compile evidence; complete physical RF, actuation, and power evaluation remain pending |
+
+Read the [cross-phase integration report](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md), [reliability stabilization report](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/RELIABILITY_STABILIZATION_REPORT.md), and [AR-1 architecture/validation](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/architecture/AR1_SENSOR_PIPELINE.md). Research validation retains 43 COMPLETE / 13 INCOMPLETE seeded radio deliveries while all 56 safety checks pass. Peer HMAC is available for isolated experiments, but research deployment entry points remain fail-closed until every required link authenticates. These are separate research results, not capabilities or hardware outcomes of `main`.
 
 ## Experiments and Results
 
 ### Research Evidence Guide
 
-Read the [English Research Evidence Guide](docs/RESEARCH_EVIDENCE_GUIDE.md) for concise summaries of main software acceptance, physical HW1 sensing, and the separate research Phase 1 / Phase 1.1 evaluations. It links original reports and raw evidence at explicit revisions. The results below are recorded evaluations, not experiments rerun for this README update.
+Read the [English Research Evidence Guide](docs/RESEARCH_EVIDENCE_GUIDE.md) for concise summaries of main software acceptance, physical HW1 sensing, and the separate research Phase 1 / Phase 1.1 evaluations. It links original reports and raw evidence at explicit revisions. Newer research evaluations are linked under [Main and Research Branches](#main-and-research-branches), including [AR-1](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/architecture/AR1_SENSOR_PIPELINE.md). The results below are recorded evaluations, not experiments rerun for this README update.
 
 ### Latest Main Software Acceptance
 
@@ -402,9 +424,9 @@ Python `SensorRuntime` and `MockFieldTransport` test the radio wake/send/sleep f
 
 In the current main firmware, state stays in RAM between samples while the task waits for its next wake-up. Wi-Fi integration uses modem power save and offers opt-in ESP-IDF automatic light sleep. Keeping TCP associated still incurs protocol traffic. On-demand E220 wake-up and complete radio sleep remain future work.
 
-Phase 2 will define RTC-retained state and NVS checkpoints before introducing deep sleep. It must retain SensorTrust history, EMA and time history, hysteresis and ladder state, event duration, fault signature, last upload, and the ownership epoch. Resetting the algorithms after every sleep would break continuity. See the [deployment contract](docs/DEPLOYMENT_SEMANTICS.md). No current, energy, or battery-life conclusion is claimed for this work.
+The RAM-based sensing runtime in `main` does not yet include RTC/NVS Deep Sleep restoration; `research` now provides experimental source and actual C snapshot tests. Mainline adoption must preserve SensorTrust history, EMA/time state, hysteresis, ladders, events, fault signatures, upload baselines, and ownership epoch, with a calibrated elapsed-time source. Resetting algorithms at each wake breaks continuity. See the [deployment contract](docs/DEPLOYMENT_SEMANTICS.md) and the research reports above. No current, energy, or battery-life conclusion is claimed.
 
-The target field platform is **ESP32-S3 + E220 LoRa**, covering B↔A and A↔C. A1↔A2 coordination must also work independently of the internet, the cloud, and a Wi-Fi access point. The E220 adapter, framing, wireless registration, ownership notifications, and heartbeat transport remain **planned / host-tested contracts**, without hardware validation.
+The target field platform is **ESP32-S3 + E220 LoRa**, covering B↔A and A↔C. A1↔A2 coordination must also work independently of the internet, the cloud, and a Wi-Fi access point. In `main`, the E220 adapter and complete wireless registration/ownership/heartbeat integration remain planned or host-contract work. The [research implementation](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/firmware/b1/EXPERIMENTAL_TRANSPORT_SLEEP.md) now contains bounded framing and a B1 UART driver, plus experimental sleep snapshots; A/C physical endpoints and end-to-end hardware measurements are still pending.
 
 **Field LoRa Semantics:** B belongs to a zone, not permanently to a gateway. Uplinks carry `source_node_id`, `zone_id`, sequence, boot/session identity, and the payload. Only the current zone owner may control its fixed C node. Gateway logic detects failover; B is not expected to listen continuously to both gateways or send frequent probes.
 
@@ -470,7 +492,7 @@ This experiment follows completion of the E220 link, NVS support, B's sleep beha
 - The host gateway persists ownership, generation, and peer epoch. On recovery it starts in STANDBY and aligns with its peer. The controller persists its highest generation/owner and recent intents/results before simulated execution, then conservatively waits a full cooldown after restart. Corrupt critical state disables control rather than reverting to an older value. The ESP32 controller NVS backend remains unimplemented. The bounded recent-command window cannot provide permanent idempotency, and a crash can leave the actual outcome UNKNOWN. Actuator execution is not guaranteed exactly once across restarts.
 - Dual-gateway heartbeats and owner/generation checks do not form a consensus protocol. The split-brain scenario checks rejection of stale generations and non-owner commands within the same epoch. It does not establish exclusive control under every possible network partition.
 - STUCK cannot distinguish a truly constant environment from a frozen sensor. DRIFT can also reflect a real, sustained environmental change. Actions relying on DEGRADED channels are blocked, and thresholds still need agricultural calibration.
-- Legacy sensor telemetry remains best effort. Sequence checks prevent stale readings from triggering control; they do not themselves provide sensor-side persistence or retransmission. The B1 delivery changes on `research` have their own scope, described under [Main and Research Branches](#main-and-research-branches).
+- Legacy sensor telemetry remains best effort. Per-boot sequence checks suppress duplicate and reordered readings; they do not themselves provide sensor-side persistence or retransmission, or a device-age guarantee. The B1 delivery changes on `research` have their own scope, described under [Main and Research Branches](#main-and-research-branches).
 - Authentication, encryption, cross-node clock synchronization, and deployment calibration are absent. TCP CONTROL_COMMAND timestamps still require Unix wall-clock time. The host model for future field freshness has been tested, but is not yet integrated into wireless firmware.
 - Model tests establish the software workflow. INT8 results cover a weight-storage reference only. Full C inference parity, real-data effectiveness, device resource consumption, and energy use remain unmeasured.
 - Deep sleep, RTC/NVS continuity for field nodes, E220 integration across B↔A/A↔C/A1↔A2, and real actuators remain pending in `main`. No measured battery life, energy reduction, integrated E220 delivery rate, or crop-yield benefit is reported.
@@ -498,6 +520,6 @@ These are related but independently maintained projects. Their experiments descr
 
 The [branch integration review and latest software verification](docs/BRANCH_INTEGRATION_REVIEW.md) records checkpoint, command-window, and configuration fixes made before the development line was integrated into the main line. Historical test and experiment reports retain their original scope.
 
-Next priorities are field E220 communication, NVS epoch handling, real power measurements, and the Gateway Failure Hardware Demonstration described above. The complete two-zone topology remains a permanent part of the project.
+Next priorities are to review the [research developments](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/tree/research) for staged mainline integration, complete physical A/C E220 endpoints and authenticated sessions, calibrate RTC/NVS behavior, and measure real actuation and power before the hardware demonstration. The complete two-zone topology remains a permanent part of the project.
 
 MIT licensed. Directly reused AdaptiveSense Python files retain their MIT license notices and source attribution.

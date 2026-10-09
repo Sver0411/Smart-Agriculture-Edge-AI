@@ -1,8 +1,22 @@
-# Smart-Agriculture-Edge-AI
+<h1 align="center">Smart Agriculture Edge AI</h1>
 
-[English](README.md) | [简体中文](README.zh-CN.md)
+<p align="center"><strong>A Research Platform for Agricultural IoT and Edge AI</strong></p>
 
-面向农业物联网的分布式边缘智能研究原型，探索可信感知、按需通信、安全本地控制，以及不稳定连接下的故障恢复。
+<p align="center">Trustworthy Sensing · Low-Power Communication · Safe Local Control · Reproducible Experiments</p>
+
+---
+
+<p align="center">An independently developed research prototype integrating embedded sensing, edge intelligence, and resilient IoT communication for smart agriculture.</p>
+
+<p align="center">
+  <a href="#项目概览">Overview</a> ·
+  <a href="#系统架构">Architecture</a> ·
+  <a href="#实现与验证状态">Implementation</a> ·
+  <a href="#相关研究项目">Related Projects</a> ·
+  <a href="README.md">English</a>
+</p>
+
+---
 
 ## 研究概览
 
@@ -11,7 +25,8 @@
 | 研究问题 | 资源受限、连接不稳定时的可信感知、选择性通信与安全本地控制 |
 | 系统原型 | 两个固定农业区域、七个角色：Server、A1/A2 网关、B1/B2 传感器、C1/C2 控制器 |
 | 核心方法 | SensorTrust、AdaptiveSense、控制相关上传、归属与接管、安全控制、持久化离线回放 |
-| 软件验证 | `main`：**350 项测试、20/20 内部故障场景、5/5 外部 EdgeFaultLab 场景**；2026-10-08 验收源码 `f204ad9`，CI 版本 `002e26a`。多个 Python 版本重复验证同一测试集，不累加数量。[结果与来源](#实验与结果) |
+| 软件验证 | `main`：**350 项测试、20/20 内部故障场景、5/5 外部 EdgeFaultLab 场景**；已记录验收源码 `f204ad9`，CI 版本 `002e26a`。[结果与来源](#实验与结果) |
+| 研究分支 | **每个 Python 版本 631 项测试**；有界 LoRa/B1 UART、实验 RTC/NVS 休眠恢复、可靠结果交付、策略版本恢复及 AR-1；[独立实现与证据](#主分支与研究分支) |
 | 实物证据 | 历史 ESP32-S3/SHT30 HW1：**30 次 CRC 有效读取**，无物理读取失败；仅验证感知。[英文证据摘要](docs/RESEARCH_EVIDENCE_GUIDE.md#b-physical-esp32-s3--sht30-evidence) |
 | 当前限制 | E220 无线控制闭环、真实执行器、deep sleep、能耗/电池测量与农业效果仍未验证 |
 | 相关研究 | [查看六个独立维护的研究项目](#相关研究项目)；其结果与主系统证据分开 |
@@ -226,13 +241,20 @@ A1/A2 是边缘网关，B1/B2 是传感器节点，C1/C2 控制对应区域。B 
 
 本文描述 `main`。最近一次已记录的软件验收为 **350 项测试、20 个内部场景、5 个外部 EdgeFaultLab 场景**，下一节提供源码版本和原始证据。
 
-[research 分支](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/tree/research)是独立、尚未合并的开发线。Phase 1 增加有界 B1 HIGH 缓冲、稳定消息身份和网关持久化 outbox 确认；Phase 1.1 增加传感器重新探测、不确定保存后的保守恢复、可移植状态 checkpoint、回执审计，以及确认后才推进的上传基线。[Phase 1 报告](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/PHASE1_DEVELOPMENT_REPORT.md)与[Phase 1.1 报告](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/PHASE1_1_DEVELOPMENT_REPORT.md)分别记录其软件、编译证据和待验证硬件项。这些功能和结果不作为 `main` 的已集成成果。
+[research 分支](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/tree/research)是当前开发线，其新增能力尚未合入 `main`。Phase 1/1.1 引入有界 B1 HIGH 保留与持久化确认；Phase 1.2–3 补强注册/新鲜度，实现有界 LoRa 协议和 B1 UART 驱动，以及默认关闭的 RTC/NVS 休眠恢复。随后稳定化增加控制结果持久化重发、Server 策略发布版本恢复、传感器确认模式和无线调度；AR-1 则在保持行为的前提下，将纯传感器准备与 Gateway 协调分开。
+
+| 分支 | 最近一次已记录的软件验证 | 实现边界 |
+| --- | --- | --- |
+| `main` | 每个解释器 350 项测试；TCP 20/20；外部 5/5 | 本文描述的实现与历史硬件证据 |
+| `research` | Python 3.10/3.12 各 631 项；TCP 20/20；模拟 LoRa 20/20；跨阶段 10/10；外部 5/5；四种固件编译通过 | research 源码与主机/编译证据；完整实物 RF、执行器和功耗评估仍待完成 |
+
+详见[跨阶段集成报告](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md)、[可靠性稳定化报告](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/research/RELIABILITY_STABILIZATION_REPORT.md)、[AR-1 架构与验证](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/architecture/AR1_SENSOR_PIPELINE.md)。research 的固定 seed 无线比较保留 43 COMPLETE / 13 INCOMPLETE，56 项安全检查均通过。隔离实验可使用 peer HMAC，但所有必要链路认证前，research 的 deployment 入口仍 fail-closed。这些是独立研究结果，不作为 `main` 已集成功能或硬件成果。
 
 ## 实验与结果
 
 ### 英文研究证据导览
 
-[英文研究证据导览](docs/RESEARCH_EVIDENCE_GUIDE.md)简要解释主分支软件验收、HW1 实物感知，以及独立 research 分支的 Phase 1 / Phase 1.1 评估，并按明确版本链接原始报告与证据。下文均为已记录的评估，本次 README 修改没有重跑实验。
+[英文研究证据导览](docs/RESEARCH_EVIDENCE_GUIDE.md)简要解释主分支软件验收、HW1 实物感知，以及独立 research 分支的 Phase 1 / Phase 1.1 评估，并按明确版本链接原始报告与证据。新一轮 research 评估见[主分支与研究分支](#主分支与研究分支)，包括 [AR-1](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/docs/architecture/AR1_SENSOR_PIPELINE.md)。下文为已记录评估，本次 README 内容更新本身不代表重新执行实验。
 
 ### 主分支最近一次软件验收
 
@@ -402,9 +424,9 @@ Python `SensorRuntime` 和 `MockFieldTransport` 在主机上测试无线唤醒�
 
 当前阶段的采样状态保存在 RAM，任务等待下次唤醒。Wi-Fi 集成使用 modem power save，并可选择启用 ESP-IDF 自动 light sleep。保持 TCP 关联仍有协议通信成本；E220 按需唤醒与完整无线休眠待实现。
 
-后续 Phase 2 需要先定义 RTC 保留状态和 NVS checkpoint，再引入 deep sleep。必须保留 SensorTrust 历史、EMA 和时间历史、滞回与周期阶梯、事件持续时间、故障签名、最近上传和归属 epoch。每次休眠都重置算法会破坏连续性，详见[部署契约](docs/DEPLOYMENT_SEMANTICS.md)。这里不报告电流、能耗或电池寿命结论。
+`main` 的 RAM 感知运行时尚未整合 RTC/NVS Deep Sleep 恢复；`research` 已有实验实现与实际 C 快照测试。整合时必须保留 SensorTrust 历史、EMA 与时间状态、滞回、周期阶梯、事件、故障签名、上传基线和归属 epoch，并校准 elapsed 来源。每次唤醒重置算法会破坏连续性，详见[部署契约](docs/DEPLOYMENT_SEMANTICS.md)及前述 research 报告。这里不报告电流、能耗或电池寿命结论。
 
-现场目标平台是 **ESP32-S3 + E220 LoRa**，覆盖 B↔A 与 A↔C；A1↔A2 协调也必须独立于互联网、Cloud 和 Wi-Fi AP。E220 适配器、分帧、无线注册、归属通知和心跳传输仍处于**计划或主机契约测试阶段**，未完成实物验证。
+现场目标平台是 **ESP32-S3 + E220 LoRa**，覆盖 B↔A 与 A↔C；A1↔A2 协调也必须独立于互联网、Cloud 和 Wi-Fi AP。`main` 的 E220 适配器及完整无线注册/归属/心跳集成仍属于计划或主机契约工作。[research 实现](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/research/firmware/b1/EXPERIMENTAL_TRANSPORT_SLEEP.md)已有有界分帧、B1 UART 驱动和实验性休眠快照；A/C 实物端点与端到端硬件测量仍待完成。
 
 **现场 LoRa 语义**：B 属于区域，不永久属于某个网关。上行携带 `source_node_id`、`zone_id`、sequence、boot/session 身份和 payload；只有当前区域 owner 可以控制该区域固定 C。接管由网关检测，B 不持续监听两个 A，也不发送高频探测。
 
@@ -470,7 +492,7 @@ A1 sees newer generation → remains STANDBY
 - 主机网关持久化 ownership、generation、peer epoch，恢复后先 STANDBY 再与 peer 对齐。控制器在模拟执行前持久化最高 generation/owner 与近期意图/结果，重启后保守等待完整冷却时间。关键状态损坏则禁止控制，不回退旧值。ESP32 控制器 NVS 后端尚未实现；有界窗口不提供永久幂等，崩溃可能留下 UNKNOWN，不能保证跨重启恰好执行一次。
 - 双网关心跳和 owner/generation 检查不构成共识协议。split-brain 场景检查旧 generation 与同 epoch 非 owner 命令拒绝，不证明任意网络分区下的独占控制。
 - STUCK 无法区分真实恒定环境与冻结传感器；DRIFT 也可能来自真实持续变化。依赖 DEGRADED 通道的动作被阻断，阈值需要农业校准。
-- 旧版传感器遥测仍是尽力传输。sequence 防止旧读数触发控制，但不提供传感器端持久化或重传。`research` 的 B1 投递改进有独立范围，见[主分支与研究分支](#主分支与研究分支)。
+- 旧版传感器遥测仍是尽力传输。按 boot 的 sequence 检查抑制重复和乱序读数，但不提供传感器端持久化、重传或设备端年龄保证。`research` 的 B1 投递改进有独立范围，见[主分支与研究分支](#主分支与研究分支)。
 - 尚无认证、加密、跨节点时钟同步与部署校准。TCP CONTROL_COMMAND 时间戳仍要求 Unix 墙上时钟；未来现场新鲜度的主机模型虽已测试，尚未接入无线固件。
 - 模型测试验证软件流程，INT8 仅是权重存储参考。完整 C 推理一致性、真实数据有效性、设备资源占用和能耗尚未测量。
 - `main` 的 deep sleep、现场节点 RTC/NVS 连续性、B↔A/A↔C/A1↔A2 E220 集成和真实执行器仍待完成。没有实测电池寿命、能耗下降幅度、系统集成 E220 交付率或农作物增产结论。
@@ -498,6 +520,6 @@ A1 sees newer generation → remains STANDBY
 
 [分支整合审查与最近软件验证](docs/BRANCH_INTEGRATION_REVIEW.md)记录了开发线合入主线前的 checkpoint、命令窗口和配置修复。历史测试与实验报告保留其原始范围。
 
-后续优先推进现场 E220 通信、NVS epoch、真实功耗测量，以及前述网关故障硬件演示。完整双区域拓扑是项目长期保留的组成部分。
+后续优先审查 [research 新进展](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/tree/research)并分阶段整合主线，补齐实物 A/C E220 端点和认证会话，校准 RTC/NVS，再完成真实执行器与功耗测量及硬件接管展示。完整双区域拓扑是项目长期保留的组成部分。
 
 MIT 许可。直接复用的 AdaptiveSense Python 文件保留其 MIT 许可声明与来源记录。
