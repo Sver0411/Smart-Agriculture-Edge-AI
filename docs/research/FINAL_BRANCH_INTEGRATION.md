@@ -27,7 +27,7 @@ Reviewed on 2026-10-09 (Asia/Shanghai), after `git fetch origin --prune`, from a
 
 ## Conflict choices and consistency
 
-Only `README.md` (content) and `README.zh-CN.md` (add/add) conflicted. Resolution uses main's academic header, all 30 existing section headings, both architecture diagrams, fixed two-zone description, six related-project descriptions and research evidence navigation. Updated prose includes the current research implementation and its verified limits. `docs/RESEARCH_EVIDENCE_GUIDE.md` is retained and extended, without rewriting original reports or measurements.
+Only `README.md` (content) and `README.zh-CN.md` (add/add) conflicted. Resolution uses main's academic header, all 30 existing section headings, both architecture diagrams, fixed two-zone description, six related-project descriptions and research evidence navigation. Updated prose includes the current research implementation and its verified limits. `docs/RESEARCH_EVIDENCE_GUIDE.md` is retained and extended. The dated deployment contract receives a current-source reading note so its earlier best-effort/planned-phase text cannot be mistaken for current behavior. Original reports and measurements are not rewritten.
 
 All executable source, tests, configuration, dependency declarations, protocol/schema, golden references, firmware and the complete six-job workflow remain byte-identical to the research input. There is no new runtime abstraction or state. AR-1's pure pipeline depends on messages/protocol/trust_gate, never on Gateway; Gateway retains durable admission, ACKs, live ownership/generation and dispatch. Main's only independent changes were the two READMEs and evidence guide. Existing research results, including failed attempts, are retained.
 
@@ -35,7 +35,28 @@ Preparation merges main history into research with an ordinary two-parent merge;
 
 ## Validation
 
-Integration validation is **pending** at this preparation commit; prior successful checks do not authorize its merge. Fresh local results and final PR checks will be recorded before merging. Run Python versions sequentially because existing socket tests use fixed ports. New local output is ignored under `.research-runs/final-integration-verified/`; CI uploads complete logs, source/toolchain manifests and failure evidence.
+Fresh local validation completed on clean preparation commit `fe427f35c7a6f7f67d9562083de9d616d15616f7` (`dirty=false`). The subsequent acceptance-report/deployment-note update changes only documentation: executable source, tests, configuration, dependencies, firmware and CI hashes remain identical to that tested source and the research input.
+
+| Acceptance | Fresh result |
+| --- | --- |
+| Full pytest, Python 3.10.21 | 631/631; 115.61 s |
+| Full pytest, Python 3.12.14 | 631/631; 109.80 s |
+| Original TCP topology | 20/20 PASS |
+| Repeated ownership/reliability | 20/20 PASS: stale-generation ×10, failover ×3, recovery ×3, four other scenarios |
+| Host simulated-LoRa topology | 20/20 PASS |
+| Seeded radio comparison | 56/56 safety checks PASS; 43 COMPLETE / 13 INCOMPLETE deliveries retained |
+| Actual C sleep/restore oracle | 19/19 PASS; 2800 observations; Apple clang 17.0.0; applicable C sanitizer checks included in pytest |
+| Cross-phase integration | 10/10 PASS |
+| External EdgeFaultLab | 5/5 PASS at the pinned revision |
+| Historical evidence inventory | PASS; every tracked evidence file retained, with original failures and duplicate experiment contexts |
+| Preparation push / PR CI | [Push](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37893032395) and [PR](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37893060375): 6/6 jobs each |
+| Firmware CI | ESP32-S3 / ESP-IDF v5.4.4: lab, light-sleep, lora-prototype, deep-sleep-experimental all compiled successfully |
+
+All Python 3.12 experiment steps and all four actual firmware build steps executed successfully. No core test was skipped or expected result changed. Local Python runs were sequential because existing socket tests use fixed ports. Exact argv, durations, logs, source/toolchain manifest and fresh summaries are ignored under `.research-runs/final-integration-verified/`; CI preserves full artifacts, including failures.
+
+[PR #7](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/pull/7) is `research` → `main`. Publication additionally requires successful [checks on its latest head](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/pull/7/checks), then successful [main Actions](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions?query=branch%3Amain). These live links distinguish the final publication checks from the fixed preparation runs above. The final merge SHA and main run are reported after those checks, without adding a recursive post-merge report commit.
+
+Reproduction commands (use a fresh output directory each time):
 
 ```sh
 python -m pytest tests/ -q -o faulthandler_timeout=60
