@@ -1,6 +1,6 @@
 # Final research → main integration
 
-**Status: BLOCKED — NOT MERGED.** PR #7 remains draft; main stays at `08f573fbbd53d150a2bf80d577ba4d438e1a90a4`. The final-head push CI exposed a recovery failure, described below. Earlier passing runs do not override it.
+**Status: RECOVERY FIX VALIDATED.** The recorded CI blocker below has been investigated and fixed with deterministic regressions and complete local/CI validation. See [PR #7 recovery fix](PR7_RECOVERY_FIX.md) for root causes, code changes and exact evidence. Publication still requires full checks on the latest research/PR head, an ordinary main merge, and successful main CI; the linked PR/Actions pages show the live publication status. Earlier preparation runs and the original failure are retained below as history.
 
 ## Inputs and history audit
 
@@ -31,7 +31,7 @@ Reviewed on 2026-10-09 (Asia/Shanghai), after `git fetch origin --prune`, from a
 
 Only `README.md` (content) and `README.zh-CN.md` (add/add) conflicted. Resolution uses main's academic header, all 30 existing section headings, both architecture diagrams, fixed two-zone description, six related-project descriptions and research evidence navigation. Updated prose includes the current research implementation and its verified limits. `docs/RESEARCH_EVIDENCE_GUIDE.md` is retained and extended. The dated deployment contract receives a current-source reading note so its earlier best-effort/planned-phase text cannot be mistaken for current behavior. Original reports and measurements are not rewritten.
 
-All executable source, tests, configuration, dependency declarations, protocol/schema, golden references, firmware and the complete six-job workflow remain byte-identical to the research input. There is no new runtime abstraction or state. AR-1's pure pipeline depends on messages/protocol/trust_gate, never on Gateway; Gateway retains durable admission, ACKs, live ownership/generation and dispatch. Main's only independent changes were the two READMEs and evidence guide. Existing research results, including failed attempts, are retained.
+At the preparation stage, all executable source, tests, configuration, dependency declarations, protocol/schema, golden references, firmware and the complete six-job workflow remained byte-identical to the research input. The later recovery fix changes Gateway peer enrollment and focused tests as documented separately. There is no new runtime abstraction or state. AR-1's pure pipeline depends on messages/protocol/trust_gate, never on Gateway; Gateway retains durable admission, ACKs, live ownership/generation and dispatch. Main's only independent changes were the two READMEs and evidence guide. Existing research results, including failed attempts, are retained.
 
 Preparation merges main history into research with an ordinary two-parent merge; the final PR has `research` as head and `main` as base. Both pushes must be fast-forwards. Final acceptance requires a successful full PR matrix before an ordinary merge commit, followed by successful main CI. No history rewrite or force push is used.
 
@@ -75,6 +75,8 @@ python -m experiments.evidence_inventory --output .research-runs/inventory-NEW.j
 Actions runs full pytest on Python 3.10/3.12, every experiment above on 3.12, and ESP-IDF v5.4.4 / ESP32-S3 builds for `lab`, `light-sleep`, `lora-prototype` and `deep-sleep-experimental`. EdgeFaultLab is pinned at `c7248239f456cc877114ca1e67c5949fb4a7b958`. All core experiment steps and actual firmware build steps must execute successfully; an unresolved failure blocks merging.
 
 ## Publication blocker: final-head CI failure
+
+**Historical blocking observation, now addressed by [the separately validated recovery fix](PR7_RECOVERY_FIX.md).** The following records the original failure and decision to stop publication before investigation; it is not superseded by a rerun.
 
 On documentation head `021585e28b468a9db7f09aed2e5e4c6996d09586`, [research push CI, attempt 1](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37893918383/attempts/1) failed Python 3.12: **629 passed, 2 failed**. Python 3.10 and all four actual firmware builds passed. Later experiment steps in that failed job were skipped because pytest failed; those steps are **not** counted as passing. The independent [PR run](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37893925593) passed all six jobs on the same executable-source hashes, but cannot invalidate the failed observation.
 

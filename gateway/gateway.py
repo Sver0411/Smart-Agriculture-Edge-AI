@@ -386,15 +386,19 @@ class Gateway:
                         await send_message(writer, Message(type=NODE_STATUS, source=self.gateway_id,
                             target=source, payload=response))
                     elif p.get("peer_handshake") == "AUTH" and challenge is not None:
-                        valid = (message.target == self.gateway_id and p.get("mode") == self.peer_security_mode and
+                        valid = (not self.persistence_fault and message.target == self.gateway_id and p.get("mode") == self.peer_security_mode and
                                  p.get("session") == challenge["session"] and
                                  (self.peer_security_mode == "lab" or
                                   peer_security.verify(self.peer_key, challenge, p.get("auth"))))
                         if valid:
                             self.peer_sessions[writer] = {"session": challenge["session"], "sequence": 0}
+                        response = {"peer_handshake": "AUTH_ACK", "accepted": valid,
+                                    "session": challenge["session"],
+                                    "ownership_state": self._peer_ownership_state()}
+                        if self.peer_security_mode == "hmac":
+                            response["server_auth"] = peer_security.tag(self.peer_key, response)
                         await send_message(writer, Message(type=NODE_STATUS, source=self.gateway_id,
-                            target=source, payload={"peer_handshake": "AUTH_ACK", "accepted": valid,
-                                                   "session": challenge["session"]}))
+                            target=source, payload=response))
                         challenge = None
                     continue
 
@@ -494,6 +498,7 @@ class Gateway:
         valid = (message.type == HEARTBEAT and message.source == self.peer_id and
                  message.target == self.gateway_id and integer(generation, 1) and
                  generation >= self.ownership.peer_generation and isinstance(snapshot, dict) and
+                 message.payload.get("role", config.ACTIVE) in (config.ACTIVE, config.STANDBY) and
                  set(snapshot) <= set(self.registry.entries))
         if valid:
             for sensor, controller in config.CONTROLLER_OF_SENSOR.items():
@@ -519,11 +524,20 @@ class Gateway:
                 if (entry and isinstance(row, dict) and row.get("owner_gateway") == self.peer_id
                         and integer(row.get("generation")) and entry.generation < row["generation"] <= message.payload.get("generation", 0)):
                     self.registry.transfer([node_id], self.peer_id, row["generation"])
+        conflict = (message.payload.get("role", config.ACTIVE) == config.ACTIVE and
+                    any(self.ownership.owns(node_id) and
+                        self.registry.get(node_id).generation == row["generation"]
+                        for node_id, row in snapshot.items()))
         role = self.ownership.observe_peer(
             config.ONLINE, message.payload.get("generation")
         )
+        if conflict:
+            # Equal epochs with overlapping ACTIVE claims have no valid winner.
+            # Fail closed; never use gateway ID or arrival order as authority.
+            self.ownership.role = role = config.STANDBY
+            self.metrics.inc("peer_ownership_conflicts")
         if self._recovery_pending:
-            if (not self.persistence_fault and self._saved_role == config.ACTIVE and
+            if (not conflict and not self.persistence_fault and self._saved_role == config.ACTIVE and
                     self.ownership.peer_generation <= self.ownership.generation):
                 self.ownership.role = config.ACTIVE
             self._recovery_pending = False
@@ -1072,6 +1086,12 @@ class Gateway:
 
     # -- Task 6: peer heartbeat, watchdog, failover ------------------------
 
+    def _peer_ownership_state(self) -> dict:
+        return {"generation": self.ownership.generation, "role": self.ownership.role,
+                "ownership": {entry.node_id: {"owner_gateway": entry.owner_gateway,
+                                              "generation": entry.generation}
+                              for entry in self.registry.owned_by(self.gateway_id)}}
+
     async def task_heartbeat(self) -> None:
         while not self._stopping:
             if self.peer_writer is None:
@@ -1083,10 +1103,7 @@ class Gateway:
                 "status": config.ONLINE,
                 "peer_id": self.peer_id,
                 "peer_status": status,
-                "generation": self.ownership.generation,
-                "role": self.ownership.role,
-                "ownership": {entry.node_id: {"owner_gateway": entry.owner_gateway, "generation": entry.generation}
-                              for entry in self.registry.owned_by(self.gateway_id)},
+                **self._peer_ownership_state(),
                 "connectivity": self.connectivity.state,
                 "offline_queue": self.offline_queue.stats(),
                 "outbox_alert_state": self.outbox_alert_state,
@@ -1148,8 +1165,20 @@ class Gateway:
             await send_message(writer, Message(type=NODE_STATUS, source=self.gateway_id, target=self.peer_id,
                 payload={"peer_handshake": "AUTH", "mode": self.peer_security_mode, "session": session, "auth": auth}))
             reply = await asyncio.wait_for(read_message(reader), 2)
-            if reply is None or reply.source != self.peer_id or reply.target != self.gateway_id or not reply.payload.get("accepted") or reply.payload.get("session") != session:
+            if reply is None or reply.source != self.peer_id or reply.target != self.gateway_id or reply.payload.get("peer_handshake") != "AUTH_ACK" or reply.payload.get("accepted") is not True or reply.payload.get("session") != session:
                 raise ValueError("peer authentication rejected")
+            response = {k: v for k, v in reply.payload.items() if k != "server_auth"}
+            if self.peer_security_mode == "hmac" and not peer_security.verify(self.peer_key, response, reply.payload.get("server_auth")):
+                raise ValueError("untrusted peer ownership state")
+            state = reply.payload.get("ownership_state")
+            if (not isinstance(state, dict) or set(state) != {"generation", "role", "ownership"}
+                    or not self._on_peer_heartbeat(Message(
+                    type=HEARTBEAT, source=self.peer_id, target=self.gateway_id, payload=state))):
+                raise ValueError("invalid peer ownership state")
+            # Reconcile the live peer's epoch before evaluating startup timeout
+            # or advertising our own claims. Authentication alone carried no
+            # ownership evidence, and could previously promote a recovering
+            # gateway while the reverse heartbeat was still queued.
             self.peer_tx_session, self.peer_tx_sequence = session, 0
         except (OSError, asyncio.TimeoutError, ValueError, MessageError):
             if "writer" in locals():

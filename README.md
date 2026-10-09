@@ -18,7 +18,7 @@
 
 ---
 
-**Integration status:** [PR #7](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/pull/7) is draft and **blocked by a recorded recovery CI failure**. This README describes the prepared research consolidation; main is unchanged. [Blocker and evidence](docs/research/FINAL_BRANCH_INTEGRATION.md#publication-blocker-final-head-ci-failure).
+**Integration status:** The recorded PR #7 recovery blocker is [fixed and fully validated](docs/research/PR7_RECOVERY_FIX.md). [PR #7](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/pull/7) and its [checks](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/pull/7/checks) record publication into main. [Original failure evidence](docs/research/FINAL_BRANCH_INTEGRATION.md#publication-blocker-final-head-ci-failure) remains retained.
 
 ## Research at a Glance
 
@@ -246,12 +246,12 @@ The [HW1 record](results/v0.3/README.md) contains 30 CRC-valid SHT30 reads, with
 
 This README describes the consolidated implementation prepared from `research` (`f5c2710`) and `main` (`08f573f`). Integration retains the main academic presentation, both languages, diagrams, and evidence navigation, while adopting the latest research source and complete CI matrix. [Final branch integration record](docs/research/FINAL_BRANCH_INTEGRATION.md) identifies the input revisions, branch audit, and validation status.
 
-Phases 1/1.1 introduced bounded B1 HIGH retention and durable confirmation; Phases 1.2–3 added hardened registration/freshness, bounded LoRa framing and the B1 UART driver, and opt-in RTC/NVS sleep restoration. Stabilization added persistent control-result retries, restart-safe policy publication, sensor confirmation modes, and radio scheduling. AR-1 separates pure sensor preparation from Gateway coordination without changing runtime behavior. These additions form the prepared research baseline; main publication is blocked until the recorded recovery failure is resolved. Historical branch reports retain their original scope.
+Phases 1/1.1 introduced bounded B1 HIGH retention and durable confirmation; Phases 1.2–3 added hardened registration/freshness, bounded LoRa framing and the B1 UART driver, and opt-in RTC/NVS sleep restoration. Stabilization added persistent control-result retries, restart-safe policy publication, sensor confirmation modes, and radio scheduling. AR-1 separates pure sensor preparation from Gateway coordination without changing runtime behavior. These additions form the research baseline; the recorded recovery blocker has a separately validated fix, and main publication requires complete final CI. Historical branch reports retain their original scope.
 
 | Development line | Role after integration | Evidence boundary |
 | --- | --- | --- |
-| `main` | Existing release line; the prepared consolidation has not been merged | Historical 350-test acceptance and HW1 sensing; see the earlier acceptance below |
-| `research` | Prepared consolidation of current functionality and main documentation; PR #7 remains draft | Passing local/preparation runs plus the blocking final-head CI observation; future fixes require complete validation |
+| `main` | Release line; PR #7 records research publication and final checks | Historical 350-test acceptance and HW1 sensing remain separate from the new integration validation |
+| `research` | Consolidated current functionality and main documentation, including the validated PR #7 recovery fix | Full Python 3.10/3.12, integration experiments and four ESP32-S3 CI builds pass; original failure retained |
 
 Read the [cross-phase integration](docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md), [reliability stabilization](docs/research/RELIABILITY_STABILIZATION_REPORT.md), and [AR-1 architecture/validation](docs/architecture/AR1_SENSOR_PIPELINE.md) reports. Seeded radio comparisons retain **43 COMPLETE / 13 INCOMPLETE** deliveries while all 56 safety checks pass. Optional peer HMAC supports isolated experiments; deployment entry points remain fail-closed until every required link authenticates. Source integration does not establish a hardware outcome.
 

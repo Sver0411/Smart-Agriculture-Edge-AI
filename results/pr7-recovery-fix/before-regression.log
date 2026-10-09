@@ -1,0 +1,276 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+___ test_recovery_reconciles_epoch_in_delayed_handshake_before_timeout[lab] ____
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-156/test_recovery_reconciles_epoch0')
+mode = 'lab'
+
+    @pytest.mark.parametrize('mode', ['lab', 'hmac'])
+    def test_recovery_reconciles_epoch_in_delayed_handshake_before_timeout(tmp_path, mode):
+        async def scenario():
+            key = b'p' * 32 if mode == 'hmac' else None
+            path = str(tmp_path / 'a1.db')
+            before = Gateway('A1', queue_path=path)
+            before.offline_queue.close()
+            recovered = Gateway('A1', queue_path=path, heartbeat_interval=.01,
+                                heartbeat_timeout=.6, peer_security_mode=mode, peer_key=key)
+            survivor = Gateway('A2', port=0, peer_port=0, heartbeat_interval=.01,
+                               heartbeat_timeout=10, peer_security_mode=mode, peer_key=key)
+            survivor._takeover()
+            frames = []
+    
+            async def delay_ack(writer, message):
+                if message.payload.get('peer_handshake') == 'AUTH_ACK':
+                    # No reverse link exists yet: the old implementation would
+                    # time out after this successful handshake and claim epoch 2.
+                    await asyncio.sleep(.7)
+                return False
+    
+            async def first_upload(message):
+                frames.append(message.payload)
+                recovered._stopping = True
+    
+            recovered._submit_upload = first_upload
+            token = transport_interceptor.set(delay_ack)
+            try:
+                await survivor.start()
+                recovered.peer_port = survivor._server.sockets[0].getsockname()[1]
+                recovered.peer_started_at = time.monotonic()
+                await asyncio.wait_for(recovered.task_heartbeat(), 2)
+                assert recovered.ownership.generation == 1
+                assert recovered.ownership.role == config.STANDBY
+                assert recovered.peer_last_seen is not None
+                assert not recovered._recovery_pending
+                assert frames[0]['generation'] == 1
+                assert frames[0]['role'] == config.STANDBY
+                assert frames[0]['ownership'] == {}
+                assert recovered.metrics.get('failovers') == 0
+                assert survivor.ownership.role == config.ACTIVE
+                for node in ('B1', 'C1', 'B2', 'C2'):
+                    assert recovered.registry.get(node).owner_gateway == 'A2'
+                    assert recovered.registry.get(node).generation == 2
+                    assert survivor.ownership.may_control(node)
+            finally:
+                transport_interceptor.reset(token)
+                await recovered.stop()
+                await survivor.stop()
+>       asyncio.run(scenario())
+
+tests/test_pr7_recovery_initialization.py:61: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def scenario():
+        key = b'p' * 32 if mode == 'hmac' else None
+        path = str(tmp_path / 'a1.db')
+        before = Gateway('A1', queue_path=path)
+        before.offline_queue.close()
+        recovered = Gateway('A1', queue_path=path, heartbeat_interval=.01,
+                            heartbeat_timeout=.6, peer_security_mode=mode, peer_key=key)
+        survivor = Gateway('A2', port=0, peer_port=0, heartbeat_interval=.01,
+                           heartbeat_timeout=10, peer_security_mode=mode, peer_key=key)
+        survivor._takeover()
+        frames = []
+    
+        async def delay_ack(writer, message):
+            if message.payload.get('peer_handshake') == 'AUTH_ACK':
+                # No reverse link exists yet: the old implementation would
+                # time out after this successful handshake and claim epoch 2.
+                await asyncio.sleep(.7)
+            return False
+    
+        async def first_upload(message):
+            frames.append(message.payload)
+            recovered._stopping = True
+    
+        recovered._submit_upload = first_upload
+        token = transport_interceptor.set(delay_ack)
+        try:
+            await survivor.start()
+            recovered.peer_port = survivor._server.sockets[0].getsockname()[1]
+            recovered.peer_started_at = time.monotonic()
+            await asyncio.wait_for(recovered.task_heartbeat(), 2)
+>           assert recovered.ownership.generation == 1
+E           assert 2 == 1
+E            +  where 2 = <gateway.ownership.OwnershipManager object at 0x106229130>.generation
+E            +    where <gateway.ownership.OwnershipManager object at 0x106229130> = <gateway.gateway.Gateway object at 0x106228ec0>.ownership
+
+tests/test_pr7_recovery_initialization.py:44: AssertionError
+----------------------------- Captured stdout call -----------------------------
+15:33:50 [A2] taking ownership of B1
+15:33:50 [A2] taking ownership of C1
+15:33:50 [A2] ownership generation = 1 -> 2
+15:33:50 [A2] gateway started on 127.0.0.1:0 (sensor=B2, controller=C2, peer=A1, generation=2, role=ACTIVE)
+15:33:50 [A2] awaiting server durable receipt, ALERT queued locally (depth=1)
+15:33:50 [A2] cloud DEGRADED; retry in 0.2s
+15:33:50 [A2] cloud OFFLINE; retry in 0.5s
+15:33:51 [A1] peer link established with A2
+15:33:51 [A1] FAILOVER A2 -> OFFLINE
+15:33:51 [A1] taking ownership of B2
+15:33:51 [A1] taking ownership of C2
+15:33:51 [A1] ownership generation = 1 -> 2
+15:33:51 [A1] heartbeat -> A2
+15:33:51 [A2] cloud OFFLINE; retry in 1s
+15:33:51 [A2] A1 is online
+___ test_recovery_reconciles_epoch_in_delayed_handshake_before_timeout[hmac] ___
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-156/test_recovery_reconciles_epoch1')
+mode = 'hmac'
+
+    @pytest.mark.parametrize('mode', ['lab', 'hmac'])
+    def test_recovery_reconciles_epoch_in_delayed_handshake_before_timeout(tmp_path, mode):
+        async def scenario():
+            key = b'p' * 32 if mode == 'hmac' else None
+            path = str(tmp_path / 'a1.db')
+            before = Gateway('A1', queue_path=path)
+            before.offline_queue.close()
+            recovered = Gateway('A1', queue_path=path, heartbeat_interval=.01,
+                                heartbeat_timeout=.6, peer_security_mode=mode, peer_key=key)
+            survivor = Gateway('A2', port=0, peer_port=0, heartbeat_interval=.01,
+                               heartbeat_timeout=10, peer_security_mode=mode, peer_key=key)
+            survivor._takeover()
+            frames = []
+    
+            async def delay_ack(writer, message):
+                if message.payload.get('peer_handshake') == 'AUTH_ACK':
+                    # No reverse link exists yet: the old implementation would
+                    # time out after this successful handshake and claim epoch 2.
+                    await asyncio.sleep(.7)
+                return False
+    
+            async def first_upload(message):
+                frames.append(message.payload)
+                recovered._stopping = True
+    
+            recovered._submit_upload = first_upload
+            token = transport_interceptor.set(delay_ack)
+            try:
+                await survivor.start()
+                recovered.peer_port = survivor._server.sockets[0].getsockname()[1]
+                recovered.peer_started_at = time.monotonic()
+                await asyncio.wait_for(recovered.task_heartbeat(), 2)
+                assert recovered.ownership.generation == 1
+                assert recovered.ownership.role == config.STANDBY
+                assert recovered.peer_last_seen is not None
+                assert not recovered._recovery_pending
+                assert frames[0]['generation'] == 1
+                assert frames[0]['role'] == config.STANDBY
+                assert frames[0]['ownership'] == {}
+                assert recovered.metrics.get('failovers') == 0
+                assert survivor.ownership.role == config.ACTIVE
+                for node in ('B1', 'C1', 'B2', 'C2'):
+                    assert recovered.registry.get(node).owner_gateway == 'A2'
+                    assert recovered.registry.get(node).generation == 2
+                    assert survivor.ownership.may_control(node)
+            finally:
+                transport_interceptor.reset(token)
+                await recovered.stop()
+                await survivor.stop()
+>       asyncio.run(scenario())
+
+tests/test_pr7_recovery_initialization.py:61: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def scenario():
+        key = b'p' * 32 if mode == 'hmac' else None
+        path = str(tmp_path / 'a1.db')
+        before = Gateway('A1', queue_path=path)
+        before.offline_queue.close()
+        recovered = Gateway('A1', queue_path=path, heartbeat_interval=.01,
+                            heartbeat_timeout=.6, peer_security_mode=mode, peer_key=key)
+        survivor = Gateway('A2', port=0, peer_port=0, heartbeat_interval=.01,
+                           heartbeat_timeout=10, peer_security_mode=mode, peer_key=key)
+        survivor._takeover()
+        frames = []
+    
+        async def delay_ack(writer, message):
+            if message.payload.get('peer_handshake') == 'AUTH_ACK':
+                # No reverse link exists yet: the old implementation would
+                # time out after this successful handshake and claim epoch 2.
+                await asyncio.sleep(.7)
+            return False
+    
+        async def first_upload(message):
+            frames.append(message.payload)
+            recovered._stopping = True
+    
+        recovered._submit_upload = first_upload
+        token = transport_interceptor.set(delay_ack)
+        try:
+            await survivor.start()
+            recovered.peer_port = survivor._server.sockets[0].getsockname()[1]
+            recovered.peer_started_at = time.monotonic()
+            await asyncio.wait_for(recovered.task_heartbeat(), 2)
+>           assert recovered.ownership.generation == 1
+E           assert 2 == 1
+E            +  where 2 = <gateway.ownership.OwnershipManager object at 0x10622b110>.generation
+E            +    where <gateway.ownership.OwnershipManager object at 0x10622b110> = <gateway.gateway.Gateway object at 0x10622ae70>.ownership
+
+tests/test_pr7_recovery_initialization.py:44: AssertionError
+----------------------------- Captured stdout call -----------------------------
+15:33:51 [A2] taking ownership of B1
+15:33:51 [A2] taking ownership of C1
+15:33:51 [A2] ownership generation = 1 -> 2
+15:33:51 [A2] gateway started on 127.0.0.1:0 (sensor=B2, controller=C2, peer=A1, generation=2, role=ACTIVE)
+15:33:51 [A2] awaiting server durable receipt, ALERT queued locally (depth=1)
+15:33:51 [A2] cloud DEGRADED; retry in 0.2s
+15:33:51 [A2] cloud OFFLINE; retry in 0.5s
+15:33:51 [A1] peer link established with A2
+15:33:51 [A1] FAILOVER A2 -> OFFLINE
+15:33:51 [A1] taking ownership of B2
+15:33:51 [A1] taking ownership of C2
+15:33:51 [A1] ownership generation = 1 -> 2
+15:33:51 [A1] heartbeat -> A2
+15:33:51 [A2] cloud OFFLINE; retry in 1s
+15:33:51 [A2] A1 is online
+________ test_equal_epoch_active_overlap_fails_closed_and_cannot_resume ________
+
+tmp_path = PosixPath('/private/var/folders/7y/53t4ynw12dn0c_lj5r7zz5vr0000gn/T/pytest-of-mac/pytest-156/test_equal_epoch_active_overla0')
+
+    def test_equal_epoch_active_overlap_fails_closed_and_cannot_resume(tmp_path):
+        path = str(tmp_path / 'a1.db')
+        previous = Gateway('A1', queue_path=path)
+        previous._takeover()
+        previous.offline_queue.close()
+        recovered = Gateway('A1', queue_path=path)
+        peer = Message(type=HEARTBEAT, source='A2', target='A1', payload={
+            'generation': 2, 'role': config.ACTIVE,
+            'ownership': {node: {'owner_gateway': 'A2', 'generation': 2}
+                          for node in ('B1', 'C1', 'B2', 'C2')}})
+        try:
+            assert recovered._on_peer_heartbeat(peer)
+>           assert recovered.ownership.role == config.STANDBY
+E           AssertionError: assert 'ACTIVE' == 'STANDBY'
+E             
+E             - STANDBY
+E             + ACTIVE
+
+tests/test_pr7_recovery_initialization.py:76: AssertionError
+----------------------------- Captured stdout call -----------------------------
+15:33:51 [A1] taking ownership of B2
+15:33:51 [A1] taking ownership of C2
+15:33:51 [A1] ownership generation = 1 -> 2
+=========================== short test summary info ============================
+FAILED tests/test_pr7_recovery_initialization.py::test_recovery_reconciles_epoch_in_delayed_handshake_before_timeout[lab]
+FAILED tests/test_pr7_recovery_initialization.py::test_recovery_reconciles_epoch_in_delayed_handshake_before_timeout[hmac]
+FAILED tests/test_pr7_recovery_initialization.py::test_equal_epoch_active_overlap_fails_closed_and_cannot_resume
+3 failed, 6 deselected in 1.59s
