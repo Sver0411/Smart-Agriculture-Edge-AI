@@ -58,6 +58,7 @@ from common.messages import (  # noqa: E402
 )
 from common.reliability import AckTracker, COMMAND_DELIVERY_FAILED, Counters, CommandOutcomes
 from gateway.sensor_delivery import CONTRACT, identity_and_digest
+from gateway.sensor_pipeline import prepare_sensor_record, finalize_sensor_record, fresh_at_decision, prepare_alert_upload
 from common.protocol import SequenceGuard, integer, number  # noqa: E402
 from gateway.edge_decision import EdgeDecider  # noqa: E402
 from gateway.offline_queue import OfflineQueue, QueueCapacityError, admission_priority, HIGH  # noqa: E402
@@ -555,7 +556,6 @@ class Gateway:
         self._stamp_sensor(message, time.monotonic())
         received_boot, received_mono, received_wall = message._gateway_ingress
         decision_mono = time.monotonic()
-        wait_ms = (decision_mono - received_mono) * 1000 if received_boot == self.ingress_boot and decision_mono >= received_mono else None
         payload = message.payload
         reliable = payload.get("delivery_contract") == CONTRACT
         identity = digest = None
@@ -571,84 +571,41 @@ class Gateway:
         elif "delivery_contract" in payload:
             self.metrics.inc("sensor_durable_rejected")
             return
-        data = payload.get("data", {})
-        if not isinstance(data, dict):
+        prepared = prepare_sensor_record(
+            message, engine_name=self.decider.engine.name,
+            gateway_boot_id=self.ingress_boot, received_boot_id=received_boot,
+            received_monotonic=received_mono, received_wall=received_wall,
+            prepared_monotonic=decision_mono,
+        )
+        if prepared is None:
             node_log(self.gateway_id, f"invalid sensor payload from {message.source}")
             return
-        record = dict(data)
-        health = payload.get("health", {})
-        health_state = payload.get("health_state", "HEALTHY")
-        from gateway.trust_gate import trusted_channels, ACTION_CHANNELS, FEATURE_CHANNELS
-        trusted = trusted_channels(record, payload)
-        usable = (bool(trusted & {"soil_moisture", "temperature"}) if self.decider.engine.name == "rule"
-                  else trusted >= FEATURE_CHANNELS)
-        record["control_trust"] = {action: trusted >= required for action, required in ACTION_CHANNELS.items()}
-        record["trusted_channels"] = sorted(trusted)
-        physical = payload.get("node_mode") == "physical"
-        received_at = received_wall
-        record["timestamp"] = received_at if physical else message.timestamp
-        record["received_at"] = received_at
-        record["gateway_received_monotonic"] = received_mono
-        record["gateway_decision_monotonic"] = decision_mono
-        record["gateway_boot_id"] = self.ingress_boot
-        record["gateway_queue_wait_ms"] = wait_ms
-        for key in ("node_mode", "boot_id", "sample_seq", "device_monotonic_ms", "timestamp_source", "sampling", "health", "health_score", "fault_flags", "physical_read_ok", "test_injected", "severity", "sample_id", "importance", "policy_version", "delivery_contract"):
-            if key in payload:
-                record[key] = payload[key]
+        # Keep the stateful check after data validation, before durable admission.
         fresh = self.sequences.accept(message) if not reliable else self.offline_queue.sensor_is_fresh(identity)
-        if reliable:
-            age = payload.get("delivery_age_ms")
-            # Recovered/old buffered history is not a fresh actuator input.
-            effective_age = age + wait_ms if number(age) and age >= 0 and wait_ms is not None else None
-            record["effective_delivery_age_ms"] = effective_age
-            usable = usable and (effective_age is not None and effective_age <= 5000 and
-                payload.get("boot_id") == self.sensor_boots.get(message.source))
-            if effective_age is None:
-                self.metrics.inc("freshness_rejected_unknown")
-            elif effective_age > 5000:
-                self.metrics.inc("freshness_rejected_expired")
-            elif payload.get("boot_id") != self.sensor_boots.get(message.source):
-                self.metrics.inc("freshness_rejected_boot")
-        elif wait_ms is None or wait_ms > 5000 or (physical and not (
-                number(payload.get("delivery_age_ms")) and 0 <= payload["delivery_age_ms"] + wait_ms <= 5000 and
-                isinstance(payload.get("boot_id"), str) and payload["boot_id"] == self.sensor_boots.get(message.source))):
-            usable = False
-            self.metrics.inc("freshness_rejected_unknown" if wait_ms is None or physical else "freshness_rejected_expired")
-        if not fresh:
-            usable = False
-            self.metrics.inc("reordered_or_duplicate_samples")
-        record["usable_for_control"] = usable
+        record, freshness_events = finalize_sensor_record(
+            prepared, payload, reliable=reliable,
+            registered_boot=self.sensor_boots.get(message.source), fresh=fresh,
+        )
+        for event in freshness_events:
+            self.metrics.inc(event)
+        usable = record["usable_for_control"]
+        trusted = prepared.trusted
+        health_state = payload.get("health_state", "HEALTHY")
 
         node_log(self.gateway_id, f"received {message.type} from {message.source}")
         if not reliable:
             self.metrics.inc("sensor_messages")
 
         if message.type == ALERT:
-            raw_reasons = payload.get("reasons", [])
-            reasons = raw_reasons if isinstance(raw_reasons,list) and all(isinstance(r,str) for r in raw_reasons) else ["malformed sensor fault evidence"]
+            alert_payload, reasons = prepare_alert_upload(message, reliable=reliable)
             node_log(
                 self.gateway_id,
                 f"sensor {message.source} health = {health_state} -> control decision skipped"
                 + (f" ({'; '.join(reasons)})" if reasons else ""),
             )
-            upload = Message(
-                    type=ALERT,
-                    source=self.gateway_id,
-                    target="SERVER",
-                    message_id=message.message_id,
-                    payload={
-                        "alert_type": payload.get("alert_type", "SENSOR_FAULT"),
-                        "health": health, "health_score": payload.get("health_score"),
-                        "fault_flags": payload.get("fault_flags", []), "data": data,
-                        "fault_signature": payload.get("fault_signature"), "notification": payload.get("notification"),
-                        "sensor_node_id": message.source,
-                        "health_state": health_state,
-                        "severity": payload.get("severity"),
-                        "message": "; ".join(reasons) or payload.get("message", "sensor alert"),
-                    },
-                )
+            upload = Message(type=ALERT, source=self.gateway_id, target="SERVER",
+                             message_id=message.message_id, payload=alert_payload)
             if reliable:
-                upload.payload.update({k: payload[k] for k in ("sample_id", "boot_id", "sample_seq", "device_monotonic_ms", "importance", "policy_version", "delivery_contract")})
                 if await self._admit_sensor_upload(message, upload, identity, digest):
                     self.offline_queue.audit_sensor_control(identity,"ALERT_ONLY")
             else:
@@ -697,9 +654,8 @@ class Gateway:
         from ai.features import FeatureError
         started = time.perf_counter()
         # Recheck after durable admission/ACK drain, at the actual decision boundary.
-        elapsed_ms = (time.monotonic() - received_mono) * 1000
-        if elapsed_ms < 0 or elapsed_ms > 5000 or (reliable and
-                (not number(payload.get("delivery_age_ms")) or payload["delivery_age_ms"] + elapsed_ms > 5000)):
+        if not fresh_at_decision(payload, reliable=reliable,
+                                 received_monotonic=received_mono, decision_monotonic=time.monotonic()):
             self.metrics.inc("freshness_rejected_at_decision")
             if reliable:self.offline_queue.audit_sensor_control(identity,"SKIPPED_UNTRUSTED_OR_STALE")
             return
