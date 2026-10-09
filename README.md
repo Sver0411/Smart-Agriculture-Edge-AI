@@ -1,14 +1,30 @@
-# Smart Agriculture Edge AI v0.3.1
+<h1 align="center">Smart Agriculture Edge AI</h1>
 
-[English](README.md) | [简体中文](README.zh-CN.md)
+<p align="center"><strong>A Research Platform for Agricultural IoT and Edge AI</strong></p>
 
-The `research` branch now includes hardened gateway registration and freshness checks, a bounded LoRa protocol with a B1 E220 UART adapter, and an opt-in Deep Sleep snapshot path. See the [integration report](docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md) for reproducible software evidence and hardware items still awaiting measurement.
+<p align="center">Trustworthy Sensing · Low-Power Communication · Safe Local Control · Reproducible Experiments</p>
 
-Current stabilization adds durable controller-result receipts, restart-safe policy versions, explicit sensor confirmation modes and notified E220 scheduling. Secure deployment remains disabled until every field/cloud link authenticates. See the [stabilization report](docs/research/RELIABILITY_STABILIZATION_REPORT.md) for validation status.
+---
 
-**Reliability Hardening & Protocol Correctness**
+<p align="center">An independently developed research prototype integrating embedded sensing, edge intelligence, and resilient IoT communication for smart agriculture.</p>
 
-A distributed smart agriculture system that brings together trustworthy sensing, adaptive sampling, interchangeable edge decision engines, guarded control, gateway takeover, offline history replay, and reproducible fault experiments. All seven roles can run on a single computer. The node runtimes require only the Python standard library.
+<p align="center">
+  <a href="#project-north-star--do-not-drift">Overview</a> ·
+  <a href="#two-agricultural-zones-and-gateway-ownership">Architecture</a> ·
+  <a href="#verification-levels">Implementation</a> ·
+  <a href="https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/main/README.md#related-research-projects">Related Projects</a> ·
+  <a href="README.zh-CN.md">简体中文</a>
+</p>
+
+---
+
+**Research branch — current implementation and evidence**
+
+A seven-role prototype for trustworthy sensing, selective communication, guarded local control, gateway takeover, and offline synchronization. All node roles run on a single computer using the Python standard library. Rule is the default decision engine; the learned engines are reproducible synthetic references.
+
+This branch includes hardened registration and sample freshness, a bounded LoRa protocol with a B1 E220 UART driver, experimental RTC/NVS sleep restoration, durable control-result delivery, restart-safe policy publication, and explicit sensor confirmation modes. [AR-1](docs/architecture/AR1_SENSOR_PIPELINE.md) separates pure sensor preparation from Gateway coordination while preserving runtime behavior. These research additions have not been integrated into [main](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/tree/main).
+
+**Latest recorded validation:** 631 tests on each of Python 3.10 and 3.12; 20/20 TCP scenarios; 20/20 host simulated-LoRa topology scenarios; four ESP32-S3 firmware profiles compiled. [Full results](#experiments-and-verification-evidence) distinguish software experiments, compilation, and physical measurements. Deployment entry points remain fail-closed until all required links authenticate.
 
 ## Project North Star — Do Not Drift
 
@@ -130,16 +146,17 @@ Gateway: live upload / SQLite OfflineQueue → Server: atomic dedup + history
 
 ## Reliability and Safety
 
-- B/C registration establishes the owner and generation. SensorNode and Controller accept gateway NODE_STATUS updates and reject inconsistent sources or stale generations.
-- Heartbeats, ACK and result timeouts, node liveness timeouts, and cooldowns use monotonic time. `last_seen`, protocol timestamps, and database records retain wall-clock time. Client timestamps do not determine liveness.
-- CONTROL_COMMAND keeps a stable `message_id`/`command_id`, uses a finite ACK retry budget, and is handled idempotently by the controller. Retries increment `attempt` while preserving the logical message identity.
-- A command ACK confirms receipt. CONTROL_RESULT reports the execution outcome. If no result arrives after an ACK, the outcome becomes UNKNOWN and an alert is raised. A late result can resolve the uncertainty; a missing result is never repaired by executing the command again.
-- Controllers process commands serially. SafetyGuard checks the command type, `command_id`, TTL, generation, owner, duplicates, maximum duration, and cooldown. Concurrent copies of one command execute only once.
-- A gateway heartbeat timeout initiates takeover and advances the generation. The recovered former gateway remains STANDBY until ownership is explicitly changed.
-- SENSOR_DATA, CONTROL_COMMAND, CONTROL_RESULT, and ALERT uploads enter a SQLite outbox before delivery. Their identities are preserved during FIFO replay, and rows are removed only after a separate `PERSISTED_ACK`. A lost acknowledgement leaves the local copy intact; after reconnection, the server deduplicates it and acknowledges it again.
-- If a controller is unavailable, ownership has been lost, or a command has expired, an unsent command is recorded as `NOT_DISPATCHED` with a reason. A retry that might already have been sent is recorded as `UNKNOWN` when delivery cannot continue. Actuator commands are never held for execution at some later date.
-- The server validates each upload's business semantics, then writes its deduplication record and business history in one SQLite transaction. The durable acknowledgement is sent after commit. Invalid uploads do not consume an identity.
-- `SERVER_POLICY` validates its version and parameters atomically, persists locally, and is then activated. The last known good policy can be loaded after a restart while the cloud is offline. Checkpoints contain `policy_version`, the payload, SHA-256, and `updated_at`. Corruption falls back to the previous valid policy or compiled defaults. The policy ACK confirms receipt; the server does not guarantee policy retries based on that ACK.
+- B/C registration and connection routing establish which socket may speak for a node, its owner, and its generation. Inconsistent sources and stale generations are rejected.
+- Liveness, retries, cooldowns, and sample age use monotonic time. Protocol timestamps and historical records retain wall-clock time; client timestamps do not determine liveness. Reliable and physical samples include gateway queue wait in the five-second control-age limit and must match the registered boot. Age is checked again after durable admission and ACK waiting, immediately before a decision.
+- Reliable sensor samples retain their original boot/sequence identity across loss, buffering, and restart. Gateway commits a receipt and history to a file-backed SQLite outbox before sending the scoped `GATEWAY_OUTBOX` PERSISTED_ACK. Duplicate retries are acknowledged without creating another receipt or control decision. Old-boot, expired, or unknown-age reliable evidence remains historical.
+- Host SensorNode offers `legacy-write` compatibility and opt-in `gateway-durable` confirmation. In durable mode, HIGH pending evidence is checkpointed; NORMAL remains RAM-only. The confirmed upload baseline advances only on a matching durable ACK. An ACK for old-boot history retires that evidence without confirming a new-boot baseline.
+- CONTROL_COMMAND keeps a stable `message_id`/`command_id`, a finite ACK retry budget, and controller-side idempotency. Its ACK confirms receipt, while CONTROL_RESULT reports execution. A missing result becomes UNKNOWN; a late result can resolve uncertainty. The system never issues a new action to repair a missing result.
+- Controllers process commands serially. SafetyGuard checks type, identity, TTL, owner/generation, duplicates, duration, and cooldown. Intent and outcome checkpoints support conservative restart behavior. CONTROL_RESULT has a bounded persistent resend window and stable wire content; a scoped `CONTROL_RESULTS` durable ACK retires pending delivery. Gateway commits result receipt, history, and outcome before acknowledging it.
+- Heartbeat timeout transfers ownership and advances generation. A recovered gateway remains STANDBY, with no automatic failback. The failure detector accounts for local monitor suspension before concluding that a peer failed; this does not establish consensus under arbitrary partitions.
+- Cloud uploads use a bounded SQLite outbox with reserved HIGH capacity, stable identities, FIFO replay, and commit-before-ACK server deduplication. Cloud reconnection and replay use separate tasks. Invalid uploads do not consume identities, and lost acknowledgements leave evidence available for a deduplicated retry.
+- An expired, unavailable, or unauthorized unsent command is recorded as NOT_DISPATCHED. Delivery that may already have occurred can remain UNKNOWN. Actuator commands are not queued for later execution after an outage.
+- SERVER_POLICY validates content and version before persistent activation. Gateway recovers the last valid policy; server publication persists its content and version together, so restart cannot reset the publication counter. Unchanged content and repeated broadcast do not allocate new versions. Policy ACK remains a receipt acknowledgement, not a guaranteed retry contract.
+- Peer HMAC sessions are available for isolated A1/A2 experiments. B↔A, A↔C, cloud, and physical RF links still lack the complete authenticated-session design. `profile=deployment` is therefore refused before startup, even with a valid peer key. CRC is an integrity check, not authentication.
 
 ### Protocol Compatibility
 
@@ -151,11 +168,11 @@ TCP messages are newline-delimited JSON. The original six-field envelope remains
 
 Optional fields are `protocol_version:1`, `sequence`, `attempt`, and `generation`. Messages without them follow the legacy protocol. New simulated sensors identify logical samples with a boot ID and sequence number. Reordered or duplicated old readings can remain in the audit history, but cannot trigger new control.
 
-Parsing rejects non-finite or overflowing numbers, incorrect field types, unsupported versions, and oversized frames. Gateway and server upgrades must be coordinated: a new gateway retains its outbox copies if an old server cannot provide durable acknowledgements. The protocol does not provide identity authentication.
+Parsing rejects non-finite or overflowing numbers, incorrect field types, unsupported versions, and oversized frames. Gateway and server upgrades must be coordinated: a new gateway retains its outbox copies if an old server cannot provide durable acknowledgements. The JSON envelope and LoRa CRC do not authenticate B/C/cloud identities. Optional peer HMAC sessions cover A1/A2 experiments only; deployment remains disabled until all required links authenticate.
 
 ## Running the System
 
-Use Python 3.10 or later. CI verifies Python 3.10 and 3.12.
+Use Python 3.10 or later; CI verifies 3.10 and 3.12. Run these host examples with the simulation or lab profile. The deployment profile is an engineering contract and is deliberately refused by current entry points.
 
 ```bash
 python3 -m venv .venv
@@ -176,7 +193,7 @@ python -m controller_node.controller_node --id C1
 python -m controller_node.controller_node --id C2
 ```
 
-The demo retains the normal, failover, and server-offline scenarios, along with stale-command and duplicate-command injection options. Formal experiments use their own configurations, ports, and databases.
+The demo retains normal, failover, and server-offline scenarios, along with stale/duplicate-command injection. Formal experiments use isolated configurations, ports, and databases. To exercise sensor-side durable confirmation, start B with `--delivery-mode gateway-durable` and use a file-backed gateway `--queue-db`; the compatibility default remains `legacy-write`.
 
 ## Configuration and Timing Profiles
 
@@ -190,7 +207,7 @@ Profiles in `config/profiles/` configure sampling and uploads separately from cl
 | lab | 2→4→5 s | 2→1 s | 1 s | 300 s |
 | deployment | 20→40 min | 10→5 min | 5→2→1 min | 6 h |
 
-Deployment values are **engineering defaults**. They need calibration against crop characteristics, sensor noise, environmental dynamics, battery measurements, and field trials. Thresholds, EMA windows, event duration, and fault reminders are configurable as well. A deployment profile changes the behavior of the system beyond a single sleep interval.
+Deployment timing values are **engineering defaults**, not authorization to enable secure deployment. They need calibration against crop characteristics, sensor noise, environmental dynamics, battery measurements, and field trials. Thresholds, EMA windows, event duration, and fault reminders are configurable as well. A deployment profile changes the behavior of the system beyond a single sleep interval.
 
 `config/physical_b1.json` explicitly preserves the historical temperature/humidity SensorTrust settings. Run `python scripts/generate_b1_profiles.py` to generate B1's C parameters, or use `--check` to detect stale generated configuration.
 
@@ -198,28 +215,41 @@ Python/C Upload Decision Parity tests feed identical inputs to both implementati
 
 ## Experiments and Verification Evidence
 
+The most recent complete AR-1 regression ran on executable-source commit `add9d076a04670b63b643fb822cfa84b23e99975`. Its final report commit `825bb92` passed complete [push CI](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37880089604) and [PR CI](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37880093415), with identical executable-source/configuration hashes. [AR-1 evidence](docs/architecture/AR1_SENSOR_PIPELINE.md) and the [stabilization report](docs/research/RELIABILITY_STABILIZATION_REPORT.md) explain scope, provenance, and retained failures.
+
+| Evaluation | Recorded result | Scope |
+| --- | --- | --- |
+| Full pytest, Python 3.10 and 3.12 | 631 passed on each version | All 587 original tests plus 44 AR-1 cases; counts are not added across interpreters |
+| Baseline/refactor behavior comparison | 256/256 matched | Actual processing methods; records, commands, order state, logs, metrics, and audit states |
+| Original TCP fault scenarios | 20/20 PASS | Seven-role host topology and simulated actuation |
+| Repeated ownership/reliability scenarios | 20/20 PASS | Stale generation ×10, failover ×3, recovery ×3, and four other fault cases |
+| Host simulated-LoRa topology | 20/20 PASS | Actual application paths over a simulated RF carrier |
+| Seeded LoRa comparison | 56/56 safety checks PASS | 43 COMPLETE and 13 INCOMPLETE deliveries; unconfirmed evidence is retained |
+| Actual C sleep/restore reference | 19/19 PASS; 2800 observations | Known-elapsed oracle and conservative unknown-time cases; no physical RTC claim |
+| Cross-phase integration / external EdgeFaultLab | 10/10 and 5/5 PASS | Production C/application paths and independently maintained fault runner |
+| GitHub Actions | 6/6 jobs on both push and PR | Both Python suites, the full experiment matrix, and four firmware builds |
+| ESP32-S3 firmware | Four profiles compiled under ESP-IDF v5.4.4 | lab, light-sleep, lora-prototype, deep-sleep-experimental; compilation is not a board experiment |
+
+Reproduce using a fresh, ignored output directory for each run:
+
 ```bash
-python -m experiments.runner --all --output results/software-v0.3.1/my-run
-python -m experiments.runner --scenario ack-loss --output results/software-v0.3.1/ack-loss-run
+python -m experiments.runner --all --output .research-runs/tcp-NEW
+python -m experiments.reliability_stabilization --output .research-runs/repeats-NEW
+python -m experiments.runner --all --transport simulated-lora --output .research-runs/lora-NEW
+python -m experiments.lora_harness --seed 42 --output .research-runs/radio-NEW
+python -m experiments.snapshot_harness --output .research-runs/snapshot-NEW
+python -m experiments.phase123_integration --seed 42 --output .research-runs/integration-NEW
 
 git clone https://github.com/Sver0411/EdgeFaultLab ../EdgeFaultLab
-python -m experiments.edgefaultlab --edgefaultlab-root ../EdgeFaultLab --output results/software-v0.3.1/efl-run
+git -C ../EdgeFaultLab checkout c7248239f456cc877114ca1e67c5949fb4a7b958
+python -m experiments.edgefaultlab --edgefaultlab-root ../EdgeFaultLab --output .research-runs/external-NEW
 ```
 
-For formal reproduction, check out the reviewed EdgeFaultLab revision listed in `docs/integration_sources.json`. EdgeFaultLab remains an independent project; this repository supplies the configuration, CLI, and port adapter. Failed runs return a nonzero exit code.
+Run full Python versions sequentially on one machine because some existing e2e tests use fixed ports. Host C tests require a C11 compiler; applicable sanitizer checks are included in pytest. EdgeFaultLab remains external, pinned to the reviewed revision. A failed core assertion returns a nonzero exit code.
 
-Each internal experiment saves `config.json`, `manifest.json`, `truth/injection_plan.json`, `raw/events.jsonl`, `results/metrics.json`, `results/summary.json`, and a report. Existing output directories are never overwritten. Metrics distinguish `null / not measured` from `0 / observed`. TCP reception, receipt acknowledgements, execution outcomes, and persistence are measured separately.
+Experiments retain configuration, injection plans, raw events, metrics, summaries, and source/configuration hashes. Output directories refuse overwrite; CI preserves artifacts including failures. Metrics distinguish `null / not measured` from `0 / observed`, and distinguish reception, receipt ACK, execution outcome, and persistence. Existing research evidence is retained; new generated data goes to `.research-runs/` or CI artifacts.
 
-The following results belong to the historical v0.3/v0.3.1 runs. Subsequent deployment-semantics work is documented in the [deployment realignment report](docs/DEPLOYMENT_REALIGNMENT_REPORT.md).
-
-- The 155 tests from the v0.3 baseline were retained. v0.3.1 passed **231 tests**, with successful Python 3.10/3.12 [CI runs](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37177748586). Commands and evidence are in the [reliability report](docs/V0_3_1_RELIABILITY_REPORT.md).
-- **20/20 internal scenarios passed**: the original 17, plus registration-race, persisted-ack-loss, and controller-unavailable.
-- All five independent EdgeFaultLab scenarios passed after removing the adapter's startup delay. The initial v0.3 failures and subsequent regression records were preserved.
-- Shared Python/C SensorTrust traces continued to pass on the host. No hardware was operated during that work.
-- All three FP32 exports matched their trainers' predictions on 240 held-out samples. Four training/export files were reproduced byte for byte with the same seed.
-- The INT8 weight-storage reference differed from FP32 on 2/240 Logistic predictions and 0/240 MLP predictions. Activations and biases remain floating point, and weights are dequantized before inference. There is no integer inference kernel or device-level result yet.
-
-The new software capabilities have been **host-tested / software experimentally evaluated**. Historical B1 firmware and experiment records remain available in [firmware/b1](firmware/b1/README.md) and [results/v0.3](results/v0.3/README.md). Their verification scope is separate from these software results.
+Historical v0.3/v0.3.1 results, including the 155-test and 231-test checkpoints, remain in the [reliability report](docs/V0_3_1_RELIABILITY_REPORT.md). FP32 export parity on 240 synthetic holdout samples, the 2/240 Logistic INT8 difference, and the 0/240 MLP difference are software/model-storage references. They establish neither agricultural accuracy nor MCU energy use. Historical physical sensing remains limited to the [30 CRC-valid SHT30 readings](results/v0.3/README.md).
 
 ## Offline Model Tools
 
@@ -253,13 +283,15 @@ Wake → Read Sensors → SensorTrust → AdaptiveSense → Update local state
 
 The ESP32 Wi-Fi/TCP implementation in `firmware/b1` is a **Development / Integration Transport**. It retains its value for hardware integration while keeping sensing logic independent of sockets. `b1_telemetry.c` builds business payloads, `b1_transport.h` provides the sink interface, and `b1_network.c` implements the TCP/Wi-Fi adapter.
 
+Physical B1 sensing currently covers SHT30 temperature and humidity. Soil-moisture control relevance is tested in the host prototype, not with a physical B1 soil sensor.
+
 Python `SensorRuntime` and `MockFieldTransport` test the radio wake/send/sleep flow on the host. The Python TCP SensorNode accepts only simulation and lab profiles. Combining deployment's minute-scale sampling with second-scale online keepalive does not establish a battery-powered deployment.
 
-In Phase 1, state stays in RAM between samples while the task waits for its next wake-up. Wi-Fi integration uses modem power save and offers opt-in ESP-IDF automatic light sleep. Keeping TCP associated still incurs protocol traffic. On-demand E220 wake-up and complete radio sleep remain future work.
+The lab and light-sleep profiles retain Wi-Fi/TCP integration. The research E220 driver uses a bounded UART/AUX communication window and an empty-to-nonempty/HIGH notification scheduler with unavailable-link backoff. Local UART completion is not a receiver receipt; only the matching scoped gateway ACK can retire reliable evidence. Physical radio wake/sleep, AUX timing, and RF behavior still require measurement.
 
-Phase 2 will define RTC-retained state and NVS checkpoints before introducing deep sleep. It must retain SensorTrust history, EMA and time history, hysteresis and ladder state, event duration, fault signature, last upload, and the ownership epoch. Resetting the algorithms after every sleep would break continuity. See the [deployment contract](docs/DEPLOYMENT_SEMANTICS.md). No current, energy, or battery-life conclusion is claimed for this work.
+Phase 3 now provides an opt-in Deep Sleep task, RTC algorithm snapshots, and NVS HIGH restoration. SensorTrust/AdaptiveSense state continuity is tested with the actual C implementation. The default elapsed-time provider returns UNKNOWN, so the firmware conservatively rebuilds temporal/report baselines rather than treating planned sleep time as measured time. Each wake obtains a new boot identity; historical HIGH keeps its original identity. See the [sleep profile and commissioning requirements](firmware/b1/EXPERIMENTAL_TRANSPORT_SLEEP.md). Board-level continuity, current, and battery life remain unmeasured.
 
-The target field platform is **ESP32-S3 + E220 LoRa**, covering B↔A and A↔C. A1↔A2 coordination must also work independently of the internet, the cloud, and a Wi-Fi access point. The E220 adapter, framing, wireless registration, ownership notifications, and heartbeat transport remain **planned / host-tested contracts**, without hardware validation.
+The target field platform is **ESP32-S3 + E220 LoRa**, covering B↔A and A↔C. A1↔A2 coordination must also work independently of the internet, the cloud, and a Wi-Fi access point. Bounded framing/reassembly, role routing, retries, and the B1 UART driver are implemented and host-tested or compiled. Gateway/controller physical E220 endpoints and complete wireless registration, ownership notification, and heartbeat integration remain pending hardware work.
 
 **Field LoRa Semantics:** B belongs to a zone, not permanently to a gateway. Uplinks carry `source_node_id`, `zone_id`, sequence, boot/session identity, and the payload. Only the current zone owner may control its fixed C node. Gateway logic detects failover; B is not expected to listen continuously to both gateways or send frequent probes.
 
@@ -267,7 +299,7 @@ TCP fallback supports host integration. The eventual LoRa uplink can address the
 
 ## Gateway A's Local Autonomy and Weak-Link Synchronization
 
-The local path remains receive B → validate / Trust Gate → DecisionEngine → CONTROL_COMMAND → C → CONTROL_RESULT. Cloud reconnection and outbox replay run in separate tasks. Slow cloud receipts do not block local persistence of new history or the B→A→C loop.
+The local path remains receive B → validate / Trust Gate → DecisionEngine → CONTROL_COMMAND → C → CONTROL_RESULT. [sensor_pipeline](gateway/sensor_pipeline.py) prepares records, trust, freshness, and alert evidence through pure functions. Gateway retains sequence/boot state, SQLite admission, ACKs, live ownership, generation, and command dispatch; the existing processing interfaces remain available. Cloud reconnection and outbox replay run in separate tasks. Slow cloud receipts do not block local persistence of new history or the B→A→C loop.
 
 Cloud connectivity has ONLINE, DEGRADED, and OFFLINE states. Deployment reconnection backs off through 5/15/30/60/300 seconds; simulation and lab have their own settings. After reconnection, replay is throttled according to configuration, and each row still requires its own PERSISTED_ACK before deletion. An explicit CRITICAL event can request one early reconnect, subject to cooldown.
 
@@ -279,11 +311,11 @@ When total capacity is exhausted, new admission is explicitly rejected and recor
 
 **Controller Safety:** recent command IDs must survive restart before real actuators are deployed. The host RecentCommandStore keeps a configurable bounded window, defaulting to 64. It persists INTENT before simulated execution, then persists the result. Corruption or failure to write the intent defaults to DO NOT EXECUTE. An incomplete intent also blocks replay after restart, but does not prove successful execution. A future ESP32 controller will need an NVS backend; this has not been verified on a board.
 
-**Time Semantics:** wall-clock time alone is insufficient to establish the freshness of an offline control command. The planned LoRa contract combines owner/epoch, gateway and receiver boot sessions, command sequence/identity, a receive window issued in advance by the receiver, and monotonic expiry/retry bounds. The host contract can validate fresh commands without wall-clock time; TCP retains its compatible timestamp TTL. Starting a new TTL when an old packet arrives does not make it fresh. See the [five patches and their evidence](results/final-five-patches/README.md).
+**Time Semantics:** wall-clock time alone is insufficient to establish the freshness of an offline control command. The host LoRa freshness contract combines owner/epoch, gateway and receiver boot sessions, command sequence/identity, a receive window issued in advance by the receiver, and monotonic expiry/retry bounds. Its physical A/C endpoint integration is pending. The host contract can validate fresh commands without wall-clock time; TCP retains its compatible timestamp TTL. Starting a new TTL when an old packet arrives does not make it fresh. See the [five patches and their evidence](results/final-five-patches/README.md).
 
 ## Cloud Responsibilities and Learning from Field Data
 
-The cloud already provides a TCP receiver, SQLite history, atomic deduplication with PERSISTED_ACK, and policy push. **An HTTP API and Web Dashboard are still missing.**
+The cloud provides TCP reception, SQLite history, atomic deduplication with PERSISTED_ACK, and restart-safe policy publication. Policy content and version are persisted together; unchanged content and rebroadcast preserve the version. **An HTTP API and Web Dashboard are still missing.**
 
 The next read-only API should expose zone status, latest readings and history curves, gateway ownership and connectivity, alerts, control history, and outbox/replay status. It must distinguish stale data from a low-power node that is expected to be asleep. The design is documented in [cloud boundaries](docs/CLOUD_BOUNDARIES.md). This work introduces no broker, microservices, or Kubernetes.
 
@@ -299,7 +331,7 @@ Retraining will be batched or scheduled. Receiving one sample must never trigger
 
 ## Verification Levels
 
-**Designed** means a contract has been defined. **Host Tested** means host tests have been run. **Software Experimentally Evaluated** means the complete software system has been exercised under faults. **Firmware Implemented** refers to firmware source/build evidence. **Hardware Tested** requires evidence from real devices. **Pending** identifies remaining work. Several levels can apply to one capability; none substitutes for another.
+**Designed** means a contract has been defined. **Host Tested** means host tests have been run. **Software Experimentally Evaluated** means the complete software system has been exercised under faults. **Firmware Implemented** refers to firmware source/build evidence. **Hardware Tested** requires evidence from real devices. **Pending** identifies remaining work. Several levels can apply to one capability; none substitutes for another. Firmware source and successful compilation are stated explicitly; neither implies a board run.
 
 | Capability | Current evidence | Remaining work or boundary |
 |---|---|---|
@@ -307,14 +339,14 @@ Retraining will be batched or scheduled. Receiving one sample must never trigger
 | AdaptiveSense | Host Tested / Software Experimentally Evaluated / Firmware Implemented | Hardware verification of the revised semantics; real environmental events |
 | B upload policy | Host Tested per sample in Python/C and through queue/sink / Firmware Implemented | Radio uploads with the revised firmware |
 | Physical SHT30 | Hardware Tested: 30 historical reads with valid CRC | No board flashed during this work; channels beyond temperature/humidity untested |
-| B low-power runtime | Designed / Host Tested with mock / Firmware Implemented with opt-in light sleep | Radio duty cycle, current, and battery measurements |
-| B↔A LoRa | Designed / Host Tested message/sleep contract | E220 adapter and RF tests |
+| B low-power runtime | Host/C snapshot tested; four profiles compiled, including experimental Deep Sleep | Calibrated RTC elapsed, GPIO/radio sleep, NVS power cuts, current and battery measurements |
+| B↔A LoRa | Bounded host protocol tested; B1 E220 UART source compiled | Physical Gateway endpoint, RF commissioning and end-to-end measurements |
 | A DecisionEngine | Host Tested / Software Experimentally Evaluated | MCU port and agricultural effectiveness |
 | A1/A2 heartbeat | Host Tested / Software Experimentally Evaluated | Local wireless hardware link |
 | Gateway failover | Host Tested / Software Experimentally Evaluated | Complete hardware demonstration; no automatic failback |
-| A↔C LoRa | Designed | E220 adapter and RF tests |
+| A↔C LoRa | Host topology, routing and control-fencing tests | Physical A/C E220 endpoints and RF tests |
 | C actuator | Host Tested safety guard / simulated execution | Real relay, pump, and fan operation |
-| Cloud offline replay | Host Tested / Software Experimentally Evaluated | Long-term storage and power-loss tests |
+| Cloud offline replay | Host-tested durable sample/result receipts, FIFO replay, and policy-version recovery | Long-term capacity and power-loss evaluation |
 | Dashboard | Designed | HTTP API and frontend |
 | Training on real data | Designed; synthetic tools Host Tested | Field data, labels, GPU training, and registry |
 
@@ -340,24 +372,26 @@ A1 sees newer generation → remains STANDBY
 
 Run the demonstration with the internet and cloud disconnected, and verify that coordination also works independently of the Wi-Fi access point. Record the zone, owner/generation, ACK, and execution outcome for every sample and command. Inject an old A1 command and confirm that C1 rejects it.
 
-This experiment follows completion of the E220 link, NVS support, B's sleep behavior, and C's actuator integration. It is **Pending**; no hardware result is claimed. Camera input, Tiny Vision, YOLO, and image uploads are outside the scope of this work.
+This demonstration requires commissioned A/B/C RF links, restart-safe board state for the gateway/controller, calibrated B sleep timing, and real actuator integration. It remains **Pending hardware validation**. Camera input, Tiny Vision, YOLO, and image uploads are outside the scope of this work.
 
 ## Current Limitations
 
-- The CLI uses a file-backed outbox. The constructor's default in-memory queue is suitable only for software tests. Durable acknowledgements protect uploads admitted to the outbox; upstream delivery and in-memory task queues before admission have no general persistence guarantee. Outbox limits are configured by message count and payload bytes. Full capacity rejects new admission with metrics, while previously admitted, unacknowledged history is retained without TTL eviction. Physical disk capacity, WAL growth, and a corrupt first FIFO row still require operational handling.
-- The host gateway persists ownership, generation, and peer epoch. On recovery it starts in STANDBY and aligns with its peer. The controller persists its highest generation/owner and recent intents/results before simulated execution, then conservatively waits a full cooldown after restart. Corrupt critical state disables control rather than reverting to an older value. The ESP32 controller NVS backend remains unimplemented. The bounded recent-command window cannot provide permanent idempotency, and a crash can leave the actual outcome UNKNOWN. Actuator execution is not guaranteed exactly once across restarts.
-- Dual-gateway heartbeats and owner/generation checks do not form a consensus protocol. The split-brain scenario checks rejection of stale generations and non-owner commands within the same epoch. It does not establish exclusive control under every possible network partition.
-- STUCK cannot distinguish a truly constant environment from a frozen sensor. DRIFT can also reflect a real, sustained environmental change. Actions relying on DEGRADED channels are blocked, and thresholds still need agricultural calibration.
-- Legacy sensor telemetry remains best effort. Sequence checks prevent stale readings from triggering control; they do not themselves provide sensor-side persistence or retransmission. The B1 research delivery work referenced at the top has its own explicitly documented scope.
-- Authentication, encryption, cross-node clock synchronization, and deployment calibration are absent. TCP CONTROL_COMMAND timestamps still require Unix wall-clock time. The host model for future field freshness has been tested, but is not yet integrated into wireless firmware.
-- Model tests establish the software workflow. INT8 results cover a weight-storage reference only. Full C inference parity, real-data effectiveness, device resource consumption, and energy use remain unmeasured.
+- Receipt ledgers, HIGH buffers, result resend windows, and recent-command protection are bounded. Capacity pressure rejects admission explicitly; identities are not silently pruned. Physical disk/WAL growth, Flash wear, prolonged outages, and proven receipt retirement still need operational evaluation.
+- Host ownership/generation and command intent/outcome checkpoints support fail-closed restart behavior. The ESP32 controller and gateway physical RF endpoints are absent. Unobservable crash windows and bounded dedup history prevent an unconditional exactly-once actuator guarantee.
+- Dual-gateway heartbeat failure detection is not distributed consensus. Existing split-brain, one-way-loss, recovery, and stale-generation experiments cover stated fault schedules, not exclusive control under arbitrary partitions.
+- Legacy-write telemetry remains best effort. Nonphysical legacy lab inputs use ingress age and per-boot ordering without the reliable/physical registered-boot gate. Reliable HIGH history survives checkpoint/retry, but NORMAL host pending data is RAM-only. ACK-send failure after commit does not replay an interrupted control decision on retry. [AR-1 boundaries](docs/architecture/AR1_SENSOR_PIPELINE.md#remaining-architecture-debt) document these preserved behaviors.
+- Optional HMAC protects peer experiments only. B/C/cloud/RF session authentication, encryption, cross-node clock commissioning, and field calibration remain incomplete; deployment mode stays refused.
+- E220 RF reliability, A/C integration, GPIO/AUX/reset behavior, calibrated RTC elapsed time, NVS power cuts, real actuator operation, current, and battery life remain pending hardware validation. Experimental source and four successful firmware builds do not settle these questions.
+- STUCK and DRIFT are heuristic indicators that can also describe real environmental behavior. Learned models remain synthetic policy references; full C inference parity, agricultural effectiveness, MCU resources, and energy have not been established.
 
 ## Documentation and Next Steps
 
 [v0.3.1 reliability report](docs/V0_3_1_RELIABILITY_REPORT.md) · [code review](docs/V0_3_1_RELIABILITY_REVIEW.md) · [v0.3 integration and reuse report](docs/V0_3_INTEGRATION_REPORT.md)
 
-The [branch integration review and latest software verification](docs/BRANCH_INTEGRATION_REVIEW.md) records checkpoint, command-window, and configuration fixes made before the development line was integrated into the main line. Historical test and experiment reports retain their original scope.
+Latest research records: [Phase 1.2](docs/research/PHASE1_2_DEVELOPMENT_REPORT.md), [LoRa protocol/UART](docs/research/PHASE2_LORA_DEVELOPMENT_REPORT.md), [experimental sleep](docs/research/PHASE3_DEEPSLEEP_DEVELOPMENT_REPORT.md), [cross-phase integration](docs/research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md), [reliability stabilization](docs/research/RELIABILITY_STABILIZATION_REPORT.md), and [AR-1 architecture](docs/architecture/AR1_SENSOR_PIPELINE.md). Earlier integration reports retain their historical scope. AR-2/AR-3/AR-4 are not implemented by AR-1.
 
-Next priorities are field E220 communication, NVS epoch handling, real power measurements, and the Gateway Failure Hardware Demonstration described above. The complete two-zone topology remains a permanent part of the project.
+Next priorities are physical A/C E220 endpoints, authenticated field/cloud sessions, calibrated RTC/NVS behavior, real actuator integration, and measured radio/sleep energy before the hardware demonstration. The complete two-zone topology remains a permanent part of the project.
+
+Related work is maintained independently: [AdaptiveSense](https://github.com/Sver0411/AdaptiveSense), [SensorTrust](https://github.com/Sver0411/SensorTrust), [EventGuard-LoRa](https://github.com/Sver0411/EventGuard-LoRa), [EdgeFaultLab](https://github.com/Sver0411/EdgeFaultLab), [TinyEdgeBench](https://github.com/Sver0411/TinyEdgeBench), and [AgriTinyVision](https://github.com/Sver0411/AgriTinyVision). Their hardware/model results do not establish this system's field performance. Reuse boundaries are recorded in [integration sources](docs/integration_sources.json) and the [EventGuard review](docs/research/EVENTGUARD_REUSE_REVIEW.md).
 
 MIT licensed. Directly reused AdaptiveSense Python files retain their MIT license notices and source attribution.
