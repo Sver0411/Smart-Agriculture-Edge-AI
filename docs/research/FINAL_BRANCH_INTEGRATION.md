@@ -1,5 +1,7 @@
 # Final research → main integration
 
+**Status: BLOCKED — NOT MERGED.** PR #7 remains draft; main stays at `08f573fbbd53d150a2bf80d577ba4d438e1a90a4`. The final-head push CI exposed a recovery failure, described below. Earlier passing runs do not override it.
+
 ## Inputs and history audit
 
 Reviewed on 2026-10-09 (Asia/Shanghai), after `git fetch origin --prune`, from a clean worktree.
@@ -71,6 +73,19 @@ python -m experiments.evidence_inventory --output .research-runs/inventory-NEW.j
 ```
 
 Actions runs full pytest on Python 3.10/3.12, every experiment above on 3.12, and ESP-IDF v5.4.4 / ESP32-S3 builds for `lab`, `light-sleep`, `lora-prototype` and `deep-sleep-experimental`. EdgeFaultLab is pinned at `c7248239f456cc877114ca1e67c5949fb4a7b958`. All core experiment steps and actual firmware build steps must execute successfully; an unresolved failure blocks merging.
+
+## Publication blocker: final-head CI failure
+
+On documentation head `021585e28b468a9db7f09aed2e5e4c6996d09586`, [research push CI, attempt 1](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37893918383/attempts/1) failed Python 3.12: **629 passed, 2 failed**. Python 3.10 and all four actual firmware builds passed. Later experiment steps in that failed job were skipped because pytest failed; those steps are **not** counted as passing. The independent [PR run](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37893925593) passed all six jobs on the same executable-source hashes, but cannot invalidate the failed observation.
+
+- `test_gateway_recovery_metrics_include_pre_crash_incarnation`: production `run_scenario('gateway-recovery')` returned FAIL with `TimeoutError: recovered peer enrollment`. The recorded takeover, synchronized A2/B1/C1 epoch, fixed ownership and rejection of the deposed command passed. Recovery did not converge to the required STANDBY state. Preserved events show recovered A1 advertising ACTIVE/generation 2 at `time_s=3.568`, and A2 advertising ACTIVE/generation 2 at `3.574`; subsequent peer heartbeats continue to show both ACTIVE with conflicting B1 ownership through the timeout. This is a real recorded software state, not just a missing assertion/log. It does not prove duplicate physical actuation, but blocks the recovery acceptance.
+- `test_keepalive_keeps_sensor_online_during_silent_sampling`: the fixed 0.8-second observation found zero samples instead of one, while registration was still completing. Startup/host scheduling sensitivity is a plausible contributor; its cause is not established as infrastructure-only.
+
+Both original tests were repeated **10 times each** locally on Python 3.12, unchanged, and all 20 executions passed. This establishes intermittent reproduction, not a fix. No expected values, golden references, timeouts, product logic or CI gates were changed. No retry was used to replace the failed push result.
+
+Failed job logs, the complete failed software artifact, summary and original raw peer events were retained locally in `/tmp/agri-final-integration/` and remain available in the linked Actions run/artifact. Focused repetition logs are ignored under `.research-runs/final-integration-failure-recheck/`. A separate recovery investigation must establish why a recovering gateway reached the same active epoch as its surviving peer and provide an appropriate fix/regression before publication. Merely increasing deadlines or obtaining a green rerun would not settle that observation.
+
+**Merge stopped.** No main PR merge or main push occurred. Therefore there is no integration merge SHA or post-merge main CI result. Final branch-report commits change documentation only and may trigger additional CI; any later green report-only run does not resolve this explicitly recorded blocker.
 
 ## Remaining risks and boundaries
 
