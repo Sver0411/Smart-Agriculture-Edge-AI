@@ -2,7 +2,7 @@ name: tests
 
 on:
   push:
-    branches: [main, research, v0.3-software-integration, v0.3.1-reliability-hardening, fix/research-reliability-stabilization]
+    branches: [main, research, v0.3-software-integration, v0.3.1-reliability-hardening, fix/research-reliability-stabilization, refactor/ar1-sensor-pipeline]
   pull_request:
   workflow_dispatch:
 
