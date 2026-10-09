@@ -1,0 +1,65 @@
+# Research Evidence Guide
+
+An English reading guide to original reports and raw evidence, updated for consolidation on **2026-10-09**. Integration inputs are main [`08f573f`](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/commit/08f573fbbd53d150a2bf80d577ba4d438e1a90a4) and research [`f5c2710`](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/commit/f5c2710fa4f45318e77314dcc4fb3c8bc25cf70c). Each evaluation below names its own tested source, which can predate those snapshots.
+
+The integrated baseline includes Phase 1–3, reliability stabilization, and AR-1. Sections A–D remain historical evaluations; their phase-specific limitations describe those revisions rather than all current source. Current integration checks are recorded separately in the [final integration record](research/FINAL_BRANCH_INTEGRATION.md). Test counts are not added across Python environments or phases. Original reports, failed attempts, and logs remain unchanged.
+
+[Historical main software](#a-main-branch-software-integration) · [Physical sensing](#b-physical-esp32-s3--sht30-evidence) · [Phase 1](#c-research-branch--phase-1) · [Phase 1.1](#d-research-branch--phase-11) · [Integrated research](#e-phase-123-stabilization-and-ar-1) · [README](../README.md)
+
+## A. Main Branch Software Integration
+
+**Objective.** Evaluate the seven-role, two-zone software prototype under communication and process faults while preserving local control independently of cloud availability. This is the 2026-10-08 main integration acceptance, with functional source `f204ad9` and archived CI at `002e26a`.
+
+**Implementation / Method.** Server, A1/A2, B1/B2, and C1/C2 communicate over host TCP with simulated sensing and actuation. Tests exercise SensorTrust, AdaptiveSense, ownership, guarded commands, durable outbox replay, and transactional receipts. The review also fixes unsafe checkpoint fallback, an unbounded runtime command-ID set, and invalid replay intervals.
+
+**Verified Results.** Each local Python 3.10/3.12/3.14 suite passed **350 tests**. All **20 internal scenarios** and **5 external EdgeFaultLab scenarios** passed. Faults include loss, duplication, delay, reordering, gateway failure/recovery, server outage, stale commands, and unavailable controllers. [CI](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37734482845) repeated the 350-test suite on Python 3.10/3.12 and the 20+5 scenarios on Python 3.12.
+
+**Evidence and Reproducibility.** Read the [original integration review](BRANCH_INTEGRATION_REVIEW.md), [acceptance commands/environment](../results/main-integration-review/validation/acceptance.json), and [source hashes](../results/main-integration-review/validation/source-manifest.json). Inspect the [internal](../results/main-integration-review/software-scenarios/suite_summary.json) and [external](../results/main-integration-review/edgefaultlab/suite_summary.json) summaries, per-scenario raw events, and [archived CI metadata](../results/main-integration-review/validation/main-ci.json). The [Quick Start](../README.md#quick-start) uses fresh output directories and the reviewed external revision.
+
+**Limitations.** This acceptance used no physical hardware. It does not establish RF performance, real-actuator safety, arbitrary-partition consensus, energy savings, or agricultural effectiveness. Synthetic model checks validate software workflows.
+
+## B. Physical ESP32-S3 / SHT30 Evidence
+
+**Objective.** Establish a limited physical B1 sensing record, labelled **HW1**. Measurement source is `562304ce87fb96068583227744a59b395a1697c8` (code dated 2026-09-23), with `git_dirty=false`. This historical firmware is distinct from subsequent upload and reliability revisions.
+
+**Implementation / Method.** An ESP32-S3 QFN56 revision v0.2 reads an SHT30 at I²C address `0x44`, using SDA GPIO8 and SCL GPIO9. The exact development-board model was not identified. ESP-IDF v5.4.4 firmware records physical temperature/humidity, per-channel SensorTrust state, and AdaptiveSense decisions. No synthetic fallback or soil/light readings were used.
+
+**Verified Results.** All **30 readings passed CRC**, with **zero physical read failures**. Temperature ranged 26.789–26.861 °C; humidity ranged 55.169–55.476 %RH. Both health contexts remained HEALTHY. All scheduler decisions were STABLE; the 2→4→5-second startup ladder was observed. This is an accelerated laboratory schedule, not deployment timing or evidence of a response to environmental events.
+
+**Evidence and Reproducibility.** Start with the [HW1 report](../results/v0.3/README.md), [physical samples](../results/v0.3/physical_samples.csv), [sanitized serial capture](../results/v0.3/raw/b1_serial.log), and [hardware provenance](../results/v0.3/hardware_metadata.json). The [firmware README](../firmware/b1/README.md) explains the current driver, configuration, and build boundaries; reproduce historical measurements using the recorded source/configuration rather than assuming current firmware is identical.
+
+**Limitations.** Wi-Fi was unconfigured; no gateway uploads or failover were observed. No faults were injected, and humidity thresholds lack independent calibration. Wireless control, E220, real actuators, current, energy, battery life, and a complete field deployment remain unverified. Build sizes and heap observations are not power measurements.
+
+## C. Research Branch — Phase 1
+
+**Objective.** Add bounded critical-data delivery to B1 without treating a successful TCP send as durable receipt. This is the **historical 2026-10-08 Phase 1** evaluation of `827cc393af34a1921613e9239785a625f191eafb`, including gateway changes at `ffb5615`; Phase 1.1 subsequently hardens its failure behavior.
+
+**Implementation / Method.** A portable C outbox freezes logical identities and serialized messages, keeps HIGH records through a firmware NVS backend, and rejects admission rather than evicting pending critical data. Gateway receipt and outbox admission share a transaction. Upload baselines advance after a matching gateway durable acknowledgement; stale restored samples remain history-only. Existing Wi-Fi/TCP transport is retained.
+
+**Verified Results.** The suite grew from 350 to **363 passing tests**; **20/20 internal scenarios** passed. A host C-serializer/TCP fixture dropped the first gateway ACK, then retried after cloud cleanup: final history contained **two samples and one alert**, without duplicate samples. ESP-IDF v5.4.4 compiled the ESP32-S3 firmware; it was not flashed in this evaluation.
+
+**Evidence and Reproducibility.** Read the pinned [original report](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/d909aa4a39e8374d4f356aca2db62473889236b1/docs/research/PHASE1_DEVELOPMENT_REPORT.md), [evidence index](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/d909aa4a39e8374d4f356aca2db62473889236b1/results/research-phase1/README.md), and [manifest](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/d909aa4a39e8374d4f356aca2db62473889236b1/results/research-phase1/manifest.json). They identify raw wire events, final regression logs, seed-42 scenarios, source hashes, and actual dirty-state provenance. Reproduction requires the recorded historical source and its environment.
+
+**Limitations.** NORMAL records are volatile; NVS can fill before all 16 logical slots are used. Historical FAILED records could stall until reboot; five attempts were a per-boot budget. Host storage callbacks do not validate physical power cuts or Flash wear. E220, deep-sleep continuity, energy, and actuators were not tested.
+
+## D. Research Branch — Phase 1.1
+
+**Objective.** Harden Phase 1's persistence, retry, and acknowledgement behavior under storage failures, restart, and concurrency. The latest functional verification recorded at the reviewed research snapshot is `329f8b2f9325ac419a8a8b0ccf9ab854f55db360`, dated 2026-10-08; later documentation commits do not supply new measurements.
+
+**Implementation / Method.** Failed records receive probes with 60–900-second backoff after five fast attempts. Uncertain saves quarantine slots; erase requires committed deletion. Portable v2 checkpoints use explicit lengths, little-endian fields, and CRC. Gateway write locking protects receipt capacity; durable audits track decision/dispatch uncertainty. Ordered acknowledgements preserve sample-time upload baselines, and metrics share one observation window.
+
+**Verified Results.** Final local regression passed **378 tests**. A virtual-hour outage used 11 attempts, including six probes, and retained the HIGH record; 20,000 randomized state interleavings passed. [Final CI](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37768007288) passed 378 tests per Python version, 20 internal and 5 external scenarios, plus ESP-IDF v5.4.4 lab/light-sleep builds. Both firmware artifacts contain build, size, version, and manifest records.
+
+**Evidence and Reproducibility.** The pinned [original report](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/d909aa4a39e8374d4f356aca2db62473889236b1/docs/research/PHASE1_1_DEVELOPMENT_REPORT.md), [evidence index](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/d909aa4a39e8374d4f356aca2db62473889236b1/results/research-phase1.1/README.md), and [source manifest](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/blob/d909aa4a39e8374d4f356aca2db62473889236b1/results/research-phase1.1/validation/source_manifest.json) distinguish development snapshots from exact-commit CI. Use their pytest, scenario, and public firmware-build commands on research. Preserved before-fix failures document defects, not unresolved final regressions.
+
+**Limitations.** No board, physical power-cut, RF, or energy experiment occurred. Quarantine reduces capacity; indefinite outages do not guarantee delivery. Audits preserve uncertainty rather than exactly-once actuation. Full deep-sleep algorithm snapshots, E220 integration, physical NVS behavior, and actuator safety remain pending; those limitations describe this historical Phase 1.1 evaluation. Later integrated source and its remaining hardware gates are covered in section E.
+
+## E. Phase 1.2–3, Stabilization, and AR-1
+
+**Objective / Implementation.** Harden registration, sample freshness and takeover; introduce bounded LoRa framing, a B1 E220 UART adapter, experimental RTC/NVS restoration, durable control-result replay, restart-safe policy versions, and an independently testable sensor-preparation boundary. Gateway retains the asynchronous safety boundaries: receipt transactions, ACK ordering, sequence/boot state, live ownership and dispatch.
+
+**Recorded Results.** AR-1 executable source `add9d076a04670b63b643fb822cfa84b23e99975` passed **631 tests per Python version** (3.10/3.12). TCP and host simulated-LoRa topology passed **20/20 each**; repeated reliability scenarios **20/20**; cross-phase integration **10/10**; external EdgeFaultLab **5/5**, pinned at `c7248239f456cc877114ca1e67c5949fb4a7b958`. The actual C snapshot oracle passed **19/19**, with **2800 observations**. Seeded radio checks passed **56/56 safety assertions**, while delivery remains **43 COMPLETE / 13 INCOMPLETE**. Both [final AR-1 push CI](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37880089604) and [PR CI](https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/37880093415) passed all six jobs, including four ESP-IDF v5.4.4 profiles. These are prior acceptance records; fresh consolidation validation is reported separately.
+
+**Evidence / Reproduction.** Read [Phase 1.2](research/PHASE1_2_DEVELOPMENT_REPORT.md), [bounded LoRa](research/PHASE2_LORA_DEVELOPMENT_REPORT.md), [experimental sleep](research/PHASE3_DEEPSLEEP_DEVELOPMENT_REPORT.md), [cross-phase integration](research/PHASE1_2_TO_PHASE3_INTEGRATION_REPORT.md), [reliability stabilization](research/RELIABILITY_STABILIZATION_REPORT.md), and [AR-1](architecture/AR1_SENSOR_PIPELINE.md). Retained [Phase 3 evidence](../results/research-phase3/) and [stabilization evidence](../results/research-reliability-stabilization/) include provenance and failures. Fresh data goes to ignored `.research-runs/` or CI artifacts; the [README commands](../README.md#run-reproducible-fault-experiments) reproduce every current experiment suite without overwriting historical records.
+
+**Current Limitations.** Deployment entry points remain fail-closed because optional A1/A2 HMAC does not authenticate B/C/cloud/RF sessions. Arbitrary-partition consensus and exactly-once physical outcomes are not established. Physical A/C endpoints, E220 RF/AUX/reset behavior, calibrated RTC elapsed time, NVS power cuts, real actuation and current/battery measurements remain pending. The default firmware elapsed-time provider returns UNKNOWN and restores conservatively. The only recorded physical result is section B's historical SHT30 sensing; host PASS and firmware compilation add no hardware claims.
