@@ -16,6 +16,8 @@
 #include <string.h>
 static b1_registration_t registration = {.generation = 1, .owner = "A1"};
 static uint8_t session[16], frame[AL_MAX_FRAME], raw[AL_MAX_MESSAGE + 1];
+static uint8_t lora_key[32];
+static size_t lora_key_len;
 static al_receiver_t receiver;
 static uint8_t gateway_sessions[2][16];
 static bool gateway_known[2];
@@ -127,8 +129,9 @@ static bool transmit(cJSON *m, uint64_t deadline) {
     uint64_t now = now_ms();
     if (now >= deadline)
       goto done;
-    if (!al_fragment((uint8_t *)json, n, &meta, CONFIG_B1_E220_FRAME_MTU, i,
-                     frame, sizeof(frame), &bytes))
+    if (!al_fragment_auth((uint8_t *)json, n, &meta, CONFIG_B1_E220_FRAME_MTU, i,
+                          lora_key_len ? lora_key : NULL, lora_key_len,
+                          frame, sizeof(frame), &bytes))
       goto done;
     uint32_t wait = (uint32_t)(deadline - now);
     if (wait > 2000)
@@ -154,7 +157,8 @@ static cJSON *receive(const char *gateway, uint64_t deadline,
     if (!n)
       continue;
     al_frame_t f;
-    if (!al_decode(frame, (size_t)n, &f) || f.destination != 3 ||
+    if (!al_decode_auth(frame, (size_t)n, lora_key_len ? lora_key : NULL,
+                        lora_key_len, &f) || f.destination != 3 ||
         f.source != (uint8_t)(!strcmp(gateway, "A1") ? 1 : 2))
       continue;
     unsigned g = f.source - 1;
@@ -261,6 +265,24 @@ bool b1_lora_run_window(uint32_t budget) {
   }
   esp_fill_random(session, sizeof(session));
   al_receiver_init(&receiver);
+  lora_key_len = 0;
+#ifdef CONFIG_B1_LORA_HMAC_KEY_HEX
+  if (strlen(CONFIG_B1_LORA_HMAC_KEY_HEX) == 64) {
+    bool valid_hex = true;
+    for (unsigned i = 0; i < 32; ++i) {
+      char hi = CONFIG_B1_LORA_HMAC_KEY_HEX[2 * i];
+      char lo = CONFIG_B1_LORA_HMAC_KEY_HEX[2 * i + 1];
+      int hv = hi >= '0' && hi <= '9' ? hi - '0' : (hi >= 'a' && hi <= 'f' ? hi - 'a' + 10 : (hi >= 'A' && hi <= 'F' ? hi - 'A' + 10 : -1));
+      int lv = lo >= '0' && lo <= '9' ? lo - '0' : (lo >= 'a' && lo <= 'f' ? lo - 'a' + 10 : (lo >= 'A' && lo <= 'F' ? lo - 'A' + 10 : -1));
+      if (hv < 0 || lv < 0) { valid_hex = false; break; }
+      lora_key[i] = (uint8_t)(hv * 16 + lv);
+    }
+    if (valid_hex) {
+      lora_key_len = 32;
+      al_receiver_set_key(&receiver, lora_key, lora_key_len);
+    }
+  }
+#endif
   memset(gateway_known, 0, sizeof(gateway_known));
   char preferred[3];
   memcpy(preferred, registration.owner, 3);

@@ -73,6 +73,9 @@ menu "Physical B1 configuration"
     config B1_E220_EXPECTED_REGISTERS
         string "Exact commissioned 00..07 register hex (16 chars; mandatory)"
         default ""
+    config B1_LORA_HMAC_KEY_HEX
+        string "Optional 32-byte field link MAC key hex (64 chars; empty for lab CRC-only)"
+        default ""
     config B1_DEEP_SLEEP_EXPERIMENTAL
         bool "Opt-in experimental Deep Sleep with versioned RTC snapshot"
         depends on B1_USE_E220 && !B1_LIGHT_SLEEP

@@ -64,9 +64,13 @@ class ControllerNode:
         state_path: str | None = None,
         profile: str = "simulation",
         emit_execution_events: bool = False,
+        peer_security_mode: str = "lab",
+        peer_key: bytes | None = None,
+        field_key: bytes | None = None,
     ):
         from common.deployment_security import require_lab_profile
-        require_lab_profile(profile)
+        require_lab_profile(profile, peer_mode=peer_security_mode, peer_key=peer_key, field_key=field_key)
+        self.field_key = field_key
         if node_id not in config.GATEWAY_OF_CONTROLLER:
             raise ValueError(f"unknown controller node id: {node_id!r}")
 

@@ -20,6 +20,10 @@
 
 ## Project Overview
 
+<p align="center">
+  <img src="docs/assets/esp32_e220_multinode_overview.svg" alt="ESP32-S3 + E220 Multi-Node Field Link & Live Telemetry Overview" width="100%"/>
+</p>
+
 Smart Agriculture Edge AI explores how agricultural IoT nodes can sense, assess data quality, and maintain local control under limited computing resources and intermittent connectivity. It combines embedded systems, edge AI, adaptive sampling, and resilient communication for battery-powered farm sensors, with ESP32-S3 and E220 LoRa as the target field platform.
 
 The repository includes a working seven-role, two-zone software prototype, ESP32-S3 sensor firmware, and reproducible fault experiments. The host prototype uses real TCP sockets with simulated sensor inputs and actuator execution; the implementation status below separates these capabilities from physical measurements.

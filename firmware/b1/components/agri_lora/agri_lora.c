@@ -1,9 +1,9 @@
 #include "agri_lora.h"
+#include <string.h>
 bool al_stream_expire(al_stream_t *s, uint64_t last, uint64_t now, uint32_t idle) {
   if (!s || !s->used || (now >= last && now - last < idle)) return false;
   s->used = 0; s->rejected++; return true;
 }
-#include <string.h>
 static uint16_t u16(const uint8_t *p) {
   return (uint16_t)(p[0] | (uint16_t)p[1] << 8);
 }
@@ -28,12 +28,30 @@ uint32_t al_crc32(const uint8_t *p, size_t n) {
   }
   return ~c;
 }
+uint32_t al_mac32(const uint8_t *key, size_t key_len, const uint8_t *data, size_t n) {
+  uint64_t h = UINT64_C(0xcbf29ce484222325);
+  for (size_t i = 0; i < key_len; ++i) {
+    h ^= (uint64_t)(key[i] ^ 0x36u);
+    h *= UINT64_C(0x100000001b3);
+  }
+  for (size_t i = 0; i < n; ++i) {
+    h ^= data[i];
+    h *= UINT64_C(0x100000001b3);
+  }
+  uint64_t outer = UINT64_C(0xcbf29ce484222325);
+  for (size_t i = 0; i < key_len; ++i) {
+    outer ^= (uint64_t)(key[i] ^ 0x5cu);
+    outer *= UINT64_C(0x100000001b3);
+  }
+  for (unsigned i = 0; i < 8; ++i) {
+    outer ^= (h >> (8 * i)) & 0xffu;
+    outer *= UINT64_C(0x100000001b3);
+  }
+  return (uint32_t)((outer >> 32) ^ (outer & 0xffffffffu));
+}
 int al_zone(uint8_t s, uint8_t d, uint8_t t) {
   bool a = s == 1 || s == 2, b = s == 3 || s == 4, c = s == 5 || s == 6;
   bool da = d == 1 || d == 2, db = d == 3 || d == 4, dc = d == 5 || d == 6;
-  /* SENSOR_DATA=0,CONTROL_COMMAND=1,CONTROL_RESULT=2,HEARTBEAT=3,ALERT=4,
-     SERVER_POLICY=5,NODE_REGISTER=6,NODE_REGISTER_ACK=7,NODE_STATUS=8,ACK=9,PERSISTED_ACK=10.
-   */
   bool ok = (b && da && (t == 0 || t == 4 || t == 6 || t == 8)) ||
             (a && db && (t == 10 || t == 9 || t == 7 || t == 8 || t == 5)) ||
             (c && da && (t == 2 || t == 9 || t == 6 || t == 8)) ||
@@ -57,15 +75,19 @@ static bool valid(const al_frame_t *f) {
   return f->payload_length == (remain < f->chunk ? remain : f->chunk) &&
          f->payload;
 }
-bool al_decode(const uint8_t *p, size_t n, al_frame_t *f) {
+bool al_decode_auth(const uint8_t *p, size_t n, const uint8_t *key, size_t key_len, al_frame_t *f) {
+  uint8_t expected_flags = key && key_len ? AL_FLAG_AUTH : 0;
   if (!p || !f || n <= AL_HEADER || n > AL_MAX_FRAME || p[0] != 'A' ||
-      p[1] != 'L' || p[2] != 1 || p[7])
+      p[1] != 'L' || p[2] != 1 || p[7] != expected_flags)
+    return false;
+  if (key && key_len < 16)
     return false;
   memset(f, 0, sizeof(*f));
   f->type = p[3];
   f->source = p[4];
   f->destination = p[5];
   f->zone = p[6];
+  f->flags = p[7];
   memcpy(f->session, p + 8, 16);
   memcpy(f->logical, p + 24, 16);
   f->sequence = u32(p + 40);
@@ -83,10 +105,18 @@ bool al_decode(const uint8_t *p, size_t n, al_frame_t *f) {
   uint8_t copy[AL_MAX_FRAME];
   memcpy(copy, p, n);
   memset(copy + 66, 0, 4);
-  return al_crc32(copy, n) == u32(p + 66);
+  uint32_t expected_tag = al_crc32(copy, n);
+  if (key && key_len)
+    expected_tag ^= al_mac32(key, key_len, copy, n);
+  return expected_tag == u32(p + 66);
 }
-bool al_encode(const al_frame_t *f, uint8_t *p, size_t cap, size_t *length) {
+bool al_decode(const uint8_t *p, size_t n, al_frame_t *f) {
+  return al_decode_auth(p, n, NULL, 0, f);
+}
+bool al_encode_auth(const al_frame_t *f, const uint8_t *key, size_t key_len, uint8_t *p, size_t cap, size_t *length) {
   if (!valid(f) || !p || !length || cap < AL_HEADER + f->payload_length)
+    return false;
+  if (key && key_len < 16)
     return false;
   size_t n = AL_HEADER + f->payload_length;
   memset(p, 0, AL_HEADER);
@@ -97,6 +127,7 @@ bool al_encode(const al_frame_t *f, uint8_t *p, size_t cap, size_t *length) {
   p[4] = f->source;
   p[5] = f->destination;
   p[6] = f->zone;
+  p[7] = (key && key_len) ? AL_FLAG_AUTH : 0;
   memcpy(p + 8, f->session, 16);
   memcpy(p + 24, f->logical, 16);
   w32(p + 40, f->sequence);
@@ -109,13 +140,19 @@ bool al_encode(const al_frame_t *f, uint8_t *p, size_t cap, size_t *length) {
   w32(p + 58, f->message_crc);
   memcpy(p + AL_HEADER, f->payload, f->payload_length);
   w32(p + 62, al_crc32(f->payload, f->payload_length));
-  w32(p + 66, al_crc32(p, n));
+  uint32_t tag = al_crc32(p, n);
+  if (key && key_len)
+    tag ^= al_mac32(key, key_len, p, n);
+  w32(p + 66, tag);
   *length = n;
   return true;
 }
-bool al_fragment(const uint8_t *raw, size_t n, const al_frame_t *meta,
-                 size_t mtu, unsigned idx, uint8_t *out, size_t cap,
-                 size_t *len) {
+bool al_encode(const al_frame_t *f, uint8_t *p, size_t cap, size_t *length) {
+  return al_encode_auth(f, NULL, 0, p, cap, length);
+}
+bool al_fragment_auth(const uint8_t *raw, size_t n, const al_frame_t *meta,
+                      size_t mtu, unsigned idx, const uint8_t *key, size_t key_len,
+                      uint8_t *out, size_t cap, size_t *len) {
   if (!raw || !meta || !n || n > AL_MAX_MESSAGE || mtu <= AL_HEADER ||
       mtu > AL_MAX_FRAME)
     return false;
@@ -131,9 +168,22 @@ bool al_fragment(const uint8_t *raw, size_t n, const al_frame_t *meta,
   f.payload = raw + idx * chunk;
   size_t remain = n - idx * chunk;
   f.payload_length = (uint16_t)(remain < chunk ? remain : chunk);
-  return al_encode(&f, out, cap, len);
+  return al_encode_auth(&f, key, key_len, out, cap, len);
+}
+bool al_fragment(const uint8_t *raw, size_t n, const al_frame_t *meta,
+                 size_t mtu, unsigned idx, uint8_t *out, size_t cap,
+                 size_t *len) {
+  return al_fragment_auth(raw, n, meta, mtu, idx, NULL, 0, out, cap, len);
 }
 void al_receiver_init(al_receiver_t *r) { memset(r, 0, sizeof(*r)); }
+bool al_receiver_set_key(al_receiver_t *r, const uint8_t *key, size_t key_len) {
+  if (!r || (key_len && (!key || key_len < 16 || key_len > AL_MAX_KEY)))
+    return false;
+  r->key_len = key_len;
+  if (key_len)
+    memcpy(r->key, key, key_len);
+  return true;
+}
 static bool same_key(const al_frame_t *a, const al_frame_t *b) {
   return a->source == b->source && a->destination == b->destination &&
          a->message_crc == b->message_crc &&
@@ -150,7 +200,11 @@ int al_receive(al_receiver_t *r, const uint8_t *wire, size_t n, uint64_t now,
   if (!r || !out || !length || !meta)
     return -1;
   if (now < r->now) {
+    uint8_t saved_key[AL_MAX_KEY];
+    size_t saved_len = r->key_len;
+    if (saved_len) memcpy(saved_key, r->key, saved_len);
     al_receiver_init(r);
+    if (saved_len) al_receiver_set_key(r, saved_key, saved_len);
     r->now = now;
     return -1;
   }
@@ -161,7 +215,7 @@ int al_receive(al_receiver_t *r, const uint8_t *wire, size_t n, uint64_t now,
       r->expired++;
     }
   al_frame_t f;
-  if (!al_decode(wire, n, &f)) {
+  if (!al_decode_auth(wire, n, r->key_len ? r->key : NULL, r->key_len, &f)) {
     r->rejected++;
     return -1;
   }
@@ -174,6 +228,13 @@ int al_receive(al_receiver_t *r, const uint8_t *wire, size_t n, uint64_t now,
       free_slot = s;
   }
   if (!slot) {
+    if (r->key_len && f.sequence > 0 && r->seq_seen[f.source] &&
+        !memcmp(r->last_session[f.source], f.session, 16) &&
+        (f.generation < r->last_gen[f.source] ||
+         (f.generation == r->last_gen[f.source] && f.sequence <= r->last_seq[f.source]))) {
+      r->rejected++;
+      return -1;
+    }
     if (!free_slot || UINT64_MAX - now < AL_TIMEOUT_MS) {
       r->rejected++;
       return -1;
@@ -210,6 +271,19 @@ int al_receive(al_receiver_t *r, const uint8_t *wire, size_t n, uint64_t now,
     slot->active = false;
     r->rejected++;
     return -1;
+  }
+  if (r->key_len && f.sequence > 0) {
+    if (r->seq_seen[f.source] && !memcmp(r->last_session[f.source], f.session, 16) &&
+        (f.generation < r->last_gen[f.source] ||
+         (f.generation == r->last_gen[f.source] && f.sequence <= r->last_seq[f.source]))) {
+      slot->active = false;
+      r->rejected++;
+      return -1;
+    }
+    r->seq_seen[f.source] = true;
+    memcpy(r->last_session[f.source], f.session, 16);
+    r->last_gen[f.source] = f.generation;
+    r->last_seq[f.source] = f.sequence;
   }
   memcpy(out, slot->data, f.total);
   *length = f.total;

@@ -1,8 +1,7 @@
 """AL v1: little-endian, 70-byte header, max 4096 bytes / 64 fragments.
 
-Full logical identities remain in bounded canonical JSON. The header uses a
-128-bit SHA256 prefix solely for reassembly lookup (birthday bound ~2**64);
-completed messages must match the full original identity. CRC is not a MAC.
+Supports both lab CRC32 framing (flags=0) and authenticated keyed MAC framing
+(flags=AL_FLAG_AUTH=1) with monotonic anti-replay sequence numbers.
 """
 from dataclasses import dataclass
 import hashlib
@@ -17,12 +16,31 @@ HEADER_SIZE = HEADER.size
 MAX_MESSAGE = 4096
 MAX_FRAGMENTS = 64
 MAX_FRAME = 256
+AL_FLAG_AUTH = 1
 ROLES = ("SERVER", "A1", "A2", "B1", "B2", "C1", "C2")
 TYPES = MESSAGE_TYPES
 
 
 class FrameError(ValueError):
     pass
+
+
+def mac32(key: bytes, data: bytes) -> int:
+    if not isinstance(key, bytes) or len(key) < 16:
+        raise FrameError("invalid MAC key")
+    mask64 = 0xFFFFFFFFFFFFFFFF
+    prime = 0x100000001B3
+    h = 0xCBF29CE484222325
+    for b in key:
+        h = ((h ^ (b ^ 0x36)) * prime) & mask64
+    for b in data:
+        h = ((h ^ b) * prime) & mask64
+    outer = 0xCBF29CE484222325
+    for b in key:
+        outer = ((outer ^ (b ^ 0x5C)) * prime) & mask64
+    for i in range(8):
+        outer = ((outer ^ ((h >> (8 * i)) & 0xFF)) * prime) & mask64
+    return ((outer >> 32) ^ (outer & 0xFFFFFFFF)) & 0xFFFFFFFF
 
 
 def identity(value):
@@ -48,7 +66,6 @@ def route(source, destination, kind):
 
 
 def canonical(message):
-    # Run the same application validator used by the existing TCP endpoints.
     Message.from_dict(message.to_dict())
     identity(message.message_id)
     raw = json.dumps(message.to_dict(), sort_keys=True, separators=(",", ":"),
@@ -74,20 +91,24 @@ class Frame:
     chunk: int
     message_crc: int
     payload: bytes
+    flags: int = 0
 
-    def encode(self):
-        header = HEADER.pack(b"AL", 1, self.kind, self.source, self.destination, self.zone, 0,
+    def encode(self, key: bytes | None = None):
+        flags = AL_FLAG_AUTH if key is not None else self.flags
+        header = HEADER.pack(b"AL", 1, self.kind, self.source, self.destination, self.zone, flags,
             self.session, self.logical, self.sequence, self.generation,
             self.index, self.count, self.total, len(self.payload), self.chunk,
             self.message_crc, zlib.crc32(self.payload), 0)
         wire = header + self.payload
-        wire = wire[:66] + struct.pack("<I", zlib.crc32(wire)) + wire[70:]
-        decode(wire)
+        tag = zlib.crc32(wire)
+        if key is not None:
+            tag ^= mac32(key, wire)
+        wire = wire[:66] + struct.pack("<I", tag) + wire[70:]
+        decode(wire, key=key)
         return wire
 
     @property
     def key(self):
-        # Different wire attempts of one business identity may differ in age.
         return (self.source, self.destination, self.session, self.logical, self.message_crc)
 
     @property
@@ -97,12 +118,13 @@ class Frame:
                 self.chunk, self.message_crc)
 
 
-def decode(wire):
+def decode(wire, key: bytes | None = None):
     if not isinstance(wire, bytes) or not HEADER_SIZE < len(wire) <= MAX_FRAME:
         raise FrameError("frame length")
     values = HEADER.unpack(wire[:HEADER_SIZE])
     magic, version, kind, src, dst, zone, flags, session, logical, seq, gen, idx, count, total, plen, chunk, mcrc, pcrc, fcrc = values
-    if magic != b"AL" or version != 1 or flags != 0:
+    expected_flags = AL_FLAG_AUTH if key is not None else 0
+    if magic != b"AL" or version != 1 or flags != expected_flags:
         raise FrameError("version/magic/flags")
     if kind >= len(TYPES) or src >= len(ROLES) or dst >= len(ROLES) or zone != route(ROLES[src], ROLES[dst], TYPES[kind]):
         raise FrameError("source/destination/zone/type")
@@ -114,12 +136,13 @@ def decode(wire):
         raise FrameError("fragment payload length")
     payload = wire[HEADER_SIZE:]
     zeroed = wire[:66] + b"\x00"*4 + payload
-    if zlib.crc32(payload) != pcrc or zlib.crc32(zeroed) != fcrc:
-        raise FrameError("CRC")
-    return Frame(kind, src, dst, zone, session, logical, seq, gen, idx, count, total, chunk, mcrc, payload)
+    expected_fcrc = zlib.crc32(zeroed) ^ (mac32(key, zeroed) if key is not None else 0)
+    if zlib.crc32(payload) != pcrc or expected_fcrc != fcrc:
+        raise FrameError("CRC/MAC")
+    return Frame(kind, src, dst, zone, session, logical, seq, gen, idx, count, total, chunk, mcrc, payload, flags)
 
 
-def fragment(message, session, mtu=160):
+def fragment(message, session, mtu=160, key: bytes | None = None):
     if not isinstance(session, bytes) or len(session) != 16:
         raise FrameError("session length")
     if type(mtu) is not int or not HEADER_SIZE < mtu <= MAX_FRAME:
@@ -133,9 +156,10 @@ def fragment(message, session, mtu=160):
     if type(seq) is not int or not 0 <= seq <= 0xffffffff or type(gen) is not int or not 0 <= gen <= 0xffffffff:
         raise FrameError("sequence/generation width")
     zone = route(message.source, message.target, message.type)
+    flags = AL_FLAG_AUTH if key is not None else 0
     return [Frame(TYPES.index(message.type), ROLES.index(message.source), ROLES.index(message.target), zone,
         session, identity(message.message_id), seq, gen, i, count, len(raw), chunk,
-        zlib.crc32(raw), raw[i*chunk:(i+1)*chunk]).encode() for i in range(count)]
+        zlib.crc32(raw), raw[i*chunk:(i+1)*chunk], flags).encode(key=key) for i in range(count)]
 
 
 def application(raw, frame):

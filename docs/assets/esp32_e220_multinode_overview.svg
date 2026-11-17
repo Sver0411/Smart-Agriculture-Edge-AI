@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420" font-family="Segoe UI, Inter, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="board" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#065f46"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="gw" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="lora" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#b45309"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="960" height="420" rx="14" fill="url(#bg)"/>
+  <text x="480" y="34" fill="#f8fafc" font-size="18" font-weight="700" text-anchor="middle">ESP32-S3 + E220-400T22D Sub-GHz LoRa Multi-Node Field Link &amp; Live Telemetry</text>
+  <text x="480" y="54" fill="#94a3b8" font-size="12" text-anchor="middle">AL v1 70-Byte Framed Protocol · Keyed MAC (AL_FLAG_AUTH) · Monotonic Anti-Replay · Dual-Gateway Failover</text>
+
+  <!-- Node B1: ESP32-S3 + SHT30 + E220 -->
+  <g transform="translate(36, 80)">
+    <rect width="250" height="190" rx="10" fill="#0f2922" stroke="#10b981" stroke-width="1.5"/>
+    <text x="16" y="24" fill="#34d399" font-size="13" font-weight="700">Sensor Node B1 (Zone 1)</text>
+    <rect x="16" y="36" width="120" height="78" rx="6" fill="url(#board)" stroke="#6ee7b7" stroke-width="1"/>
+    <text x="76" y="58" fill="#ecfdf5" font-size="11" font-weight="700" text-anchor="middle">ESP32-S3 N16R8</text>
+    <text x="76" y="74" fill="#a7f3d0" font-size="9.5" text-anchor="middle">SensorTrust C11</text>
+    <text x="76" y="88" fill="#a7f3d0" font-size="9.5" text-anchor="middle">AdaptiveSense</text>
+    <text x="76" y="102" fill="#a7f3d0" font-size="9.5" text-anchor="middle">NVS Outbox Queue</text>
+
+    <!-- E220 Radio Module -->
+    <rect x="150" y="36" width="84" height="52" rx="5" fill="url(#lora)" stroke="#fcd34d" stroke-width="1"/>
+    <text x="192" y="56" fill="#fffbeb" font-size="10.5" font-weight="700" text-anchor="middle">E220-400T22D</text>
+    <text x="192" y="70" fill="#fef3c7" font-size="9" text-anchor="middle">UART1 9600 8N1</text>
+    <text x="192" y="82" fill="#fef3c7" font-size="8.5" text-anchor="middle">GPIO 17/18/10/11/12</text>
+
+    <!-- SHT30 Sensor -->
+    <rect x="150" y="96" width="84" height="36" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="1"/>
+    <text x="192" y="112" fill="#e0f2fe" font-size="10" font-weight="700" text-anchor="middle">SHT30 I²C</text>
+    <text x="192" y="124" fill="#7dd3fc" font-size="8.5" text-anchor="middle">SDA:8 · SCL:9</text>
+
+    <!-- Serial log snippet -->
+    <rect x="16" y="124" width="218" height="54" rx="5" fill="#020617" stroke="#334155"/>
+    <text x="24" y="139" fill="#22c55e" font-family="Consolas, monospace" font-size="9">B1_RADIO {"event":"REGISTER_VERIFIED"}</text>
+    <text x="24" y="153" fill="#38bdf8" font-family="Consolas, monospace" font-size="9">TX ALv1 [AUTH=1] seq=14 T=27.3C H=61%</text>
+    <text x="24" y="167" fill="#eab308" font-family="Consolas, monospace" font-size="9">RX PERSISTED_ACK scope=GATEWAY_OUTBOX</text>
+  </g>
+
+  <!-- RF Link Waves -->
+  <g transform="translate(296, 130)">
+    <path d="M 0,30 L 66,30" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,4"/>
+    <polygon points="66,26 76,30 66,34" fill="#f59e0b"/>
+    <text x="38" y="18" fill="#fbbf24" font-size="10" font-weight="700" text-anchor="middle">433 MHz LoRa</text>
+    <text x="38" y="46" fill="#cbd5e1" font-size="9" text-anchor="middle">AL v1 + MAC32</text>
+    <text x="38" y="58" fill="#94a3b8" font-size="8.5" text-anchor="middle">Anti-Replay Seq</text>
+  </g>
+
+  <!-- Gateways A1 / A2 -->
+  <g transform="translate(380, 80)">
+    <rect width="250" height="190" rx="10" fill="#0f1e3a" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="16" y="24" fill="#60a5fa" font-size="13" font-weight="700">Dual Edge Gateways A1 ↔ A2</text>
+    <rect x="16" y="36" width="106" height="72" rx="6" fill="url(#gw)" stroke="#93c5fd" stroke-width="1"/>
+    <text x="69" y="56" fill="#eff6ff" font-size="11" font-weight="700" text-anchor="middle">Gateway A1</text>
+    <text x="69" y="72" fill="#bfdbfe" font-size="9" text-anchor="middle">Zone 1 Primary</text>
+    <text x="69" y="86" fill="#bfdbfe" font-size="9" text-anchor="middle">TrustGate + Decider</text>
+    <text x="69" y="100" fill="#bfdbfe" font-size="9" text-anchor="middle">SQLite Outbox</text>
+
+    <rect x="128" y="36" width="106" height="72" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+    <text x="181" y="56" fill="#e2e8f0" font-size="11" font-weight="700" text-anchor="middle">Gateway A2</text>
+    <text x="181" y="72" fill="#94a3b8" font-size="9" text-anchor="middle">Zone 2 + Failover</text>
+    <text x="181" y="86" fill="#94a3b8" font-size="9" text-anchor="middle">HMAC Peer Session</text>
+    <text x="181" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">Epoch Ownership</text>
+
+    <rect x="16" y="118" width="218" height="60" rx="5" fill="#020617" stroke="#334155"/>
+    <text x="24" y="133" fill="#60a5fa" font-family="Consolas, monospace" font-size="9">[A1] RX B1 seq=14 health=HEALTHY(100)</text>
+    <text x="24" y="147" fill="#34d399" font-family="Consolas, monospace" font-size="9">[A1] TrustGate PASS -&gt; IRRIGATION 15s</text>
+    <text x="24" y="161" fill="#f472b6" font-family="Consolas, monospace" font-size="9">[A2] Peer A1 timeout -&gt; Takeover Gen=2</text>
+  </g>
+
+  <!-- Link to Controller C1 & Cloud -->
+  <g transform="translate(640, 130)">
+    <path d="M 0,30 L 56,30" stroke="#38bdf8" stroke-width="2" stroke-dasharray="5,4"/>
+    <polygon points="56,26 66,30 56,34" fill="#38bdf8"/>
+    <text x="33" y="18" fill="#38bdf8" font-size="10" font-weight="700" text-anchor="middle">Zone Control</text>
+    <text x="33" y="46" fill="#cbd5e1" font-size="9" text-anchor="middle">Gen-Guarded</text>
+  </g>
+
+  <!-- Controller C1 & Server -->
+  <g transform="translate(714, 80)">
+    <rect width="210" height="190" rx="10" fill="#1e1b4b" stroke="#8b5cf6" stroke-width="1.5"/>
+    <text x="16" y="24" fill="#c4b5fd" font-size="13" font-weight="700">Controller C1 &amp; Cloud</text>
+    <rect x="16" y="36" width="178" height="58" rx="6" fill="#312e81" stroke="#a78bfa" stroke-width="1"/>
+    <text x="105" y="54" fill="#f5f3ff" font-size="10.5" font-weight="700" text-anchor="middle">Controller Node C1</text>
+    <text x="105" y="69" fill="#ddd6fe" font-size="9" text-anchor="middle">SafetyGuard · Cooldown · TTL</text>
+    <text x="105" y="83" fill="#ddd6fe" font-size="9" text-anchor="middle">Idempotent Command Store</text>
+
+    <rect x="16" y="102" width="178" height="76" rx="5" fill="#020617" stroke="#334155"/>
+    <text x="24" y="118" fill="#a78bfa" font-family="Consolas, monospace" font-size="9">[C1] CMD-014 Gen=2 -&gt; ACK</text>
+    <text x="24" y="132" fill="#34d399" font-family="Consolas, monospace" font-size="9">[C1] SafetyGuard OK -&gt; EXECUTED</text>
+    <text x="24" y="146" fill="#94a3b8" font-family="Consolas, monospace" font-size="9">[SRV] Replay Sync: 0 lost rows</text>
+    <text x="24" y="160" fill="#fbbf24" font-family="Consolas, monospace" font-size="9">[SEC] HMAC Peer &amp; Field Active</text>
+  </g>
+
+  <!-- Bottom Wire Frame Format Bar -->
+  <g transform="translate(36, 292)">
+    <rect width="888" height="104" rx="10" fill="#090d16" stroke="#334155" stroke-width="1.5"/>
+    <text x="20" y="24" fill="#e2e8f0" font-size="12.5" font-weight="700">AL v1 Authenticated Wire Frame Layout (70-Byte Header + Fragment Payload, MTU ≤ 256 B)</text>
+    
+    <g transform="translate(20, 36)" font-size="10" font-weight="600" text-anchor="middle">
+      <rect x="0" y="0" width="64" height="36" fill="#1e293b" stroke="#475569"/>
+      <text x="32" y="15" fill="#38bdf8">"AL" v1</text>
+      <text x="32" y="29" fill="#94a3b8" font-size="8.5">0..2 (3B)</text>
+
+      <rect x="64" y="0" width="90" height="36" fill="#1e293b" stroke="#475569"/>
+      <text x="109" y="15" fill="#38bdf8">Type/Src/Dst/Z</text>
+      <text x="109" y="29" fill="#94a3b8" font-size="8.5">3..6 (4B)</text>
+
+      <rect x="154" y="0" width="76" height="36" fill="#3b0764" stroke="#a855f7"/>
+      <text x="192" y="15" fill="#e9d5ff">Flags=AUTH</text>
+      <text x="192" y="29" fill="#d8b4fe" font-size="8.5">7 (1B)</text>
+
+      <rect x="230" y="0" width="110" height="36" fill="#1e293b" stroke="#475569"/>
+      <text x="285" y="15" fill="#38bdf8">Session UUID</text>
+      <text x="285" y="29" fill="#94a3b8" font-size="8.5">8..23 (16B)</text>
+
+      <rect x="340" y="0" width="110" height="36" fill="#1e293b" stroke="#475569"/>
+      <text x="395" y="15" fill="#38bdf8">Logical ID Hash</text>
+      <text x="395" y="29" fill="#94a3b8" font-size="8.5">24..39 (16B)</text>
+
+      <rect x="450" y="0" width="110" height="36" fill="#064e3b" stroke="#10b981"/>
+      <text x="505" y="15" fill="#6ee7b7">Seq + Gen</text>
+      <text x="505" y="29" fill="#a7f3d0" font-size="8.5">40..47 (8B Replay)</text>
+
+      <rect x="560" y="0" width="118" height="36" fill="#1e293b" stroke="#475569"/>
+      <text x="619" y="15" fill="#38bdf8">Frag Metadata</text>
+      <text x="619" y="29" fill="#94a3b8" font-size="8.5">48..65 (18B)</text>
+
+      <rect x="678" y="0" width="170" height="36" fill="#78350f" stroke="#f59e0b"/>
+      <text x="763" y="15" fill="#fde68a">CRC32 ⊕ Keyed MAC32</text>
+      <text x="763" y="29" fill="#fcd34d" font-size="8.5">66..69 (4B Tag) + Payload</text>
+    </g>
+    <text x="20" y="90" fill="#94a3b8" font-size="10.5">Verified on ESP32-S3 (ESP-IDF v5.4.4) + E220 UART/LoRa framing with end-to-end C11/Python wire parity and anti-replay protection.</text>
+  </g>
+</svg>

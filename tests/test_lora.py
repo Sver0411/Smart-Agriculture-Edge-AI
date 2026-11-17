@@ -138,3 +138,37 @@ def test_retry_clock_rollback_preserves_pending_identity():
     window=DeliveryWindow();m=message();window.admit(m,10)
     with pytest.raises(ValueError):window.due(9)
     assert m.message_id in window.pending
+
+
+def test_authenticated_mac_and_anti_replay_guard():
+    key = b"k" * 32
+    m1 = message(size=200)
+    m2 = replace(m1, message_id="B1-seq-9", sequence=9)
+    m_old = replace(m1, message_id="B1-seq-7", sequence=7)
+    wires1 = fragment(m1, SESSION, key=key)
+    # Unauthenticated decoder or wrong key must reject authenticated frame
+    with pytest.raises(FrameError):
+        decode(wires1[0])
+    with pytest.raises(FrameError):
+        decode(wires1[0], key=b"w" * 32)
+    r = Reassembler(sessions={ROLES.index("B1"): SESSION}, key=key)
+    out1 = None
+    for w in wires1:
+        res = r.feed(w, 1.0)
+        if res:
+            out1 = res
+    assert out1.to_dict() == m1.to_dict()
+    # Replay of same or older sequence on the same session is rejected
+    with pytest.raises(FrameError, match="replay"):
+        r.feed(wires1[0], 2.0)
+    for w in fragment(m_old, SESSION, key=key):
+        with pytest.raises(FrameError, match="replay"):
+            r.feed(w, 2.5)
+    # Next monotonic sequence succeeds
+    out2 = None
+    for w in fragment(m2, SESSION, key=key):
+        res = r.feed(w, 3.0)
+        if res:
+            out2 = res
+    assert out2.to_dict() == m2.to_dict()
+

@@ -101,9 +101,11 @@ class Gateway:
         queue_capacity: int = 128,
         peer_security_mode: str = "lab",
         peer_key: bytes | None = None,
+        field_key: bytes | None = None,
     ):
         from common.deployment_security import require_lab_profile
-        require_lab_profile(profile, peer_mode=peer_security_mode, peer_key=peer_key)
+        require_lab_profile(profile, peer_mode=peer_security_mode, peer_key=peer_key, field_key=field_key)
+        self.field_key = field_key
         if gateway_id not in config.GATEWAY_PORTS:
             raise ValueError(f"unknown gateway id: {gateway_id!r}")
 
