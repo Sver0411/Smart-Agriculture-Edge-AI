@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: >-
+  If you use or discuss Smart-Agriculture-Edge-AI in academic or technical work, please cite this
+  repository.
+type: software
+title: "Smart-Agriculture-Edge-AI: Fault-Tolerant Multi-Node Edge AI System"
+authors:
+  - name: Sver0411
+version: 0.1.0
+date-released: '2026-11-25'
+license: MIT
+repository-code: https://github.com/Sver0411/Smart-Agriculture-Edge-AI
+keywords:
+  - smart-agriculture
+  - edge-ai
+  - lora
+  - fault-tolerance
+  - esp32-s3
