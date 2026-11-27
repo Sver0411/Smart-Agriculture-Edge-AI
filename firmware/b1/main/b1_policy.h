@@ -3,7 +3,14 @@
 #include "change_detector.h"
 #include "adaptive_scheduler.h"
 
+#if CONFIG_B1_TAIS_JALC
+#include "agri_jalc.h"
+#endif
+
 typedef struct {
+#if CONFIG_B1_TAIS_JALC
+    agri_jalc_t jalc;
+#endif
     sensor_trust_t temperature, humidity;
     cd_t detector;
     as_t scheduler;

@@ -22,5 +22,17 @@
   "EdgeSense-AIoT": {
     "url": "https://github.com/Sver0411/EdgeSense-AIoT",
     "commit": "f6f004bbd7e92bf1ebc024790f71c12fa8249bfd"
+  },
+  "TAIS": {
+    "url": "https://github.com/Sver0411/TAIS",
+    "commit": "c751bd6d71719d1fbb178800dd62eca0cf11325e"
+  },
+  "NetAdapt-IoT": {
+    "url": "https://github.com/Sver0411/NetAdapt-IoT",
+    "commit": "c9f68d11cec0c6c425fe98e2a054b2b0403743df"
+  },
+  "IoT-MPQUIC-Scheduler": {
+    "url": "https://github.com/Sver0411/IoT-MPQUIC-Scheduler",
+    "commit": "1b3bea9f8933cf70713610fa550aa4ab670d71e4"
   }
 }

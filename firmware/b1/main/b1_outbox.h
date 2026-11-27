@@ -42,6 +42,7 @@ typedef struct {
     void *store_context;
     uint64_t next_order;
     uint64_t now_ms, window_end_ms, pause_until_ms, boot_attempts;
+    double durable_ack_miss_ema;
     unsigned window_attempts;
     bool window_open;
     uint32_t rejected, storage_failures, acknowledged, retries, exhausted, probes;

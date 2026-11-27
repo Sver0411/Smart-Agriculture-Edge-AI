@@ -1,4 +1,7 @@
 #pragma once
+#ifdef ESP_PLATFORM
+#include "sdkconfig.h"
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 #include "b1_outbox.h"

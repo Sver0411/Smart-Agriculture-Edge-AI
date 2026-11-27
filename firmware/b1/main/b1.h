@@ -25,3 +25,7 @@ const char *b1_policy_version(void);
 
 unsigned b1_queue_pending_count(void);
 uint32_t b1_queue_acknowledged_count(void);
+
+#if CONFIG_B1_TAIS_JALC
+double b1_queue_ack_miss_ema(void);
+#endif

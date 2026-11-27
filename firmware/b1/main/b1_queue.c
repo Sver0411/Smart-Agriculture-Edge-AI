@@ -51,6 +51,9 @@ bool b1_queue_sample(const b1_sample_t *sample)
     building.sequence=sample->seq; building.has_alert=sample->alert_requested;
     building.high=sample->alert_requested || sample->detected_event || sample->control_relevant_change ||
         (sample->upload_reasons & ((1u<<1) | (1u<<2) | (1u<<8) | (1u<<9)));
+#if CONFIG_B1_TAIS_JALC
+    building.high |= (sample->upload_reasons & (UP_FIRST_SAMPLE | UP_HEALTH_CHANGE | (1u << 13))) != 0;
+#endif
     snprintf(building.boot_id, sizeof(building.boot_id), "%s", b1_boot_id);
     snprintf(building.sample_id, sizeof(building.sample_id), "B1-%s-%08lx", b1_boot_id, (unsigned long)sample->seq);
     bool ok = b1_transmit_sample(&(b1_transport_t){.context=&building,.send=capture}, sample) &&
@@ -78,6 +81,22 @@ bool b1_queue_next(b1_record_t *record, uint64_t now_ms)
     b1_storage_unlock(); return slot >= 0;
 }
 
+#if CONFIG_B1_TAIS_JALC
+static sensor_health_result_t confirmed_health(cJSON *health, const char *name)
+{
+    cJSON *channel = cJSON_GetObjectItemCaseSensitive(health, name);
+    cJSON *state = cJSON_GetObjectItemCaseSensitive(channel, "state");
+    cJSON *flags = cJSON_GetObjectItemCaseSensitive(channel, "flags");
+    sensor_health_result_t result = {.state = SENSOR_STATE_FAULT};
+    if (cJSON_IsString(state)) {
+        if (strcmp(state->valuestring, "HEALTHY") == 0) result.state = SENSOR_STATE_HEALTHY;
+        if (strcmp(state->valuestring, "DEGRADED") == 0) result.state = SENSOR_STATE_DEGRADED;
+    }
+    if (cJSON_IsNumber(flags)) result.fault_flags = (uint32_t)flags->valuedouble;
+    return result;
+}
+#endif
+
 static void remember_confirmed(const b1_record_t *r)
 {
     if (strcmp(r->boot_id, b1_boot_id) != 0 || r->sequence <= confirmed_seq) return;
@@ -97,6 +116,12 @@ static void remember_confirmed(const b1_record_t *r)
         .usable=cJSON_IsTrue(cJSON_GetObjectItemCaseSensitive(p,"usable_for_control"))};
     confirmed.temp_health.state=cJSON_IsString(state) && strcmp(state->valuestring,"HEALTHY")==0
         ? SENSOR_STATE_HEALTHY : SENSOR_STATE_FAULT;
+#if CONFIG_B1_TAIS_JALC
+    confirmed.temp_health = confirmed_health(health, "temperature");
+    confirmed.hum_health = confirmed_health(health, "humidity");
+    cJSON *sampling = cJSON_GetObjectItemCaseSensitive(p, "sampling");
+    confirmed.detected_event = cJSON_IsTrue(cJSON_GetObjectItemCaseSensitive(sampling, "detected_event"));
+#endif
     confirmed_seq=r->sequence; has_confirmed=true;
     cJSON_Delete(root);
 }
@@ -146,3 +171,13 @@ uint32_t b1_queue_acknowledged_count(void) {
     b1_storage_unlock();
     return count;
 }
+
+#if CONFIG_B1_TAIS_JALC
+double b1_queue_ack_miss_ema(void)
+{
+    b1_storage_lock();
+    double miss_ema = outbox.durable_ack_miss_ema;
+    b1_storage_unlock();
+    return miss_ema;
+}
+#endif

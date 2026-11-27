@@ -165,6 +165,7 @@ B1/B2 评估读数并决定何时上报；A1/A2 校验数据、进行本地决�
 | --- | --- | --- |
 | 七角色双区域原型 | 已实现；通过 TCP 与模拟 LoRa 进行主机测试 | 完整现场硬件集成 |
 | SensorTrust 与 AdaptiveSense | 已集成主机软件和 B1 固件；有主机测试 | 现场校准及采样、上传行为评估 |
+| TAIS、NetAdapt 与双路径上云 | TAIS-JALC 的 B1 固件已为 ESP32-S3 编译。七角色主机实验已验证 FUD-Ada、模拟通风和真实 XQUIC 的端到云闭环 | 多节点现场空口协调、实物执行器及双运营链路验证 |
 | 本地决策与双网关接管 | 已实现；有模拟控制与主机测试 | 实物网关协调及硬件接管演示 |
 | 可靠交付与离线恢复 | 已实现；样本、结果持久交付和云端回放有主机测试 | 长期断网、存储边界及实物断电评估 |
 | ESP32-S3 B1 固件 | 感知、交付、Light Sleep 和实验 Deep Sleep 配置已实现并编译验证 | 当前配置的板上运行、状态恢复与功耗验证 |
@@ -196,6 +197,12 @@ python demo.py --duration 30
 ```
 
 各角色通过本地 TCP socket 通信。Demo 记录感知、网关决策、模拟控制器执行和云端历史，不操作真实执行器。
+
+七角色主机演示也可以用 TAIS-JALC 选择采样间隔和普通上报时机。该模式使用 C11 编译器，并以网关持久接收回执更新节点状态。在独立的演示目录运行 `python /path/to/demo.py --sensing-policy tais-jalc --sample-interval 1 --duration 20` 可加速观察。
+
+加上 `--field-scheduler fud_ada`，各节点的真实应用消息会竞争同一个主机模拟无线出口，由 NetAdapt 选择下一条发送流。使用 `--field-scheduler fifo` 可在相同分帧和容量设置下作对照。
+
+七角色联合验收用同一段模拟温度变化比较原版、TAIS、TAIS + NetAdapt 和完整回传链路。从仓库根目录运行 `python -m experiments.research_chain --stage netadapt --output .research-runs/netadapt.json` 可以跟踪 B1 采样、A1 调度、C1 通风执行、云端提交及反向策略回执。Linux 下的完整链路使用两个真正的双路径 XQUIC 连接，每个网关一组。[双路径构建与运行](backhaul/README.md) · [完整验收工作流](.github/workflows/research-chain.yml)
 
 可选的软件检查（完整测试还需 C11 编译器）：
 

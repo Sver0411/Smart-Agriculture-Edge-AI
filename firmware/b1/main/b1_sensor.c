@@ -92,6 +92,9 @@ void b1_sensor_task(void *arg) {
             s.injected = true;
         }
 #endif
+#if CONFIG_B1_TAIS_JALC
+        policy.jalc.link.loss_ema = b1_queue_ack_miss_ema();
+#endif
         b1_policy_update(&policy, &s);
         b1_stats.sensor_samples++;
         char temp_text[24], hum_text[24], score_text[24];

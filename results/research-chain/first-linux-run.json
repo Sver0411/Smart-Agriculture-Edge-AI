@@ -1,0 +1,300 @@
+{
+  "workflow": "https://github.com/Sver0411/Smart-Agriculture-Edge-AI/actions/runs/46000450477",
+  "tested_pr_head": "575fa3c545e63b4d7083ba5fc88234f194a3b404",
+  "scope": "Synthetic temperatures and host actuators; shared simulated LoRa outlet; live XQUIC on two Linux UDP paths per gateway.",
+  "stages": {
+    "baseline": {
+      "status": "passed",
+      "cloud_samples": {
+        "B1": 5,
+        "B2": 3
+      },
+      "field": {
+        "contended_decisions": 10,
+        "dropped": 0,
+        "duplicates": 0,
+        "fragments_sent": 259,
+        "logical_attempts": 39,
+        "max_queue_depth": 4,
+        "reassembled": 39,
+        "rejected": 0,
+        "scheduler_decisions": 39,
+        "simulated_frame_bytes": 39486
+      }
+    },
+    "tais": {
+      "status": "passed",
+      "cloud_samples": {
+        "B1": 20,
+        "B2": 16
+      },
+      "field": {
+        "contended_decisions": 13,
+        "dropped": 0,
+        "duplicates": 0,
+        "fragments_sent": 960,
+        "logical_attempts": 133,
+        "max_queue_depth": 4,
+        "reassembled": 133,
+        "rejected": 0,
+        "scheduler_decisions": 133,
+        "simulated_frame_bytes": 149970
+      }
+    },
+    "netadapt": {
+      "status": "passed",
+      "cloud_samples": {
+        "B1": 20,
+        "B2": 16
+      },
+      "field": {
+        "contended_decisions": 20,
+        "dropped": 0,
+        "duplicates": 0,
+        "fragments_sent": 960,
+        "logical_attempts": 133,
+        "max_queue_depth": 4,
+        "reassembled": 133,
+        "rejected": 0,
+        "scheduler_decisions": 133,
+        "simulated_frame_bytes": 149958
+      }
+    },
+    "mpquic": {
+      "status": "passed",
+      "cloud_samples": {
+        "B1": 20,
+        "B2": 16
+      },
+      "field": {
+        "contended_decisions": 18,
+        "dropped": 0,
+        "duplicates": 0,
+        "fragments_sent": 959,
+        "logical_attempts": 133,
+        "max_queue_depth": 4,
+        "reassembled": 133,
+        "rejected": 0,
+        "scheduler_decisions": 133,
+        "simulated_frame_bytes": 149932
+      }
+    }
+  },
+  "injected_path_a_delay_ms": 35,
+  "full_chain": {
+    "cloud_sqlite": {
+      "audit_state": "RESULT_EXECUTED",
+      "command_commit": 1795783285.215542,
+      "command_id": "27d08dde20c9",
+      "command_type": "VENTILATION",
+      "command_upload_id": "27d08dde20c9",
+      "controller_id": "C1",
+      "gateway_id": "A1",
+      "result_commit": 1795783286.0223253,
+      "result_id": "f94e69866550",
+      "sample_commit": 1795783285.1776125,
+      "sample_id": "B1-671f79c2f214-0000000d-S",
+      "status": "EXECUTED",
+      "temperature": 32.15
+    },
+    "correlation": "B1 identity joined to A1 durable audit and command_id joined to C1 execution",
+    "elapsed_ms": {
+      "command_to_result_at_gateway": 805.551,
+      "sample_to_cloud_receipt": 6.666,
+      "sample_to_result_at_gateway": 811.806
+    },
+    "field_selections": {
+      "b1_sample_at_a1": {
+        "candidates": [
+          "B1>A1/event"
+        ],
+        "end_slot": 347,
+        "flow": "B1>A1/event",
+        "ingress_slot": 329,
+        "message_id": "B1-671f79c2f214-0000000d-S",
+        "reassembled": true,
+        "service_slots": 18,
+        "slot": 329,
+        "type": "SENSOR_DATA"
+      },
+      "command_at_c1": {
+        "candidates": [
+          "A1>C1/control"
+        ],
+        "end_slot": 354,
+        "flow": "A1>C1/control",
+        "ingress_slot": 350,
+        "message_id": "27d08dde20c9",
+        "reassembled": true,
+        "service_slots": 4,
+        "slot": 350,
+        "type": "CONTROL_COMMAND"
+      },
+      "execution_at_a1": {
+        "candidates": [
+          "C1>A1/control"
+        ],
+        "end_slot": 533,
+        "flow": "C1>A1/control",
+        "ingress_slot": 530,
+        "message_id": "f94e69866550",
+        "reassembled": true,
+        "service_slots": 3,
+        "slot": 530,
+        "type": "CONTROL_RESULT"
+      }
+    },
+    "observed_messages": {
+      "b1_sample_at_a1": {
+        "ack_id": null,
+        "command_id": null,
+        "id": "B1-671f79c2f214-0000000d-S",
+        "origin_sample": null,
+        "persisted": null,
+        "policy_version": "tais-jalc-c751bd6",
+        "s": 2.5509,
+        "sensing_policy": "tais-jalc",
+        "source": "B1",
+        "status": null,
+        "tais_mode": "QUIET_ECO",
+        "target": "A1",
+        "type": "SENSOR_DATA"
+      },
+      "cloud_result_receipt_at_a1": {
+        "ack_id": "f94e69866550",
+        "command_id": null,
+        "id": "f9e5f823f37e",
+        "origin_sample": null,
+        "persisted": true,
+        "policy_version": null,
+        "s": 3.401865,
+        "sensing_policy": null,
+        "source": "SERVER",
+        "status": null,
+        "tais_mode": null,
+        "target": "A1",
+        "type": "PERSISTED_ACK"
+      },
+      "cloud_sample_receipt_at_a1": {
+        "ack_id": "B1-671f79c2f214-0000000d-S",
+        "command_id": null,
+        "id": "0625b876d46e",
+        "origin_sample": null,
+        "persisted": true,
+        "policy_version": null,
+        "s": 2.557566,
+        "sensing_policy": null,
+        "source": "SERVER",
+        "status": null,
+        "tais_mode": null,
+        "target": "A1",
+        "type": "PERSISTED_ACK"
+      },
+      "command_at_c1": {
+        "ack_id": null,
+        "command_id": "27d08dde20c9",
+        "id": "27d08dde20c9",
+        "origin_sample": "B1-671f79c2f214-0000000d-S",
+        "persisted": null,
+        "policy_version": null,
+        "s": 2.557155,
+        "sensing_policy": null,
+        "source": "A1",
+        "status": null,
+        "tais_mode": null,
+        "target": "C1",
+        "type": "CONTROL_COMMAND"
+      },
+      "execution_at_a1": {
+        "ack_id": null,
+        "command_id": "27d08dde20c9",
+        "id": "f94e69866550",
+        "origin_sample": null,
+        "persisted": null,
+        "policy_version": null,
+        "s": 3.362706,
+        "sensing_policy": null,
+        "source": "C1",
+        "status": "EXECUTED",
+        "tais_mode": null,
+        "target": "A1",
+        "type": "CONTROL_RESULT"
+      },
+      "gateway_sample_receipt_at_b1": {
+        "ack_id": "B1-671f79c2f214-0000000d-S",
+        "command_id": null,
+        "id": "92c93fc6caed",
+        "origin_sample": null,
+        "persisted": true,
+        "policy_version": null,
+        "s": 2.554385,
+        "sensing_policy": null,
+        "source": "A1",
+        "status": null,
+        "tais_mode": null,
+        "target": "B1",
+        "type": "PERSISTED_ACK"
+      }
+    },
+    "policy_round_trip": {
+      "acknowledgements": {
+        "A1": {
+          "ack_id": "9242dad1833a",
+          "command_id": null,
+          "id": "36fcc6ae2f76",
+          "origin_sample": null,
+          "persisted": null,
+          "policy_version": null,
+          "s": 6.04813,
+          "sensing_policy": null,
+          "source": "A1",
+          "status": null,
+          "tais_mode": null,
+          "target": "SERVER",
+          "type": "ACK"
+        },
+        "A2": {
+          "ack_id": "9242dad1833a",
+          "command_id": null,
+          "id": "e5b1c027f391",
+          "origin_sample": null,
+          "persisted": null,
+          "policy_version": null,
+          "s": 6.012883,
+          "sensing_policy": null,
+          "source": "A2",
+          "status": null,
+          "tais_mode": null,
+          "target": "SERVER",
+          "type": "ACK"
+        }
+      },
+      "applied_versions": {
+        "A1": 2,
+        "A2": 2
+      }
+    }
+  },
+  "backhaul": {
+    "A1": {
+      "both_paths_validated": true,
+      "fap_records_by_path": {
+        "1": 26,
+        "0": 27
+      },
+      "choices_with_two_paths": 53,
+      "reverse_persisted_acks": 44,
+      "reverse_policies": 7
+    },
+    "A2": {
+      "both_paths_validated": true,
+      "fap_records_by_path": {
+        "1": 17,
+        "0": 8
+      },
+      "choices_with_two_paths": 25,
+      "reverse_persisted_acks": 16,
+      "reverse_policies": 7
+    }
+  }
+}

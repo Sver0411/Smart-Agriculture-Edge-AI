@@ -7,13 +7,13 @@ It is not an ESP32/E220 adapter and never uses always-on NODE_STATUS keepalive.
 import uuid
 from common.messages import Message, SENSOR_DATA, ALERT
 from common.settings import node_settings
-from sensor_node.adaptive_sense import AdaptiveSense
+from sensor_node.tais_policy import make_sensing_policy
 from sensor_node.sensor_trust import SensorTrust
 from sensor_node.fault_notifier import FaultNotifier
 from sensor_node.telemetry import sensor_payload
 
 class SensorRuntime:
-    def __init__(self, node_id, source, transport, owner_gateway, generation, profile='deployment', *, physical=False, delivery_mode="legacy-write", state_path=None, field_key=None):
+    def __init__(self, node_id, source, transport, owner_gateway, generation, profile='deployment', *, physical=False, delivery_mode="legacy-write", state_path=None, field_key=None, sensing_policy="adaptive-sense"):
         if physical and (not isinstance(field_key, bytes) or len(field_key) < 32):
             from common.deployment_security import DeploymentUnavailable
             raise DeploymentUnavailable("physical runtime requires authenticated field transport (>=32-byte field_key)")
@@ -26,7 +26,7 @@ class SensorRuntime:
         self.boot_id = uuid.uuid4().hex[:12]
         settings = node_settings(profile, physical=physical)
         self.trust = SensorTrust(settings['trust_channels'])
-        self.scheduler = AdaptiveSense(settings=settings)
+        self.scheduler = make_sensing_policy(sensing_policy, settings, delivery_mode)
         self.notifications = FaultNotifier(settings['fault_reminder_s'])
         self.samples = self.messages = self.backpressure = 0
         self.report_window = None
@@ -57,7 +57,7 @@ class SensorRuntime:
                           'HEALTH_CHANGE' in schedule['upload_reasons'] or 'FIRST_SAMPLE' in schedule['upload_reasons'])
                 try:self.report_window.admit(prepare_report(m,timestamp,high=high),reading,trust,timestamp)
                 except StateError:self.backpressure += 1 # baseline stays unconfirmed; next sample retries the change
-            outgoing=self.report_window.due(timestamp,self.owner_gateway)
+            outgoing=self.report_window.due(timestamp,self.owner_gateway,self.scheduler)
         if schedule['upload_requested'] and not self.report_window or outgoing or notification is not None:
             try:
                 await self.transport.wake()

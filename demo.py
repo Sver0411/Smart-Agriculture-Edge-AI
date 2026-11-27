@@ -26,7 +26,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 from common import config  # noqa: E402
 from common.log import node_log  # noqa: E402
-from common.messages import CONTROL_COMMAND, Message  # noqa: E402
+from common.messages import CONTROL_COMMAND, Message, transport_interceptor  # noqa: E402
 from controller_node.controller_node import ControllerNode  # noqa: E402
 from gateway.gateway import Gateway  # noqa: E402
 from sensor_node.sensor_node import SensorNode, SensorSimulator  # noqa: E402
@@ -59,30 +59,43 @@ class Demo:
     def __init__(self, args: argparse.Namespace):
         self.args = args
         self.db_path = args.db
+        self.field_transport = None
+        self._field_token = None
+        if args.field_scheduler != "direct":
+            from common.lora.scheduled_transport import ScheduledLoRa
+            self.field_transport = ScheduledLoRa(policy=args.field_scheduler, seed=42)
         self.servers: list[Server] = []
         self.server = Server(db_path=self.db_path, policy_interval=args.policy_interval)
         self.servers.append(self.server)
 
-        self.gateways = {
-            gateway_id: Gateway(
-                gateway_id,
-                queue_path=config.gateway_queue_path(gateway_id),
-                drop_command_rate=args.drop_command_rate,
-                duplicate_command=args.duplicate_command,
-            )
-            for gateway_id in ("A1", "A2")
-        }
+        self.gateways = {node_id: self._new_gateway(node_id) for node_id in ("A1", "A2")}
+
+        def sensing_options(node_id: str) -> dict:
+            if args.sensing_policy == "tais-jalc":
+                return {
+                    "sensing_policy": "tais-jalc",
+                    "slow_interval": args.sample_interval,
+                    "fast_interval": args.sample_interval,
+                    "delivery_mode": "gateway-durable",
+                    "state_path": f"{self.db_path}.{node_id}.db",
+                }
+            return {
+                "slow_interval": args.sample_interval or 5.0,
+                "fast_interval": args.sample_interval or 2.0,
+            }
 
         inject_fault = None if args.scenario == "failover" else 4
         self.sensors = {
             "B1": SensorNode(
-                "B1", slow_interval=5.0, fast_interval=2.0,
+                "B1",
+                **sensing_options("B1"),
                 simulator=SensorSimulator(
                     "B1", seed=11, start={"soil_moisture": 21.5}, inject_fault_at=inject_fault
                 ),
             ),
             "B2": SensorNode(
-                "B2", slow_interval=5.0, fast_interval=2.0,
+                "B2",
+                **sensing_options("B2"),
                 simulator=SensorSimulator(
                     "B2", seed=22, start={"temperature": 33.5, "soil_moisture": 41.0}
                 ),
@@ -96,9 +109,20 @@ class Demo:
         # prove that a deposed gateway can no longer move an actuator
         self.stale_command: Message | None = None
 
+    def _new_gateway(self, gateway_id: str) -> Gateway:
+        port = self.args.backhaul_a1_port if gateway_id == "A1" else self.args.backhaul_a2_port
+        return Gateway(
+            gateway_id, server_port=port,
+            queue_path=config.gateway_queue_path(gateway_id),
+            drop_command_rate=self.args.drop_command_rate,
+            duplicate_command=self.args.duplicate_command,
+        )
+
     # -- lifecycle ---------------------------------------------------------
 
     async def start(self) -> None:
+        if self.field_transport is not None:
+            self._field_token = transport_interceptor.set(self.field_transport)
         await self.server.start()
         for gateway in self.gateways.values():
             await gateway.start()
@@ -117,8 +141,14 @@ class Demo:
         await asyncio.sleep(0.2)
         for gateway in self.gateways.values():
             await gateway.stop()
-        for server in self.servers:
-            await server.stop()
+        try:
+            for server in self.servers:
+                await server.stop()
+        finally:
+            if self._field_token is not None:
+                transport_interceptor.reset(self._field_token)
+                self._field_token = None
+                await self.field_transport.close()
 
     # -- fault injection ---------------------------------------------------
 
@@ -172,12 +202,7 @@ class Demo:
     def _revive(self, gateway_id: str):
         async def revive() -> None:
             node_log("DEMO", f"=== {gateway_id} recovering ===")
-            gateway = Gateway(
-                gateway_id,
-                queue_path=config.gateway_queue_path(gateway_id),
-                drop_command_rate=self.args.drop_command_rate,
-                duplicate_command=self.args.duplicate_command,
-            )
+            gateway = self._new_gateway(gateway_id)
             self.gateways[gateway_id] = gateway
             await gateway.start()
 
@@ -243,6 +268,8 @@ class Demo:
 
     def report(self) -> None:
         metrics = self.metrics()
+        if self.field_transport is not None:
+            metrics.update(self.field_transport.metrics)
         print()
         print("=" * 62)
         print(" demo summary - metrics")
@@ -299,6 +326,20 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Smart Agriculture Edge AI - v0.2 demo")
     parser.add_argument("--duration", type=float, default=30.0, help="how long to let the system run")
     parser.add_argument("--db", default="demo.db", help="sqlite file used by the demo")
+    parser.add_argument(
+        "--sensing-policy", choices=("adaptive-sense", "tais-jalc"), default="adaptive-sense",
+        help="sampling and reporting policy for B1/B2 (TAIS uses gateway delivery receipts)",
+    )
+    parser.add_argument(
+        "--field-scheduler", choices=("direct", "fifo", "fud_ada"), default="direct",
+        help="use a shared simulated field radio with FIFO or NetAdapt FUD-Ada scheduling",
+    )
+    parser.add_argument("--sample-interval", type=float,
+                        help="host simulation interval in seconds (TAIS scales its nominal 30-second clock)")
+    parser.add_argument("--backhaul-a1-port", type=int, default=config.SERVER_PORT,
+                        help="A1 cloud ingress TCP port (local MPQUIC gateway bridge when enabled)")
+    parser.add_argument("--backhaul-a2-port", type=int, default=config.SERVER_PORT,
+                        help="A2 cloud ingress TCP port")
     parser.add_argument("--policy-interval", type=float, default=config.SERVER_POLICY_INTERVAL)
 
     parser.add_argument(
@@ -357,8 +398,8 @@ def clean_previous_run(db_path: str) -> None:
 
 
 async def _main(demo: Demo) -> None:
-    await demo.start()
     try:
+        await demo.start()
         await demo.run()
     finally:
         await demo.stop()

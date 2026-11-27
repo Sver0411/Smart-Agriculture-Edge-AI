@@ -1,0 +1,78 @@
+name: Agricultural research chain
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'backhaul/**'
+      - 'sensor_node/**'
+      - 'common/lora/**'
+      - 'third_party/tais/**'
+      - 'third_party/netadapt/**'
+      - 'demo.py'
+      - 'experiments/research_chain.py'
+      - 'scripts/run_research_backhaul.py'
+      - '.github/workflows/research-chain.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  seven-roles:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Sver0411/IoT-MPQUIC-Scheduler
+          ref: 1b3bea9f8933cf70713610fa550aa4ab670d71e4
+          path: .external/mpquic
+          sparse-checkout: |
+            configs
+            patches
+            scripts
+            src
+            tests
+            third_party
+          persist-credentials: false
+      - name: Build upstream XQUIC and BoringSSL with live agriculture endpoints
+        run: |
+          git -C .external/mpquic submodule update --init --depth 1 third_party/xquic
+          bash backhaul/build.sh .external/mpquic "$RUNNER_TEMP/build"
+      - name: Replay the same temperature trace through the first three configurations
+        run: |
+          mkdir -p "$RUNNER_TEMP/evidence"
+          for stage in baseline tais netadapt; do
+            python3 -m experiments.research_chain --stage "$stage" \
+              --output "$RUNNER_TEMP/evidence/$stage.json" >"$RUNNER_TEMP/evidence/$stage.log" 2>&1
+          done
+      - name: Run the seven roles over two encrypted dual-path connections
+        shell: bash
+        run: |
+          set -euo pipefail
+          ns="agri-chain-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          sudo ip netns add "$ns"
+          trap 'sudo ip netns del "$ns"; sudo chown -R "$(id -u):$(id -g)" "$RUNNER_TEMP/evidence"' EXIT
+          sudo ip -n "$ns" link set lo up
+          sudo ip netns exec "$ns" python3 scripts/run_research_backhaul.py \
+            --binary "$RUNNER_TEMP/build/bridge/agri-mpquic" \
+            --output "$RUNNER_TEMP/evidence/full" --delay-path-a
+      - name: Summarize or diagnose the run
+        if: always()
+        run: |
+          for report in "$RUNNER_TEMP"/evidence/{baseline,tais,netadapt}.json "$RUNNER_TEMP"/evidence/full/summary.json; do
+            if test -f "$report"; then jq '{stage,status,error,proof:.chain.cloud_sqlite}' "$report"; fi
+          done
+          if test ! -f "$RUNNER_TEMP/evidence/full/backhaul.json"; then
+            for log in "$RUNNER_TEMP"/evidence/full/*.log; do
+              if test -f "$log"; then echo "$log"; tail -16 "$log"; fi
+            done
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: research-chain-evidence
+          path: ${{ runner.temp }}/evidence
+          if-no-files-found: warn

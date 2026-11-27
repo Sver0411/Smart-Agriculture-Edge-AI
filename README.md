@@ -165,6 +165,7 @@ Sensors B1/B2 assess readings and decide when to report. Gateways A1/A2 validate
 | --- | --- | --- |
 | Seven-role, two-zone prototype | Implemented; host-tested over TCP and simulated LoRa | Complete field hardware integration |
 | SensorTrust & AdaptiveSense | Implemented in host software and B1 firmware; host-tested | Field calibration and evaluation of sampling/upload behavior |
+| TAIS, NetAdapt and dual-path cloud backhaul | TAIS-JALC B1 firmware built for ESP32-S3. Seven-role host acceptance traces a temperature sample through FUD-Ada, C1 ventilation, live XQUIC and cloud SQLite | Physical multi-node radio coordination, actuator and dual-WAN validation |
 | Local decisions & dual-gateway failover | Implemented; host-tested with simulated control | Physical gateway coordination and hardware takeover demonstration |
 | Reliable delivery & offline recovery | Implemented; host-tested durable sample/result delivery and cloud replay | Long outages, storage limits, and physical power-loss evaluation |
 | ESP32-S3 B1 firmware | Implemented; build-verified sensing, delivery, light-sleep, and experimental deep-sleep profiles | Board validation of current profiles, state restoration, and power behavior |
@@ -202,6 +203,12 @@ Optional software checks (the complete suite also needs a C11 compiler):
 ```bash
 python -m pytest tests/ -q
 ```
+
+For the TAIS-JALC sensing policy, run `python /path/to/demo.py --sensing-policy tais-jalc --sample-interval 1 --duration 20` in a fresh demo directory. The host needs a C11 compiler. The one-second nominal interval accelerates the simulation. Samples advance their delivery baseline on gateway commit receipts.
+
+Add `--field-scheduler fud_ada` to let NetAdapt schedule the application flows sharing the simulated field radio. Use `--field-scheduler fifo` for the same framing and capacity with FIFO service.
+
+To trace the two-zone software experiment, run `python -m experiments.research_chain --stage netadapt --output .research-runs/netadapt.json` from the repository root. The report joins the triggering B1 sample to the A1 decision, C1 ventilation result, cloud SQLite commit and acknowledgements. The full Linux configuration sends the same application's messages over two independent dual-path XQUIC connections. [Build and run the backhaul](backhaul/README.md) · [Four-stage acceptance workflow](.github/workflows/research-chain.yml)
 
 ## Related Research Projects
 

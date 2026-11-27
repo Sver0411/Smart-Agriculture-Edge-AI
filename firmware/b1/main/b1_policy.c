@@ -7,7 +7,31 @@
 #include "b1_profiles.h"
 #include "b1_control_relevance.h"
 
-const char *b1_policy_version(void) { return B1_POLICY_VERSION; }
+#if CONFIG_B1_TAIS_JALC
+static tais_jalc_snapshot_t report_snapshot(const b1_sample_t *s)
+{
+    const sensor_health_result_t health[] = {s->temp_health, s->hum_health};
+    const double values[] = {s->temperature, s->humidity};
+    tais_jalc_snapshot_t snapshot = {.has_snapshot = true};
+    for (int i = 0; i < 2; ++i) {
+        snapshot.valid[i] = s->valid && isfinite(values[i]);
+        snapshot.value[i] = snapshot.valid[i] ? values[i] : 0;
+        snapshot.active[i] = snapshot.valid[i] && health[i].state == SENSOR_STATE_HEALTHY && s->detected_event;
+        snapshot.health_state[i] = health[i].state;
+        snapshot.health_flags[i] = health[i].fault_flags;
+    }
+    return snapshot;
+}
+#endif
+
+const char *b1_policy_version(void)
+{
+#if CONFIG_B1_TAIS_JALC
+    return "tais-jalc-c751bd6-" B1_POLICY_VERSION;
+#else
+    return B1_POLICY_VERSION;
+#endif
+}
 
 bool b1_policy_set_temperature_threshold(b1_policy_t *p, float threshold)
 {
@@ -19,6 +43,10 @@ bool b1_policy_set_temperature_threshold(b1_policy_t *p, float threshold)
 void b1_policy_mark_reported(b1_policy_t *p, const b1_sample_t *s)
 {
     if (p->has_confirmed && (s->seq <= p->confirmed_seq || s->monotonic_ms < p->confirmed_ms)) return;
+#if CONFIG_B1_TAIS_JALC
+    tais_jalc_snapshot_t confirmed = report_snapshot(s);
+    agri_jalc_confirm(&p->jalc, s->monotonic_ms / 1000.0, &confirmed);
+#endif
     p->has_confirmed=true; p->confirmed_seq=s->seq; p->confirmed_ms=s->monotonic_ms;
     p->has_reported_temperature = s->valid && isfinite(s->temperature) && s->temp_health.state == SENSOR_STATE_HEALTHY;
     if (p->has_reported_temperature) p->reported_temperature = s->temperature;
@@ -38,10 +66,15 @@ bool b1_policy_init(b1_policy_t *p)
     if (!p->temperature.initialised || !p->humidity.initialised) return false;
     cd_init(&p->detector, &p->cd_config);
     as_init(&p->scheduler, &p->as_config);
+#if CONFIG_B1_TAIS_JALC
+    double noise[] = {p->cd_config.channels[0].noise_floor, p->cd_config.channels[1].noise_floor};
+    return agri_jalc_init(&p->jalc, 2, noise);
+#else
     return true;
+#endif
 }
 
-void b1_policy_update(b1_policy_t *p, b1_sample_t *s)
+static void adaptive_update(b1_policy_t *p, b1_sample_t *s)
 {
     s->upload_reasons = 0;
     s->control_relevant_change = false;
@@ -123,4 +156,33 @@ void b1_policy_update(b1_policy_t *p, b1_sample_t *s)
     if (s->recovered) s->upload_reasons |= UP_SENSOR_RECOVERY;
     s->upload_reasons |= relevant;
     s->upload_requested = s->upload_reasons != 0;
+}
+
+void b1_policy_update(b1_policy_t *p, b1_sample_t *s)
+{
+    adaptive_update(p, s);
+#if CONFIG_B1_TAIS_JALC
+    static const char *const modes[] = {"QUIET_ECO", "PROBE", "TRACK", "SAFE_FALLBACK", "DIAG_VERIFY"};
+    tais_jalc_snapshot_t sample = report_snapshot(s);
+    tais_jalc_decision_t d;
+    if (!agri_jalc_step(&p->jalc, s->monotonic_ms / 1000.0, &sample, &d)) {
+        s->reason = "TAIS_INPUT_REJECTED_ADAPTIVE_FALLBACK";
+        return;
+    }
+    uint32_t reasons = s->upload_reasons & (UP_SENSOR_FAULT | UP_SENSOR_RECOVERY |
+        UP_HEALTH_CHANGE | UP_CONTROL_THRESHOLD_CROSSING | UP_CONTROL_MARGIN_ENTRY);
+    if (d.reason_mask & TAIS_REASON_FIRST) reasons |= UP_FIRST_SAMPLE;
+    if (d.reason_mask & TAIS_REASON_HEALTH_EDGE) reasons |= UP_HEALTH_CHANGE;
+    if (d.reason_mask & TAIS_REASON_DEADBAND) reasons |= UP_MEANINGFUL_DELTA;
+    if (d.reason_mask & TAIS_REASON_HEARTBEAT) reasons |= UP_PERIODIC_HEARTBEAT;
+    if (d.reason_mask & TAIS_REASON_EVENT_EDGE) reasons |= s->detected_event ? UP_EVENT_ONSET : UP_EVENT_RECOVERY;
+    if (d.reason_mask & TAIS_REASON_AOI_CAP) reasons |= 1u << 12;
+    if (d.reason_mask & TAIS_REASON_VALIDITY) reasons |= 1u << 13;
+    s->mode = modes[d.obs_mode];
+    s->reason = s->mode;
+    s->upload_reasons = reasons;
+    s->upload_requested = reasons != 0;
+    s->next_interval_ms = (uint32_t)ceil(d.interval_s * 1000.0);
+    s->score = (float)d.score;
+#endif
 }
