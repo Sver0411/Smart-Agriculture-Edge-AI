@@ -201,6 +201,8 @@ python demo.py --duration 30
 
 加上 `--field-scheduler fud_ada`，各节点的真实应用消息会竞争同一个主机模拟无线出口，由 NetAdapt 选择下一条发送流。使用 `--field-scheduler fifo` 可在相同分帧和容量设置下作对照。
 
+七角色联合验收用同一段模拟温度变化比较原版、TAIS、TAIS + NetAdapt 和完整回传链路。从仓库根目录运行 `python -m experiments.research_chain --stage netadapt --output .research-runs/netadapt.json` 可以跟踪 B1 采样、A1 调度、C1 通风执行、云端提交及反向策略回执。Linux 下的完整链路使用两个真正的双路径 XQUIC 连接，每个网关一组。[双路径构建与运行](backhaul/README.md) · [完整验收工作流](.github/workflows/research-chain.yml)
+
 可选的软件检查（完整测试还需 C11 编译器）：
 
 ```bash

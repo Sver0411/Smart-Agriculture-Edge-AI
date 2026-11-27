@@ -45,3 +45,13 @@ The supervisors reopen sessions after disconnect. An idle Linux poll waits for I
 | IoT-MPQUIC-Scheduler | [1b3bea9](https://github.com/Sver0411/IoT-MPQUIC-Scheduler/tree/1b3bea9f8933cf70713610fa550aa4ab670d71e4), MIT | Endpoint UDP/path callbacks, FAP-MPQUIC initial-path selection, XQUIC stream affinity and cross-path repair. The live build reuses the bounded binding table across successive stream IDs with identity checks. |
 | Alibaba XQUIC | [dffd32c](https://github.com/alibaba/xquic/tree/dffd32c42a511edae544b87169976516b7c4cbfa), Apache-2.0 | XQUIC connection, TLS integration, congestion control, datagram and stream processing. The scheduler's three research patches are applied by its build script. |
 | BoringSSL | [b69a617](https://github.com/google/boringssl/tree/b69a6175320af9b6fca7295fdbb4fb130f4804a2) | TLS. See the upstream LICENSE for attribution and individual file terms. |
+
+### Seven-role validation
+
+After building the native endpoint on Linux, from the repository root run:
+
+```sh
+python3 scripts/run_research_backhaul.py --binary "$build/bridge/agri-mpquic" --output /tmp/agri-live-run
+```
+
+Choose a new output directory. The launcher creates an ephemeral server certificate, starts the A1 and A2 bridges, and verifies the triggering B1 sample, C1 command and execution result crossed A1's encrypted connection. It checks both gateways for cloud commit receipts and reverse policy traffic. `summary.json`, `backhaul.json`, the application databases and per-lane logs contain the evidence. The [Linux CI job](../.github/workflows/research-chain.yml) also runs the three preceding configurations, then injects 35 ms latency on the primary route inside a disposable network namespace. All four configurations use synthetic sensor inputs and simulated actuators. The LoRa segment runs on a host field-channel model.

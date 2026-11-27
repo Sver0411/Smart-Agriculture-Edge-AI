@@ -207,6 +207,8 @@ For the TAIS-JALC sensing policy, run `python /path/to/demo.py --sensing-policy 
 
 Add `--field-scheduler fud_ada` to let NetAdapt schedule the application flows sharing the simulated field radio. Use `--field-scheduler fifo` for the same framing and capacity with FIFO service.
 
+To trace the two-zone software experiment, run `python -m experiments.research_chain --stage netadapt --output .research-runs/netadapt.json` from the repository root. The report joins the triggering B1 sample to the A1 decision, C1 ventilation result, cloud SQLite commit and acknowledgements. The full Linux configuration sends the same application's messages over two independent dual-path XQUIC connections. [Build and run the backhaul](backhaul/README.md) · [Four-stage acceptance workflow](.github/workflows/research-chain.yml)
+
 ## Related Research Projects
 
 These projects are maintained independently. Their device measurements and research results are separate from this repository's system evidence.
