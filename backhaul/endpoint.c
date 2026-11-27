@@ -11,7 +11,7 @@ enum { LINE_MAX_BYTES = 65537, META_BYTES = 5, REORDER_WINDOW = 128 };
 static const char *bridge_alpn = "agri-backhaul-v1";
 struct live_stream {
     size_t used, size;
-    bool tx, writing, finished;
+    bool tx, registered_tx, writing, finished;
     unsigned char line[LINE_MAX_BYTES + 1];
 };
 struct complete_line {
@@ -146,6 +146,12 @@ static xqc_int_t close_stream(xqc_stream_t *stream, void *user)
     if (!frame)
         return 0;
     struct endpoint *ep = xqc_get_conn_user_data_by_stream(stream);
+    /* On a creation failure XQUIC may call close before returning NULL.
+     * The creator still owns that buffer and has not counted a live stream. */
+    if (frame->tx && !frame->registered_tx) {
+        ep->failed = true;
+        return 0;
+    }
     if (!frame->finished)
         ep->failed = true;
     if (frame->tx) {
@@ -220,6 +226,8 @@ static void forward_to_quic(struct endpoint *ep)
         live.retry_at = now + 25000;
         return;
     }
+    frame->registered_tx = true;
+    ep->active_tx++;
     uint64_t id = xqc_stream_id(stream);
     if (id / 4 != ordinal) {
         ep->failed = true;
@@ -235,7 +243,6 @@ static void forward_to_quic(struct endpoint *ep)
                 "\"algorithm\":\"FAP-MPQUIC\",\"stream_id\":%" PRIu64 ",\"path_id\":%" PRIu64
                 ",\"bytes\":%zu,\"candidates\":%zu}\n", id, paths[chosen].id, length, count);
     }
-    ep->active_tx++;
     live.next_tx++;
     live.pending = 0;
     if (send_stream(stream, frame) != 0)
@@ -277,6 +284,28 @@ static void handle_ipc(struct endpoint *ep, short revents)
         live.local_eof = true;
 }
 
+/* A connected UDP socket can deliver a delayed ICMP error for an earlier
+ * packet. Clear that pending error before reading the next datagram. During
+ * an established session QUIC's own loss timers can recover on the other
+ * path. An unreachable peer before handshake returns to supervisor retry. */
+static void handle_socket_error(struct endpoint *ep, int index)
+{
+    int error = 0;
+    socklen_t length = sizeof(error);
+    if (getsockopt(ep->links[index].fd, SOL_SOCKET, SO_ERROR, &error, &length) < 0)
+        error = errno;
+    if (!error)
+        return;
+    bool unreachable = error == ECONNREFUSED || error == EHOSTUNREACH || error == ENETUNREACH;
+    const char *phase = ep->quic_closing ? "closing" : ep->handshake ? "established" : "startup";
+    fprintf(stderr, "{\"event\":\"udp_socket_error\",\"role\":\"%s\",\"link\":%d,"
+            "\"phase\":\"%s\",\"errno\":%d}\n", role(ep), index, phase, error);
+    if (ep->quic_closing && unreachable)
+        ep->closed = true;
+    else if (!ep->handshake || !unreachable)
+        ep->failed = true;
+}
+
 static void run_bridge(struct endpoint *ep)
 {
     while (!ep->closed && !ep->failed && !live.local_eof) {
@@ -310,7 +339,11 @@ static void run_bridge(struct endpoint *ep)
             continue;
         }
         for (int i = 0; i < PATHS; i++) {
-            if (fds[i].revents & (POLLIN | POLLERR))
+            if (fds[i].revents & POLLERR)
+                handle_socket_error(ep, i);
+            if (ep->failed || ep->closed)
+                break;
+            if (fds[i].revents & POLLIN)
                 receive_packets(ep, i);
             if (fds[i].revents & POLLOUT) {
                 ep->links[i].blocked = false;

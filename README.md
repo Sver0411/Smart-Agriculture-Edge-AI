@@ -165,6 +165,7 @@ Sensors B1/B2 assess readings and decide when to report. Gateways A1/A2 validate
 | --- | --- | --- |
 | Seven-role, two-zone prototype | Implemented; host-tested over TCP and simulated LoRa | Complete field hardware integration |
 | SensorTrust & AdaptiveSense | Implemented in host software and B1 firmware; host-tested | Field calibration and evaluation of sampling/upload behavior |
+| TAIS, NetAdapt and dual-path cloud backhaul | TAIS-JALC B1 firmware built for ESP32-S3. Seven-role host acceptance traces a temperature sample through FUD-Ada, C1 ventilation, live XQUIC and cloud SQLite | Physical multi-node radio coordination, actuator and dual-WAN validation |
 | Local decisions & dual-gateway failover | Implemented; host-tested with simulated control | Physical gateway coordination and hardware takeover demonstration |
 | Reliable delivery & offline recovery | Implemented; host-tested durable sample/result delivery and cloud replay | Long outages, storage limits, and physical power-loss evaluation |
 | ESP32-S3 B1 firmware | Implemented; build-verified sensing, delivery, light-sleep, and experimental deep-sleep profiles | Board validation of current profiles, state restoration, and power behavior |
