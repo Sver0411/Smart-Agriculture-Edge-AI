@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-profile=${1:?lab, light-sleep, lora-prototype or deep-sleep-experimental}
+profile=${1:?lab, light-sleep, lora-prototype, deep-sleep-experimental or tais-jalc}
 output=${2:?absolute isolated output directory}
-case "$profile" in lab|light-sleep|lora-prototype|deep-sleep-experimental) ;; *) exit 2 ;; esac
+case "$profile" in lab|light-sleep|lora-prototype|deep-sleep-experimental|tais-jalc) ;; *) exit 2 ;; esac
 case "$output" in /*) ;; *) echo 'Output must be absolute'; exit 2 ;; esac
 root=$(cd "$(dirname "$0")/.." && pwd)
 project="$root/firmware/b1"
@@ -20,7 +20,10 @@ if [[ "$profile" == light-sleep ]]; then
     grep -q '^CONFIG_PM_ENABLE=y$' "$output/sdkconfig"
     grep -q '^CONFIG_FREERTOS_USE_TICKLESS_IDLE=y$' "$output/sdkconfig"
 fi
-if [[ "$profile" == lora-prototype || "$profile" == deep-sleep-experimental ]]; then
+if [[ "$profile" == tais-jalc ]]; then
+    grep -q '^CONFIG_B1_TAIS_JALC=y$' "$output/sdkconfig"
+fi
+if [[ "$profile" == lora-prototype || "$profile" == deep-sleep-experimental || "$profile" == tais-jalc ]]; then
     grep -q '^CONFIG_B1_USE_E220=y$' "$output/sdkconfig"
     grep -q '^CONFIG_B1_E220_EXPECTED_REGISTERS="[^"]\+"$' "$output/sdkconfig"
 fi
@@ -38,6 +41,6 @@ pathlib.Path(sys.argv[2]).write_text(json.dumps({'idf':'v5.4.4','target':'esp32s
     'dirty':bool(subprocess.check_output(['git','-c','safe.directory='+sys.argv[5],'-C',sys.argv[5],'status','--porcelain'],text=True)),
     'compiler':subprocess.check_output(['xtensa-esp32s3-elf-gcc','--version'],text=True).splitlines()[0],
     'source_sha256':{p:hashlib.sha256((pathlib.Path(sys.argv[5])/p).read_bytes()).hexdigest()
-        for p in subprocess.check_output(['git','-c','safe.directory='+sys.argv[5],'-C',sys.argv[5],'ls-files','firmware/b1','third_party','scripts/ci_build_b1.sh'],text=True).splitlines()
+        for p in subprocess.check_output(['git','-c','safe.directory='+sys.argv[5],'-C',sys.argv[5],'ls-files','--cached','--others','--exclude-standard','firmware/b1','third_party','sensor_node/jalc_bridge','scripts/ci_build_b1.sh'],text=True).splitlines()
         if (pathlib.Path(sys.argv[5])/p).is_file()}},indent=2)+'\n')
 PY

@@ -66,6 +66,10 @@ bool b1_transmit_sample(const b1_transport_t *transport, const b1_sample_t *s)
     cJSON_AddItemToObject(health, "temperature", health_json(s->temp_health));
     cJSON_AddItemToObject(health, "humidity", health_json(s->hum_health));
     cJSON *sampling = cJSON_AddObjectToObject(payload, "sampling");
+#if CONFIG_B1_TAIS_JALC
+    cJSON_AddStringToObject(sampling, "sensing_policy", "tais-jalc");
+    cJSON_AddStringToObject(sampling, "tais_mode", s->mode);
+#endif
     cJSON_AddNumberToObject(sampling, "next_interval_ms", s->next_interval_ms);
     if (isfinite(s->score)) cJSON_AddNumberToObject(sampling, "score", s->score);
     else cJSON_AddNullToObject(sampling, "score");
@@ -73,7 +77,8 @@ bool b1_transmit_sample(const b1_transport_t *transport, const b1_sample_t *s)
     cJSON_AddBoolToObject(sampling, "control_relevant_change", s->control_relevant_change);
     static const char *const reason_names[] = {"FIRST_SAMPLE", "EVENT_ONSET", "EVENT_RECOVERY",
         "STATE_CHANGE", "INTERVAL_CHANGE", "PERIODIC_HEARTBEAT", "MEANINGFUL_DELTA",
-        "HEALTH_CHANGE", "SENSOR_FAULT", "SENSOR_RECOVERY", "CONTROL_THRESHOLD_CROSSING", "CONTROL_MARGIN_ENTRY"};
+        "HEALTH_CHANGE", "SENSOR_FAULT", "SENSOR_RECOVERY", "CONTROL_THRESHOLD_CROSSING", "CONTROL_MARGIN_ENTRY",
+        "AOI_CAP", "VALIDITY_CHANGE"};
     cJSON *reasons = cJSON_CreateArray();
     for (unsigned i = 0; i < sizeof(reason_names)/sizeof(reason_names[0]); i++)
         if (s->upload_reasons & (1u << i)) cJSON_AddItemToArray(reasons, cJSON_CreateString(reason_names[i]));

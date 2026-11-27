@@ -2,6 +2,16 @@
 
 ESP32-S3 / ESP-IDF 5.4.4. This firmware reads a real SHT30 at I²C address `0x44`, probes the bus on boot, runs one independent SensorTrust C11 context per channel, and applies the adapted AdaptiveSense C detector and scheduler with shared JSON profile parameters. Temperature and humidity are the only fields sent. No synthetic readings or soil values are generated.
 
+## TAIS-JALC sampling
+
+Enable `CONFIG_B1_TAIS_JALC` for continuous or light-sleep sampling. B1 uses the same vendored C11 controller as the host B node. A matching durable gateway receipt advances the original temperature/humidity snapshot. Receipt timeouts contribute to the controller’s effective link-feedback estimate. The existing outbox owns retry timing. The experimental deep-sleep snapshot currently covers AdaptiveSense only.
+
+Use the public E220 build profile from an ESP-IDF v5.4.4 shell at the repository root. Supply a fresh absolute output directory.
+
+```sh
+bash scripts/ci_build_b1.sh tais-jalc /tmp/b1-tais-build
+```
+
 ## Configure and build
 
 Use `idf.py menuconfig` → **Physical B1 configuration** to set Wi-Fi credentials and the PC's LAN host/port for A1 and A2. The generated `sdkconfig` is ignored by Git. The defaults contain no credentials or private LAN address. The gateways must listen on a LAN interface, for example `python3 -m gateway.gateway --id A1 --host 0.0.0.0`; the server and peer can stay on localhost. Keep the host firewall configured for ports 9201 and 9202.

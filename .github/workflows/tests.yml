@@ -76,7 +76,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        profile: [lab, light-sleep, lora-prototype, deep-sleep-experimental]
+        profile: [lab, light-sleep, lora-prototype, deep-sleep-experimental, tais-jalc]
     steps:
       - uses: actions/checkout@v4
       - name: Build ESP32-S3 using public defaults only

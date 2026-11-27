@@ -203,6 +203,8 @@ Optional software checks (the complete suite also needs a C11 compiler):
 python -m pytest tests/ -q
 ```
 
+For the TAIS-JALC sensing policy, run `python /path/to/demo.py --sensing-policy tais-jalc --sample-interval 1 --duration 20` in a fresh demo directory. The host needs a C11 compiler. The one-second nominal interval accelerates the simulation. Samples advance their delivery baseline on gateway commit receipts.
+
 ## Related Research Projects
 
 These projects are maintained independently. Their device measurements and research results are separate from this repository's system evidence.

@@ -73,16 +73,32 @@ class Demo:
             for gateway_id in ("A1", "A2")
         }
 
+        def sensing_options(node_id: str) -> dict:
+            if args.sensing_policy == "tais-jalc":
+                return {
+                    "sensing_policy": "tais-jalc",
+                    "slow_interval": args.sample_interval,
+                    "fast_interval": args.sample_interval,
+                    "delivery_mode": "gateway-durable",
+                    "state_path": f"{self.db_path}.{node_id}.db",
+                }
+            return {
+                "slow_interval": args.sample_interval or 5.0,
+                "fast_interval": args.sample_interval or 2.0,
+            }
+
         inject_fault = None if args.scenario == "failover" else 4
         self.sensors = {
             "B1": SensorNode(
-                "B1", slow_interval=5.0, fast_interval=2.0,
+                "B1",
+                **sensing_options("B1"),
                 simulator=SensorSimulator(
                     "B1", seed=11, start={"soil_moisture": 21.5}, inject_fault_at=inject_fault
                 ),
             ),
             "B2": SensorNode(
-                "B2", slow_interval=5.0, fast_interval=2.0,
+                "B2",
+                **sensing_options("B2"),
                 simulator=SensorSimulator(
                     "B2", seed=22, start={"temperature": 33.5, "soil_moisture": 41.0}
                 ),
@@ -299,6 +315,12 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Smart Agriculture Edge AI - v0.2 demo")
     parser.add_argument("--duration", type=float, default=30.0, help="how long to let the system run")
     parser.add_argument("--db", default="demo.db", help="sqlite file used by the demo")
+    parser.add_argument(
+        "--sensing-policy", choices=("adaptive-sense", "tais-jalc"), default="adaptive-sense",
+        help="sampling and reporting policy for B1/B2 (TAIS uses gateway delivery receipts)",
+    )
+    parser.add_argument("--sample-interval", type=float,
+                        help="host simulation interval in seconds (TAIS scales its nominal 30-second clock)")
     parser.add_argument("--policy-interval", type=float, default=config.SERVER_POLICY_INTERVAL)
 
     parser.add_argument(

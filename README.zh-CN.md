@@ -197,6 +197,8 @@ python demo.py --duration 30
 
 各角色通过本地 TCP socket 通信。Demo 记录感知、网关决策、模拟控制器执行和云端历史，不操作真实执行器。
 
+七角色主机演示也可以用 TAIS-JALC 选择采样间隔和普通上报时机。该模式使用 C11 编译器，并以网关持久接收回执更新节点状态。在独立的演示目录运行 `python /path/to/demo.py --sensing-policy tais-jalc --sample-interval 1 --duration 20` 可加速观察。
+
 可选的软件检查（完整测试还需 C11 编译器）：
 
 ```bash

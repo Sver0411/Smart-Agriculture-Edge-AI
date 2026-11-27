@@ -33,7 +33,7 @@ from common.messages import (  # noqa: E402
 )
 from common.reliability import Counters  # noqa: E402
 from sensor_node.fault_notifier import FaultNotifier
-from sensor_node.adaptive_sense import AdaptiveSense  # noqa: E402
+from sensor_node.tais_policy import make_sensing_policy
 from sensor_node.sensor_trust import FAULT, HEALTHY, SensorTrust  # noqa: E402
 
 # name -> (default start value, random walk step, hard clamp)
@@ -95,6 +95,7 @@ class SensorNode:
         profile: str = "simulation",
         delivery_mode: str = "legacy-write",
         state_path: str | None = None,
+        sensing_policy: str = "adaptive-sense",
     ):
         if node_id not in config.GATEWAY_OF_SENSOR:
             raise ValueError(f"unknown sensor node id: {node_id!r}")
@@ -125,7 +126,7 @@ class SensorNode:
         settings = node_settings(profile)
         self.trust = SensorTrust(settings["trust_channels"])
         self.fault_notifier = FaultNotifier(settings["fault_reminder_s"])
-        self.scheduler = AdaptiveSense(settings=settings, slow=slow_interval, fast=fast_interval)
+        self.scheduler = make_sensing_policy(sensing_policy, settings, delivery_mode, slow_interval, fast_interval)
         self.history: list[dict] = []
         self._stopping = False
         if delivery_mode not in ('legacy-write', 'gateway-durable'):
@@ -292,6 +293,9 @@ class SensorNode:
 
     async def _sample_loop(self, reader, writer) -> None:
         while not self._stopping:
+            delay = getattr(self.scheduler, "next_due", 0) - time.monotonic()
+            if delay > 0:
+                await asyncio.sleep(delay)
             reading = self.simulator.sample()
             self.sample_sequence += 1
             if not isinstance(reading,dict):reading = {}
@@ -304,15 +308,15 @@ class SensorNode:
                 f"(temp={reading.get('temperature')}C, hum={reading.get('humidity')}%, light={reading.get('light')})",
             )
 
-            trust = self.trust.update(reading, timestamp=time.monotonic())
-            schedule = self.scheduler.update(reading, trust, time.monotonic())
+            acquired_at = time.monotonic()
+            trust = self.trust.update(reading, timestamp=acquired_at)
+            schedule = self.scheduler.update(reading, trust, acquired_at)
             state = trust["state"]
             self.metrics.inc("sensor_samples")
             self.metrics.inc({"HEALTHY":"trusted_samples", "DEGRADED":"degraded_samples", "FAULT":"fault_samples"}[state])
             from sensor_node.telemetry import sensor_payload
             payload = sensor_payload(reading, trust, schedule, self.boot_id, self.sample_sequence)
             if schedule["upload_requested"]:
-                acquired_at = time.monotonic()
                 message = Message(type=SENSOR_DATA, source=self.node_id,
                     target=self.owner_gateway or self.gateway_id, payload=payload,
                     sequence=self.sample_sequence, generation=self.generation, protocol_version=1)
@@ -345,7 +349,7 @@ class SensorNode:
 
     async def _report_retry_loop(self, writer):
         while True:
-            for message in self.report_window.due(time.monotonic(), self.owner_gateway or self.gateway_id):
+            for message in self.report_window.due(time.monotonic(), self.owner_gateway or self.gateway_id, self.scheduler):
                 await send_message(writer, message)
                 self.metrics.inc('sensor_messages')
             await asyncio.sleep(0.1) # RAM deadline check; does not wake a physical radio
@@ -376,6 +380,7 @@ def parse_args(argv=None) -> argparse.Namespace:
         metavar="N",
         help="emit one out-of-range reading at sample N (demonstrates SensorTrust)",
     )
+    parser.add_argument("--sensing-policy", choices=("adaptive-sense", "tais-jalc"), default="adaptive-sense")
     parser.add_argument("--delivery-mode", choices=("legacy-write","gateway-durable"), default="legacy-write")
     parser.add_argument("--state-db", default=None)
     return parser.parse_args(argv)
@@ -384,7 +389,7 @@ def parse_args(argv=None) -> argparse.Namespace:
 async def _run(args: argparse.Namespace) -> None:
     node = SensorNode(
         node_id=args.id,
-        profile=args.profile,
+        profile=args.profile, sensing_policy=args.sensing_policy,
         delivery_mode=args.delivery_mode, state_path=args.state_db,
         slow_interval=args.sample_interval, fast_interval=args.sample_interval,
         gateway_host=args.host,

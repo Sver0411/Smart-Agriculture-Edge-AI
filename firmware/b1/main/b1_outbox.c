@@ -105,6 +105,7 @@ void b1_outbox_tick(b1_outbox_t *q, uint64_t now)
     for (unsigned i = 0; i < B1_OUTBOX_CAPACITY; i++) {
         b1_entry_t *e = &q->entries[i];
         if (!e->active || e->state != B1_IN_FLIGHT || now < e->due_ms) continue;
+        q->durable_ack_miss_ema = 0.8 * q->durable_ack_miss_ema + 0.2;
         uint64_t timed_out=e->due_ms;
         if (e->probing || e->attempts >= B1_MAX_ATTEMPTS) {
             if (e->probing) e->probe_delay_ms=b1_probe_delay(e->probe_delay_ms);
@@ -167,6 +168,7 @@ bool b1_outbox_ack(b1_outbox_t *q, const char *id)
         if (e->record.high && (!q->store || !q->store(q->store_context, i, NULL))) {
             q->storage_failures++; return false; /* deletion uncertain: retain and resend */
         }
+        q->durable_ack_miss_ema *= 0.8;
         e->active=false; q->acknowledged++;
         if (!b1_outbox_count(q)) q->window_open=false;
         return true;
