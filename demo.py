@@ -68,15 +68,7 @@ class Demo:
         self.server = Server(db_path=self.db_path, policy_interval=args.policy_interval)
         self.servers.append(self.server)
 
-        self.gateways = {
-            gateway_id: Gateway(
-                gateway_id,
-                queue_path=config.gateway_queue_path(gateway_id),
-                drop_command_rate=args.drop_command_rate,
-                duplicate_command=args.duplicate_command,
-            )
-            for gateway_id in ("A1", "A2")
-        }
+        self.gateways = {node_id: self._new_gateway(node_id) for node_id in ("A1", "A2")}
 
         def sensing_options(node_id: str) -> dict:
             if args.sensing_policy == "tais-jalc":
@@ -116,6 +108,15 @@ class Demo:
         # last command the doomed gateway put on the wire - replayed later to
         # prove that a deposed gateway can no longer move an actuator
         self.stale_command: Message | None = None
+
+    def _new_gateway(self, gateway_id: str) -> Gateway:
+        port = self.args.backhaul_a1_port if gateway_id == "A1" else self.args.backhaul_a2_port
+        return Gateway(
+            gateway_id, server_port=port,
+            queue_path=config.gateway_queue_path(gateway_id),
+            drop_command_rate=self.args.drop_command_rate,
+            duplicate_command=self.args.duplicate_command,
+        )
 
     # -- lifecycle ---------------------------------------------------------
 
@@ -201,12 +202,7 @@ class Demo:
     def _revive(self, gateway_id: str):
         async def revive() -> None:
             node_log("DEMO", f"=== {gateway_id} recovering ===")
-            gateway = Gateway(
-                gateway_id,
-                queue_path=config.gateway_queue_path(gateway_id),
-                drop_command_rate=self.args.drop_command_rate,
-                duplicate_command=self.args.duplicate_command,
-            )
+            gateway = self._new_gateway(gateway_id)
             self.gateways[gateway_id] = gateway
             await gateway.start()
 
@@ -340,6 +336,10 @@ def parse_args(argv=None) -> argparse.Namespace:
     )
     parser.add_argument("--sample-interval", type=float,
                         help="host simulation interval in seconds (TAIS scales its nominal 30-second clock)")
+    parser.add_argument("--backhaul-a1-port", type=int, default=config.SERVER_PORT,
+                        help="A1 cloud ingress TCP port (local MPQUIC gateway bridge when enabled)")
+    parser.add_argument("--backhaul-a2-port", type=int, default=config.SERVER_PORT,
+                        help="A2 cloud ingress TCP port")
     parser.add_argument("--policy-interval", type=float, default=config.SERVER_POLICY_INTERVAL)
 
     parser.add_argument(
