@@ -205,6 +205,8 @@ python -m pytest tests/ -q
 
 For the TAIS-JALC sensing policy, run `python /path/to/demo.py --sensing-policy tais-jalc --sample-interval 1 --duration 20` in a fresh demo directory. The host needs a C11 compiler. The one-second nominal interval accelerates the simulation. Samples advance their delivery baseline on gateway commit receipts.
 
+Add `--field-scheduler fud_ada` to let NetAdapt schedule the application flows sharing the simulated field radio. Use `--field-scheduler fifo` for the same framing and capacity with FIFO service.
+
 ## Related Research Projects
 
 These projects are maintained independently. Their device measurements and research results are separate from this repository's system evidence.

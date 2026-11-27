@@ -26,7 +26,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 from common import config  # noqa: E402
 from common.log import node_log  # noqa: E402
-from common.messages import CONTROL_COMMAND, Message  # noqa: E402
+from common.messages import CONTROL_COMMAND, Message, transport_interceptor  # noqa: E402
 from controller_node.controller_node import ControllerNode  # noqa: E402
 from gateway.gateway import Gateway  # noqa: E402
 from sensor_node.sensor_node import SensorNode, SensorSimulator  # noqa: E402
@@ -59,6 +59,11 @@ class Demo:
     def __init__(self, args: argparse.Namespace):
         self.args = args
         self.db_path = args.db
+        self.field_transport = None
+        self._field_token = None
+        if args.field_scheduler != "direct":
+            from common.lora.scheduled_transport import ScheduledLoRa
+            self.field_transport = ScheduledLoRa(policy=args.field_scheduler, seed=42)
         self.servers: list[Server] = []
         self.server = Server(db_path=self.db_path, policy_interval=args.policy_interval)
         self.servers.append(self.server)
@@ -115,6 +120,8 @@ class Demo:
     # -- lifecycle ---------------------------------------------------------
 
     async def start(self) -> None:
+        if self.field_transport is not None:
+            self._field_token = transport_interceptor.set(self.field_transport)
         await self.server.start()
         for gateway in self.gateways.values():
             await gateway.start()
@@ -133,8 +140,14 @@ class Demo:
         await asyncio.sleep(0.2)
         for gateway in self.gateways.values():
             await gateway.stop()
-        for server in self.servers:
-            await server.stop()
+        try:
+            for server in self.servers:
+                await server.stop()
+        finally:
+            if self._field_token is not None:
+                transport_interceptor.reset(self._field_token)
+                self._field_token = None
+                await self.field_transport.close()
 
     # -- fault injection ---------------------------------------------------
 
@@ -259,6 +272,8 @@ class Demo:
 
     def report(self) -> None:
         metrics = self.metrics()
+        if self.field_transport is not None:
+            metrics.update(self.field_transport.metrics)
         print()
         print("=" * 62)
         print(" demo summary - metrics")
@@ -318,6 +333,10 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument(
         "--sensing-policy", choices=("adaptive-sense", "tais-jalc"), default="adaptive-sense",
         help="sampling and reporting policy for B1/B2 (TAIS uses gateway delivery receipts)",
+    )
+    parser.add_argument(
+        "--field-scheduler", choices=("direct", "fifo", "fud_ada"), default="direct",
+        help="use a shared simulated field radio with FIFO or NetAdapt FUD-Ada scheduling",
     )
     parser.add_argument("--sample-interval", type=float,
                         help="host simulation interval in seconds (TAIS scales its nominal 30-second clock)")
@@ -379,8 +398,8 @@ def clean_previous_run(db_path: str) -> None:
 
 
 async def _main(demo: Demo) -> None:
-    await demo.start()
     try:
+        await demo.start()
         await demo.run()
     finally:
         await demo.stop()

@@ -199,6 +199,8 @@ python demo.py --duration 30
 
 七角色主机演示也可以用 TAIS-JALC 选择采样间隔和普通上报时机。该模式使用 C11 编译器，并以网关持久接收回执更新节点状态。在独立的演示目录运行 `python /path/to/demo.py --sensing-policy tais-jalc --sample-interval 1 --duration 20` 可加速观察。
 
+加上 `--field-scheduler fud_ada`，各节点的真实应用消息会竞争同一个主机模拟无线出口，由 NetAdapt 选择下一条发送流。使用 `--field-scheduler fifo` 可在相同分帧和容量设置下作对照。
+
 可选的软件检查（完整测试还需 C11 编译器）：
 
 ```bash
